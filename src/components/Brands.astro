@@ -28,12 +28,10 @@ const brands = [
       ))}
     </div>
   </div>
-  <div class="brands-dots" id="brands-dots"></div>
 </section>
 
 <script>
   const track = document.getElementById('brands-track') as HTMLElement;
-  const dotsContainer = document.getElementById('brands-dots') as HTMLElement;
   if (!track) throw new Error('brands-track not found');
 
   let isDown = false;
@@ -79,28 +77,6 @@ const brands = [
     track.scrollLeft = touchScrollLeft - walk;
   }, { passive: true });
 
-  const items = track.querySelectorAll('.brand-item');
-  const itemWidth = 180;
-  const visibleCount = Math.floor(track.clientWidth / itemWidth) || 5;
-  const totalPages = Math.max(1, Math.ceil(items.length / visibleCount));
-
-  for (let i = 0; i < totalPages; i++) {
-    const dot = document.createElement('button');
-    dot.classList.add('brands-dot');
-    if (i === 0) dot.classList.add('active');
-    dot.setAttribute('aria-label', `Página ${i + 1}`);
-    dot.addEventListener('click', () => {
-      track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
-    });
-    dotsContainer.appendChild(dot);
-  }
-
-  track.addEventListener('scroll', () => {
-    const page = Math.round(track.scrollLeft / track.clientWidth);
-    dotsContainer.querySelectorAll('.brands-dot').forEach((d, i) => {
-      d.classList.toggle('active', i === page);
-    });
-  });
 </script>
 
 <style>
@@ -156,28 +132,6 @@ const brands = [
 
   .brand-item:hover img {
     transform: scale(1.05);
-  }
-
-  .brands-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
-
-  .brands-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: none;
-    background: #ccc;
-    cursor: pointer;
-    padding: 0;
-    transition: background 0.2s;
-  }
-
-  .brands-dot.active {
-    background: var(--color-primary);
   }
 
   @media (max-width: 768px) {

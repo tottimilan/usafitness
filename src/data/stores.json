@@ -155,8 +155,8 @@
       "phone": "+34919360967",
       "phoneDisplay": "919 360 967",
       "whatsapp": "+34919360967",
-      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3033.5!2d-3.6420!3d40.5330!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd422c4b8b8b8b8b%3A0x1234567890abcdef!2sUSA%20Fitness%20Alcobendas!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses",
-      "googleMapsLink": "https://www.google.com/maps/search/USA+Fitness+Alcobendas+CC+Carrefour",
+      "googleMapsEmbed": "https://www.google.com/maps?q=USA+FITNESS+ALCOBENDAS,+Carr.+de+Madrid+a+Burgos,+A1,+28108+Alcobendas,+Madrid&output=embed",
+      "googleMapsLink": "https://www.google.com/maps/search/USA+FITNESS+ALCOBENDAS,+Carr.+de+Madrid+a+Burgos,+A1,+28108+Alcobendas,+Madrid",
       "schedule": "De lunes a sábado: 10:00 a 22:00\nDomingos: 11:00 a 21:00",
       "heroImage": "/photos/alcobendas/hero.jpg",
       "reviews": [
