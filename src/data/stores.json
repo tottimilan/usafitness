@@ -140,6 +140,53 @@
         "/photos/lasrosas/tienda-5.jpg",
         "/photos/lasrosas/tienda-6.jpg"
       ]
+    },
+    {
+      "slug": "alcobendas",
+      "name": "USAFITNESS ALCOBENDAS",
+      "domain": "usafitnessalcobendas.com",
+      "streetAddress": "C.C. Carrefour Alcobendas, Carr. de Madrid a Burgos, A1",
+      "postalCode": "28108",
+      "geo": { "lat": 40.5330, "lng": -3.6420 },
+      "title": "Tu tienda de suplementación en Alcobendas",
+      "subtitle": "Encuéntranos en Alcobendas, Madrid",
+      "location": "Alcobendas, Madrid",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en C.C. Carrefour Alcobendas, Madrid. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "phone": "+34919360967",
+      "phoneDisplay": "919 360 967",
+      "whatsapp": "+34919360967",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3033.5!2d-3.6420!3d40.5330!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd422c4b8b8b8b8b%3A0x1234567890abcdef!2sUSA%20Fitness%20Alcobendas!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses",
+      "googleMapsLink": "https://www.google.com/maps/search/USA+Fitness+Alcobendas+CC+Carrefour",
+      "schedule": "De lunes a sábado: 10:00 a 22:00\nDomingos: 11:00 a 21:00",
+      "heroImage": "/photos/alcobendas/hero.jpg",
+      "reviews": [
+        {
+          "text": "La atención de Juan ha sido excelente. Vine a comprar unos suplementos y, en lugar de darme recomendaciones genéricas, se tomó el tiempo de entender mis objetivos y mi perfil para aconsejarme lo que mejor se adapta a mí. Se nota que es un bodybuilder con experiencia y conocimiento real del tema. Muy contento con la atención y con mi compra. ¡Lo recomiendo totalmente!",
+          "author": "Fernando T",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Gracias a Juan por el tiempo y dedicación con la que me ha atendido. Hoy he empezado su recomendación y volveré a visitar la tienda para contarle mi experiencia.",
+          "author": "Begoña Bees",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Muy top el asesoramiento del chico, me ha recomendado justo lo que necesito según mis objetivos. En mi caso, entreno calistenia y la suplementación que me sugirió me va a venir genial.",
+          "author": "Manuel Ramos",
+          "avatar": "",
+          "stars": 5
+        }
+      ],
+      "galleryImages": [
+        "/photos/alcobendas/tienda-1.jpg",
+        "/photos/alcobendas/tienda-2.jpg",
+        "/photos/alcobendas/tienda-3.jpg",
+        "/photos/alcobendas/tienda-4.jpg",
+        "/photos/alcobendas/tienda-5.jpg",
+        "/photos/alcobendas/tienda-6.jpg"
+      ]
     }
   ]
 }
