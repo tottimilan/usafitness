@@ -1,0 +1,194 @@
+---
+const brands = [
+  { name: 'Quamtrax', file: 'quamtrax.png' },
+  { name: 'Applied Nutrition', file: 'applied.png' },
+  { name: 'Zoomad Labs', file: 'zoomad.png' },
+  { name: 'Cellucor', file: 'cellucor.jpg' },
+  { name: 'MuscleTech', file: 'muscletech.png' },
+  { name: 'Optimum Nutrition', file: 'optimum.png' },
+  { name: 'Amix', file: 'amix.png' },
+  { name: 'Nutrex', file: 'nutrex.png' },
+];
+---
+
+<section class="brands section" aria-label="Logos marcas principales">
+  <div class="brands-viewport">
+    <div class="brands-track" id="brands-track">
+      {brands.map((brand) => (
+        <div class="brand-item">
+          <img
+            src={`/brands/${brand.file}`}
+            alt={`Logo ${brand.name}`}
+            loading="lazy"
+            draggable="false"
+            width="180"
+            height="65"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="brands-dots" id="brands-dots"></div>
+</section>
+
+<script>
+  const track = document.getElementById('brands-track') as HTMLElement;
+  const dotsContainer = document.getElementById('brands-dots') as HTMLElement;
+  if (!track) throw new Error('brands-track not found');
+
+  let isDown = false;
+  let startX = 0;
+  let scrollLeft = 0;
+
+  track.addEventListener('mousedown', (e) => {
+    isDown = true;
+    track.classList.add('dragging');
+    startX = e.pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+  });
+
+  track.addEventListener('mouseleave', () => {
+    isDown = false;
+    track.classList.remove('dragging');
+  });
+
+  track.addEventListener('mouseup', () => {
+    isDown = false;
+    track.classList.remove('dragging');
+  });
+
+  track.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - track.offsetLeft;
+    const walk = (x - startX) * 2;
+    track.scrollLeft = scrollLeft - walk;
+  });
+
+  let touchStartX = 0;
+  let touchScrollLeft = 0;
+
+  track.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].pageX;
+    touchScrollLeft = track.scrollLeft;
+  }, { passive: true });
+
+  track.addEventListener('touchmove', (e) => {
+    const x = e.touches[0].pageX;
+    const walk = (x - touchStartX) * 1.5;
+    track.scrollLeft = touchScrollLeft - walk;
+  }, { passive: true });
+
+  const items = track.querySelectorAll('.brand-item');
+  const itemWidth = 180;
+  const visibleCount = Math.floor(track.clientWidth / itemWidth) || 5;
+  const totalPages = Math.max(1, Math.ceil(items.length / visibleCount));
+
+  for (let i = 0; i < totalPages; i++) {
+    const dot = document.createElement('button');
+    dot.classList.add('brands-dot');
+    if (i === 0) dot.classList.add('active');
+    dot.setAttribute('aria-label', `Página ${i + 1}`);
+    dot.addEventListener('click', () => {
+      track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+    });
+    dotsContainer.appendChild(dot);
+  }
+
+  track.addEventListener('scroll', () => {
+    const page = Math.round(track.scrollLeft / track.clientWidth);
+    dotsContainer.querySelectorAll('.brands-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === page);
+    });
+  });
+</script>
+
+<style>
+  .brands {
+    padding: 2.5rem 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    overflow: hidden;
+  }
+
+  .brands-viewport {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .brands-track {
+    display: flex;
+    gap: 3rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0.5rem 2rem;
+    cursor: grab;
+  }
+
+  .brands-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .brands-track.dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+  }
+
+  .brand-item {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-item img {
+    height: 65px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    transition: opacity 0.2s, transform 0.2s;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .brand-item:hover img {
+    transform: scale(1.05);
+  }
+
+  .brands-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .brands-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: #ccc;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s;
+  }
+
+  .brands-dot.active {
+    background: var(--color-primary);
+  }
+
+  @media (max-width: 768px) {
+    .brands-track {
+      gap: 2rem;
+      padding: 0.5rem 1rem;
+    }
+
+    .brand-item img {
+      height: 50px;
+      max-width: 140px;
+    }
+  }
+</style>

@@ -1,0 +1,97 @@
+---
+interface Props {
+  name: string;
+  title: string;
+  googleMapsLink: string;
+  heroImage?: string;
+}
+const { name, title, googleMapsLink, heroImage = '/hero-bg.jpg' } = Astro.props;
+---
+
+<section class="hero" id="inicio">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-label">{name}</p>
+    <h1 class="hero-title">{title}</h1>
+    <p class="hero-text">Ofrecemos asesoramiento personalizado y la mejor nutrición deportiva al mejor precio. Nuestros productos están seleccionados para ayudarte a alcanzar tus objetivos de fitness y bienestar.</p>
+    <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="btn btn-primary hero-cta">
+      ¿Dónde Estamos?
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.78);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 750px;
+    padding: 3rem 1.5rem;
+  }
+
+  .hero-label {
+    color: var(--color-primary-light);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-bottom: 1.25rem;
+    line-height: 1.15;
+  }
+
+  .hero-text {
+    font-size: 1.05rem;
+    color: var(--color-text);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    font-style: italic;
+    line-height: 1.7;
+  }
+
+  .hero-cta {
+    font-size: 1.05rem;
+    padding: 1rem 2.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      min-height: 420px;
+    }
+
+    .hero-content {
+      padding: 2rem 1rem;
+    }
+  }
+</style>

@@ -1,0 +1,145 @@
+{
+  "stores": [
+    {
+      "slug": "villanueva",
+      "name": "USAFITNESS VILLANUEVA",
+      "domain": "usafitnessvillanueva.com",
+      "streetAddress": "C.C. El Zoco, Villanueva de la Cañada",
+      "postalCode": "28691",
+      "geo": { "lat": 40.4483, "lng": -3.9942 },
+      "title": "Tu tienda de suplementación en el noroeste de Madrid",
+      "subtitle": "Encuéntranos en el noroeste de Madrid",
+      "location": "el noroeste de Madrid",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en Villanueva de la Cañada, Madrid. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "phone": "+34913916557",
+      "phoneDisplay": "913 916 557",
+      "whatsapp": "+34913916557",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3036.5!2d-3.9942!3d40.4483!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd419931c2a65351%3A0x108c44f5bc5aaa28!2sUSA%20Fitness%20-%20Villanueva%20de%20la%20Ca%C3%B1ada!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses",
+      "googleMapsLink": "https://www.google.com/maps/place//data=!4m2!3m1!1s0xd419931c2a65351:0x108c44f5bc5aaa28",
+      "schedule": "De lunes a viernes: 10:00 a 21:30\nSábados: 10:00–21:00",
+      "heroImage": "/photos/villanueva/hero.jpg",
+      "reviews": [
+        {
+          "text": "Muy buena atención y muy buen asesoramiento. Sea cual sea tu duda Alicia y Adrián te la resuelven enseguida, te ayudan en todo lo que necesites. Suelo comprar a menudo, tienen mucha variedad de marcas y productos.",
+          "author": "Nieves Rodriguez",
+          "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjUkLRs6j6S6OayclpZZFiC-YQJ3-MPnpjR-8Rp3H9nitZg2oxD-=w54-h54-p-rp-mo-br100",
+          "stars": 5
+        },
+        {
+          "text": "La atención por parte del chico que te asesora y de la chica que te cobra, es inmejorable… que sigan así, los felicito.",
+          "author": "Dario Rodríguez",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Muy amables y te explican todo muy bien y además te aconsejan según tus necesidades. Recomiendo totalmente!!",
+          "author": "Andrea García",
+          "avatar": "",
+          "stars": 5
+        }
+      ],
+      "galleryImages": [
+        "/photos/villanueva/tienda-1.jpg",
+        "/photos/villanueva/tienda-2.jpg",
+        "/photos/villanueva/tienda-3.jpg",
+        "/photos/villanueva/tienda-4.jpg",
+        "/photos/villanueva/tienda-5.jpg",
+        "/photos/villanueva/tienda-6.jpg"
+      ]
+    },
+    {
+      "slug": "marineda",
+      "name": "USAFITNESS C.C MARINEDA CITY",
+      "domain": "usafitnessmarineda.com",
+      "streetAddress": "C.C. Marineda City, A Coruña",
+      "postalCode": "15008",
+      "geo": { "lat": 43.3292, "lng": -8.4184 },
+      "title": "Tu tienda de suplementación en A Coruña",
+      "subtitle": "Encuéntranos en el corazón de A Coruña",
+      "location": "A Coruña",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en C.C. Marineda City, A Coruña. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "phone": "+34881169567",
+      "phoneDisplay": "881 169 567",
+      "whatsapp": "+34881169567",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2890.5!2d-8.4184!3d43.3292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd2e7c84f6e1b9b1%3A0x5e5a3f8c1a2d4e6f!2sUSA%20Fitness%20Marineda!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses",
+      "googleMapsLink": "https://www.google.com/maps/place/USA+Fitness+Marineda/",
+      "schedule": "De lunes a sábado: 10:00 a 22:00",
+      "heroImage": "/photos/marineda/hero.jpg",
+      "reviews": [
+        {
+          "text": "Vengo a esta tienda siempre que necesito algo, debido a su gran variedad en todos los productos, y la calidad que tienen. Y sobretodo estoy encantada con Carla, la dependienta que está los domingos. Da una atención increíble, super amable y con una atención al público estupenda.",
+          "author": "Hiba de la Iglesia Moreno",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Me encanta esta tienda su variedad de productos y el trato del personal es de 10. Casi siempre coincido con Sharol que me asesora y me ayuda en mis inquietudes. Super recomendado en variedad de productos, trato y asesoramiento.",
+          "author": "Amaya Guerra",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Muy amables y te explican todo muy bien y además te aconsejan según tus necesidades. Recomiendo totalmente!!",
+          "author": "Andrea García",
+          "avatar": "",
+          "stars": 5
+        }
+      ],
+      "galleryImages": [
+        "/photos/marineda/tienda-1.jpg",
+        "/photos/marineda/tienda-2.jpg",
+        "/photos/marineda/tienda-3.jpg",
+        "/photos/marineda/tienda-4.jpg",
+        "/photos/marineda/tienda-5.jpg",
+        "/photos/marineda/tienda-6.jpg"
+      ]
+    },
+    {
+      "slug": "lasrosas",
+      "name": "USAFITNESS LAS ROSAS",
+      "domain": "usafitnesslasrosas.com",
+      "streetAddress": "C.C. Las Rosas, Madrid",
+      "postalCode": "28051",
+      "geo": { "lat": 40.4182, "lng": -3.6209 },
+      "title": "Tu tienda de suplementación en Madrid",
+      "subtitle": "Encuéntranos en el corazón de Madrid",
+      "location": "Madrid",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en Las Rosas, Madrid. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "phone": "+34911464826",
+      "phoneDisplay": "911 464 826",
+      "whatsapp": "+34911464826",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3036.5!2d-3.620895!3d40.4182!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd422f3be15fb3e7%3A0x43f0a42a5e5d3e0d!2sUSA%20Fitness%20Las%20Rosas!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses",
+      "googleMapsLink": "https://maps.google.com/maps?ll=40.4182,-3.620895&z=14&t=m&hl=es-ES&gl=US&mapclient=embed&cid=4897929501669774605",
+      "schedule": "De lunes a domingo: 10:00 a 22:00",
+      "heroImage": "/photos/lasrosas/hero.jpg",
+      "reviews": [
+        {
+          "text": "Vengo a esta tienda siempre que necesito algo, debido a su gran variedad en todos los productos, y la calidad que tienen. Y sobretodo estoy encantada con Carla, la dependienta que está los domingos. Da una atención increíble, super amable y con una atención al público estupenda.",
+          "author": "Hiba de la Iglesia Moreno",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Me encanta esta tienda su variedad de productos y el trato del personal es de 10. Casi siempre coincido con Sharol que me asesora y me ayuda en mis inquietudes. Super recomendado en variedad de productos, trato y asesoramiento.",
+          "author": "Amaya Guerra",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Muy amables y te explican todo muy bien y además te aconsejan según tus necesidades. Recomiendo totalmente!!",
+          "author": "Andrea García",
+          "avatar": "",
+          "stars": 5
+        }
+      ],
+      "galleryImages": [
+        "/photos/lasrosas/tienda-1.jpg",
+        "/photos/lasrosas/tienda-2.jpg",
+        "/photos/lasrosas/tienda-3.jpg",
+        "/photos/lasrosas/tienda-4.jpg",
+        "/photos/lasrosas/tienda-5.jpg",
+        "/photos/lasrosas/tienda-6.jpg"
+      ]
+    }
+  ]
+}

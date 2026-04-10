@@ -1,0 +1,92 @@
+---
+interface Props {
+  subtitle: string;
+  googleMapsEmbed: string;
+  googleMapsLink: string;
+}
+const { subtitle, googleMapsEmbed, googleMapsLink } = Astro.props;
+---
+
+<section class="location section" id="ubicacion">
+  <div class="container location-grid">
+    <div class="location-text">
+      <h2 class="section-title location-title">Ubicación destacada</h2>
+      <p class="location-subtitle">{subtitle}</p>
+      <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="btn btn-primary location-btn">
+        Abrir en Google Maps
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </a>
+    </div>
+    <div class="location-map">
+      <iframe
+        src={googleMapsEmbed}
+        width="100%"
+        height="350"
+        style="border:0; border-radius: 12px;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Ubicación de la tienda en Google Maps"
+      ></iframe>
+    </div>
+  </div>
+</section>
+
+<style>
+  .location {
+    background: var(--color-bg);
+  }
+
+  .location-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .location-title {
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+
+  .location-subtitle {
+    color: var(--color-primary-light);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+  }
+
+  .location-map {
+    background: var(--color-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .location-map iframe {
+    width: 100%;
+    min-height: 300px;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .location-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .location-title {
+      text-align: center;
+    }
+
+    .location-text {
+      text-align: center;
+    }
+
+    .location-btn {
+      margin: 0 auto;
+    }
+  }
+</style>

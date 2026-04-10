@@ -1,0 +1,70 @@
+---
+export const prerender = true;
+
+import Landing from '@/layouts/Landing.astro';
+import Header from '@/components/Header.astro';
+import Hero from '@/components/Hero.astro';
+import Promotions from '@/components/Promotions.astro';
+import Location from '@/components/Location.astro';
+import Gallery from '@/components/Gallery.astro';
+import Reviews from '@/components/Reviews.astro';
+import Products from '@/components/Products.astro';
+import Brands from '@/components/Brands.astro';
+import Schedule from '@/components/Schedule.astro';
+import Footer from '@/components/Footer.astro';
+import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
+import storesData from '@/data/stores.json';
+
+export function getStaticPaths() {
+  return storesData.stores.map((store) => ({
+    params: { slug: store.slug },
+    props: { store },
+  }));
+}
+
+const { store } = Astro.props;
+---
+
+<Landing
+  name={store.name}
+  domain={store.domain}
+  title={store.title}
+  metaDescription={store.metaDescription}
+  location={store.location}
+  phone={store.phone}
+  phoneDisplay={store.phoneDisplay}
+  schedule={store.schedule}
+  slug={store.slug}
+  streetAddress={store.streetAddress}
+  postalCode={store.postalCode}
+  geo={store.geo}
+  reviewCount={store.reviews.length}
+  avgRating={Math.round((store.reviews.reduce((sum: number, r: any) => sum + r.stars, 0) / store.reviews.length) * 10) / 10}
+>
+  <Header phone={store.phone} />
+  <Hero
+    name={store.name}
+    title={store.title}
+    googleMapsLink={store.googleMapsLink}
+    heroImage={store.heroImage}
+  />
+  <Promotions phone={store.phone} />
+  <Location
+    subtitle={store.subtitle}
+    googleMapsEmbed={store.googleMapsEmbed}
+    googleMapsLink={store.googleMapsLink}
+  />
+  <Gallery images={store.galleryImages} name={store.name} />
+  <Reviews reviews={store.reviews} />
+  <Products />
+  <Brands />
+  <Schedule
+    schedule={store.schedule}
+    phone={store.phone}
+    phoneDisplay={store.phoneDisplay}
+    whatsapp={store.whatsapp}
+    googleMapsLink={store.googleMapsLink}
+  />
+  <Footer name={store.name} />
+  <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
+</Landing>

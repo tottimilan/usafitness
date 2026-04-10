@@ -1,0 +1,118 @@
+---
+const nutrition = [
+  'Proteínas',
+  'Creatinas',
+  'Carbohidratos',
+  'Aminoácidos',
+  'Pre entreno',
+  'Post entreno',
+  'y mucho más…'
+];
+
+const supplements = [
+  'Accesorios deportivos',
+  'Asesoramiento personalizado',
+  'Packs de suplementos',
+  'Las mejores ofertas',
+  'Suplementos para deportistas',
+  'Las mejores marcas de suplementación'
+];
+---
+
+<section class="products section">
+  <div class="container">
+    <h2 class="section-title">¿Qué encontrarás en la tienda?</h2>
+    <div class="products-grid">
+      <div class="product-card">
+        <h3 class="product-heading">Nutrición deportiva</h3>
+        <ul class="product-list">
+          {nutrition.map((item) => (
+            <li>
+              <span class="check-icon">✓</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="product-card">
+        <h3 class="product-heading">Tienda de suplementación</h3>
+        <ul class="product-list">
+          {supplements.map((item) => (
+            <li>
+              <span class="check-icon">✓</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .products {
+    background: var(--color-bg-alt);
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .product-card {
+    background: var(--color-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border-top: 3px solid var(--color-primary);
+    text-align: center;
+  }
+
+  .product-heading {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 1.25rem;
+  }
+
+  .product-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+  }
+
+  .product-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0;
+    font-size: 0.95rem;
+    color: var(--color-text);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  .product-list li:last-child {
+    border-bottom: none;
+  }
+
+  .check-icon {
+    color: var(--color-cta);
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    .products-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      padding: 1.5rem;
+    }
+  }
+</style>

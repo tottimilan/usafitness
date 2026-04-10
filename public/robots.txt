@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://usafitness.es/sitemap-index.xml

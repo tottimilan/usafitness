@@ -1,0 +1,186 @@
+---
+interface Review {
+  text: string;
+  author: string;
+  avatar: string;
+  stars: number;
+}
+
+interface Props {
+  reviews: Review[];
+}
+
+const { reviews } = Astro.props;
+---
+
+<section class="reviews section">
+  <div class="container">
+    <div class="reviews-tabs" role="tablist">
+      {reviews.map((_, i) => (
+        <button
+          role="tab"
+          class={`review-tab ${i === 0 ? 'active' : ''}`}
+          data-tab={i}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          aria-controls={`review-panel-${i}`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Reseña de Google
+        </button>
+      ))}
+    </div>
+
+    <div class="reviews-panels">
+      {reviews.map((review, i) => (
+        <div
+          id={`review-panel-${i}`}
+          role="tabpanel"
+          class={`review-panel ${i === 0 ? 'active' : ''}`}
+          data-panel={i}
+        >
+          <blockquote class="review-text">"{review.text}"</blockquote>
+          <div class="review-author">
+            {review.avatar ? (
+              <img src={review.avatar} alt={review.author} class="review-avatar-img" width="44" height="44" loading="lazy" referrerpolicy="no-referrer" />
+            ) : (
+              <div class="review-avatar">
+                {review.author.charAt(0)}
+              </div>
+            )}
+            <div>
+              <p class="review-name">{review.author}</p>
+              <p class="stars">{'★'.repeat(review.stars)}{'☆'.repeat(5 - review.stars)}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.review-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const index = (tab as HTMLElement).dataset.tab;
+      document.querySelectorAll('.review-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.review-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      document.querySelector(`[data-panel="${index}"]`)?.classList.add('active');
+    });
+  });
+</script>
+
+<style>
+  .reviews {
+    background: var(--color-bg);
+    padding-bottom: 2rem;
+  }
+
+  .reviews-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .review-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1.25rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    background: var(--color-bg);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-light);
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .review-tab.active {
+    background: var(--color-cta);
+    color: #fff;
+    border-color: var(--color-cta);
+  }
+
+  .review-tab:hover:not(.active) {
+    border-color: var(--color-cta);
+    color: var(--color-cta);
+  }
+
+  .review-panel {
+    display: none;
+    text-align: center;
+    max-width: 620px;
+    margin: 0 auto;
+    background: var(--color-bg-alt);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+
+  .review-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .review-text {
+    font-size: 1.02rem;
+    line-height: 1.7;
+    color: var(--color-text-light);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    border: none;
+    padding: 0;
+  }
+
+  .review-author {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .review-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .review-avatar-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .review-name {
+    font-weight: 700;
+    color: var(--color-primary);
+    font-size: 0.95rem;
+  }
+
+  .stars {
+    margin-top: 2px;
+  }
+</style>
