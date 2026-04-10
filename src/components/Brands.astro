@@ -13,7 +13,7 @@ const brands = [
 
 <section class="brands section" aria-label="Logos marcas principales">
   <div class="brands-viewport">
-    <div class="brands-track" id="brands-track">
+    <div class="brands-track">
       {brands.map((brand) => (
         <div class="brand-item">
           <img
@@ -26,58 +26,21 @@ const brands = [
           />
         </div>
       ))}
+      {brands.map((brand) => (
+        <div class="brand-item" aria-hidden="true">
+          <img
+            src={`/brands/${brand.file}`}
+            alt=""
+            loading="lazy"
+            draggable="false"
+            width="180"
+            height="65"
+          />
+        </div>
+      ))}
     </div>
   </div>
 </section>
-
-<script>
-  const track = document.getElementById('brands-track') as HTMLElement;
-  if (!track) throw new Error('brands-track not found');
-
-  let isDown = false;
-  let startX = 0;
-  let scrollLeft = 0;
-
-  track.addEventListener('mousedown', (e) => {
-    isDown = true;
-    track.classList.add('dragging');
-    startX = e.pageX - track.offsetLeft;
-    scrollLeft = track.scrollLeft;
-  });
-
-  track.addEventListener('mouseleave', () => {
-    isDown = false;
-    track.classList.remove('dragging');
-  });
-
-  track.addEventListener('mouseup', () => {
-    isDown = false;
-    track.classList.remove('dragging');
-  });
-
-  track.addEventListener('mousemove', (e) => {
-    if (!isDown) return;
-    e.preventDefault();
-    const x = e.pageX - track.offsetLeft;
-    const walk = (x - startX) * 2;
-    track.scrollLeft = scrollLeft - walk;
-  });
-
-  let touchStartX = 0;
-  let touchScrollLeft = 0;
-
-  track.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].pageX;
-    touchScrollLeft = track.scrollLeft;
-  }, { passive: true });
-
-  track.addEventListener('touchmove', (e) => {
-    const x = e.touches[0].pageX;
-    const walk = (x - touchStartX) * 1.5;
-    track.scrollLeft = touchScrollLeft - walk;
-  }, { passive: true });
-
-</script>
 
 <style>
   .brands {
@@ -90,31 +53,23 @@ const brands = [
   .brands-viewport {
     position: relative;
     overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
   }
 
   .brands-track {
     display: flex;
     gap: 3rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding: 0.5rem 2rem;
-    cursor: grab;
+    width: max-content;
+    animation: scroll-brands 30s linear infinite;
   }
 
-  .brands-track::-webkit-scrollbar {
-    display: none;
-  }
-
-  .brands-track.dragging {
-    cursor: grabbing;
-    scroll-snap-type: none;
+  .brands-track:hover {
+    animation-play-state: paused;
   }
 
   .brand-item {
     flex-shrink: 0;
-    scroll-snap-align: start;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -125,19 +80,28 @@ const brands = [
     width: auto;
     max-width: 180px;
     object-fit: contain;
-    transition: opacity 0.2s, transform 0.2s;
     user-select: none;
     pointer-events: none;
+    transition: transform 0.2s;
   }
 
   .brand-item:hover img {
     transform: scale(1.05);
   }
 
+  @keyframes scroll-brands {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
   @media (max-width: 768px) {
     .brands-track {
       gap: 2rem;
-      padding: 0.5rem 1rem;
+      animation-duration: 20s;
     }
 
     .brand-item img {
