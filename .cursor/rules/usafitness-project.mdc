@@ -1,0 +1,33 @@
+---
+description: USAFitness landing pages - project context, conventions and deployment
+alwaysApply: true
+---
+
+# USAFitness — Memoria del proyecto
+
+Generador de landing pages para tiendas USAFitness. **Una landing por tienda, cada una con su propio dominio**. Astro (SSR) + Node adapter, desplegado en **Railway**.
+
+## Arquitectura
+- **Un único servicio Railway** sirve TODAS las tiendas. `src/middleware.ts` enruta por dominio (`host` → `slug`) y sirve URLs legales limpias (`/aviso-legal` → `/<slug>/aviso-legal`).
+- Datos de tiendas en `src/data/stores.json`. Textos legales en `src/data/legal.ts`.
+- Páginas: `src/pages/[...slug].astro` (tienda), `src/pages/[slug]/[doc].astro` (legales), `sitemap.xml.ts` y `robots.txt.ts` (dinámicos por dominio).
+- En local se accede por `/slug`; en producción cada dominio sirve su tienda en la raíz.
+
+## Config por tienda (`stores.json`)
+Campos clave: `slug, name, domain, streetAddress, postalCode, geo, title, subtitle, location, metaDescription, phone, phoneDisplay, whatsapp, googleMapsEmbed, googleMapsLink, schedule, heroImage, reviews[], galleryImages[]`.
+Opcionales: `galleryFeatured` (galería 1 ancha + fila de 3), `social{instagram,facebook,tiktok,youtube}` (activa icono IG en header + sección RRSS), `company{razonSocial,nif,direccionPostal,emailLegal,telefonoLegal,lastUpdated}` (datos legales), `heroText`, `googleSiteVerification`, `ga4Id` (activa GA4 + banner de cookies).
+- Avatares de reseñas: SIEMPRE en local `public/photos/<slug>/reviews/` (no URLs de Google, caducan).
+
+## Reglas de trabajo (IMPORTANTES)
+- **Push después de CADA cambio** a `origin/main` (Railway despliega en cada push). Verificar `npm run build` antes de pushear.
+- **No inventar datos legales** (razón social, NIF, email…). Pedirlos al usuario. NM10 SHOP S.L. es SOLO de Vigo.
+- Tiendas sin `company` → páginas legales muestran aviso "en actualización" y van `noindex`.
+- SEO por dominio sin mezclar: canonical al dominio propio, `noindex` en hosts no canónicos, sitemap/robots por dominio.
+
+## Estado actual (jun 2026)
+- **Vigo**: completa (datos legales NM10, fotos, RRSS, avatares). Lista para desplegar.
+- **Villanueva, Marineda, Las Rosas, Alcobendas**: faltan datos legales (`company`). Alcobendas ya tiene dominio en Railway.
+- **GA4 + banner cookies**: sistema montado (`CookieConsent.astro`, Consent Mode v2), inactivo hasta poner `ga4Id` por tienda. Pixel/Google Ads: pendientes (más adelante, una cuenta por tienda bajo Business Manager/MCC).
+
+## Despliegue de un dominio en Railway
+El código de todas las tiendas YA está desplegado en el servicio único. Para activar un dominio: Railway → servicio → Settings → Networking → **Custom Domain** → añadir `dominio.com` y `www.dominio.com` → crear el CNAME que indique Railway en el DNS (Cloudflare recomendado) → quitar registros de la web antigua → esperar SSL.
