@@ -51,8 +51,10 @@ const legalBase = onOwnDomain ? '' : `/${store.slug}`;
   <Hero
     name={store.name}
     title={store.title}
+    location={store.location}
     googleMapsLink={store.googleMapsLink}
     heroImage={store.heroImage}
+    heroText={(store as any).heroText}
   />
   <Promotions phone={store.phone} />
   <Location
@@ -60,7 +62,7 @@ const legalBase = onOwnDomain ? '' : `/${store.slug}`;
     googleMapsEmbed={store.googleMapsEmbed}
     googleMapsLink={store.googleMapsLink}
   />
-  <Gallery images={store.galleryImages} name={store.name} featured={(store as any).galleryFeatured ?? false} />
+  <Gallery images={store.galleryImages} name={store.name} location={store.location} featured={(store as any).galleryFeatured ?? false} />
   <Reviews reviews={store.reviews} />
   <Products />
   <Brands />

@@ -2,10 +2,13 @@
 interface Props {
   name: string;
   title: string;
+  location: string;
   googleMapsLink: string;
   heroImage?: string;
+  heroText?: string;
 }
-const { name, title, googleMapsLink, heroImage = '/hero-bg.jpg' } = Astro.props;
+const { name, title, location, googleMapsLink, heroImage = '/hero-bg.jpg', heroText } = Astro.props;
+const introText = heroText || `En ${name} encontrarás asesoramiento personalizado y la mejor nutrición deportiva al mejor precio en ${location}. Nuestros productos están seleccionados para ayudarte a alcanzar tus objetivos de fitness y bienestar.`;
 ---
 
 <section class="hero" id="inicio">
@@ -14,7 +17,7 @@ const { name, title, googleMapsLink, heroImage = '/hero-bg.jpg' } = Astro.props;
   <div class="hero-content">
     <p class="hero-label">{name}</p>
     <h1 class="hero-title">{title}</h1>
-    <p class="hero-text">Ofrecemos asesoramiento personalizado y la mejor nutrición deportiva al mejor precio. Nuestros productos están seleccionados para ayudarte a alcanzar tus objetivos de fitness y bienestar.</p>
+    <p class="hero-text">{introText}</p>
     <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="btn btn-primary hero-cta">
       ¿Dónde Estamos?
     </a>

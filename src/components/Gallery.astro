@@ -2,9 +2,11 @@
 interface Props {
   images: string[];
   name: string;
+  location?: string;
   featured?: boolean;
 }
-const { images, name, featured = false } = Astro.props;
+const { images, name, location = '', featured = false } = Astro.props;
+const altSuffix = location ? ` en ${location}` : '';
 ---
 
 <section class="gallery section">
@@ -15,7 +17,7 @@ const { images, name, featured = false } = Astro.props;
         <div class="gallery-item">
           <img
             src={src}
-            alt={`${name} - Foto de la tienda ${i + 1}`}
+            alt={`${name} - tienda de nutrición deportiva y suplementos${altSuffix} (foto ${i + 1})`}
             loading="lazy"
             width="400"
             height="300"
