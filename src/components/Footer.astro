@@ -1,26 +1,77 @@
 ---
+import { LEGAL_DOCS } from '@/data/legal';
+
 interface Props {
   name: string;
+  slug: string;
+  legalBase?: string;
 }
-const { name } = Astro.props;
+const { name, slug, legalBase = `/${slug}` } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
   <div class="container footer-inner">
-    <p>{name} &copy; {year} &mdash; Todos los derechos reservados</p>
+    <nav class="footer-legal" aria-label="Información legal">
+      <span class="footer-legal-title">Información legal</span>
+      <ul class="footer-legal-links">
+        {LEGAL_DOCS.map((doc) => (
+          <li>
+            <a href={`${legalBase}/${doc.slug}`}>{doc.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <p class="footer-copy">{name} &copy; {year} &mdash; Todos los derechos reservados</p>
   </div>
 </footer>
 
 <style>
   .footer {
     background: var(--color-primary);
-    padding: 1.5rem;
+    padding: 2.5rem 1.5rem 1.75rem;
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
     text-align: center;
   }
 
-  .footer p {
+  .footer-legal-title {
+    display: block;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .footer-legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .footer-legal-links a {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.15s;
+  }
+
+  .footer-legal-links a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+
+  .footer-copy {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 1.25rem;
+    width: 100%;
+    max-width: 600px;
   }
 </style>

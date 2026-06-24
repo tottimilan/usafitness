@@ -14,77 +14,59 @@ interface Props {
   geo?: { lat: number; lng: number };
   reviewCount?: number;
   avgRating?: number;
+  heroImage?: string;
+  social?: { instagram?: string; facebook?: string; tiktok?: string; youtube?: string };
 }
 
 const {
   name, domain, title, metaDescription, location,
   phone, phoneDisplay, schedule, slug,
   streetAddress = '', postalCode = '',
-  geo, reviewCount = 3, avgRating = 5
+  geo, reviewCount = 3, avgRating = 5,
+  heroImage = `/photos/${slug}/hero.jpg`,
+  social = {}
 } = Astro.props;
 
 const pageTitle = `${name} | Nutrición Deportiva en ${location}`;
 const canonicalUrl = `https://${domain}/`;
-const ogImage = `/photos/${slug}/hero.jpg`;
+const ogImage = heroImage;
+const ogImageUrl = `https://${domain}${ogImage}`;
+const logoUrl = `https://${domain}/usafitness.svg`;
+const sameAs = [social.instagram, social.facebook, social.tiktok, social.youtube].filter(Boolean) as string[];
 
 function parseScheduleToSchema(scheduleText: string) {
+  const MON_FRI = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const MON_SAT = [...MON_FRI, "Saturday"];
+  const MON_SUN = [...MON_SAT, "Sunday"];
+
   const specs: any[] = [];
   const lines = scheduleText.split('\n');
   for (const line of lines) {
-    if (line.toLowerCase().includes('lunes a viernes')) {
-      const timeMatch = line.match(/(\d{1,2}:\d{2})\s*a\s*(\d{1,2}:\d{2})/);
-      if (timeMatch) {
-        specs.push({
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-          "opens": timeMatch[1],
-          "closes": timeMatch[2]
-        });
-      }
+    const lower = line.toLowerCase();
+    const timeMatch = line.match(/(\d{1,2}:\d{2})\s*[a–-]\s*(\d{1,2}:\d{2})/);
+    if (!timeMatch) continue;
+
+    // Match day ranges first to avoid duplicating single days (e.g. "lunes a domingo").
+    let dayOfWeek: string[] | null = null;
+    if (lower.includes('lunes a domingo')) {
+      dayOfWeek = MON_SUN;
+    } else if (lower.includes('lunes a sábado')) {
+      dayOfWeek = MON_SAT;
+    } else if (lower.includes('lunes a viernes')) {
+      dayOfWeek = MON_FRI;
+    } else if (lower.includes('domingo')) {
+      dayOfWeek = ["Sunday"];
+    } else if (lower.includes('sábado')) {
+      dayOfWeek = ["Saturday"];
     }
-    if (line.toLowerCase().includes('sábado')) {
-      const timeMatch = line.match(/(\d{1,2}:\d{2})\s*[a–-]\s*(\d{1,2}:\d{2})/);
-      if (timeMatch) {
-        specs.push({
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Saturday"],
-          "opens": timeMatch[1],
-          "closes": timeMatch[2]
-        });
-      }
-    }
-    if (line.toLowerCase().includes('domingo')) {
-      const timeMatch = line.match(/(\d{1,2}:\d{2})\s*[a–-]\s*(\d{1,2}:\d{2})/);
-      if (timeMatch) {
-        specs.push({
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Sunday"],
-          "opens": timeMatch[1],
-          "closes": timeMatch[2]
-        });
-      }
-    }
-    if (line.toLowerCase().includes('lunes a sábado')) {
-      const timeMatch = line.match(/(\d{1,2}:\d{2})\s*[a–-]\s*(\d{1,2}:\d{2})/);
-      if (timeMatch) {
-        specs.push({
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-          "opens": timeMatch[1],
-          "closes": timeMatch[2]
-        });
-      }
-    }
-    if (line.toLowerCase().includes('lunes a domingo')) {
-      const timeMatch = line.match(/(\d{1,2}:\d{2})\s*[a–-]\s*(\d{1,2}:\d{2})/);
-      if (timeMatch) {
-        specs.push({
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-          "opens": timeMatch[1],
-          "closes": timeMatch[2]
-        });
-      }
+
+    if (dayOfWeek) {
+      specs.push({
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": dayOfWeek,
+        "opens": timeMatch[1],
+        "closes": timeMatch[2]
+      });
     }
   }
   return specs.length > 0 ? specs : undefined;
@@ -99,7 +81,9 @@ const structuredData: Record<string, any> = {
   "description": metaDescription,
   "url": canonicalUrl,
   "telephone": phone,
-  "image": `https://${domain}${ogImage}`,
+  "image": ogImageUrl,
+  "logo": logoUrl,
+  ...(sameAs.length > 0 && { "sameAs": sameAs }),
   "priceRange": "€€",
   "address": {
     "@type": "PostalAddress",
@@ -137,27 +121,30 @@ import '@/styles/global.css';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={metaDescription} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#1B3A6B" />
     <link rel="canonical" href={canonicalUrl} />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="business.business" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:image" content={`https://${domain}${ogImage}`} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:alt" content={`${name} - Tienda de nutrición deportiva`} />
     <meta property="og:locale" content="es_ES" />
     <meta property="og:site_name" content={name} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={metaDescription} />
-    <meta name="twitter:image" content={`https://${domain}${ogImage}`} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon-96.png" />
     <title>{pageTitle}</title>
 
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />

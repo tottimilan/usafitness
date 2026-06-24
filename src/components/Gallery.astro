@@ -2,14 +2,15 @@
 interface Props {
   images: string[];
   name: string;
+  featured?: boolean;
 }
-const { images, name } = Astro.props;
+const { images, name, featured = false } = Astro.props;
 ---
 
 <section class="gallery section">
   <div class="container">
     <h2 class="section-title">Conoce nuestra tienda y equipo</h2>
-    <div class="gallery-grid">
+    <div class={`gallery-grid${featured ? ' gallery-grid--featured' : ''}`}>
       {images.map((src, i) => (
         <div class="gallery-item">
           <img
@@ -36,6 +37,15 @@ const { images, name } = Astro.props;
     gap: 1rem;
     max-width: 900px;
     margin: 0 auto;
+  }
+
+  .gallery-grid--featured {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .gallery-grid--featured .gallery-item:first-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 9;
   }
 
   .gallery-item {

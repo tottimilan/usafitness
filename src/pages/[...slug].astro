@@ -11,6 +11,7 @@ import Reviews from '@/components/Reviews.astro';
 import Products from '@/components/Products.astro';
 import Brands from '@/components/Brands.astro';
 import Schedule from '@/components/Schedule.astro';
+import Social from '@/components/Social.astro';
 import Footer from '@/components/Footer.astro';
 import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
 import storesData from '@/data/stores.json';
@@ -21,6 +22,10 @@ const store = storesData.stores.find((s) => s.slug === slug);
 if (!store) {
   return Astro.redirect('/');
 }
+
+const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const onOwnDomain = host === store.domain || host === `www.${store.domain}`;
+const legalBase = onOwnDomain ? '' : `/${store.slug}`;
 ---
 
 <Landing
@@ -38,8 +43,10 @@ if (!store) {
   geo={store.geo}
   reviewCount={store.reviews.length}
   avgRating={Math.round((store.reviews.reduce((sum: number, r: any) => sum + r.stars, 0) / store.reviews.length) * 10) / 10}
+  heroImage={store.heroImage}
+  social={(store as any).social}
 >
-  <Header phone={store.phone} />
+  <Header phone={store.phone} instagram={(store as any).social?.instagram} />
   <Hero
     name={store.name}
     title={store.title}
@@ -52,7 +59,7 @@ if (!store) {
     googleMapsEmbed={store.googleMapsEmbed}
     googleMapsLink={store.googleMapsLink}
   />
-  <Gallery images={store.galleryImages} name={store.name} />
+  <Gallery images={store.galleryImages} name={store.name} featured={(store as any).galleryFeatured ?? false} />
   <Reviews reviews={store.reviews} />
   <Products />
   <Brands />
@@ -63,6 +70,7 @@ if (!store) {
     whatsapp={store.whatsapp}
     googleMapsLink={store.googleMapsLink}
   />
-  <Footer name={store.name} />
+  <Social social={(store as any).social} name={store.name} />
+  <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
   <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
 </Landing>
