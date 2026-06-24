@@ -1,0 +1,137 @@
+---
+interface Props {
+  ga4Id?: string;
+  cookiePolicyHref: string;
+}
+const { ga4Id = '', cookiePolicyHref } = Astro.props;
+const enabled = !!ga4Id;
+const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
+---
+
+{enabled && (
+  <Fragment>
+    {/* Google Consent Mode v2: deny tracking by default until the user accepts */}
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: 500
+      });
+      try {
+        if (localStorage.getItem('uf-consent') === 'granted') {
+          gtag('consent', 'update', { analytics_storage: 'granted' });
+        }
+      } catch (e) {}
+    </script>
+    <script is:inline async src={gtagSrc}></script>
+    <script define:vars={{ ga4Id }}>
+      gtag('js', new Date());
+      gtag('config', ga4Id, { anonymize_ip: true });
+    </script>
+
+    <div id="uf-cookie-banner" class="uf-cookie" role="dialog" aria-label="Aviso de cookies" hidden>
+      <p class="uf-cookie-text">
+        Utilizamos cookies analíticas propias y de terceros para mejorar nuestros servicios.
+        Puedes aceptarlas o rechazarlas. Más información en nuestra
+        <a href={cookiePolicyHref}>Política de Cookies</a>.
+      </p>
+      <div class="uf-cookie-actions">
+        <button id="uf-reject" type="button" class="uf-btn uf-btn-ghost">Rechazar</button>
+        <button id="uf-accept" type="button" class="uf-btn uf-btn-primary">Aceptar</button>
+      </div>
+    </div>
+
+    <script is:inline>
+      (function () {
+        var KEY = 'uf-consent';
+        var banner = document.getElementById('uf-cookie-banner');
+        if (!banner) return;
+        function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+        if (!stored()) { banner.hidden = false; }
+        function decide(value) {
+          try { localStorage.setItem(KEY, value); } catch (e) {}
+          banner.hidden = true;
+          if (value === 'granted' && window.gtag) {
+            window.gtag('consent', 'update', { analytics_storage: 'granted' });
+          }
+        }
+        document.getElementById('uf-accept').addEventListener('click', function () { decide('granted'); });
+        document.getElementById('uf-reject').addEventListener('click', function () { decide('denied'); });
+      })();
+    </script>
+  </Fragment>
+)}
+
+<style>
+  .uf-cookie {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1000;
+    max-width: 760px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem 1.25rem;
+  }
+
+  .uf-cookie-text {
+    flex: 1 1 320px;
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+
+  .uf-cookie-text a {
+    color: var(--color-cta);
+    text-decoration: underline;
+  }
+
+  .uf-cookie-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-left: auto;
+  }
+
+  .uf-btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 2px solid var(--color-cta);
+    font-family: inherit;
+  }
+
+  .uf-btn-primary {
+    background: var(--color-cta);
+    color: #fff;
+  }
+
+  .uf-btn-ghost {
+    background: transparent;
+    color: var(--color-cta);
+  }
+
+  @media (max-width: 520px) {
+    .uf-cookie-actions {
+      width: 100%;
+    }
+    .uf-btn {
+      flex: 1;
+    }
+  }
+</style>

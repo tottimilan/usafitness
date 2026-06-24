@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import Footer from '@/components/Footer.astro';
+import CookieConsent from '@/components/CookieConsent.astro';
 import storesData from '@/data/stores.json';
 import { getLegalDoc, isLegalDoc, LEGAL_DOCS, type Company } from '@/data/legal';
 import '@/styles/global.css';
@@ -84,6 +85,7 @@ const robots = legalReady ? 'index, follow' : 'noindex, follow';
     </main>
 
     <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
+    <CookieConsent ga4Id={(store as any).ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
   </body>
 </html>
 

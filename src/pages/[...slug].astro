@@ -13,6 +13,7 @@ import Brands from '@/components/Brands.astro';
 import Schedule from '@/components/Schedule.astro';
 import Social from '@/components/Social.astro';
 import Footer from '@/components/Footer.astro';
+import CookieConsent from '@/components/CookieConsent.astro';
 import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
 import storesData from '@/data/stores.json';
 
@@ -76,4 +77,5 @@ const legalBase = onOwnDomain ? '' : `/${store.slug}`;
   <Social social={(store as any).social} name={store.name} />
   <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
   <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
+  <CookieConsent ga4Id={(store as any).ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
 </Landing>
