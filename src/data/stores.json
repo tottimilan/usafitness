@@ -22,13 +22,13 @@
         {
           "text": "Muy buena atención y muy buen asesoramiento. Sea cual sea tu duda Alicia y Adrián te la resuelven enseguida, te ayudan en todo lo que necesites. Suelo comprar a menudo, tienen mucha variedad de marcas y productos.",
           "author": "Nieves Rodriguez",
-          "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjUkLRs6j6S6OayclpZZFiC-YQJ3-MPnpjR-8Rp3H9nitZg2oxD-=w54-h54-p-rp-mo-br100",
+          "avatar": "/photos/villanueva/reviews/nieves.jpg",
           "stars": 5
         },
         {
           "text": "La atención por parte del chico que te asesora y de la chica que te cobra, es inmejorable… que sigan así, los felicito.",
           "author": "Dario Rodríguez",
-          "avatar": "",
+          "avatar": "/photos/villanueva/reviews/dario.jpg",
           "stars": 5
         },
         {
@@ -184,6 +184,63 @@
         "/photos/alcobendas/tienda-2.jpg",
         "/photos/alcobendas/tienda-3.jpg",
         "/photos/alcobendas/tienda-4.jpg"
+      ]
+    },
+    {
+      "slug": "vigo",
+      "name": "USAFITNESS C.C GRAN VÍA VIGO",
+      "domain": "usafitnessvigo.com",
+      "company": {
+        "razonSocial": "NM10 SHOP S.L.",
+        "nif": "B22854681",
+        "direccionPostal": "Avenida Secundino Zuazo, 44. Bajo A, 28055 Madrid (Madrid)",
+        "emailLegal": "adricbp@gmail.com",
+        "telefonoLegal": "625850691",
+        "lastUpdated": "6 de abril de 2026"
+      },
+      "streetAddress": "C.C. Gran Vía de Vigo (Planta 0), Rúa do Miradoiro, 2, Freixeiro",
+      "postalCode": "36204",
+      "geo": { "lat": 42.2272, "lng": -8.7106 },
+      "title": "Tu tienda de suplementación en Vigo",
+      "subtitle": "Encuéntranos en el C.C. Gran Vía Vigo",
+      "location": "Vigo",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. Gran Vía de Vigo. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "phone": "+34986916804",
+      "phoneDisplay": "986 916 804",
+      "whatsapp": "+34661490626",
+      "googleMapsEmbed": "https://maps.google.com/maps?q=USA%20Fitness%20C.C.%20Gran%20V%C3%ADa%20Vigo%20R%C3%BAa%20do%20Miradoiro%2C%202%2C%20Freixeiro%2C%2036204%20Vigo%2C%20Pontevedra%2C%20Espa%C3%B1a&t=m&z=14&output=embed&iwloc=near",
+      "googleMapsLink": "https://maps.app.goo.gl/HeNWftuC2w8yqZ9P8",
+      "schedule": "De lunes a domingo: 10:00 a 22:00",
+      "heroImage": "/photos/vigo/hero.webp",
+      "galleryFeatured": true,
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_granviadevigo/"
+      },
+      "reviews": [
+        {
+          "text": "Muy buena experiencia en USA Fitness. Es una tienda con una gran variedad de productos que llaman mucho la atención por su calidad y presentación. Todo tiene muy buena pinta y se nota que trabajan con buenas marcas. Además, el trato del personal es excelente: son muy amables, cercanos y siempre están dispuestos a ayudarte con cualquier duda o recomendarte lo que mejor se adapta a lo que buscas. Sin duda, un sitio muy recomendable tanto si ya estás metido en el mundo del fitness como si estás empezando.",
+          "author": "Hiba de la Iglesia Moreno",
+          "avatar": "/photos/vigo/reviews/hiba.jpg",
+          "stars": 5
+        },
+        {
+          "text": "Fui a la inauguración y me encantó la tienda, tienen muchísima variedad y la atención es excepcional. Sin duda, será mi nueva tienda de confianza.",
+          "author": "Amaya Guerra",
+          "avatar": "/photos/vigo/reviews/amaya.jpg",
+          "stars": 5
+        },
+        {
+          "text": "Muy buena tienda de suplementación, tienen todo lo que busco, además las chicas que me atendieron fueron encantadoras!!!",
+          "author": "Andrea García",
+          "avatar": "/photos/vigo/reviews/andrea.jpg",
+          "stars": 5
+        }
+      ],
+      "galleryImages": [
+        "/photos/vigo/tienda-1.webp",
+        "/photos/vigo/tienda-2.webp",
+        "/photos/vigo/tienda-3.webp",
+        "/photos/vigo/tienda-4.webp"
       ]
     }
   ]
