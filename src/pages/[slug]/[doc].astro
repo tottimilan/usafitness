@@ -1,0 +1,145 @@
+---
+export const prerender = false;
+
+import Footer from '@/components/Footer.astro';
+import storesData from '@/data/stores.json';
+import { getLegalDoc, isLegalDoc, LEGAL_DOCS, type Company } from '@/data/legal';
+import '@/styles/global.css';
+
+const { slug, doc } = Astro.params;
+const store = storesData.stores.find((s) => s.slug === slug);
+
+if (!store || !isLegalDoc(doc)) {
+  return Astro.redirect('/');
+}
+
+// Legal data is per-store. Only render real policy text when the store has its own
+// legal entity configured; otherwise show a clearly-marked "pending" notice (noindex)
+// so we never publish another company's data on the wrong store.
+const storeCompany = (store as any).company as Company | undefined;
+const legalReady = !!storeCompany;
+
+const docMeta = LEGAL_DOCS.find((d) => d.slug === doc)!;
+const docTitle = docMeta.label;
+
+let bodyHtml = '';
+if (legalReady) {
+  const legal = getLegalDoc(doc!, storeCompany!, {
+    name: store.name,
+    location: store.location,
+    domain: store.domain,
+    slug: store.slug,
+  });
+  if (!legal) {
+    return Astro.redirect(`/${store.slug}`);
+  }
+  bodyHtml = legal.html;
+} else {
+  bodyHtml = `<p>Estamos actualizando la información legal de esta tienda. Si necesitas cualquier dato o tienes una consulta, puedes contactar con nosotros a través de los canales de contacto disponibles en la web.</p>`;
+}
+
+const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const onOwnDomain = host === store.domain || host === `www.${store.domain}`;
+const legalBase = onOwnDomain ? '' : `/${store.slug}`;
+const homeHref = onOwnDomain ? '/' : `/${store.slug}`;
+
+const pageTitle = `${docTitle} | ${store.name}`;
+const canonicalUrl = `https://${store.domain}/${doc}`;
+const robots = legalReady ? 'index, follow' : 'noindex, follow';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={`${docTitle} de ${store.name}.`} />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <meta name="theme-color" content="#1B3A6B" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon-96.png" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <header class="legal-header">
+      <div class="container legal-header-inner">
+        <a href={homeHref} class="logo-link" aria-label="Volver al inicio">
+          <img src="/usafitness.svg" alt="USA Fitness logo" class="logo" width="200" height="42" />
+        </a>
+        <a href={homeHref} class="legal-back">&larr; Volver</a>
+      </div>
+    </header>
+
+    <main class="legal-main">
+      <div class="container legal-container">
+        <h1 class="legal-title">{docTitle}</h1>
+        <p class="legal-domain">{store.name} &mdash; https://{store.domain}</p>
+        <article class="legal-content" set:html={bodyHtml} />
+      </div>
+    </main>
+
+    <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
+  </body>
+</html>
+
+<style>
+  .legal-header {
+    background: var(--color-bg);
+    height: 70px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .legal-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 14px 0;
+  }
+
+  .logo {
+    height: 100%;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+  }
+
+  .legal-back {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-cta);
+  }
+
+  .legal-main {
+    padding: 3rem 0 4rem;
+  }
+
+  .legal-container {
+    max-width: 820px;
+  }
+
+  .legal-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .legal-domain {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    margin-bottom: 2.5rem;
+  }
+</style>
