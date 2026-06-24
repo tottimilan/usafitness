@@ -16,6 +16,7 @@ interface Props {
   avgRating?: number;
   heroImage?: string;
   social?: { instagram?: string; facebook?: string; tiktok?: string; youtube?: string };
+  googleSiteVerification?: string;
 }
 
 const {
@@ -24,7 +25,8 @@ const {
   streetAddress = '', postalCode = '',
   geo, reviewCount = 3, avgRating = 5,
   heroImage = `/photos/${slug}/hero.jpg`,
-  social = {}
+  social = {},
+  googleSiteVerification = ''
 } = Astro.props;
 
 const pageTitle = `${name} | Nutrición Deportiva en ${location}`;
@@ -33,6 +35,13 @@ const ogImage = heroImage;
 const ogImageUrl = `https://${domain}${ogImage}`;
 const logoUrl = `https://${domain}/usafitness.svg`;
 const sameAs = [social.instagram, social.facebook, social.tiktok, social.youtube].filter(Boolean) as string[];
+
+// Only the store's own canonical domain should be indexable. Any other host
+// (Railway preview, the generic domain serving /slug, etc.) is set to noindex
+// so it never competes with or mixes into the store's own domain in Google.
+const reqHost = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const isCanonicalHost = reqHost === domain || reqHost === `www.${domain}`;
+const robotsContent = isCanonicalHost ? 'index, follow, max-image-preview:large' : 'noindex, follow';
 
 function parseScheduleToSchema(scheduleText: string) {
   const MON_FRI = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -121,8 +130,9 @@ import '@/styles/global.css';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={metaDescription} />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="robots" content={robotsContent} />
     <meta name="theme-color" content="#1B3A6B" />
+    {googleSiteVerification && <meta name="google-site-verification" content={googleSiteVerification} />}
     <link rel="canonical" href={canonicalUrl} />
 
     <meta property="og:type" content="business.business" />
