@@ -1,0 +1,145 @@
+---
+description: Subagent Orchestration — when to spawn subagents (only for parallelism or context isolation), orchestrator+specialists pattern, 2-stage review per task, verification at handoffs, model selection by role. Load when orchestrating multi-agent or parallel work. Worktree conventions, Docker policy, model tables and observability detail live in references/orchestration.md.
+---
+
+# Subagent Orchestration
+
+Rule 06 defines **how one agent behaves** in different modes. This rule defines **how multiple agents cooperate** — subagents, parallel worktrees, model selection, and verification. The Anthropic-canonical pattern is **orchestrator + narrow specialists**. The rest of this file makes that practical for MASTERMIND 2.0.
+
+---
+
+## Command vs skill vs subagent — shape of work, not size
+
+These three are **not** a small/medium/large ladder. They are different *shapes* of work; pick by shape, not by how big the task feels.
+
+- **Command** (`/mm-*`) — a *named entry point* a human invokes to start a known procedure. Choose it when the user needs a repeatable, discoverable trigger.
+- **Skill** — *reusable knowledge* loaded on demand into the **current** agent's context. Choose it when the agent needs a playbook but the work stays in one context window and one line of reasoning.
+- **Subagent** — *isolated execution* in a **separate** context. Choose it only for genuine parallelism or context isolation (see below), never merely because a task is "large". A large task usually wants a skill + a plan, not a subagent.
+
+A big task run by one agent with a good skill is normal. A tiny task can still warrant a subagent if it must run in parallel or in a clean context. Match the shape.
+
+---
+
+## When to spawn subagents
+
+**Default:** single agent. Do not introduce subagents for tasks that fit in one context window and do not benefit from specialization.
+
+**Spawn subagents only when all of the following are true:**
+
+1. The work decomposes cleanly into independent or mostly-independent tasks.
+2. The tasks share no ambiguous context the main agent would need to resolve mid-flight.
+3. Parallel execution saves wall-clock time worth the orchestration cost.
+4. The current task is NOT in Coach mode (Coach is single-agent by definition).
+
+**Typical cases:**
+- Executing an `implementation-planner` plan with ≥ 3 tasks touching different files.
+- Running a code migration across many files (the `/batch` pattern).
+- `/best-of-n` runs for a critical task (multiple models, same task, pick winner).
+- A research fan-out for `research-first` when multiple independent questions exist.
+
+**Typical non-cases:**
+- Ambiguous goal (stays in Coach, single agent).
+- One small change (stays in Executor, single agent).
+- Review-only work (Auditor is single agent; subagents would fragment the review).
+
+---
+
+## Orchestrator + specialists pattern
+
+The canonical 2026 architecture (Anthropic + industry consensus):
+
+- **Orchestrator agent** — broad, strategic, keeps the global context. Never codes directly; decides who codes what.
+- **Specialist subagents** — narrow, reliable, isolated context. Implementer, spec-reviewer, code-quality-reviewer, research fetcher, etc.
+- **Message-passing, not shared state.** The orchestrator constructs exactly the context each subagent needs and passes it in the prompt. Subagents do **not** see the orchestrator's session history.
+- **A subagent returns a summary + a pointer to its artifacts, never its full trace.** The orchestrator receives a short result (status + key decisions + paths to files/commits/notes the subagent wrote), not the subagent's raw tool calls and reasoning. Piping a subagent's whole transcript back into the orchestrator defeats the entire point of context isolation and re-pollutes the global context.
+- **2–4 agents total is the sweet spot.** > 5 usually means the task is poorly decomposed.
+
+### Model selection per role
+
+Use the cheapest model that can handle the role. Concrete heuristic:
+
+| Role | Model tier |
+|---|---|
+| Orchestrator (strategic, multi-turn coordination) | **Most capable** (Claude Opus / GPT-5-class) |
+| Implementer on mechanical, well-specified tasks (1–2 files) | **Fast cheap** (Composer, Sonnet, etc.) |
+| Implementer on integration / multi-file / judgment calls | **Standard** (Sonnet) |
+| Reviewer (spec compliance and code quality) | **Standard or most capable** — reviewers must catch errors implementer missed |
+| Research fetcher | **Cheap** with Context7 MCP |
+| Architecture / design proposal | **Most capable** |
+
+Wrong model selection is the #1 cost inefficiency. Do not default to Opus for everything.
+
+---
+
+## Two-stage review per task (Superpowers pattern)
+
+For every task executed by an implementer subagent, run **two sequential reviews** before marking the task complete:
+
+1. **Spec compliance review** — does the code do exactly what the plan said, nothing more, nothing less? Catches scope creep and missing requirements.
+2. **Code quality review** — is the code well-built? Naming, error handling, tests, architecture fit, over-engineering.
+
+**Run them in order.** Code quality on non-spec-compliant code is wasted work.
+
+Loop: if a review finds issues, the original implementer subagent fixes them (not a new agent — keeps the context), then the reviewer re-reviews. Only advance to the next task when both reviews are green.
+
+---
+
+## Implementer status codes
+
+A spawned implementer subagent reports one of four statuses when it returns:
+
+| Status | Meaning | Orchestrator action |
+|---|---|---|
+| `DONE` | Task complete, self-reviewed, committed | Proceed to spec compliance review |
+| `DONE_WITH_CONCERNS` | Complete but flagged doubts | Read concerns, fix if they affect correctness, then review |
+| `NEEDS_CONTEXT` | Missing info to proceed | Provide missing context, re-dispatch same subagent |
+| `BLOCKED` | Cannot complete the task | Triage: context? bigger model? split task? escalate to human? — never silently re-dispatch same model with same prompt |
+
+---
+
+## Parallel execution & runtime isolation
+
+Parallelize **branches**, not the same branch (git enforces this). Core rules: worktrees in a sibling `../<repo>-worktrees/<slug>` folder; **feature-based branch names** (never `agent-3-tuesday`); same base commit; lifecycle ≤ 1 day; **max 3–4 concurrent local worktrees**; assign by feature slice, not by file type; clean up with `scripts/worktree-cleanup`. Runtime isolation (Docker per worktree, port offsets, per-worktree `.env`) is **only** introduced when a concrete conflict appears (shared port/DB/services) — never "just in case". Beyond 4 concurrent agents, move to Cursor Cloud Agents / Claude Code SDK in CI.
+
+Full conventions, helper scripts, editor integrations, and the Docker policy: [`references/orchestration.md`](references/orchestration.md).
+
+---
+
+## Verification at every handoff
+
+Do not wait for the final output to verify. Verify at every hand-off between agents or modes. Three techniques in order of cost:
+
+1. **Structural check** — output matches a JSON Schema, ref exists, file compiles, test passes.
+2. **Spec compliance check** — does the output satisfy the acceptance criteria it was given?
+3. **Evidence grounding** — any factual claim linked to a source (Context7, research-first note, decision log entry).
+
+A single unverified handoff can poison a whole pipeline. The cost of verification is always less than the cost of propagated error.
+
+---
+
+## Continuous learning loop
+
+Subagent dispatches produce artifacts (commits, post-mortems, reviews) that often contain lessons that apply beyond the current project. At the end of a phase, a weekly retrospective, or a notable post-mortem, invoke the [`continuous-learner`](../../.cursor/skills/continuous-learner/SKILL.md) skill (or `/mm-learn`) so that qualifying lessons are promoted to `~/.mastermind/global/` (lessons / patterns / pitfalls / stacks / vendors).
+
+The skill applies a 3-part test (project-agnostic + evidence-backed + actionable) and asks for explicit user approval per entry. Nothing is promoted silently.
+
+This is how the system gets **better between projects**, not just within each one.
+
+## Observability
+
+Every subagent dispatch must be logged with these fields (+ `timestamp`): `dispatcher`, `role`, `model`, `input_hash`, `output_status`, `wall_time_ms`, `token_cost_estimate`. Use `scripts/log-dispatch.ps1`/`.sh` (best-effort; appends to the gitignored `.mastermind/runtime/dispatch-log.jsonl`; never blocks work). `subagent-dispatcher` emits one record per task; `parallel-executor` one per worktree dispatch. Usage examples + the `eval-harness` trace→eval consumer: [`references/orchestration.md`](references/orchestration.md).
+
+---
+
+## Anti-patterns
+
+- **NEVER:** Dispatch > 4 concurrent local worktrees without a plan for merge order.
+- **NEVER:** Let two parallel agents work on the same files (git worktrees prevent this at branch level, but agents can still collide on shared resources like DB/port — solve with runtime isolation, not by ignoring).
+- **NEVER:** Pass the orchestrator's full history to a subagent. Curate context.
+- **NEVER:** Return a subagent's full trace to the orchestrator. Return a summary + artifact pointers; the raw transcript stays in the subagent.
+- **NEVER:** Use the most capable model for every role. It's 10× the cost and sometimes slower.
+- **NEVER:** Skip spec compliance review because code quality looks fine. Wrong order, wrong conclusions.
+- **NEVER:** Use Docker "just in case". Introduce it only when a concrete runtime conflict appears.
+- **NEVER:** Name branches after agents. `agent-3-tuesday` is worthless next week.
+- **NEVER:** Leave worktrees alive > 1 day without a rationale in `memory/07-decisions-log.md`.
+- **NEVER:** Silently re-dispatch a BLOCKED subagent with the same prompt and same model. Change something.

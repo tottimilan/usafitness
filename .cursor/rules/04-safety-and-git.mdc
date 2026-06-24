@@ -1,0 +1,99 @@
+---
+description: Safety rules and Git hygiene — mandatory guardrails for any agent
+alwaysApply: true
+---
+
+# Safety and Git Hygiene
+
+> Safety rules are **fixed**. Git workflow is a sensible default — edit only with a written reason in `memory/07-decisions-log.md`.
+
+---
+
+## Fixed Safety Rules (do not remove)
+
+- **Secrets:** Never commit secrets, tokens, API keys, or `.env*` files. `.env.example` is the only env file allowed in Git.
+- **Destructive commands:** Never run `rm -rf`, `DROP`, `--force`, production deploys, or schema migrations on prod DBs without explicit user confirmation *in the chat* for this specific operation.
+- **Auth, payments, schema:** Never modify without a written plan, a test, and human approval.
+- **Dependencies:** Never install a new package without (a) a one-line justification, (b) one named alternative, and (c) a note on bundle/runtime impact.
+- **Unrelated code:** Never touch code that isn't part of the request (Karpathy rule #3). If you spot rot, mention it — don't fix it silently.
+- **User data:** Never delete or alter user data without explicit approval. "Cleanup" scripts require a dry-run first.
+- **Long-running jobs:** Never enqueue bulk jobs (emails, webhooks, migrations) without a kill switch and a rate limit.
+
+---
+
+## Git Workflow (default)
+
+### Branching
+
+- **`main` is always deployable.** Never commit or push directly to `main`.
+- Work happens on short-lived feature branches. Naming:
+  - `feat/<slug>` — new user-facing feature
+  - `fix/<slug>` — bug fix
+  - `chore/<slug>` — tooling, deps, CI, config
+  - `refactor/<slug>` — behavior-preserving change
+  - `docs/<slug>` — docs only
+  - `test/<slug>` — tests only
+  - `perf/<slug>` — performance-only change
+  - `exp/<slug>` — throwaway experiments (never merge as-is)
+- Slug in `kebab-case`. Keep it < 50 chars.
+
+### Commits
+
+- **[Conventional Commits](https://www.conventionalcommits.org/):**
+  `<type>(<scope>)!?: <subject>`
+  Types: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`, `style`, `ci`, `build`.
+  `!` marks a breaking change.
+- **Small and focused.** One logical change per commit. No "misc updates" commits.
+- **Imperative mood.** `feat(auth): add magic-link sign-in`, not `added sign-in`.
+- **Never amend or force-push** shared branches. Force-pushing your own feature branch is fine with `--force-with-lease`.
+
+### Pull Requests
+
+- **Always open a PR.** Even when you are the only person on the project — future-you will read the diff.
+- **Rebase before opening the PR.** Never merge `main` into a feature branch; rebase onto it.
+- **Size target:** ≤ 400 lines of diff. If bigger, split into stacked PRs.
+- **PR body must include:** what changed, why, how it was tested, screenshots if UI, and links to relevant `memory/` or `docs/` entries.
+- **Checks required to merge:** tests passing + at least one review (human or a second AI pass) + no unresolved comments.
+- **Merge strategy:** squash for feature branches, merge-commit for release branches.
+
+### Tags & releases
+
+- Semantic Versioning (`MAJOR.MINOR.PATCH`).
+- Breaking changes (`!` in commit type) force a MAJOR bump.
+- Tag releases on `main` after squash-merge.
+
+### Client-side git hooks
+
+The template ships two **recommended** git hooks under `scripts/git-hooks/`:
+
+- **`pre-commit`** — blocks commits if `.cursor/skills/` ↔ `.claude/skills/` are out of sync; runs a basic secret scan over the staged diff (AWS / Stripe / GitHub / Google / Slack / Anthropic / OpenAI key patterns, `.env*` files).
+- **`pre-push`** — blocks direct pushes to `main`/`master` (escape hatch `MM_ALLOW_MAIN_PUSH=1`); soft-warns on phase-gate gaps.
+
+Install once per clone (Git does not copy `.git/hooks/` on clone):
+
+```powershell
+pwsh -File scripts/install-git-hooks.ps1
+```
+
+```bash
+bash scripts/install-git-hooks.sh
+```
+
+Escape hatches for special situations:
+
+- `git commit --no-verify` / `git push --no-verify` (one-shot).
+- `MM_SKIP_PRECOMMIT=1`, `MM_SKIP_PREPUSH=1` (shell-scoped).
+- `MM_ALLOW_MAIN_PUSH=1` (release engineer path).
+
+These hooks are **client-side fail-fast**, not a substitute for server-side secret scanning. Pair with GitHub Advanced Security or Gitleaks-in-CI for the real line of defense.
+
+---
+
+## Dangerous operations always require
+
+1. A written plan under `.cursor/plans/YYYY-MM-DD-<slug>.md`.
+2. A test or a rollback strategy.
+3. Explicit user confirmation *in chat* before execution.
+4. A post-execution note in `memory/07-decisions-log.md`.
+
+"Dangerous" includes: schema migrations, auth changes, payment changes, cross-cutting refactors (> 10 files), deleting any file in `memory/` or `docs/`, and any production deploy.

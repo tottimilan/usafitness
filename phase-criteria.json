@@ -1,0 +1,177 @@
+{
+  "_comment": "SINGLE SOURCE OF TRUTH for MASTERMIND phase criteria. Edit ONLY here. Run `pwsh -File scripts/render-phase-criteria.ps1` (or .sh) to regenerate the memory/13 §Phase definitions table. Consumed by: the phase-gate-reviewer skill (Steps 2 & 4), scripts/phase-gate-check.ps1/.sh (expected_artifact_paths + valid phase names), and /mm-template-audit (criteria-divergence check). JSON is used (not YAML) for dep-free parsing: PowerShell ConvertFrom-Json is native; Bash uses python3.",
+  "version": "2.1.0",
+  "phase_order": ["Idea", "Discovery", "Definition", "Prototype", "MVP", "Iteration", "Launch"],
+  "phases": [
+    {
+      "name": "Idea",
+      "optional": false,
+      "purpose": "The thing is a sentence or a paragraph",
+      "entry_criteria": [
+        "A project brief skeleton exists (default starting phase on a fresh clone)"
+      ],
+      "exit_criteria": [
+        "memory/00-project-brief.md skeleton filled enough to start Discovery"
+      ],
+      "typical_artifacts": ["`memory/00-project-brief.md` skeleton"],
+      "expected_artifact_paths": ["memory/00-project-brief.md"]
+    },
+    {
+      "name": "Discovery",
+      "optional": false,
+      "purpose": "Validate problem + user + market",
+      "entry_criteria": [
+        "memory/00-project-brief.md exists with a stated problem and target user"
+      ],
+      "exit_criteria": [
+        "Problem, user and market validated through the 12-angle audit",
+        "Top risks captured in memory/08-known-risks.md"
+      ],
+      "typical_artifacts": [
+        "`docs/product/executive-summary.md`",
+        "`docs/product/personas.md`",
+        "`docs/product/competitive-analysis.md`",
+        "`memory/08-known-risks.md`"
+      ],
+      "expected_artifact_paths": [
+        "memory/00-project-brief.md",
+        "docs/product/executive-summary.md",
+        "docs/product/personas.md",
+        "docs/product/competitive-analysis.md",
+        "memory/08-known-risks.md"
+      ]
+    },
+    {
+      "name": "Definition",
+      "optional": false,
+      "purpose": "Lock the MVP scope",
+      "entry_criteria": [
+        "Discovery validated: executive summary, personas, competitive analysis and known risks exist"
+      ],
+      "exit_criteria": [
+        "PRD approved",
+        "MVP boundary set",
+        "Architecture system map drafted and first ADRs accepted",
+        "Feature map populated with MVP slices"
+      ],
+      "typical_artifacts": [
+        "`docs/product/prd.md`",
+        "`docs/features/<epic>.md`",
+        "`docs/architecture/system-map.md`",
+        "first ADRs"
+      ],
+      "expected_artifact_paths": [
+        "docs/product/prd.md",
+        "docs/architecture/system-map.md",
+        "memory/06-feature-map.md",
+        "memory/03-architecture.md"
+      ]
+    },
+    {
+      "name": "Prototype",
+      "optional": true,
+      "skip_rule": "UI projects only. Non-UI projects (backend services, CLIs, libraries, SDKs) may skip directly Definition -> MVP with a mandatory --skip-reason \"no UI\" recorded in memory/13-phase-history.md and memory/07-decisions-log.md.",
+      "purpose": "Iterative full-app design before committing to MVP build. v1 → feedback → v2 → … → freeze. Validates experience with stakeholders/users on a navigable artifact.",
+      "entry_criteria": [
+        "PRD approved and MVP boundary set",
+        "memory/14 §Platform set to web/mobile/cross",
+        "memory/14 identity + tokens sections filled",
+        "memory/05-user-flows.md populated",
+        "memory/06-feature-map.md with MVP slices identified",
+        "Design system installed (components.json present)",
+        "Claude Design access available"
+      ],
+      "exit_criteria": [
+        "docs/design/mockups/final/ exists",
+        "memory/14 §Changelog has a recent \"Design frozen at vN\" entry (< 30 days old)",
+        "Stakeholder sign-off recorded in the frozen iteration's feedback.md",
+        "memory/14 has no open decisions on tokens / components / patterns"
+      ],
+      "typical_artifacts": [
+        "`docs/design/mockups/v1-…/`, `v2-…/`, `final/`",
+        "updated `memory/14-design-system.md` (tokens, patterns, installed components frozen)"
+      ],
+      "expected_artifact_paths": [
+        "docs/design/mockups/final",
+        "memory/14-design-system.md"
+      ]
+    },
+    {
+      "name": "MVP",
+      "optional": false,
+      "purpose": "Build and ship the MVP",
+      "entry_criteria": [
+        "PRD approved, MVP boundary set with one persona + one JTBD + one metric",
+        "Architecture ADRs accepted",
+        "Feature-map updated",
+        "Testing strategy drafted",
+        "If arriving from Prototype: final mockups frozen and design decisions closed"
+      ],
+      "exit_criteria": [
+        "All P0 features shipped to main",
+        "User flows documented",
+        "Testing strategy in place and feature-map MVP rows all Shipped"
+      ],
+      "typical_artifacts": [
+        "Code in `main`",
+        "`docs/flows/*.md`",
+        "`docs/testing/strategy.md`",
+        "feature-map MVP rows all `Shipped`"
+      ],
+      "expected_artifact_paths": [
+        "docs/testing/strategy.md",
+        "docs/flows"
+      ]
+    },
+    {
+      "name": "Iteration",
+      "optional": false,
+      "purpose": "Learn from users, improve",
+      "entry_criteria": [
+        "All P0 features shipped",
+        "First user sessions logged",
+        "Zero Critical/High security findings open",
+        "Observability in place"
+      ],
+      "exit_criteria": [
+        "Real-world risks captured in memory/08-known-risks.md",
+        "Pivots logged in memory/07-decisions-log.md",
+        "New slices shipped"
+      ],
+      "typical_artifacts": [
+        "Updated `memory/08-known-risks.md` with real-world risks",
+        "pivots logged in `memory/07-decisions-log.md`",
+        "new slices shipped"
+      ],
+      "expected_artifact_paths": [
+        "memory/11-session-summary.md"
+      ]
+    },
+    {
+      "name": "Launch",
+      "optional": false,
+      "purpose": "Public release, scale",
+      "entry_criteria": [
+        "SLA/SLO defined",
+        "Incident runbook exists",
+        "Rollback tested",
+        "Legal/compliance review passed for scope"
+      ],
+      "exit_criteria": [
+        "Security hardened (docs/security/*)",
+        "Observability deployed",
+        "ADR coverage complete"
+      ],
+      "typical_artifacts": [
+        "SLA/SLO docs",
+        "`docs/security/*` hardened",
+        "observability deployed",
+        "`docs/adr/` coverage complete"
+      ],
+      "expected_artifact_paths": [
+        "docs/security/security-risk-map.md",
+        "docs/adr"
+      ]
+    }
+  ]
+}

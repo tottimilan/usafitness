@@ -1,0 +1,70 @@
+---
+description: Tech stack for this project — chosen based on a "best-for-vibecoding" analysis. Load when choosing/changing the stack, framework, database, hosting, or when writing stack-specific code. JS/TS universal conventions live in references/js-conventions.md.
+---
+
+# Tech Stack
+
+> This file is **filled per project**. The template is stack-agnostic.
+> The concrete stack is chosen after a "best-for-vibecoding" analysis (speed of iteration, ecosystem maturity, AI-tooling compatibility, deployment friction, cost).
+
+## Decision rule
+
+Before picking a stack, run the analysis and record the result in `memory/03-architecture.md` with justification. Default palette (only a reference, not mandatory):
+
+- Framework: Next.js + TypeScript
+- Database: Supabase / Postgres
+- Payments: Stripe
+- Hosting / edge: Vercel, Railway, Cloudflare
+
+## This project
+
+- **Platform:** _TBD_  (one of: `web`, `mobile`, `cross`)
+- **Framework:** Astro ^6.1.5  (web: Next.js / Remix / Astro / Vite React; mobile: Expo SDK + RN; cross: both)
+- **Language:** JavaScript  (TypeScript strict recommended for both web and mobile)
+- **Database:** _TBD_
+- **Auth:** _TBD_
+- **Payments:** _TBD_
+- **Hosting:** _TBD_  (web: Vercel / Railway / Cloudflare; mobile: EAS Build + App Store + Play Store)
+- **Testing:** _TBD_  (web: Vitest / Playwright; mobile: Jest + React Native Testing Library + Maestro for e2e)
+- **Observability:** _TBD_
+- **Analytics:** _TBD_
+
+### Design + UI (platform-aware)
+
+- **Design system (web):** shadcn/ui (via official MCP + Skill). Only applies if Platform is `web` or `cross`.
+- **Design system (mobile):** [react-native-reusables](https://reactnativereusables.com) (RNR) + NativeWind v4. Only applies if Platform is `mobile` or `cross`. Same `npx shadcn init` CLI — Expo auto-detected.
+- **Prototyping tool:** Claude Design (`claude.ai/design`) — works for both tracks; `prototype-designer` tunes the prompt based on Platform. Invoke via `/mm-design`.
+- **DESIGN.md:** portable cross-tool export generated from `memory/14` via `scripts/export-design-md`.
+
+### Mobile-specific (only fill if Platform = `mobile` or `cross`)
+
+- **Expo SDK:** _TBD_  (default target: latest stable, currently 52+)
+- **Navigation:** Expo Router (file-based, type-safe)  — default per `08-design-system.mdc`
+- **Styling:** NativeWind v4  — default per `08-design-system.mdc`
+- **Animations:** React Native Reanimated 3
+- **Gestures:** React Native Gesture Handler
+- **Safe-area:** `react-native-safe-area-context`
+- **State mgmt:** _TBD_  (Zustand / Jotai / Redux Toolkit)
+- **Data fetching:** _TBD_  (TanStack Query recommended)
+- **Secure storage:** `expo-secure-store` (tokens, PII)
+- **Notifications:** _TBD_  (Expo Notifications / OneSignal / Firebase)
+- **Native modules required:** _TBD_  (if any, you need dev client; otherwise Expo Go works)
+- **Build / submit:** EAS Build + EAS Submit
+
+## Constraints
+
+_TBD — any libraries or services that are forbidden for this project (e.g. GPL licensing, data-residency requirements)._
+
+---
+
+## Universal Conventions (JS / TypeScript only)
+
+When the stack is JS/TS, follow the conventions in [`references/js-conventions.md`](references/js-conventions.md) (strict mode, named exports, file naming, import order, style). Ignore for other languages.
+
+## Notes
+
+_TBD_
+
+
+<!-- Auto-detected on 20260624-182902 by onboard-existing-project. Review and adjust. -->
+

@@ -1,0 +1,162 @@
+---
+description: Design system policy and conventions for MASTERMIND projects, platform-aware. Branches on memory/14-design-system.md §Platform. Web track uses shadcn/ui + Tailwind + Claude Design. Mobile track uses react-native-reusables (RNR) + NativeWind + Expo + Reanimated + Claude Design mobile mode. memory/14 is the per-project source of truth; DESIGN.md is the portable cross-tool export.
+globs: ["**/components.json", "**/src/components/**", "**/app/**/*.tsx", "**/*.tsx", "**/*.jsx", "**/memory/14-design-system.md", "**/.cursor/mcp.json", "**/DESIGN.md", "**/tailwind.config.*", "**/nativewind-env.d.ts"]
+---
+
+# 08 — Design system (platform-aware)
+
+## How this rule branches
+
+Read `memory/14-design-system.md §Platform`. The entire stack below branches on that one field:
+
+- `Platform: web` → Web track (shadcn/ui + Tailwind).
+- `Platform: mobile` → Mobile track (react-native-reusables + NativeWind + Expo).
+- `Platform: cross` → Both tracks live in the same repo; default to the one the current file belongs to (`src/app/` or similar = web, `app/` + `expo` in `package.json` = mobile).
+
+If the field is missing, STOP and ask the user to fill it in `memory/14-design-system.md`. Do NOT guess — the wrong guess compounds.
+
+---
+
+## Web track (Platform = `web` or `cross` on web files)
+
+### Default stack
+- **Component library:** [shadcn/ui](https://ui.shadcn.com) — copy-paste, Tailwind + Radix UI.
+- **Agent discovery / install:** shadcn's official **MCP server** (`npx shadcn@latest mcp init --client cursor|claude`).
+- **Project-aware Skill:** `npx skills add shadcn/ui` (reads `components.json`, injects framework + aliases + installed components).
+- **Prototyping surface:** [Claude Design](https://claude.ai/design).
+- **Handoff:** Claude Code reads the prototype bundle + memory/14 + DESIGN.md.
+
+### Non-negotiables (web)
+1. No bespoke UI library in a new project unless `memory/14 §Installed components` and `memory/07-decisions-log.md` explain why. Default is shadcn/ui.
+2. `components.json` must exist from the moment any UI lives in the repo.
+3. Every component installed must be recorded in `memory/14 §Installed components`. Drift = bug.
+4. Token changes (primary color, radius, font) require a decision entry in `memory/07-decisions-log.md` + update in `memory/14 §Tokens`.
+
+### Install (web)
+```powershell
+pwsh -File scripts/install-shadcn-mcp.ps1 -Platform web -Apply
+```
+Or auto-detect (reads package.json for `next`/`react`):
+```powershell
+pwsh -File scripts/install-shadcn-mcp.ps1 -Apply
+```
+
+---
+
+## Mobile track (Platform = `mobile` or `cross` on mobile files)
+
+### Default stack
+- **Component library:** [react-native-reusables](https://reactnativereusables.com) (RNR) — the mobile sibling of shadcn/ui by the same author (`@mrzachnugent`, who also merged the official Expo PR #7540 into shadcn/ui core). Same philosophy: copy-paste, NativeWind v4, class-variance-authority, radix-style primitives.
+- **Framework:** Expo + React Native (SDK 52+).
+- **Styling:** [NativeWind v4](https://www.nativewind.dev) (Tailwind for React Native) as default. StyleSheet API as fallback when you need raw control.
+- **Navigation:** Expo Router (file-based, type-safe).
+- **Animations:** React Native Reanimated 3 — never the legacy Animated API.
+- **Gestures:** React Native Gesture Handler.
+- **Safe-area:** `react-native-safe-area-context` (`SafeAreaView` on every screen).
+- **Agent discovery / install:** shadcn MCP (when you run `npx shadcn init` in an Expo project, the CLI auto-detects and uses RNR's registry).
+- **Prototyping surface:** Claude Design in mobile mode (the prompt must say "mobile app, iOS + Android, use Expo Router, NativeWind") + Expo Go for on-device preview.
+- **Handoff:** Claude Code reads the prototype bundle + memory/14 + DESIGN.md + the mobile CLAUDE.md template (see `.cursor/templates/CLAUDE.md.mobile.md`).
+
+### Non-negotiables (mobile)
+1. No bespoke UI library unless `memory/14 §Installed components` and `memory/07-decisions-log.md` explain why. Default is RNR.
+2. `components.json` must exist at the repo root (RNR respects shadcn's config format).
+3. **Minimize `Platform.OS` branches.** Prefer a single component that adapts via props or safe-area context. If you have more than 3 `Platform.OS === 'ios'` checks in one file, refactor.
+4. **Always wrap screens in `SafeAreaView`** from `react-native-safe-area-context`. No raw top/bottom padding.
+5. **Use Expo Router**, not React Navigation imperatively. `router.replace('/auth/login')` instead of `navigation.navigate(...)`.
+6. **Reanimated 3 for animations.** The legacy Animated API is forbidden in new code.
+7. **`expo-secure-store` > `AsyncStorage`** for any sensitive data (tokens, credentials, PII).
+8. **Prefer `expo-*` packages** over React Native community packages when Expo ships an equivalent.
+9. **Touch targets ≥ 44pt iOS / 48dp Android.** Respect platform Human Interface Guidelines.
+10. **Never hardcode API keys.** Read from `.env` via `expo-constants`. `.env.local` is gitignored; `.env.example` documents required variables.
+
+### Install (mobile)
+```powershell
+pwsh -File scripts/install-shadcn-mcp.ps1 -Platform mobile -Apply
+```
+Or auto-detect (reads `expo` in package.json):
+```powershell
+pwsh -File scripts/install-shadcn-mcp.ps1 -Apply
+```
+The script runs `npx shadcn@latest init` (which detects Expo), installs NativeWind + class-variance-authority + clsx + tailwind-merge, configures `tailwind.config.js` + `global.css`, and optionally scaffolds RNR primitives.
+
+### Mobile CLAUDE.md template
+
+Run `cp .cursor/templates/CLAUDE.md.mobile.md ./CLAUDE.md` (or append to the existing CLAUDE.md) when bootstrapping a mobile project. The template contains the non-negotiables above in machine-readable form so Claude Code / Cursor respect them on every generation.
+
+---
+
+## Cross-platform track (Platform = `cross`)
+
+When a project ships both web and mobile from the same monorepo:
+
+- **Shared tokens:** one source in `packages/design-tokens/` or similar. Both tracks consume.
+- **Shared primitives:** RNR uses `rn-primitives` on native and `radix-ui/primitives` on web — API is compatible. Most components have an 80%+ identical surface across platforms.
+- **Divergent surfaces:** navigation differs (Expo Router on mobile, Next.js routing on web). Screens / pages are separate trees. Component library is shared.
+- **memory/14 §Platform = `cross`:** fills BOTH Web-specific and Mobile-specific sections.
+- **DESIGN.md:** single file with both tracks documented; tooling reads per context.
+
+---
+
+## Claude Design prompts (platform-specific)
+
+`prototype-designer` composes the prompt from memory/14 + memory/05 + memory/06. The Platform field tunes it automatically. For reference, the core differences:
+
+### Web prompt skeleton
+```
+Platform: web app (responsive, desktop-first / mobile-first).
+Components: shadcn/ui — use <Button>, <Card>, <Dialog>, <Tabs>, <Sheet>, etc.
+Layout: Tailwind grid/flex. Breakpoints: sm/md/lg/xl.
+Navigation: Next.js routing (link + page per route).
+Target: browsers (Chrome, Safari, Firefox, Edge).
+```
+
+### Mobile prompt skeleton
+```
+Platform: mobile app (iOS + Android). Not a responsive website.
+Components: react-native-reusables (RNR) — use <Button>, <Card>, <Dialog>, <Sheet>, etc. (mobile-tuned variants).
+Styling: NativeWind (Tailwind for React Native). No inline styles.
+Navigation: Expo Router tab bar + stack groups. Mobile patterns (bottom tabs, not top nav).
+Safe-area: every screen wrapped in SafeAreaView.
+Gestures: haptics on primary CTAs; swipe-to-dismiss on sheets.
+Target: iPhone 13+ and Android 8+. Touch targets ≥ 44pt iOS.
+Preview: on device via Expo Go or dev client.
+```
+
+---
+
+## When to extend with custom components
+
+Some features need components that shadcn/RNR do not cover (Stripe checkout wrapper, Supabase auth form with bespoke validation, highly specialized charts, custom bottom sheets with complex gestures). Place those in:
+
+- Web: `src/components/custom/`
+- Mobile: `src/components/custom/` (same convention)
+
+Log each in `memory/14 §Custom components` with:
+- Reason it's not shadcn/RNR.
+- Composition (which primitives it wraps).
+- Stability (stable / experimental / deprecated).
+- Platform (web / mobile / both).
+
+Never place custom components inside `src/components/ui/` — that path is reserved for shadcn/RNR output.
+
+---
+
+## DESIGN.md (portable cross-tool export)
+
+memory/14 is the per-project source of truth inside MASTERMIND. DESIGN.md is its **exported portable twin** in the format that Claude Design, Google Stitch, Cursor, v0, Claude Code, and others have standardized on (9 sections: Visual Theme, Color Palette & Roles, Typography, Component Stylings, Layout Principles, Depth & Elevation, Do's and Don'ts, Responsive Behavior, Agent Prompt Guide).
+
+- **Generate / regenerate:** `pwsh -File scripts/export-design-md.ps1` (reads memory/14 + scaffolds DESIGN.md at project root).
+- **Memory/14 is canonical.** DESIGN.md is derived. Never edit DESIGN.md manually; changes will be overwritten on re-export. Edit memory/14, then regenerate.
+- **Share with external tools:** point Claude Design / Stitch / v0 at `DESIGN.md` and they stay on-brand.
+
+---
+
+## Anti-patterns (both platforms)
+
+- **Silently copy a random shadcn/RNR block from the docs** into the codebase without the CLI. Breaks the registry record and the project-aware Skill.
+- **Edit files under `src/components/ui/` without a reason captured in memory/14**. These are "yours" by copy-paste, but untracked drift kills consistency.
+- **Use Claude Design without linking the repo.** Output will be beautiful generic IA aesthetic that matches no other project you own.
+- **Treat memory/14 as optional.** If it's empty, agents fall back to defaults and the per-project coherence evaporates.
+- **Add a second design system in parallel** (MUI + shadcn) "just for this feature". Default answer: no. If essential, log as decision.
+- **Mobile-specific:** Platform.OS branches everywhere; forgetting SafeAreaView; using Animated legacy API; AsyncStorage for tokens; more than 2 font weights; modals stacked three deep.
+- **Web-specific:** inline `style={{...}}` everywhere instead of Tailwind; bespoke theming when tokens would do; sticky headers on content pages; gradient soup.

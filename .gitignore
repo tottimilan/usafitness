@@ -1,3 +1,4 @@
+# --- Project (Astro) ---
 node_modules/
 dist/
 .astro/
@@ -6,3 +7,31 @@ dist/
 !.env.example
 *.log
 *.code-workspace
+
+# --- MASTERMIND + general (added on onboarding) ---
+# Secrets
+*.pem
+*.key
+*.crt
+secrets/
+.secrets/
+# Cursor / Claude local state
+.cursor/.local/
+.cursor/cache/
+.claude/cache/
+.claude/.local/
+# MCP local state (keep config, ignore runtime)
+claude-side/.runtime/
+claude-side/*.local.json
+# MASTERMIND runtime (dispatch log + ephemeral observability; never committed)
+.mastermind/runtime/
+# Backups created by scripts/sync-from-template; safe to delete after review
+.mastermind-backups/
+# Template-author meta-work (kept local, never committed)
+.template-meta/
+# Local research notes
+research/
+# Test artifacts
+playwright-report/
+test-results/
+*.lcov

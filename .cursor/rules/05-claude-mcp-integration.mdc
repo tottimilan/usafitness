@@ -1,0 +1,110 @@
+---
+description: Claude Opus + MCP integration — when to delegate to Opus, which MCP servers to use (Context7, Playwright, Memory Graph), and the cross-project memory protocol. Load when configuring MCP, delegating deep analysis, or promoting cross-project lessons. The task-master-ai activation contract lives in references/task-master.md.
+---
+
+# Claude + MCP Integration
+
+> Defines when to delegate to Claude Opus and which MCP servers to use.
+
+## When to delegate to Claude Opus
+
+Use Claude Opus (Claude Desktop, Claude Projects, or an MCP bridge) for:
+
+- Deep multi-angle analysis ("desgarre").
+- Strategic decisions and risk assessments.
+- Long-form documents (PRDs, architecture overviews, scenario planning).
+- "Brutal honesty" reviews and pivot exploration.
+- Anything that benefits from extended thinking.
+
+Use Cursor's local model for:
+
+- Daily coding, refactoring, bug fixing.
+- Surgical edits with clear success criteria.
+- Running and interpreting tests.
+
+## MCP servers used by this project
+
+_TBD — list the MCPs configured in `claude-side/mcp-config.json` and `.cursor/mcp.json`._
+
+Typical defaults:
+
+- **Context7** — automatic, for any external library or API. Never guess API signatures.
+- **Playwright** — only for real browser verification of critical flows. Always specify URL, viewport, and selectors.
+- **Memory Graph** — cross-project lessons. Never dump sensitive data there.
+- **GitHub** — issues, PRs, code context.
+- **Notion / Linear** — optional, depending on the project's operations stack.
+
+### Activation-on-demand — `task-master-ai`
+
+Optional dependency-aware task-management MCP. **Activate per-project only** when leaving Definition for MVP execution, when an approved plan has **≥ 10 tasks**, and `subagent-dispatcher` will drive execution. Before that, Plan Mode + `subagent-dispatcher` walking the plan file is enough. Full install steps, modes, token costs and integration contract: [`references/task-master.md`](references/task-master.md).
+
+## Rules
+
+- Always use Context7 when touching library code.
+- Never use Playwright MCP for scraping or bulk browsing. Only for verification.
+- When Claude Opus produces a deliverable, save it to `memory/` or `docs/` and run the `memory-updater` skill.
+- Secrets for MCP servers live in environment variables, never in committed files.
+
+## Markdown is the source of truth (indexes are disposable)
+
+**Plain Markdown in `memory/`, `docs/`, and `~/.mastermind/global/` is the canonical brain.** Any semantic index, vector store, or Memory-Graph MCP (Zep / Cognee / Basic Memory) is an **OPTIONAL, disposable, fully reconstructible accelerator over that Markdown — never the default and never authoritative.**
+
+- The system must remain 100% functional with the index deleted. If losing the index loses information, the index has become a second source of truth — that is a bug.
+- Reach for a semantic index **only** when a concrete need appears that grep + structured Markdown cannot serve: **multi-writer** concurrency, **temporal**/recency-decayed retrieval, **selective retrieval** across a corpus too large to load, or **governance/audit** of who-knew-what-when. Absent one of these, grep over Markdown wins (zero deps, zero drift, reviewable in Git).
+- When an index is installed, it **mirrors** Markdown one-way (Markdown → index). Never write a fact to the index that does not also live in Markdown.
+
+---
+
+## Cross-project Memory Protocol
+
+The project's `memory/` folder is **per-project intelligence**. It should not accumulate patterns that generalize across projects. Those belong in a **shared cross-project memory** that lives **outside the template** and is consulted by multiple projects.
+
+### Location
+
+Default convention: `~/.mastermind/global/` (user-home, outside any project repo).
+
+Recommended structure:
+
+```
+~/.mastermind/global/
+├── lessons.md         # What worked or failed, with evidence and context
+├── patterns.md        # Reusable architectural / product / workflow patterns
+├── pitfalls.md        # Anti-patterns observed repeatedly across projects
+├── stacks.md          # Stack choices taken across projects, with outcomes
+└── vendors.md         # Third-party providers used, with verdicts
+```
+
+Files are **plain Markdown** and are the source of truth (see §"Markdown is the source of truth" above for the full norm). When the **Memory Graph MCP** (Zep / Cognee / Basic Memory) is installed, these files may be mirrored into it; the Markdown remains authoritative.
+
+### Promotion criteria
+
+An entry is promoted from a project's `memory/` to `~/.mastermind/global/` only when **all three** hold:
+
+1. **Project-agnostic.** Strip project-specific nouns; the lesson still reads as useful.
+2. **Evidence-backed.** At least one concrete occurrence, with a link to a post-mortem, decision, ADR, or retrospective.
+3. **Actionable.** It changes a future decision. If it only informs, it stays in the project.
+
+Most project findings do **not** qualify. They belong in `memory/07-decisions-log.md` and stay there.
+
+### Consumption (when to read the global memory)
+
+- **At the start of a new project** — `project-deep-audit` reads `lessons.md` and `pitfalls.md` and surfaces relevant items under a "Cross-project signals" section.
+- **Before external research** — `research-first` consults `vendors.md` and `stacks.md` before running a web search. If the vendor or stack was already decided against, flag it.
+- **Before topology proposals** — `architecture-mapper` consults `patterns.md` when proposing a topology or service split.
+- **Before writing a new skill** — `skill-creator` consults `patterns.md` to check whether the skill already exists in another project.
+
+### Privacy and safety
+
+`~/.mastermind/global/` must never contain:
+
+- Secrets, tokens, API keys, credentials.
+- Client names or confidential product details.
+- PII, PHI, or payment data.
+
+Use neutral references: *"a marketplace SaaS in the logistics domain"*, not *"Project Acme for Client X"*. When exporting a lesson, replace the specific nouns before the commit.
+
+### Change control
+
+- `~/.mastermind/global/` is versioned in its own git repo (private).
+- Promotions are single commits: `lesson: <topic>` or `pattern: <topic>`.
+- Supersede, do not delete: when a lesson becomes obsolete, mark it superseded in place and append the new entry. Historical context stays searchable.

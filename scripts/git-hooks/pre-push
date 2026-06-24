@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# pre-push hook for MASTERMIND 2.0 projects.
+#
+# Soft-guards against pushing to main / master directly unless MM_ALLOW_MAIN_PUSH=1.
+# Warns if phase-gate-check reports gaps (warning, not block).
+#
+# To install: bash scripts/install-git-hooks.sh
+# To skip once: git push --no-verify
+# To disable permanently: set MM_SKIP_PREPUSH=1.
+
+set -e
+
+if [[ "${MM_SKIP_PREPUSH:-}" == "1" ]]; then
+  echo "[pre-push] MM_SKIP_PREPUSH=1 — skipping all checks."
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo ""
+echo "=== MASTERMIND pre-push ==="
+
+# -- 1. Block direct push to main/master (soft-escapable) --------------------
+REMOTE="$1"
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [[ -z "$remote_ref" ]] && continue
+  branch="${remote_ref#refs/heads/}"
+  if [[ "$branch" == "main" || "$branch" == "master" ]]; then
+    if [[ "${MM_ALLOW_MAIN_PUSH:-}" != "1" ]]; then
+      echo ""
+      echo "BLOCK: attempting to push to $branch directly."
+      echo "       In MASTERMIND 2.0, main/master is deployable; changes flow via feature branches + PR."
+      echo "       To override once: MM_ALLOW_MAIN_PUSH=1 git push"
+      exit 1
+    fi
+  fi
+done
+
+# -- 2. Soft warning: phase gaps ---------------------------------------------
+if [[ -f "scripts/phase-gate-check.sh" || -f "scripts/phase-gate-check.ps1" ]]; then
+  echo ""
+  echo "[2/2] Phase gap check (soft warning only) ..."
+  set +e
+  if command -v pwsh >/dev/null 2>&1 && [[ -f "scripts/phase-gate-check.ps1" ]]; then
+    pwsh -NoProfile -File scripts/phase-gate-check.ps1 >/dev/null 2>&1
+    rc=$?
+  elif [[ -f "scripts/phase-gate-check.sh" ]]; then
+    bash scripts/phase-gate-check.sh >/dev/null 2>&1
+    rc=$?
+  else
+    rc=0
+  fi
+  set -e
+  if [[ $rc -eq 1 ]]; then
+    echo ""
+    echo "WARN: phase-gate-check reports gaps in the current phase's expected artifacts."
+    echo "      Not blocking the push; but consider addressing before the next gate review."
+    echo "      Run 'scripts/phase-gate-check.sh' (or .ps1) for the full report."
+  elif [[ $rc -eq 2 ]]; then
+    echo "WARN: could not determine current phase from memory/02-current-state.md."
+  fi
+fi
+
+echo ""
+echo "=== pre-push passed ==="
+exit 0

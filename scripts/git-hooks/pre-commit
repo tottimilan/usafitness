@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# pre-commit hook for MASTERMIND 2.0 projects.
+#
+# Runs two checks:
+#   1. Skill sync check (.cursor/skills/ and .claude/skills/ must be in sync).
+#   2. Basic secret scan over the staged diff (never commits common secret patterns).
+#
+# This hook is platform-agnostic (bash). On Windows machines without bash in PATH,
+# install Git for Windows (provides bash) or use a PowerShell-based hook runner.
+#
+# To install: bash scripts/install-git-hooks.sh
+# To skip once (escape hatch): git commit --no-verify
+# To disable permanently: set MM_SKIP_PRECOMMIT=1 in your shell.
+
+set -e
+
+if [[ "${MM_SKIP_PRECOMMIT:-}" == "1" ]]; then
+  echo "[pre-commit] MM_SKIP_PRECOMMIT=1 — skipping all checks."
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo ""
+echo "=== MASTERMIND pre-commit ==="
+
+# -- 1. Skill sync check ------------------------------------------------------
+if [[ -f "scripts/sync-skills.sh" || -f "scripts/sync-skills.ps1" ]]; then
+  echo ""
+  echo "[1/2] Skill sync check (.cursor/skills/ ↔ .claude/skills/) ..."
+  if command -v pwsh >/dev/null 2>&1 && [[ -f "scripts/sync-skills.ps1" ]]; then
+    if ! pwsh -NoProfile -File scripts/sync-skills.ps1 -Check; then
+      echo ""
+      echo "BLOCK: skills out of sync. Run 'pwsh -File scripts/sync-skills.ps1' and commit the update."
+      exit 1
+    fi
+  elif [[ -f "scripts/sync-skills.sh" ]]; then
+    if ! bash scripts/sync-skills.sh --check; then
+      echo ""
+      echo "BLOCK: skills out of sync. Run 'bash scripts/sync-skills.sh' and commit the update."
+      exit 1
+    fi
+  fi
+fi
+
+# -- 2. Basic secret scan -----------------------------------------------------
+echo ""
+echo "[2/2] Secret scan over staged diff ..."
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
+if [[ -z "$STAGED" ]]; then
+  echo "No staged files. Skipping secret scan."
+  exit 0
+fi
+
+# Patterns — high-signal strings that should never enter a commit.
+# Tuned to minimize false positives; conservative by design.
+PATTERNS=(
+  'AKIA[0-9A-Z]{16}'                             # AWS access key id
+  'aws_secret_access_key\s*=\s*[A-Za-z0-9/+=]{40}'  # AWS secret
+  'sk-(live|test)-[A-Za-z0-9]{20,}'              # Stripe secret (live or test)
+  'whsec_[A-Za-z0-9]{20,}'                       # Stripe webhook secret
+  'AIzaSy[A-Za-z0-9_\-]{33}'                     # Google API key
+  'ghp_[A-Za-z0-9]{36,}'                         # GitHub classic PAT
+  'github_pat_[A-Za-z0-9_]{22,255}'              # GitHub fine-grained PAT
+  'xox[abposr]-[0-9A-Za-z\-]{10,}'               # Slack tokens
+  '-----BEGIN ([A-Z ]+)PRIVATE KEY-----'         # PEM private keys
+  'ANTHROPIC_API_KEY\s*=\s*[A-Za-z0-9\-_]{30,}'  # Anthropic api key (loose)
+  'OPENAI_API_KEY\s*=\s*sk-[A-Za-z0-9]{20,}'     # OpenAI api key
+)
+
+FOUND=0
+while IFS= read -r file; do
+  # Skip binary files and anything gitignored via filter
+  if ! git diff --cached --no-color -- "$file" | grep -E "^\+(?!\+\+)" -q; then
+    continue
+  fi
+  DIFF=$(git diff --cached --no-color -- "$file")
+  # only look at added lines (start with '+' but not '+++')
+  ADDED=$(echo "$DIFF" | grep -E '^\+[^+]' || true)
+  [[ -z "$ADDED" ]] && continue
+  for p in "${PATTERNS[@]}"; do
+    if echo "$ADDED" | grep -E -q "$p"; then
+      echo ""
+      echo "BLOCK: possible secret matching pattern /$p/ in $file"
+      echo "       Review the staged lines. If this is a false positive,"
+      echo "       commit with MM_SKIP_PRECOMMIT=1 git commit ..."
+      FOUND=1
+    fi
+  done
+done <<< "$STAGED"
+
+# Also reject any *.env* file being committed (except examples)
+while IFS= read -r file; do
+  case "$file" in
+    *.env.example|*.env.sample) continue ;;
+    *.env|*.env.*)
+      echo ""
+      echo "BLOCK: attempting to commit $file — .env* files are for local only."
+      echo "       Add the file to .gitignore or rename to *.example."
+      FOUND=1
+      ;;
+  esac
+done <<< "$STAGED"
+
+if [[ $FOUND -ne 0 ]]; then
+  exit 1
+fi
+
+echo "No secrets detected."
+echo ""
+echo "=== pre-commit passed ==="
+exit 0

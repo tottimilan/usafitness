@@ -1,0 +1,96 @@
+---
+description: Project Operating System — always-on rules for every task in this repo
+alwaysApply: true
+---
+
+# Project Operating System v2.2
+
+These rules are always loaded. They are the operational contract of this repository.
+
+---
+
+## Before ANY Change or Important Document
+
+1. **Read context first** — Always open, in this order:
+   - `CLAUDE.md` (kernel)
+   - `memory/00-project-brief.md`
+   - `memory/02-current-state.md`
+   - `memory/07-decisions-log.md`
+   - `memory/11-session-summary.md`
+   - `memory/12-open-doubts-and-questions.md`
+2. If the task affects architecture → also read `memory/03-architecture.md`.
+3. If the task affects user flows → also read `memory/05-user-flows.md`.
+4. If the task affects data → also read `memory/04-data-model.md`.
+5. If a local `CLAUDE.md` exists in the module you are editing (e.g. `src/auth/CLAUDE.md`), it **overrides** the kernel for that subtree.
+
+---
+
+## Question & Doubt Protocol (mandatory)
+
+Before proposing solutions, writing code, or producing final documents:
+
+1. List **all current doubts** — technical, product, UX, risks, assumptions that might be false.
+2. Generate **8–20 high-quality questions** for the user, grouped by category:
+   - Product / Value proposition
+   - Users / Jobs-to-be-Done
+   - Business model
+   - Architecture / Technical decisions
+   - Critical flows and edge cases
+   - Risks (technical, legal, operational)
+   - Success metrics and validation
+   - MVP scope vs future vision
+3. Present doubts + questions **before** any final output.
+4. Wait for the user's response **or** mark the questions as "Open" in `memory/12-open-doubts-and-questions.md`.
+5. Only then proceed to generate or modify.
+
+**Golden rule:** *Doubts and Questions First → Clarity → Document / Code After.*
+
+---
+
+## Execution Discipline
+
+- Every non-trivial task → produce a short written plan **before** touching code.
+- In Cursor, prefer **Plan Mode** for anything that edits more than ~2 files or affects risky areas (auth, payments, data schema).
+- Save approved plans under `.cursor/plans/YYYY-MM-DD-<slug>.md`.
+- For **recurring operations**, prefer a **workflow** from `.claude/workflows/` (feature-lifecycle, bug-triage, phase-gate-transition, weekly-retrospective, new-project-bootstrap) or a **slash command** from `.claude/commands/` (`/mm-ship`, `/mm-bug`, `/mm-gate`, `/mm-retro`, `/mm-bootstrap`, `/mm-audit`, `/mm-plan`, `/mm-doubt`, `/mm-next`, `/mm-review`). Workflows make the sequence explicit and auditable; manual chaining of skills is acceptable only when no workflow covers the case.
+- After any meaningful change:
+  1. Run tests or explain why tests cannot run.
+  2. Update the relevant `memory/` files via the `memory-updater` skill.
+  3. Update `memory/11-session-summary.md`.
+
+---
+
+## Model Routing
+
+- **Deep analysis, strategy, risks, long-form documents** → Claude Opus (Claude Desktop or MCP bridge).
+- **Daily coding, refactoring, small features** → Cursor with the model that fits the task (GPT-5.5 Max or Claude Sonnet/Opus).
+- When in doubt about which model to use, prefer the one that is stronger at **structured reasoning** for the specific task.
+
+---
+
+## MCP Usage
+
+- Use **Context7** automatically for any code that imports, configures, or calls an external library, framework, or API. Never guess API signatures.
+- Use **Playwright MCP** only when you need real browser verification of a critical flow. Always be explicit about the URL, viewport, and selectors.
+- Use **Memory Graph MCP** (when configured) to persist cross-project lessons. Never dump sensitive data there.
+
+---
+
+## Safety
+
+- Never commit secrets, tokens, API keys, or `.env*` files.
+- Never run destructive commands without explicit user confirmation (`rm -rf`, `DROP`, `--force`, production deploys, schema migrations on prod DBs).
+- Never change auth, payments, or schema logic without an explicit plan, a test, and human approval.
+- Never install new dependencies without a one-line justification and a mention of the trade-off.
+
+---
+
+## Output Contract
+
+When responding to the user:
+
+- Be direct and concrete. No filler.
+- If you made assumptions, state them.
+- If a task is ambiguous, apply the Question & Doubt Protocol instead of guessing.
+- Prefer small reversible steps over large irreversible ones.
+- At the end of any non-trivial output, apply the **Command Recommendation Protocol** (see `CLAUDE.md §5` and `.cursor/hooks/post-output.suggest-command.md`): emit a HIGH / MEDIUM / LOW recommendation for the next `/mm-*` command when one fits naturally. Never auto-execute.

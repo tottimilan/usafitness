@@ -1,0 +1,68 @@
+---
+description: Testing policy — when to test, what to test, how to test. Mandatory coverage for auth, payments, irreversible data mutations, public APIs, and critical flows.
+globs: ["**/*.test.*", "**/*.spec.*", "**/*.e2e.*", "**/tests/**", "**/__tests__/**"]
+---
+
+# Testing Policy
+
+> Fill per project where marked `_TBD_`. The **universal principles** and the **testing pyramid** apply to every project and should not be removed.
+
+---
+
+## Universal Principles (non-negotiable)
+
+1. **Every critical feature ships with at least one happy-path test and one edge-case test.**
+2. **Never commit code that breaks existing tests.** If a test is wrong, update the test in the same commit — don't silence it.
+3. **Mock external services.** Tests must never hit real APIs, real payment gateways, real email providers. Use fakes, stubs, or recorded fixtures.
+4. **Behavior-first naming.** `describe("when the user submits an empty form", …)` beats `describe("submit()", …)`. Tests describe *behavior*, not *functions*.
+5. **No flaky tests.** A flaky test is broken. Quarantine it or fix it the same day.
+6. **Deterministic time.** Freeze clocks, seed randomness, control timezones.
+7. **Tests are documentation.** A new engineer should understand the feature by reading the tests.
+
+---
+
+## Testing Pyramid (adaptive — pick the ratio for the current phase)
+
+| Phase | Unit | Integration | E2E / Smoke | Rationale |
+|---|---|---|---|---|
+| **Production / maturing product** | 70% | 20% | 10% | Default. Fast feedback, high confidence, cheap runs. |
+| **Active MVP / vibecoding phase** | 30% | 20% | 50% | Unit tests for logic that will be rewritten are waste. Spend on E2E smoke of critical flows + integration of real data paths. |
+| **Prototype / spike** | 0% | 0% | 100% smoke | Only verify that the thing does not explode on the happy path. Throw the code away if it does. |
+
+> The agent MUST declare which phase the project is in (from `memory/02-current-state.md`) before proposing a test plan. Changing phase is a decision that goes into `memory/07-decisions-log.md`.
+
+---
+
+## Mandatory test coverage (regardless of phase)
+
+Any change to these areas **must** ship with tests:
+
+- **Auth** — login, logout, session, role checks, RLS / permission guards.
+- **Payments & billing** — checkout, webhook handlers, proration, refunds, dunning.
+- **Data mutations that are hard to undo** — deletes, schema migrations, background jobs touching user data.
+- **Public API routes** — request validation, auth, rate limits, error shapes.
+- **Critical user flows** — signup, the one action that monetizes the product, anything named in `memory/05-user-flows.md` as "critical".
+
+---
+
+## What NOT to test
+
+- Framework internals (assume Next/React/Prisma work).
+- Trivial getters / setters / passthroughs.
+- Exact DOM markup. Test behavior, not structure.
+- Third-party libraries. Mock them at your boundary.
+
+---
+
+## Tooling
+
+_TBD per project. Only fill once the stack is chosen. Typical defaults when the stack is JS/TS: Vitest (unit/integration) + Playwright (E2E) + MSW (API mocking)._
+
+- Unit: _TBD_
+- Integration: _TBD_
+- End-to-end: _TBD_
+- API mocking: _TBD_
+
+## CI
+
+_TBD — which checks block merge, retry policy for flaky runs, parallelism._
