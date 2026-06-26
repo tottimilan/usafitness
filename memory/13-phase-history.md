@@ -10,10 +10,10 @@
 
 ## Current phase
 
-**Phase:** Idea | Discovery | Definition | Prototype | MVP | Iteration | Launch
+**Phase:** Iteration
 **Since:** 2026-06-24
-**Confidence:** Low | Medium | High
-**Next expected phase:** _TBD_
+**Confidence:** Medium
+**Next expected phase:** Launch
 
 ---
 
