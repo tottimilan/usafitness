@@ -6,12 +6,14 @@ interface Props {
   googleMapsLink: string;
   heroImage?: string;
   heroText?: string;
+  /** Variante que pide la plantilla. 'compacto' = más bajo y alineado a la izquierda. */
+  variant?: string;
 }
-const { name, title, location, googleMapsLink, heroImage = '/hero-bg.jpg', heroText } = Astro.props;
+const { name, title, location, googleMapsLink, heroImage = '/hero-bg.jpg', heroText, variant } = Astro.props;
 const introText = heroText || `En ${name} encontrarás asesoramiento personalizado y la mejor nutrición deportiva al mejor precio en ${location}. Nuestros productos están seleccionados para ayudarte a alcanzar tus objetivos de fitness y bienestar.`;
 ---
 
-<section class="hero" id="inicio">
+<section class={`hero${variant ? ` hero--${variant}` : ''}`} id="inicio">
   <div class="hero-bg"></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -91,9 +93,35 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
     padding: 1rem 2.5rem;
   }
 
+  /* --- Variante 'compacto' -------------------------------------------------
+     Mismo componente, misma marca, otra presencia: menos alto, texto alineado
+     a la izquierda y sin centrar. Es el tercer eje de diferenciación entre
+     plantillas — que la misma sección se vea distinta. */
+  .hero--compacto {
+    min-height: 380px;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .hero--compacto .hero-content {
+    max-width: var(--max-width);
+    width: 100%;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .hero--compacto .hero-text {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   @media (max-width: 768px) {
     .hero {
       min-height: 420px;
+    }
+
+    .hero--compacto {
+      min-height: 340px;
     }
 
     .hero-content {

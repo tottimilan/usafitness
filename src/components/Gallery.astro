@@ -3,16 +3,22 @@ interface Props {
   images: string[];
   name: string;
   location?: string;
+  /** Flag histórico por tienda (`galleryFeatured` en stores.json). */
   featured?: boolean;
+  /** Variante que pide la plantilla. 'destacada' equivale al flag anterior. */
+  variant?: string;
 }
-const { images, name, location = '', featured = false } = Astro.props;
+const { images, name, location = '', featured = false, variant } = Astro.props;
+// La variante de la plantilla y el flag por tienda son la misma decisión
+// expresada de dos formas; cualquiera de las dos activa el layout destacado.
+const esDestacada = variant === 'destacada' || featured;
 const altSuffix = location ? ` en ${location}` : '';
 ---
 
 <section class="gallery section">
   <div class="container">
     <h2 class="section-title">Conoce nuestra tienda y equipo</h2>
-    <div class={`gallery-grid${featured ? ' gallery-grid--featured' : ''}`}>
+    <div class={`gallery-grid${esDestacada ? ' gallery-grid--featured' : ''}`}>
       {images.map((src, i) => (
         <div class="gallery-item">
           <img

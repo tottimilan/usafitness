@@ -24,18 +24,29 @@ export type SectionId =
   | 'schedule'
   | 'social';
 
+/** Una sección en una plantilla es su id, o el id con una variante.
+ *  La VARIANTE es el tercer eje de diferenciación: el mismo Hero puede verse
+ *  distinto en dos plantillas sin duplicar el componente. */
+export type SectionRef = SectionId | { id: SectionId; variant?: string };
+
 export interface Template {
   id: string;
   label: string;
   /** Sobrescrituras de tokens. Se emiten como CSS bajo html[data-plantilla]. */
   tokens: Record<string, string>;
-  /** Orden por defecto de las secciones componibles. */
-  sections: SectionId[];
+  /** Orden por defecto de las secciones componibles, con su variante. */
+  sections: SectionRef[];
+}
+
+/** Normaliza el atajo string a la forma canónica. Un solo punto de entrada
+ *  para que no circulen dos formas por el resto del código. */
+export function normalizeRef(ref: SectionRef): { id: SectionId; variant?: string } {
+  return typeof ref === 'string' ? { id: ref } : ref;
 }
 
 /** Orden histórico de la landing. Es la referencia: `clasica` debe emitir
  *  exactamente esto para que adoptar el sistema no cambie ninguna web viva. */
-export const ORDEN_BASE: SectionId[] = [
+export const ORDEN_BASE: SectionRef[] = [
   'hero',
   'promotions',
   'location',
@@ -76,9 +87,9 @@ export const TEMPLATES: Record<string, Template> = {
     },
     // Narrativa distinta: la prueba social sube por delante del surtido.
     sections: [
-      'hero',
+      { id: 'hero', variant: 'compacto' },   // hero más bajo, texto a la izquierda
       'promotions',
-      'gallery',
+      { id: 'gallery', variant: 'destacada' }, // primera foto a todo el ancho
       'reviews',
       'location',
       'products',
@@ -119,12 +130,15 @@ export function tokensToCss(t: Template): string {
  */
 export function resolveSections(
   template: Template,
-  override?: string[] | null
-): SectionId[] {
-  const validas = new Set<string>(ORDEN_BASE);
+  override?: SectionRef[] | null
+): { id: SectionId; variant?: string }[] {
+  const validas = new Set<string>(ORDEN_BASE.map((r) => normalizeRef(r).id));
+  const limpiar = (refs: SectionRef[]) =>
+    refs.map(normalizeRef).filter((r) => validas.has(r.id));
+
   if (Array.isArray(override) && override.length > 0) {
-    const filtradas = override.filter((s) => validas.has(s)) as SectionId[];
+    const filtradas = limpiar(override);
     if (filtradas.length > 0) return filtradas;
   }
-  return template.sections;
+  return limpiar(template.sections);
 }

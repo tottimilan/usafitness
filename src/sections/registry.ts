@@ -118,14 +118,25 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
   },
 };
 
-/** Devuelve el plan de renderizado: solo las secciones con datos, en orden. */
-export function buildPlan(store: Store, orden: SectionId[]) {
+/** Devuelve el plan de renderizado: solo las secciones con datos, en orden,
+ *  con la variante que pida la plantilla inyectada como prop. */
+export function buildPlan(
+  store: Store,
+  orden: { id: SectionId; variant?: string }[]
+) {
   return orden
-    .map((id) => {
+    .map(({ id, variant }) => {
       const def = SECTIONS[id];
       if (!def) return null; // id desconocido: se ignora, no tumba la página
       if (def.visible && !def.visible(store)) return null;
-      return { id, component: def.component, props: def.props(store) };
+      const props = def.props(store);
+      // La variante llega a todos los componentes por igual; el que no la use
+      // simplemente la ignora, porque Astro no falla por props de más.
+      return { id, component: def.component, props: variant ? { ...props, variant } : props };
     })
-    .filter(Boolean) as { id: SectionId; component: any; props: Record<string, any> }[];
+    .filter(Boolean) as {
+    id: SectionId;
+    component: any;
+    props: Record<string, any>;
+  }[];
 }
