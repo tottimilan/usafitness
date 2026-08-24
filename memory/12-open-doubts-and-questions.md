@@ -33,7 +33,7 @@ The first pass of this file (and of `memory/00-project-brief.md`) described USAF
 
 ### Business Model / Monetization
 - [x] ~~How this makes money~~ — recurring **monthly fee per store**, paid by each store owner. (Q5)
-- [x] ~~Store ownership structure~~ — **independent companies, each with its own CIF**; some owners hold 2–3 stores but as separate entities. (Q6)
+- [x] ~~Store ownership structure~~ — **independent companies, each with its own CIF**; **one company may hold several stores** (confirmed 2026-08-24: USA GOVE S.L. / B22465587 owns both El Arcángel and GranCasa). (Q6)
 - [x] ~~Transactional roadmap~~ — **no**. (Q7)
 - [ ] Churn risk: what makes a store owner stop paying? (Not asked yet — belongs to the audit.)
 - [ ] Is the service sold beyond USAFitness-branded stores, or only within this brand?
@@ -72,8 +72,9 @@ The first pass of this file (and of `memory/00-project-brief.md`) described USAF
 ### Q6 — Business Model / Ownership
 - **Question:** One company or independent franchisees?
 - **Status:** Answered (2026-08-24)
-- **User response:** **Totally independent companies**, each with its own CIF and legal entity; some owners have 2–3 stores, still independent.
-- **Impact:** Confirms the per-store `company` legal design is required, not optional. Each store is a separate legal publisher and a separate paying account.
+- **User response:** **Totally independent companies**, each with its own CIF and legal entity; some owners have 2–3 stores.
+- **Refinement (2026-08-24):** a single company can be the legal owner of several stores — `USA GOVE S.L.` (B22465587) is the titular of both El Arcángel and GranCasa. Company 1—N Store.
+- **Impact:** Confirms the per-store `company` block is required. The same company block legitimately repeats across stores; that is not duplicated data.
 
 ### Q7 — Business Model / Roadmap
 - **Question:** Any intent to add transactional features (online signup, booking, payments)?
