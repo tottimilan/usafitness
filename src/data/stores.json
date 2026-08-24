@@ -276,6 +276,54 @@
         "/photos/vigo/tienda-3.webp",
         "/photos/vigo/tienda-4.webp"
       ]
+    },
+    {
+      "slug": "arcangel",
+      "name": "USAFITNESS EL ARCÁNGEL CÓRDOBA",
+      "domain": "usafitnesselarcangel.com",
+      "streetAddress": "C.C. El Arcángel, Av. del Arcángel, S/N, Sureste",
+      "postalCode": "14010",
+      "geo": {
+        "lat": 37.879133,
+        "lng": -4.7657655
+      },
+      "title": "Tu tienda de suplementación en Córdoba",
+      "subtitle": "Encuéntranos en el corazón de Córdoba",
+      "location": "Córdoba",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. El Arcángel, Córdoba. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "phone": "+34957916862",
+      "phoneDisplay": "957 916 862",
+      "googleMapsEmbed": "https://maps.google.com/maps?q=USA%20Fitness%20Av.%20del%20Arc%C3%A1ngel%2C%20S%2FN%2C%20Sureste%2C%2014010%20C%C3%B3rdoba%2C%20Espa%C3%B1a&t=m&z=14&output=embed&iwloc=near",
+      "googleMapsLink": "https://www.google.com/maps/place/USA+Fitness+%E2%80%93+C.C.+El+Arc%C3%A1ngel/@37.879133,-4.7683458,17z/data=!3m1!4b1!4m6!3m5!1s0xd6d21aeaf510109:0x51f4bad0537ee75c!8m2!3d37.879133!4d-4.7657655!16s%2Fg%2F11xty1ps35",
+      "schedule": "De lunes a domingo: 10:00 a 22:00",
+      "heroImage": "/photos/arcangel/hero.webp",
+      "reviews": [
+        {
+          "text": "Gran variedad de suplementación deportiva de calidad. Destacar el trato cercano y profesional de los trabajadores asesorando según necesidades de cada persona.",
+          "author": "Iciar Rementería",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Muy buena tienda. Destacar la atención al cliente y asesoramiento recibido, todo genial.",
+          "author": "Clara Hernández",
+          "avatar": "",
+          "stars": 5
+        },
+        {
+          "text": "Me han ayudado a saber que me conviene más y aconsejado cómo tomarlo y cuando. Muy contento y agradecido!",
+          "author": "Víctor Izquierdo Mora",
+          "avatar": "",
+          "stars": 5
+        }
+      ],
+      "galleryImages": [
+        "/photos/arcangel/tienda-1.webp",
+        "/photos/arcangel/tienda-2.webp",
+        "/photos/arcangel/tienda-3.webp",
+        "/photos/arcangel/tienda-4.webp",
+        "/photos/arcangel/tienda-5.webp"
+      ]
     }
   ]
 }
