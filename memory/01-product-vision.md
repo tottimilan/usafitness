@@ -25,6 +25,30 @@ The product is the *system*, not any individual landing.
 
 **Sections** — a store picks which ones it wants from a library. Optional and composable, never a fixed list.
 
+## Brand coherence: one palette, several styles (user, 2026-08-24)
+
+**Templates do NOT get different palettes.** All seven stores share the USAFitness brand — same logo, same eight product brands, same promotions. Sites with different palettes would read as different companies, which is exactly wrong.
+
+What varies between templates, in the user's own words:
+
+| Axis | What changes |
+|---|---|
+| **Use of the brand colours** | Same palette, different roles and proportions (which colour dominates, where the accent lands, light vs. high-contrast treatment) |
+| **Structure** | Which sections, in what order, what narrative |
+| **Density** | Spacing, section padding, how much breathes |
+| **Photo treatment** | Full-bleed vs. contained, overlays, aspect ratios, grid shape |
+| **Typographic scale** | Heading sizes, weights, contrast between heading and body |
+
+**Design consequence:** the theming layer must expose tokens for *shape and rhythm*, not only colour — radii, shadows, section padding, heading scale, overlay opacity. Today `global.css` has 14 tokens covering only colour, font, max-width and padding, while the components carry **49 hardcoded colour literals** and 18 hardcoded radii/shadows. Tokenizing those is step 0 of the template system; without it, switching template leaves half the site in the old skin.
+
+## Local SEO: the shopping centre is an asset (user, 2026-08-24)
+
+All seven stores sit inside shopping centres. The user's insight: **nobody searches "tienda de suplementos Zaragoza" — they search "suplementos GranCasa"**. The centre name is a high-intent local keyword the sites are currently wasting.
+
+Today `<title>` is generated as `{name} | Nutrición Deportiva en {location}` (`Landing.astro:32`) and **never mentions the shopping centre**, even though `streetAddress` has it for all seven. Beyond copy, each centre usually runs an online store directory — an authoritative local backlink and a NAP citation worth claiming.
+
+_Being researched per store; see the follow-up in `memory/02-current-state.md`._
+
 ## How a store is configured (important — defines the architecture)
 
 The choice is an **assisted commercial process, not self-serve**:
