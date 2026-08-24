@@ -25,8 +25,13 @@ export const GET: APIRoute = ({ request }) => {
     const store = storesData.stores.find((s) => s.slug === slug)!;
     const base = `https://${store.domain}`;
     entries.push(urlEntry(`${base}/`, '1.0'));
-    for (const doc of LEGAL_DOCS) {
-      entries.push(urlEntry(`${base}/${doc.slug}`, '0.3'));
+    // Legal pages are only indexable when the store has real `company` data
+    // (see [slug]/[doc].astro, which sets noindex otherwise). Listing them here
+    // would submit URLs we ourselves tell Google not to index.
+    if ((store as any).company) {
+      for (const doc of LEGAL_DOCS) {
+        entries.push(urlEntry(`${base}/${doc.slug}`, '0.3'));
+      }
     }
   } else {
     // Generic/preview domain: list every store's canonical homepage.
