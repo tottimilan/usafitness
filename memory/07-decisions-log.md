@@ -16,7 +16,7 @@
 
 ## Entries
 
-### 2026-06-26 — Retroactive memory seeding via retroactive-documenter
+### 2026-08-24 — Retroactive memory seeding via retroactive-documenter
 - **Decision:** Seeded `memory/00, 02, 03, 04, 06, 08` from observed codebase facts during MASTERMIND onboarding (phase Iteration), one commit per approved file.
 - **Reason:** Onboarding an existing, previously-undocumented project; populate memory from code reality instead of leaving placeholders, so `/mm-audit` and `/mm-gate` have a factual base.
 - **Alternatives considered:** Leave the skeleton intact and fill manually — rejected: slower, inconsistent, and loses code provenance.

@@ -10,8 +10,8 @@
 ## Technical risks
 | # | Risk | Impact | Likelihood | Mitigation | Status |
 |---|---|---|---|---|---|
-| 0 | ~~Placeholder images block the 3 pending migrations~~ | Medium | **RESUELTO 2026-06-26** | Fotos reales recuperadas de los WordPress de cada tienda, convertidas a .webp y colocadas. 6 por tienda. Verificado en navegador: 0 imágenes rotas | Closed |
-| 0b | ~~Alcobendas hero placeholder rompe el og:image en producción~~ | Medium | **RESUELTO 2026-06-26** | hero.webp generado desde su foto real; og:image verificado | Closed |
+| 0 | ~~Placeholder images block the 3 pending migrations~~ | Medium | **RESUELTO 2026-08-24** | Fotos reales recuperadas de los WordPress de cada tienda, convertidas a .webp y colocadas. 6 por tienda. Verificado en navegador: 0 imágenes rotas | Closed |
+| 0b | ~~Alcobendas hero placeholder rompe el og:image en producción~~ | Medium | **RESUELTO 2026-08-24** | hero.webp generado desde su foto real; og:image verificado | Closed |
 | 1 | No automated tests and no CI — a change to the shared template or `stores.json` can silently break one or all live stores | High | Medium | Build-check CI + smoke test per store route | Open |
 | 2 | `stores.json` has no schema validation — a malformed/missing required field can break render for a store or the whole build | Medium | Medium | JSON schema / TS validation + build-time check | Open |
 | 3 | No error monitoring / observability — prod errors (cf. past 500s, git `388d3df`) are invisible until a user reports them | Medium | Medium | Error tracking (e.g. Sentry) + uptime monitor | Open |

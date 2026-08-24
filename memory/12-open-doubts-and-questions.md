@@ -1,6 +1,6 @@
 # Open Doubts and Questions — USAFitness Landing Pages
 
-**Last updated:** 2026-06-26
+**Last updated:** 2026-08-24
 **Current phase:** Iteration
 
 > This file is the living record of the project's open doubts, the questions the AI has asked the user, and the user's own observations.
@@ -9,7 +9,7 @@
 
 ---
 
-## 0. Correction of record (2026-06-26)
+## 0. Correction of record (2026-08-24)
 
 The first pass of this file (and of `memory/00-project-brief.md`) described USAFitness as a chain of **gyms**. **That was wrong.** These are **tiendas de suplementación deportiva** — sports-nutrition supplement retail stores, all located inside shopping centres. The evidence was in `src/data/stores.json` all along (`"Tu tienda de suplementación en…"`, `"Proteínas, creatinas, aminoácidos"`). The error came from extracting fields with `grep` instead of reading the file, then inferring the sector from the brand name.
 
@@ -59,32 +59,32 @@ The first pass of this file (and of `memory/00-project-brief.md`) described USAF
 
 ### Q2 — UX / Conversion
 - **Question:** What single thing should a visitor DO — WhatsApp, call, directions, or sign up online?
-- **Status:** Answered (2026-06-26)
+- **Status:** Answered (2026-08-24)
 - **User response:** "las 3 que mencionas" — WhatsApp, phone and directions are all primary.
 - **Impact:** No single hero CTA; the three contact paths must each be prominent and should each be measured.
 
 ### Q5 — Business Model
 - **Question:** How does this make money for you specifically?
-- **Status:** Answered (2026-06-26)
+- **Status:** Answered (2026-08-24)
 - **User response:** Each store pays a **monthly fee for the service**. Amounts deliberately not shared.
 - **Impact:** This is a productized recurring service, not an internal marketing site. Reliability and per-client SEO results are the retention drivers. Reframes the whole risk model.
 
 ### Q6 — Business Model / Ownership
 - **Question:** One company or independent franchisees?
-- **Status:** Answered (2026-06-26)
+- **Status:** Answered (2026-08-24)
 - **User response:** **Totally independent companies**, each with its own CIF and legal entity; some owners have 2–3 stores, still independent.
 - **Impact:** Confirms the per-store `company` legal design is required, not optional. Each store is a separate legal publisher and a separate paying account.
 
 ### Q7 — Business Model / Roadmap
 - **Question:** Any intent to add transactional features (online signup, booking, payments)?
-- **Status:** Answered (2026-06-26)
+- **Status:** Answered (2026-08-24)
 - **User response:** No.
 - **Impact:** The no-DB / no-auth architecture is a permanent, correct choice — not tech debt. Rules out a whole class of "add e-commerce" recommendations.
 
 ### Withdrawn (bad questions — answerable from the repo)
 
 ### Q1, Q3, Q4 — Product / Users
-- **Status:** Withdrawn 2026-06-26. Q1 was premised on the wrong sector (gyms). Q3 and Q4 were vague and the repo already answered them: the visitor is a sports-supplement buyer looking for a store near them; store content, reviews and schedules make the job-to-be-done clear.
+- **Status:** Withdrawn 2026-08-24. Q1 was premised on the wrong sector (gyms). Q3 and Q4 were vague and the repo already answered them: the visitor is a sports-supplement buyer looking for a store near them; store content, reviews and schedules make the job-to-be-done clear.
 - **Impact:** Process correction — investigate primary sources before asking the user.
 
 ### Still open (re-scoped, not yet re-asked)
@@ -118,17 +118,17 @@ The first pass of this file (and of `memory/00-project-brief.md`) described USAF
 
 ## 3. User Observations / Notes
 
-- 2026-06-26: "son tiendas de suplementación deportiva", not gyms. Stores are independent companies with their own CIF; some owners have 2–3 stores.
-- 2026-06-26: prefers to be addressed in **Spanish**.
-- 2026-06-26: expects the agent to **investigate the repo properly before asking**; vague questions whose answers are in the code are not acceptable.
+- 2026-08-24: "son tiendas de suplementación deportiva", not gyms. Stores are independent companies with their own CIF; some owners have 2–3 stores.
+- 2026-08-24: prefers to be addressed in **Spanish**.
+- 2026-08-24: expects the agent to **investigate the repo properly before asking**; vague questions whose answers are in the code are not acceptable.
 
 ---
 
 ## 4. Recently Resolved Doubts
 
-- **Project phase** — resolved 2026-06-26: confirmed **Iteration** by the user. Pending formal `/mm-gate` confirmation in Phase 7.
-- **Sector / what the business actually is** — resolved 2026-06-26: sports-supplement retail stores, not gyms. Source: `src/data/stores.json` + user correction.
-- **Monetization, ownership structure, transactional roadmap, conversion priority** — resolved 2026-06-26 (Q5, Q6, Q7, Q2 above).
+- **Project phase** — resolved 2026-08-24: confirmed **Iteration** by the user. Pending formal `/mm-gate` confirmation in Phase 7.
+- **Sector / what the business actually is** — resolved 2026-08-24: sports-supplement retail stores, not gyms. Source: `src/data/stores.json` + user correction.
+- **Monetization, ownership structure, transactional roadmap, conversion priority** — resolved 2026-08-24 (Q5, Q6, Q7, Q2 above).
 
 ---
 

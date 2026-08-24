@@ -1,6 +1,6 @@
 # Product Vision — USAFitness Landing Pages
 
-> Source: user, 2026-06-26. This file describes where the product is **going**. For what exists today see `memory/02-current-state.md` — the gap between the two is large and deliberate.
+> Source: user, 2026-08-24. This file describes where the product is **going**. For what exists today see `memory/02-current-state.md` — the gap between the two is large and deliberate.
 
 ## North Star
 
@@ -36,7 +36,7 @@ The choice is an **assisted commercial process, not self-serve**:
 
 ## The second anchor — paid local acquisition (future)
 
-Source: user, 2026-06-26. The service is planned to rest on **two anchors**, not one:
+Source: user, 2026-08-24. The service is planned to rest on **two anchors**, not one:
 
 1. **The web** — templates + sections + local SEO (everything above).
 2. **Paid campaigns** — **Google SEM and Facebook/Meta Ads**, run by the operator on behalf of each store. Campaigns are **always geo-targeted to the audience near that physical store**. Stated intent: "conectarlo todo y hacerlas desde aquí."
@@ -53,7 +53,7 @@ The landings stop being *only* SEO destinations and become **paid-traffic destin
 
 ### Resolved: destination is a management platform, but staged
 
-**Decision (user, 2026-06-26): "vamos a ir por la B, pero esto se realizará en un futuro. Primero las secciones y las landings bien optimizadas."**
+**Decision (user, 2026-08-24): "vamos a ir por la B, pero esto se realizará en un futuro. Primero las secciones y las landings bien optimizadas."**
 
 The end state is **Reading B** — this project eventually becomes a platform from which campaigns are *managed*, not merely measured. That will require authentication, a database and API integrations with Google Ads and Meta.
 
@@ -73,11 +73,11 @@ _Partially known:_ a two-anchor service — website system + local paid acquisit
 
 ## What we are NOT
 
-- **Not a self-serve no-code builder.** The store owner chooses from proposals; they never touch a panel. (User, 2026-06-26.)
+- **Not a self-serve no-code builder.** The store owner chooses from proposals; they never touch a panel. (User, 2026-08-24.)
 - **Not e-commerce.** No online sales, booking or payments — confirmed off the roadmap.
 - **Not a multi-tenant SaaS.** No accounts, no auth, no per-tenant database.
 - **Not per-store bespoke development.** Anything built for one store should become a template or a section.
-- **Not a per-store product catalogue (for now).** `Products` and `Brands` are **shared across all stores** by design — USAFitness stores carry the same brands. (User, 2026-06-26.)
+- **Not a per-store product catalogue (for now).** `Products` and `Brands` are **shared across all stores** by design — USAFitness stores carry the same brands. (User, 2026-08-24.)
 
 ## Success metrics (North Star + inputs)
 

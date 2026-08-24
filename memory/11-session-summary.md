@@ -12,7 +12,7 @@
 
 ## Latest session
 
-**Date:** 2026-06-26
+**Date:** 2026-08-24
 **Who worked:** User + Claude Opus 4.8
 **Duration:** ~45 min (onboarding session, in progress)
 
@@ -22,7 +22,7 @@
 - Phase 5 — retroactively seeded 6 memory files (`00`, `02`, `03`, `04`, `06`, `08`) from code/git/README with per-file approval; one commit each (`188560f`→`77ccd78`).
 
 ### Decisions taken
-_Link: `memory/07-decisions-log.md` — 2026-06-26._
+_Link: `memory/07-decisions-log.md` — 2026-08-24._
 - Retroactive memory seeding via `retroactive-documenter`.
 
 ### New or mitigated risks
