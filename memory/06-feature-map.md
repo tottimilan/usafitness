@@ -31,7 +31,7 @@
 | Feature | Status | Priority | Notes |
 |---|---|---|---|
 | **Template system** — multiple selectable templates, differing both visually (colour, type, imagery) and structurally (landing style/shape) | Planned | P0 (vision) | Today `[...slug].astro` hardcodes one template with a fixed section order |
-| **Section library** — sections become optional and composable per store, chosen from a catalogue | Planned | P0 (vision) | Today 12 sections render always, in fixed order; only 4 minor toggles exist |
+| **Section library** — sections become optional and composable per store, chosen from a catalogue | In progress | P0 (vision) | **Partially delivered `828ec40`:** WhatsApp, Reviews and Gallery now omit themselves when the data is absent (Social already did). Still fixed: the *order* of sections, and Products/Promotions/Brands remain hardcoded and identical for every store |
 | **Per-store configuration** of chosen template + chosen sections | Planned | P0 (vision) | Operator-configured in files. No panel/DB/auth needed — the choice is a commercial process |
 | **Products section** — show the products a store carries | Planned | P1 | User: deferred until the section-library work starts. `Products`/`Brands` stay shared across stores |
 | Complete legal `company` data for the 4 pending stores | Planned | P1 | Only Vigo (NM10 SHOP S.L.) has real data; the other 4 ship `noindex` legal pages |

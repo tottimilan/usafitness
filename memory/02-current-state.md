@@ -7,19 +7,21 @@
 
 ## What exists today
 
-**This project is a MIGRATION IN PROGRESS, not a finished 5-store product.** Verified live 2026-08-24 by checking each domain's HTML:
+**This project is a MIGRATION IN PROGRESS, not a finished product.** Verified live 2026-08-24 by checking each domain's HTML:
 
-| Domain | Engine serving it today |
-|---|---|
-| usafitnessalcobendas.com | ✅ **This Astro project** |
-| usafitnessvigo.com | ✅ **This Astro project** |
-| usafitnessvillanueva.com | ⛔ still **WordPress 7.1** (old site) |
-| usafitnessmarineda.com | ⛔ still **WordPress 7.1** (old site) |
-| usafitnesslasrosas.com | ⛔ still **WordPress 7.1** (old site) |
+| Store | Domain | Engine today | Legal `company` |
+|---|---|---|---|
+| Vigo | usafitnessvigo.com | ✅ **Astro** | ✅ NM10 SHOP S.L. |
+| Alcobendas | usafitnessalcobendas.com | ✅ **Astro** | ❌ |
+| GranCasa (Zaragoza) | usafitnessgrancasa.com | 🆕 ready, awaiting DNS | ✅ USA GOVE S.L. |
+| El Arcángel (Córdoba) | usafitnesselarcangel.com | ⛔ WordPress 7.1 | ✅ USA GOVE S.L. |
+| Villanueva | usafitnessvillanueva.com | ⛔ WordPress 7.1 | ❌ |
+| Marineda | usafitnessmarineda.com | ⛔ WordPress 7.1 | ❌ |
+| Las Rosas | usafitnesslasrosas.com | ⛔ WordPress 7.1 | ❌ |
 
-So: **2 of 5 stores migrated**, 3 pending. `src/data/stores.json` holds entries for all 5, but the three un-migrated ones are drafts — which is exactly why their photos are placeholders (`scripts/generate-placeholders.js` hardcodes those same three slugs).
+**Since then (same day):** two more stores were added — **GranCasa** (Zaragoza, brand new, no WordPress, waiting only on DNS) and **El Arcángel** (Córdoba, still on WordPress). Total: **7 stores**.
 
-**The real photos for the 3 pending stores already exist** on their WordPress sites under `/wp-content/uploads/…` and can be pulled from there.
+Real photos for every pending store were recovered from their WordPress sites and converted to `.webp` (commit `de6946e`); `scripts/generate-placeholders.js` was deleted in `bf9aa8f` because it would overwrite real brand logos if run.
 
 - Per-store landing sections (Astro): Hero, brand slider, Products, Promotions, Gallery, Reviews (tabbed), Schedule, Location/map, Social, floating WhatsApp, Footer (`src/components/`).
 - Per-store landing sections: Hero, auto-scrolling brand slider, Products, Promotions, Gallery, Reviews (tabbed), Schedule, Location/map, Social, floating WhatsApp, Footer (`src/components/`).

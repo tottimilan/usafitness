@@ -45,13 +45,13 @@ Cada tienda es un objeto dentro de `stores`. Campos:
 | `metaDescription` | sí | Meta description para Google |
 | `phone` | sí | Teléfono de la tienda, formato `+34...` |
 | `phoneDisplay` | sí | Teléfono formateado para mostrar |
-| `whatsapp` | sí | Número WhatsApp, formato `+34...` |
+| `whatsapp` | no | Número WhatsApp, formato `+34...`. Si falta, no se muestran la burbuja flotante ni la tarjeta de contacto |
 | `googleMapsEmbed` | sí | URL del iframe de Google Maps |
 | `googleMapsLink` | sí | Link directo a Google Maps (ideal: enlace corto del perfil) |
 | `schedule` | sí | Horario (separar líneas con `\n`). Ver formatos abajo |
 | `heroImage` | sí | Path a la foto hero (`.jpg` o `.webp`) |
-| `reviews` | sí | Array de reseñas (`text`, `author`, `avatar`, `stars`) |
-| `galleryImages` | sí | Array de paths a fotos de la tienda |
+| `reviews` | no | Array de reseñas (`text`, `author`, `avatar`, `stars`). Si falta o está vacío, no se muestra la sección **ni se emite `aggregateRating`** en el Schema |
+| `galleryImages` | no | Array de paths a fotos de la tienda. Si falta o está vacío, no se muestra la galería |
 | `galleryFeatured` | no | `true` → primera foto a todo el ancho + fila de 3 |
 | `social` | no | `{ "instagram": "...", "facebook": "...", "tiktok": "...", "youtube": "..." }` |
 | `company` | no | Datos legales del titular de ESA tienda (ver abajo) |

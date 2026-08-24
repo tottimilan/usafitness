@@ -14,20 +14,33 @@ Generador de landing pages para tiendas USAFitness. **Una landing por tienda, ca
 - En local se accede por `/slug`; en producción cada dominio sirve su tienda en la raíz.
 
 ## Config por tienda (`stores.json`)
-Campos clave: `slug, name, domain, streetAddress, postalCode, geo, title, subtitle, location, metaDescription, phone, phoneDisplay, whatsapp, googleMapsEmbed, googleMapsLink, schedule, heroImage, reviews[], galleryImages[]`.
-Opcionales: `galleryFeatured` (galería 1 ancha + fila de 3), `social{instagram,facebook,tiktok,youtube}` (activa icono IG en header + sección RRSS), `company{razonSocial,nif,direccionPostal,emailLegal,telefonoLegal,lastUpdated}` (datos legales), `heroText`, `googleSiteVerification`, `ga4Id` (activa GA4 + banner de cookies).
+Campos obligatorios: `slug, name, domain, streetAddress, postalCode, geo, title, subtitle, location, metaDescription, phone, phoneDisplay, googleMapsEmbed, googleMapsLink, schedule, heroImage`.
+Opcionales — **si faltan, la sección simplemente no se renderiza** (commit 828ec40): `whatsapp` (sin él no hay burbuja flotante ni tarjeta de contacto), `reviews[]` (sin ellas no hay sección de reseñas **ni se emite `aggregateRating`**), `galleryImages[]` (sin ellas no hay galería).
+Otros opcionales: `galleryFeatured` (galería 1 ancha + fila de 3), `social{instagram,facebook,tiktok,youtube}` (activa icono IG en header + sección RRSS), `company{razonSocial,nif,direccionPostal,emailLegal,telefonoLegal,lastUpdated}` (datos legales), `heroText`, `googleSiteVerification`, `ga4Id` (activa GA4 + banner de cookies).
 - Avatares de reseñas: SIEMPRE en local `public/photos/<slug>/reviews/` (no URLs de Google, caducan).
 
 ## Reglas de trabajo (IMPORTANTES)
 - **Push después de CADA cambio** a `origin/main` (Railway despliega en cada push). Verificar `npm run build` antes de pushear.
-- **No inventar datos legales** (razón social, NIF, email…). Pedirlos al usuario. NM10 SHOP S.L. es SOLO de Vigo.
+- **No inventar datos legales** (razón social, NIF, email…). Pedirlos al usuario. Una misma sociedad PUEDE ser titular de varias tiendas: NM10 SHOP S.L. es solo de Vigo, pero USA GOVE S.L. (B22465587) es titular de El Arcángel y GranCasa.
 - Tiendas sin `company` → páginas legales muestran aviso "en actualización" y van `noindex`.
 - SEO por dominio sin mezclar: canonical al dominio propio, `noindex` en hosts no canónicos, sitemap/robots por dominio.
 
-## Estado actual (jun 2026)
-- **Vigo**: completa (datos legales NM10, fotos, RRSS, avatares). Lista para desplegar.
-- **Villanueva, Marineda, Las Rosas, Alcobendas**: faltan datos legales (`company`). Alcobendas ya tiene dominio en Railway.
-- **GA4 + banner cookies**: sistema montado (`CookieConsent.astro`, Consent Mode v2), inactivo hasta poner `ga4Id` por tienda. Pixel/Google Ads: pendientes (más adelante, una cuenta por tienda bajo Business Manager/MCC).
+## Estado actual
+
+**No se duplica aquí.** La fuente única es `memory/02-current-state.md` (qué dominio sirve Astro y cuál sigue en WordPress, qué tienda tiene datos legales, y la cola pendiente de migración). Consultarlo antes de afirmar nada sobre el estado.
+
+Resumen estable: el proyecto es la **migración de las webs de WordPress a este sistema Astro**; conviven tiendas ya migradas y tiendas que todavía sirven su WordPress antiguo.
+
+- **GA4 + banner cookies**: sistema montado (`CookieConsent.astro`, Consent Mode v2), inactivo hasta poner `ga4Id` por tienda. Ojo: el banner está acoplado a `ga4Id`, así que sin él tampoco se muestra el aviso de cookies. Pixel/Google Ads: pendientes (una cuenta por tienda bajo Business Manager/MCC).
+
+## Excepción de stack — NO aplicar el sistema de diseño de la plantilla
+
+Este proyecto es **Astro SSR con HTML/CSS puro**: sin React, sin Tailwind, sin shadcn/ui, sin `components.json`. El estilo vive en `src/styles/global.css` con custom properties CSS.
+
+Por tanto, en este repositorio:
+- **NO ejecutar `scripts/install-shadcn-mcp.ps1`** bajo ninguna bandera: su detección de stack solo contempla expo/next/react y termina en `exit 2`.
+- **NO usar** las skills `prototype-designer` ni `mockup-factory`, ni los comandos `/mm-design` y `/mm-mockup`: asumen shadcn/ui + Claude Design. Se disparan con palabras como "diseña", "prototipo" o "mockup", que aquí son frases normales — ignorarlas.
+- `.cursor/rules/08-design-system.mdc` se auto-adjunta por el glob `**/src/components/**` y coincide con los 13 componentes `.astro` reales. **Sus reglas de shadcn no aplican**; los tokens reales están en `memory/14-design-system.md`.
 
 ## Despliegue de un dominio en Railway
 El código de todas las tiendas YA está desplegado en el servicio único. Para activar un dominio: Railway → servicio → Settings → Networking → **Custom Domain** → añadir `dominio.com` y `www.dominio.com` → crear el CNAME que indique Railway en el DNS (Cloudflare recomendado) → quitar registros de la web antigua → esperar SSL.
