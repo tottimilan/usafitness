@@ -43,6 +43,8 @@
 | **Plantilla 2 "angular"** (`d9833ef`) | `?plantilla=2`, bloqueada en dominios canónicos. 0 componentes tocados |
 | Fotos reales (`de6946e`) | 19 recuperadas de los WordPress, convertidas a `.webp` |
 | Cloudflare: bots de IA desbloqueados (`987f78a`) | 7 zonas verificadas |
+| **Viewport inicial: 814 KB → 162 KB** (`7b21007`) | Logo vectorial real 277→23 KB; fondo de hero 537→139 KB en WebP, con el punto de compresión medido **a través del overlay** |
+| **Datos estructurados corregidos** (`550844d`) | `@type: Store`, `addressLocality` y `addressRegion` reales, y **fuera el `aggregateRating` autoservido** |
 
 ---
 
@@ -52,17 +54,21 @@
 
 | # | Tarea | Prioridad | Por qué |
 |---|---|---|---|
-| 1 | **Optimizar los 812 KB del viewport inicial** | P0 | `usafitness.svg` son **276 KB para pintar 200×42 px** (es un PNG envuelto en SVG; ya tenemos el vectorial real en `docs/brand/fuentes/`). `hero-bg.jpg` son **536 KB** y es el elemento LCP de las 7 tiendas, además tapado por un overlay al 0.78. Afecta a todas las tiendas a la vez y el rendimiento **es** el producto |
-| 2 | **`addressLocality` recibe texto de marketing** | P0 | Villanueva declara a Google que su localidad es *"el noroeste de Madrid"*, que no existe. El campo `location` es copy publicitario y entra en el marcado como dato postal, y además compone el `<title>`. Hace falta separar `location` (marketing) de `addressLocality` (postal) |
-| 3 | **`@type: LocalBusiness` → `Store`** | P1 | Tipo genérico: un gimnasio emitiría el mismo JSON-LD. `Store` es el tipo canónico de retail. Cambio de una línea |
-| 4 | **`addressRegion: "España"`** | P1 | Duplica el país (`addressCountry: "ES"` ya está) y nunca declara la provincia real. Señal local desperdiciada |
-| 5 | **El centro comercial en el contenido** | P1 | El `<title>` es `{nombre} \| Nutrición Deportiva en {location}` y **no menciona el centro comercial** en ninguna de las 7, pese a tenerlo en `streetAddress`. La propia marca instruye a destacarlo (anexo de integración digital). Nadie busca "suplementos Zaragoza", busca "suplementos GranCasa" |
+| 1 | ~~Optimizar los 812 KB~~ | — | ✅ Hecho en `7b21007`: 814 → 162 KB |
+| 2 | ~~`addressLocality` con texto de marketing~~ | — | ✅ Hecho en `550844d` |
+| 3 | ~~`@type: LocalBusiness` → `Store`~~ | — | ✅ Hecho en `550844d` |
+| 4 | ~~`addressRegion: "España"`~~ | — | ✅ Hecho en `550844d` |
+| 5 | **El centro comercial en el contenido** | P1 | Parcial: el `mall` ya es campo estructurado en las 7 y Villanueva estrena el C.C. El Zoco en su meta. Queda decidir si entra también en el hero, en los `alt` de galería y en la sección de ubicación. **El `<title>` ya lo lleva en 5 de 7 vía el `name`, y los títulos rozan los 60-70 caracteres: no cabe forzarlo ahí** |
+| 6 | **Desacoplar el banner de cookies de `ga4Id`** | P1 | Hoy sin `ga4Id` no se renderiza el aviso de cookies. Son decisiones que deben ser independientes |
+| 7 | **Sitemap: excluir legales `noindex`** | P2 | ✅ Ya hecho en `bf9aa8f` |
 
 ### Decisión pendiente antes de tocar
 
-| # | Tema | Qué hay que decidir |
-|---|---|---|
-| 6 | **`aggregateRating` autoservido** | Las 7 tiendas declaran 5,0 con 3 valoraciones, calculado desde el propio JSON. Google **prohíbe** el marcado de valoraciones autoservidas y puede retirar los rich results de todo el dominio por acción manual. Quitarlo pierde las estrellas en resultados; dejarlo mantiene el riesgo ×7 dominios |
+_Ninguna._
+
+El `aggregateRating` **ya no era una disyuntiva**: Google declara que una página cuyas reseñas controla el propio negocio es *"ineligible for star review feature"*, así que el marcado no producía estrellas y solo cargaba riesgo. Retirado en `550844d`.
+
+La idea de traer las reseñas automáticamente desde la API de Google **no arregla el SEO** — *"Don't aggregate reviews or ratings from other websites"* —, pero sigue siendo válida como mejora de contenido: acabaría con las reseñas duplicadas de Marineda/Las Rosas y evitaría editar JSON a mano. Coste: clave de API, cuota, reglas de caché de la licencia de Places y una dependencia externa en tiempo de ejecución que el proyecto hoy no tiene. **Sin decidir.**
 
 ### Siguiente bloque — sistema de plantillas
 
