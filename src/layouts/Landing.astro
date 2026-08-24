@@ -23,7 +23,7 @@ const {
   name, domain, title, metaDescription, location,
   phone, phoneDisplay, schedule, slug,
   streetAddress = '', postalCode = '',
-  geo, reviewCount = 3, avgRating = 5,
+  geo, reviewCount = 0, avgRating = 0,
   heroImage = `/photos/${slug}/hero.jpg`,
   social = {},
   googleSiteVerification = ''
@@ -103,13 +103,17 @@ const structuredData: Record<string, any> = {
     "addressCountry": "ES"
   },
   ...(openingHours && { "openingHoursSpecification": openingHours }),
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": String(avgRating),
-    "bestRating": "5",
-    "worstRating": "1",
-    "ratingCount": String(reviewCount)
-  }
+  // Only declare a rating when the store actually has reviews. A store with none
+  // (e.g. a newly opened one) must not publish an invented aggregateRating.
+  ...(reviewCount > 0 && avgRating > 0 && {
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": String(avgRating),
+      "bestRating": "5",
+      "worstRating": "1",
+      "ratingCount": String(reviewCount)
+    }
+  })
 };
 
 if (geo) {

@@ -27,6 +27,17 @@ if (!store) {
 const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
 const onOwnDomain = host === store.domain || host === `www.${store.domain}`;
 const legalBase = onOwnDomain ? '' : `/${store.slug}`;
+
+// Optional sections. A store may legitimately have no reviews yet (newly opened,
+// Google Business profile not created) or no WhatsApp line. In both cases the
+// section is omitted rather than rendered empty or with invented data.
+const reviews = store.reviews ?? [];
+const hasReviews = reviews.length > 0;
+const galleryImages = store.galleryImages ?? [];
+const hasGallery = galleryImages.length > 0;
+const avgRating = hasReviews
+  ? Math.round((reviews.reduce((sum: number, r: any) => sum + r.stars, 0) / reviews.length) * 10) / 10
+  : 0;
 ---
 
 <Landing
@@ -42,8 +53,8 @@ const legalBase = onOwnDomain ? '' : `/${store.slug}`;
   streetAddress={store.streetAddress}
   postalCode={store.postalCode}
   geo={store.geo}
-  reviewCount={store.reviews.length}
-  avgRating={Math.round((store.reviews.reduce((sum: number, r: any) => sum + r.stars, 0) / store.reviews.length) * 10) / 10}
+  reviewCount={reviews.length}
+  avgRating={avgRating}
   heroImage={store.heroImage}
   social={(store as any).social}
   googleSiteVerification={(store as any).googleSiteVerification}
@@ -63,8 +74,8 @@ const legalBase = onOwnDomain ? '' : `/${store.slug}`;
     googleMapsEmbed={store.googleMapsEmbed}
     googleMapsLink={store.googleMapsLink}
   />
-  <Gallery images={store.galleryImages} name={store.name} location={store.location} featured={(store as any).galleryFeatured ?? false} />
-  <Reviews reviews={store.reviews} />
+  {hasGallery && <Gallery images={galleryImages} name={store.name} location={store.location} featured={(store as any).galleryFeatured ?? false} />}
+  {hasReviews && <Reviews reviews={reviews} />}
   <Products />
   <Brands />
   <Schedule
@@ -73,6 +84,7 @@ const legalBase = onOwnDomain ? '' : `/${store.slug}`;
     phoneDisplay={store.phoneDisplay}
     whatsapp={store.whatsapp}
     googleMapsLink={store.googleMapsLink}
+    name={store.name}
   />
   <Social social={(store as any).social} name={store.name} />
   <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
