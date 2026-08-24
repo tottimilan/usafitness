@@ -83,6 +83,26 @@ Es uno de los ejes de diferenciación entre plantillas (tratamiento a sangre vs.
 
 ---
 
+## 4-bis. Lenguaje visual de aplicación (render de tienda + brand book)
+
+Fuentes: `docs/brand/fuentes/WhatsApp Image 2026-08-24 at 17.01.00.jpeg` (render del interior de tienda) y las páginas del brand book. Esto describe cómo se ve la marca **aplicada**, que es distinto de la lista de colores.
+
+- **La DIAGONAL es el recurso gráfico de la marca.** Aparece en la esquina de todas las páginas del brand book y en los paneles, el frigorífico y la cartelería de la tienda física. **La web no la usa en absoluto.** Es el elemento más reconocible y el más desaprovechado.
+- **En aplicación domina el CIAN `#00A7E1`, no el azul `#0055B8`.** El azul es del logotipo; el cian es el color de ambiente de la marca (paneles, franjas, señalética). El brand book ya lo dice: los secundarios son "para fondos y elementos decorativos".
+- **Base blanca y luminosa.** Estantería blanca, suelo claro, mucho aire. La tienda no es oscura ni densa.
+- **Tipografía mixta en cartelería:** sans en mayúsculas + una **script/cursiva** para la palabra destacada — "SUPPORT FOR YOUR *Sport* HERE", "YOU ARE *Stronger* THAN YOU THINK", "YOUR *Journey* IS OUR GOAL!". La web no tiene nada de esto y es un rasgo de marca muy distintivo.
+- **Claims en inglés** como parte del lenguaje de marca.
+- Fotografía de personas entrenando integrada en la cartelería, sobre fondos de color.
+
+**Implicación para las plantillas:** aquí están los ejes de diferenciación reales, y ninguno es "cambiar el color":
+| Eje | Recurso disponible |
+|---|---|
+| Uso del color | Cian dominante vs. azul dominante; cuánta superficie de color |
+| Forma | Presencia y ángulo de las diagonales |
+| Densidad | Aire de tienda (mucho blanco) vs. cartelería densa |
+| Foto | Integrada en bloque de color vs. a sangre |
+| Tipografía | Mayor o menor peso del recurso script en los destacados |
+
 ## 5. Estado del código
 
 **14 custom properties** en `:root` de `src/styles/global.css`, frente a **49 colores literales a fuego** repartidos por los 13 componentes, más 18 `border-radius` y 18 `box-shadow` literales.

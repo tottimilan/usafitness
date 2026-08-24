@@ -14,3 +14,20 @@ renderizadas aquí para poder consultarlas sin abrir el PDF original.
 
 Los valores están transcritos y contrastados contra el código en `memory/14-design-system.md`.
 El PDF original no se versiona aquí (11 MB); lo custodia el usuario.
+
+## fuentes/ — originales de marca
+
+Material original facilitado por el cliente. **Se movió aquí desde `public/usafitness/`**
+porque `public/` se publica tal cual: los ficheros eran descargables desde los 7 dominios
+(la guía de tiendas de 10 MB devolvía HTTP 200).
+
+| Fichero | Contenido |
+|---|---|
+| `Logo Usafitness RGB.ai` / `.pdf` | Logotipo **vectorial real**. Origen para generar el SVG optimizado que sustituya al PNG-en-SVG de 276 KB |
+| `Logo Usafitness CMYK.ai` / `.pdf` | Versión para impresión |
+| `ANEXO Integracion Digital USAFITNESS.pdf` | Proceso de integración digital del **franquiciado**: redes sociales propias y guion del video tour |
+| `GUIA TIENDAS USAFITNESS.pdf` | Guía gratuita de nutrición (lead magnet) con los expertos Julián Gouveia y Amanda Gil |
+| `*Landing Comunidad Banner 0X*` | Banners oficiales de campaña, en desktop / tablet / móvil |
+| `WhatsApp Image …jpeg` | Render del interior de tienda: diagonales, cian de ambiente, base blanca |
+
+**Nunca mover esta carpeta a `public/`.**

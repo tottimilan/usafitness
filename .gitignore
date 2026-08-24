@@ -103,3 +103,8 @@ temp/
 # --- Project-specific (Astro / this repo) ---
 .astro/
 *.code-workspace
+
+# --- Originales de marca (pesados; el cliente los custodia) ---
+docs/brand/fuentes/*.pdf
+docs/brand/fuentes/*.ai
+docs/brand/fuentes/*Banner*
