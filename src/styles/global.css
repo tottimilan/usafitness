@@ -11,23 +11,26 @@
    Vocabulario de diseño del proyecto. Todo lo temático vive aquí: los
    componentes no deben declarar colores, radios ni sombras propios.
 
-   Los valores actuales NO son los de la marca (ver memory/14-design-system.md:
-   el azul corporativo es #0055B8, el rojo #E1251B no existe en la web y el
-   cian #00A7E1 es el color de ambiente). Corregirlos es un paso posterior y
-   deliberado, porque cambia el aspecto de las 7 tiendas.
+   La paleta es la OFICIAL del brand book (UF BRAND BOOK - ANEXO IDENTIDAD
+   CORPORATIVA): azul #0055B8, gris #98989A y rojo #E1251B del logotipo, más
+   cian #00A7E1 y gris #DADADA como secundarios decorativos.
+   Transcripción y contraste con el código en memory/14-design-system.md.
    ========================================================================== */
 :root {
   /* --- Color de marca --- */
-  --color-primary: #1B3A6B;
-  --color-primary-light: #3B6FC1;
-  --color-cta: #4A7BD4;
-  --color-cta-hover: #3A65B5;
+  --color-primary: #0055B8;          /* Pantone 2935C */
+  --color-primary-light: #0072C6;    /* tinte legible del azul (5:1 sobre blanco) */
+  --color-cta: #0055B8;
+  --color-cta-hover: #00449A;
   --color-text: #333333;
-  --color-text-light: #666666;
+  --color-text-light: #6E6E70;       /* Cool Gray 7 oscurecido: el #98989A de marca da 2,6:1 en texto pequeño y no cumple WCAG AA */
+  --color-gray-brand: #98989A;       /* Cool Gray 7 puro. Para bordes, iconos y superficies, NUNCA texto */
   --color-bg: #FFFFFF;
-  --color-bg-alt: #F0F4F8;
+  --color-bg-alt: #F2F5F7;
   --color-bg-gallery: #F5F0EE;
   --color-stars: #F4B400;
+  --color-accent: #E1251B;           /* Pantone 485C. Promociones y descuentos */
+  --color-cyan: #00A7E1;             /* Pantone 2995C. SOLO decorativo y fondos: sobre blanco da 2,9:1, no vale para texto */
 
   /* --- Texto y superficie sobre fondo de color --- */
   --color-on-brand: #ffffff;
