@@ -187,6 +187,25 @@
       ]
     },
     {
+      "slug": "grancasa",
+      "name": "USAFITNESS C.C GRANCASA",
+      "domain": "usafitnessgrancasa.com",
+      "streetAddress": "C.C. GranCasa, C. de María Zambrano, 35",
+      "postalCode": "50018",
+      "title": "Tu tienda de suplementación en Zaragoza",
+      "subtitle": "Encuéntranos en el C.C. GranCasa",
+      "location": "Zaragoza",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. GranCasa, Zaragoza. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "phone": "+34876439039",
+      "phoneDisplay": "876 439 039",
+      "googleMapsEmbed": "https://www.google.com/maps?q=C.C.+GranCasa,+Calle+de+Maria+Zambrano,+35,+50018+Zaragoza&output=embed",
+      "googleMapsLink": "https://www.google.com/maps/search/C.C.+GranCasa,+Calle+de+Maria+Zambrano,+35,+50018+Zaragoza",
+      "schedule": "De lunes a sábado: 10:00 a 22:00",
+      "heroImage": "/hero-bg.jpg",
+      "reviews": [],
+      "galleryImages": []
+    },
+    {
       "slug": "vigo",
       "name": "USAFITNESS C.C GRAN VÍA VIGO",
       "domain": "usafitnessvigo.com",
