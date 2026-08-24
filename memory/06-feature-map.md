@@ -1,43 +1,100 @@
 # Feature Map — USAFitness Landing Pages
 
-> All features below are live on `main` and deployed. Single contributor; no active feature branch, so nothing is "In progress" in code.
+**Última actualización:** 2026-08-24 (28 commits en la sesión)
 
-## Legend
-- Status: Planned | In progress | Shipped | Paused | Killed
-- Priority: P0 | P1 | P2 | P3
+> El proyecto es la **migración de las webs WordPress a un sistema propio de plantillas y secciones**, más un segundo ancla futuro de campañas SEM/Meta. Ver `memory/01-product-vision.md`.
 
-## MVP scope
-| Feature | Status | Priority | Owner | Notes |
-|---|---|---|---|---|
-| Multi-store landing template (Hero, Brands, Products, Promotions, Gallery, Reviews, Schedule, Location, Social, WhatsApp, Footer) | Shipped | P0 | — | Driven by `stores.json`; one template renders all stores |
-| Domain-based routing middleware (host→slug, per-store isolation) | Shipped | P0 | — | `src/middleware.ts`; each store at root of its own domain |
-| Per-store legal pages (4 doc types, clean URLs) | Shipped | P0 | — | `noindex` + "en actualización" when `company` data absent |
-| SEO core (Schema.org `LocalBusiness`, OG/Twitter, per-domain canonical) | Shipped | P0 | — | `Landing.astro` |
-| GDPR cookie consent + GA4 + Consent Mode v2 (opt-in) | Shipped | P0 | — | `CookieConsent.astro` (git `c849751`) |
-| Dynamic per-domain `sitemap.xml` + `robots.txt` | Shipped | P1 | — | Each domain exposes only its own URLs |
-| Local-SEO polish (per-store Search Console verify, `noindex` non-canonical hosts, localized hero/alt) | Shipped | P1 | — | git `261ed32`, `150adf4` |
-| Reviews section (tabbed, avatars, star ratings) | Shipped | P1 | — | Self-hosted avatars recommended |
-| Gallery (optional featured layout) | Shipped | P1 | — | `galleryFeatured` flag |
-| Location / Google Maps embed | Shipped | P1 | — | Per-store embed + link |
-| Schedule → Schema `OpeningHoursSpecification` | Shipped | P1 | — | Parsed from free-text schedule |
-| Floating WhatsApp contact | Shipped | P1 | — | `WhatsAppFloat.astro` |
-| Social section + Instagram header icon | Shipped | P2 | — | IG/FB/TikTok/YouTube; renders only if `social` present |
-| Auto-scrolling brand slider (CSS) | Shipped | P2 | — | git `420dc75` |
+## Leyenda
+- Estado: Planned | In progress | Shipped | Paused | Killed
+- Prioridad: P0 | P1 | P2 | P3
+- 🔒 = bloqueado por un dato que solo puede aportar el usuario
 
-## Post-MVP backlog
+---
 
-**The product vision (`memory/01-product-vision.md`) is not built yet.** Everything "Shipped" above is *one* template. The items below are new construction, not polish.
+## Estado por tienda (7)
 
-| Feature | Status | Priority | Notes |
+| Tienda | Motor | Datos legales | Fotos | Reseñas | Ficha Google |
+|---|---|---|---|---|---|
+| Vigo | ✅ Astro | ✅ NM10 SHOP | ✅ | ✅ propias | ✅ |
+| Alcobendas | ✅ Astro | 🔒 faltan | ✅ | ✅ propias | ✅ |
+| GranCasa | ✅ Astro | ✅ USA GOVE | 🔒 faltan | 🔒 sin ficha | 🔒 sin dar de alta |
+| El Arcángel | ⛔ WordPress | ✅ USA GOVE | ✅ | ✅ propias | ✅ |
+| Villanueva | ⛔ WordPress | 🔒 faltan | ✅ | ⚠ duplicadas | ⚠ place_id sintético |
+| Marineda | ⛔ WordPress | 🔒 faltan | ✅ | ⚠ duplicadas | ⚠ place_id sintético |
+| Las Rosas | ⛔ WordPress | 🔒 faltan | ✅ | ⚠ duplicadas | ⚠ place_id sintético |
+
+**El Arcángel es la migración más cercana:** lo tiene todo menos apuntar el DNS.
+
+---
+
+## Shipped
+
+| Feature | Notas |
+|---|---|
+| Plantilla base con 12 secciones | Hero, Promotions, Location, Gallery, Reviews, Products, Brands, Schedule, Social, Footer, WhatsAppFloat, CookieConsent |
+| Enrutado por dominio (`middleware.ts`) | Verificado en producción: la cabecera `Host` sobrevive a Cloudflare+Railway |
+| SEO por dominio | canonical, `noindex` en hosts no canónicos, sitemap y robots dinámicos |
+| Páginas legales por tienda | 4 documentos; `noindex` automático si falta `company` |
+| GDPR: banner + Consent Mode v2 | Montado, **inactivo**: acoplado a `ga4Id`, que no tiene ninguna tienda |
+| **Secciones opcionales** (`828ec40`) | WhatsApp, reseñas y galería se omiten si falta el dato |
+| **Vocabulario de tokens** (`2f9ec56`) | 49 tokens; 46 literales retirados de los componentes. 0 cambio visual |
+| **Paleta oficial de marca** (`aac2478`) | `#0055B8` / `#98989A` / `#E1251B` + cian. 0 fallos de contraste |
+| **Diagonal como capacidad** (`50f3b88`) | Tokens + 4 utilidades CSS, inertes |
+| **Plantilla 2 "angular"** (`d9833ef`) | `?plantilla=2`, bloqueada en dominios canónicos. 0 componentes tocados |
+| Fotos reales (`de6946e`) | 19 recuperadas de los WordPress, convertidas a `.webp` |
+| Cloudflare: bots de IA desbloqueados (`987f78a`) | 7 zonas verificadas |
+
+---
+
+## Roadmap
+
+### Ahora — sin dependencias, alto impacto
+
+| # | Tarea | Prioridad | Por qué |
 |---|---|---|---|
-| **Template system** — multiple selectable templates, differing both visually (colour, type, imagery) and structurally (landing style/shape) | Planned | P0 (vision) | Today `[...slug].astro` hardcodes one template with a fixed section order |
-| **Section library** — sections become optional and composable per store, chosen from a catalogue | In progress | P0 (vision) | **Partially delivered `828ec40`:** WhatsApp, Reviews and Gallery now omit themselves when the data is absent (Social already did). Still fixed: the *order* of sections, and Products/Promotions/Brands remain hardcoded and identical for every store |
-| **Per-store configuration** of chosen template + chosen sections | Planned | P0 (vision) | Operator-configured in files. No panel/DB/auth needed — the choice is a commercial process |
-| **Products section** — show the products a store carries | Planned | P1 | User: deferred until the section-library work starts. `Products`/`Brands` stay shared across stores |
-| Complete legal `company` data for the 4 pending stores | Planned | P1 | Only Vigo (NM10 SHOP S.L.) has real data; the other 4 ship `noindex` legal pages |
-| Resolve duplicated reviews across stores | Planned | P1 | Identical review text + author reused across Villanueva/Marineda/Las Rosas; one contradicts its store's own schedule |
-| Verify WhatsApp numbers | Planned | P1 | 4 of 5 stores point WhatsApp at a landline; only Vigo has a separate mobile. Needs owner confirmation |
-| _Further strategic backlog_ | Planned | — | _TBD — /mm-audit_ |
+| 1 | **Optimizar los 812 KB del viewport inicial** | P0 | `usafitness.svg` son **276 KB para pintar 200×42 px** (es un PNG envuelto en SVG; ya tenemos el vectorial real en `docs/brand/fuentes/`). `hero-bg.jpg` son **536 KB** y es el elemento LCP de las 7 tiendas, además tapado por un overlay al 0.78. Afecta a todas las tiendas a la vez y el rendimiento **es** el producto |
+| 2 | **`addressLocality` recibe texto de marketing** | P0 | Villanueva declara a Google que su localidad es *"el noroeste de Madrid"*, que no existe. El campo `location` es copy publicitario y entra en el marcado como dato postal, y además compone el `<title>`. Hace falta separar `location` (marketing) de `addressLocality` (postal) |
+| 3 | **`@type: LocalBusiness` → `Store`** | P1 | Tipo genérico: un gimnasio emitiría el mismo JSON-LD. `Store` es el tipo canónico de retail. Cambio de una línea |
+| 4 | **`addressRegion: "España"`** | P1 | Duplica el país (`addressCountry: "ES"` ya está) y nunca declara la provincia real. Señal local desperdiciada |
+| 5 | **El centro comercial en el contenido** | P1 | El `<title>` es `{nombre} \| Nutrición Deportiva en {location}` y **no menciona el centro comercial** en ninguna de las 7, pese a tenerlo en `streetAddress`. La propia marca instruye a destacarlo (anexo de integración digital). Nadie busca "suplementos Zaragoza", busca "suplementos GranCasa" |
+
+### Decisión pendiente antes de tocar
+
+| # | Tema | Qué hay que decidir |
+|---|---|---|
+| 6 | **`aggregateRating` autoservido** | Las 7 tiendas declaran 5,0 con 3 valoraciones, calculado desde el propio JSON. Google **prohíbe** el marcado de valoraciones autoservidas y puede retirar los rich results de todo el dominio por acción manual. Quitarlo pierde las estrellas en resultados; dejarlo mantiene el riesgo ×7 dominios |
+
+### Siguiente bloque — sistema de plantillas
+
+| # | Tarea | Prioridad |
+|---|---|---|
+| 7 | **Registro de plantillas**: `templates.ts` + `"template"` en `stores.json` | P0 (visión) |
+| 8 | **Orden de secciones como dato**: la plantilla propone, la tienda ajusta | P0 (visión) |
+| 9 | **Variantes de sección** (`{sección, variante}`) | P0 (visión) |
+| 10 | Sección de **Productos** real | P1 — diferida por el usuario hasta que empiece el trabajo de secciones |
+
+### Después — capa de medición (prerrequisito de las campañas)
+
+| # | Tarea | Prioridad |
+|---|---|---|
+| 11 | `ga4Id` por tienda: **0 de 7** lo tienen, así que hoy no hay analítica ni banner de cookies | P0 antes de campañas |
+| 12 | **Desacoplar el banner de cookies de `ga4Id`** | P1 |
+| 13 | Eventos de conversión (WhatsApp, llamada, cómo llegar) | P0 antes de campañas |
+| 14 | `googleSiteVerification`: **0 de 7**. Sin Search Console no hay informe que enseñar | P1 |
+
+### Bloqueado por el usuario 🔒
+
+| # | Qué falta | Efecto |
+|---|---|---|
+| 15 | Datos legales de **Villanueva, Marineda, Las Rosas y Alcobendas** | Sus 16 páginas legales siguen en `noindex` |
+| 16 | Confirmar si los **WhatsApp en fijo** funcionan (esas mismas 4) | Si no, ocultar la sección es trivial desde `828ec40` |
+| 17 | **DNS de El Arcángel** a Railway | Es la migración más cercana: ya tiene todo lo demás |
+| 18 | Fotos y ficha de Google de **GranCasa** | Su galería no se renderiza y el mapa apunta a la dirección, no a la ficha |
+| 19 | Decidir sobre las **reseñas duplicadas** entre Villanueva/Marineda/Las Rosas | Mismo texto y misma autora en tres empresas distintas |
+| 20 | Sustituir los **`place_id` sintéticos** de esas tres | Sus mapas pueden no apuntar al negocio real |
+
+---
 
 ## Killed / deferred
-_None recorded._ (Brand-slider dots were removed in git `94d0f19` — a visual tweak, not a killed feature.)
+
+_Ninguna._ (Los puntos del brand-slider se quitaron en `94d0f19`: retoque visual, no feature.)

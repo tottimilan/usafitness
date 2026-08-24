@@ -58,6 +58,13 @@ The product goal (`memory/01-product-vision.md`) is a **catalogue of templates +
 **Phase tension to resolve at the gate:** the *deployed product* is in Iteration; the *template system* is closer to Definition. Flagged for `/mm-gate` (Phase 7).
 
 ## What is next
-- Build toward the vision: template system → section library → Products section (in that order; the Products section is explicitly deferred by the user until the section work starts).
-- Fix per-store data debt: real legal `company` data for the 4 pending stores, duplicated reviews, WhatsApp numbers pointing at landlines.
-- Process: finish onboarding (audit → /mm-gate → /mm-retro).
+
+**Roadmap completo y priorizado en `memory/06-feature-map.md`.**
+
+Siguiente tarea sin dependencias: **optimizar los 812 KB del viewport inicial** (logo de 276 KB con el vectorial real ya disponible en `docs/brand/fuentes/`, y fondo de hero de 536 KB que es el LCP de las 7 tiendas). Afecta a todas a la vez y el rendimiento es el producto.
+
+Después: los arreglos de SEO estructurado (`addressLocality` recibiendo copy publicitario, `@type` genérico, `addressRegion` duplicando el país) y meter el centro comercial en el contenido.
+
+Decisión pendiente antes de tocar: qué hacer con el `aggregateRating` autoservido, que es riesgo de acción manual de Google en 7 dominios.
+
+Luego el bloque grande: registro de plantillas → orden de secciones como dato → variantes de sección.
