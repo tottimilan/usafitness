@@ -215,7 +215,15 @@
       "schedule": "De lunes a sábado: 10:00 a 22:00",
       "heroImage": "/hero-bg.jpg",
       "reviews": [],
-      "galleryImages": []
+      "galleryImages": [],
+      "company": {
+        "razonSocial": "USA GOVE S.L.",
+        "nif": "B22465587",
+        "direccionPostal": "Calle Herreros, 17A, 28906 Getafe (Madrid)",
+        "emailLegal": "grancasa@tiendausa.es",
+        "lastUpdated": "24 de agosto de 2026",
+        "telefonoLegal": "876 439 039"
+      }
     },
     {
       "slug": "vigo",
@@ -323,7 +331,15 @@
         "/photos/arcangel/tienda-3.webp",
         "/photos/arcangel/tienda-4.webp",
         "/photos/arcangel/tienda-5.webp"
-      ]
+      ],
+      "company": {
+        "razonSocial": "USA GOVE S.L.",
+        "nif": "B22465587",
+        "direccionPostal": "Calle Herreros, 17A, 28906 Getafe (Madrid)",
+        "emailLegal": "grancasa@tiendausa.es",
+        "lastUpdated": "24 de agosto de 2026",
+        "telefonoLegal": "957 916 862"
+      }
     }
   ]
 }
