@@ -20,6 +20,7 @@ const year = new Date().getFullYear();
             <a href={`${legalBase}/${doc.slug}`}>{doc.label}</a>
           </li>
         ))}
+        <button type="button" class="footer-cookie-btn" data-uf-cookie-config>Configurar cookies</button>
       </ul>
     </nav>
     <p class="footer-copy">{name} &copy; {year} &mdash; Todos los derechos reservados</p>
@@ -27,6 +28,18 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
+  /* Botón de revocación de consentimiento. Se estiliza como un enlace más de
+     la fila legal: es un requisito del art. 7.3 RGPD, no una acción destacada. */
+  .footer-cookie-btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
   .footer {
     background: var(--color-primary);
     padding: 2.5rem 1.5rem 1.75rem;

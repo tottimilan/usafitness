@@ -4,13 +4,22 @@ interface Props {
   cookiePolicyHref: string;
 }
 const { ga4Id = '', cookiePolicyHref } = Astro.props;
-const enabled = !!ga4Id;
+
+// DOS DECISIONES INDEPENDIENTES, antes acopladas en una sola condición:
+//   analitica  -> ¿hay algo que medir? (hoy solo GA4; mañana Pixel / Google Ads)
+//   avisoCookies -> ¿hay que pedir consentimiento?
+// Estaban unidas por `enabled = !!ga4Id`, así que una tienda sin ga4Id tampoco
+// mostraba el aviso de cookies. Hoy eso no incumple —sin GA4 no se instala
+// ninguna cookie— pero impide decidir cada cosa por separado y habría dejado
+// las webs sin aviso el día que entre el Pixel de Meta.
+const analitica = !!ga4Id;
+const avisoCookies = analitica;
 const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
 ---
 
-{enabled && (
+{analitica && (
   <Fragment>
-    {/* Google Consent Mode v2: deny tracking by default until the user accepts */}
+    {/* Google Consent Mode v2: todo denegado por defecto hasta que el usuario acepte */}
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
@@ -33,7 +42,11 @@ const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
       gtag('js', new Date());
       gtag('config', ga4Id, { anonymize_ip: true });
     </script>
+  </Fragment>
+)}
 
+{avisoCookies && (
+  <Fragment>
     <div id="uf-cookie-banner" class="uf-cookie" role="dialog" aria-label="Aviso de cookies" hidden>
       <p class="uf-cookie-text">
         Utilizamos cookies analíticas propias y de terceros para mejorar nuestros servicios.
@@ -56,12 +69,29 @@ const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
         function decide(value) {
           try { localStorage.setItem(KEY, value); } catch (e) {}
           banner.hidden = true;
-          if (value === 'granted' && window.gtag) {
-            window.gtag('consent', 'update', { analytics_storage: 'granted' });
+          if (window.gtag) {
+            // Se emite en los dos sentidos: retirar el consentimiento tiene que
+            // revocar de verdad, no solo dejar de conceder.
+            window.gtag('consent', 'update', {
+              analytics_storage: value === 'granted' ? 'granted' : 'denied'
+            });
           }
         }
         document.getElementById('uf-accept').addEventListener('click', function () { decide('granted'); });
         document.getElementById('uf-reject').addEventListener('click', function () { decide('denied'); });
+
+        // REVOCACIÓN. El art. 7.3 del RGPD exige que retirar el consentimiento
+        // sea tan fácil como darlo, y la propia Política de Privacidad promete
+        // "retirar el consentimiento en cualquier momento y de manera gratuita".
+        // Antes no había ningún mecanismo: una vez decidido, el aviso no volvía
+        // a salir nunca. Cualquier elemento con [data-uf-cookie-config] lo reabre.
+        document.addEventListener('click', function (ev) {
+          var t = ev.target.closest && ev.target.closest('[data-uf-cookie-config]');
+          if (!t) return;
+          ev.preventDefault();
+          banner.hidden = false;
+          banner.scrollIntoView({ block: 'nearest' });
+        });
       })();
     </script>
   </Fragment>
