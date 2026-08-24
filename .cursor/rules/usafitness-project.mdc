@@ -42,5 +42,18 @@ Por tanto, en este repositorio:
 - **NO usar** las skills `prototype-designer` ni `mockup-factory`, ni los comandos `/mm-design` y `/mm-mockup`: asumen shadcn/ui + Claude Design. Se disparan con palabras como "diseña", "prototipo" o "mockup", que aquí son frases normales — ignorarlas.
 - `.cursor/rules/08-design-system.mdc` se auto-adjunta por el glob `**/src/components/**` y coincide con los 13 componentes `.astro` reales. **Sus reglas de shadcn no aplican**; los tokens reales están en `memory/14-design-system.md`.
 
+## Cloudflare: dos ajustes obligatorios por zona
+
+Cloudflare **antepone su propio bloque a tu `robots.txt`** si estos ajustes están activos, y vienen activos por defecto. Bloquean `Google-Extended`, `GPTBot`, `ClaudeBot`, `CCBot`, `Applebot-Extended`, `Bytespider`, `Amazonbot` y `meta-externalagent`, y añaden una `Content-Signal` con reserva de derechos.
+
+Decisión del proyecto (usuario, 2026-08-24): **desactivados en las 7 zonas**. Motivo: `Google-Extended: Disallow` no afecta a la búsqueda normal, pero sí impide que el contenido alimente los AI Overviews de Google — y para captación local ese bloque de respuesta pesa cada vez más.
+
+Al dar de alta un dominio nuevo hay que desactivarlos, **son por zona, no por cuenta**:
+
+1. Security → Settings → filtro *Bot traffic* → **Block AI training bots** → `Do not block (allow crawlers)`
+2. **Manage your robots.txt** → `Disable robots.txt configuration`
+
+Verificar después con `curl https://<dominio>/robots.txt`: debe salir solo `User-agent: * / Allow: / / Sitemap: …`, sin bloque `# BEGIN Cloudflare Managed content`. El cambio es inmediato, no hay caché.
+
 ## Despliegue de un dominio en Railway
 El código de todas las tiendas YA está desplegado en el servicio único. Para activar un dominio: Railway → servicio → Settings → Networking → **Custom Domain** → añadir `dominio.com` y `www.dominio.com` → crear el CNAME que indique Railway en el DNS (Cloudflare recomendado) → quitar registros de la web antigua → esperar SSL.
