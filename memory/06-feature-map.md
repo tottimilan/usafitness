@@ -25,10 +25,19 @@
 | Auto-scrolling brand slider (CSS) | Shipped | P2 | — | git `420dc75` |
 
 ## Post-MVP backlog
+
+**The product vision (`memory/01-product-vision.md`) is not built yet.** Everything "Shipped" above is *one* template. The items below are new construction, not polish.
+
 | Feature | Status | Priority | Notes |
 |---|---|---|---|
-| Complete legal `company` data for the 4 placeholder stores | Planned | P1 | Code-derived: only 1/5 stores indexable legally today |
-| _Strategic backlog_ | Planned | — | _TBD — populated by /mm-audit (Phase 6)_ |
+| **Template system** — multiple selectable templates, differing both visually (colour, type, imagery) and structurally (landing style/shape) | Planned | P0 (vision) | Today `[...slug].astro` hardcodes one template with a fixed section order |
+| **Section library** — sections become optional and composable per store, chosen from a catalogue | Planned | P0 (vision) | Today 12 sections render always, in fixed order; only 4 minor toggles exist |
+| **Per-store configuration** of chosen template + chosen sections | Planned | P0 (vision) | Operator-configured in files. No panel/DB/auth needed — the choice is a commercial process |
+| **Products section** — show the products a store carries | Planned | P1 | User: deferred until the section-library work starts. `Products`/`Brands` stay shared across stores |
+| Complete legal `company` data for the 4 pending stores | Planned | P1 | Only Vigo (NM10 SHOP S.L.) has real data; the other 4 ship `noindex` legal pages |
+| Resolve duplicated reviews across stores | Planned | P1 | Identical review text + author reused across Villanueva/Marineda/Las Rosas; one contradicts its store's own schedule |
+| Verify WhatsApp numbers | Planned | P1 | 4 of 5 stores point WhatsApp at a landline; only Vigo has a separate mobile. Needs owner confirmation |
+| _Further strategic backlog_ | Planned | — | _TBD — /mm-audit_ |
 
 ## Killed / deferred
 _None recorded._ (Brand-slider dots were removed in git `94d0f19` — a visual tweak, not a killed feature.)

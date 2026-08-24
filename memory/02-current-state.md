@@ -21,7 +21,14 @@
 ## What is blocked
 - Full legal indexing for 4 of 5 stores: only 1 store has a real `company` legal block in `stores.json`; the others ship `noindex` placeholder legal pages until real data is added. _Confirm priority in /mm-audit._
 
+## The gap that defines the next stage
+What ships today is **one template with twelve fixed sections in a fixed order** (`src/pages/[...slug].astro`). Only content varies per store, plus four minor toggles (`social`, `galleryFeatured`, `heroText`, `googleSiteVerification`); `Products` and `Brands` receive no props at all and are identical everywhere.
+
+The product goal (`memory/01-product-vision.md`) is a **catalogue of templates + a library of composable sections**, from which each store picks a style and the sections it wants. **That system does not exist yet.** Reaching it is new construction, not iteration on what is there.
+
+**Phase tension to resolve at the gate:** the *deployed product* is in Iteration; the *template system* is closer to Definition. Flagged for `/mm-gate` (Phase 7).
+
 ## What is next
-- Code-visible: fill real legal `company` data for the 4 placeholder stores; continue onboarding new stores via the README workflow.
-- Process: complete this onboarding (audit → /mm-gate Iteration → /mm-retro).
-- Strategic backlog: _TBD — /mm-audit._
+- Build toward the vision: template system → section library → Products section (in that order; the Products section is explicitly deferred by the user until the section work starts).
+- Fix per-store data debt: real legal `company` data for the 4 pending stores, duplicated reviews, WhatsApp numbers pointing at landlines.
+- Process: finish onboarding (audit → /mm-gate → /mm-retro).
