@@ -36,6 +36,18 @@ So: **2 of 5 stores migrated**, 3 pending. `src/data/stores.json` holds entries 
 ## What is blocked
 - Full legal indexing for 4 of 5 stores: only 1 store has a real `company` legal block in `stores.json`; the others ship `noindex` placeholder legal pages until real data is added. _Confirm priority in /mm-audit._
 
+## Cola pendiente para migrar Villanueva, Marineda y Las Rosas
+
+Guardado a petición del usuario (2026-06-26). Las fotos ya no bloquean; quedan estos tres:
+
+1. **Embeds de Google Maps sospechosos.** Villanueva, Marineda y Las Rosas usan `place_id` construidos a mano (p. ej. `0x5e5a3f8c1a2d4e6f`) con coordenadas redondeadas. Pueden no resolver a la ficha real del negocio. Sustituir por el embed verificado del Google Business Profile de cada tienda.
+2. **Reseñas duplicadas entre empresas distintas.** Texto y autora idénticos reutilizados en Villanueva/Marineda/Las Rosas; una copia menciona "la dependienta que está los domingos" en una tienda cuyo horario es de lunes a sábado. Hay que conseguir reseñas propias de cada tienda.
+3. **Datos legales (`company`) ausentes** en las tres (y en Gran Casa). Sin ellos las 4 páginas legales van en `noindex`. Requisito LSSI art. 10; el dato lo aporta el dueño de cada tienda.
+
+**Pendiente de confirmación del usuario:** si los números de WhatsApp de Villanueva, Marineda, Las Rosas y Alcobendas (que son fijos) están dados de alta en WhatsApp Business. Si no lo están, ahora la sección se puede ocultar sin tocar código.
+
+**Mejora menor detectada 2026-06-26:** el `sitemap.xml` incluye las 4 páginas legales aunque estén en `noindex` cuando la tienda no tiene `company`. Conviene excluirlas del sitemap en ese caso.
+
 ## The gap that defines the next stage
 What ships today is **one template with twelve fixed sections in a fixed order** (`src/pages/[...slug].astro`). Only content varies per store, plus four minor toggles (`social`, `galleryFeatured`, `heroText`, `googleSiteVerification`); `Products` and `Brands` receive no props at all and are identical everywhere.
 
