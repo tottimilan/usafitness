@@ -115,6 +115,29 @@ La imagen de fondo del hero está fija en CSS (`Hero.astro:41` → `/hero-bg.jpg
 
 ---
 
+## 5-bis. Estado del paso 0 — COMPLETADO 2026-08-24
+
+| Tramo | Estado |
+|---|---|
+| Vocabulario de tokens (49) | ✅ `2f9ec56` — 46 literales sustituidos, 0 diferencias de estilo computado |
+| Paleta oficial aplicada | ✅ `aac2478` — 7 elementos medidos, 0 fallos de contraste |
+| Diagonal como capacidad | ✅ tokens + 4 utilidades CSS, **inertes** |
+
+### La diagonal es una capacidad, no un estilo base
+
+`--diagonal-angle`, `--diagonal-size`, `--diagonal-color` + las clases `.has-diagonal-top`, `.has-diagonal-bottom`, `.diagonal-accent` y `.diagonal-rule`.
+
+**Ninguna se aplica en la plantilla base, y es deliberado:** el usuario definió que las plantillas se diferencian por "presencia y ángulo de las diagonales". Si la diagonal estuviera en la base, todas la tendrían y dejaría de diferenciar. Es la palanca de la plantilla nº2.
+
+Implementadas en CSS puro (`clip-path` + gradiente): cero JS, cero imágenes, cero peso añadido. Verificado que `clip-path` computa (`polygon(0px 48px, 100% 0px, 100% 100%, 0px 100%)` con `--diagonal-size: 3rem`).
+
+### Dos desviaciones del brand book, medidas y justificadas
+
+1. **El cian `#00A7E1` no va en texto** — 2,9:1 sobre blanco. El manual ya lo define como color de fondos y decoración. Queda en `--color-cyan` para diagonales y fondos.
+2. **El gris `#98989A` tampoco** — daba 2,63:1 en texto de 13px, por debajo del 4,5:1 de WCAG AA. Es color de logotipo, para la "S" y FITNESS a tamaño grande. Texto usa `#6E6E70` (4,65:1); el gris puro queda en `--color-gray-brand` para bordes, iconos y superficies.
+
+Regla general que se deriva: **los colores de un manual de identidad están pensados para impresión y rótulo, no para texto de 13px en pantalla. Medir el contraste antes de adoptarlos.**
+
 ## 6. Lo que hay que hacer (paso 0 del sistema de plantillas)
 
 1. **Corregir la paleta** a los valores oficiales e **introducir el rojo `#E1251B`**, que hoy no existe. Cambia el aspecto de las 7 tiendas → requiere aprobación explícita del usuario antes de tocar producción (Vigo y Alcobendas están vivas).

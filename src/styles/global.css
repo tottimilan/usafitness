@@ -72,6 +72,18 @@
   --font-weight-heading: 700;
   --font-weight-strong: 600;
 
+  /* --- Diagonal: el recurso gráfico de la marca ---------------------------
+     Aparece en cada página del brand book y en los paneles y cartelería de
+     las tiendas. Se implementa en CSS puro (clip-path + gradiente): cero JS,
+     cero imágenes, cero peso.
+
+     INERTE POR DEFECTO: la plantilla base no usa ninguna de estas clases.
+     Es una capacidad que una plantilla activa, y el ángulo y el tamaño son
+     justo lo que diferencia una plantilla de otra. */
+  --diagonal-angle: 3deg;
+  --diagonal-size: 3.5rem;
+  --diagonal-color: var(--color-cyan);
+
   /* --- Ritmo --- */
   --max-width: 1200px;
   --section-padding: 4rem 1.5rem;
@@ -254,4 +266,61 @@ h1, h2, h3, h4, h5, h6 {
   font-style: italic;
   color: var(--color-text-light);
   font-size: 0.9rem;
+}
+
+
+/* ============================================================================
+   DIAGONAL — utilidades opcionales del recurso gráfico de marca.
+   Ninguna se aplica en la plantilla base; existen para que las plantillas
+   las activen. Ver memory/14-design-system.md §4-bis.
+   ========================================================================== */
+
+/* Corte diagonal en el borde superior de una sección. La sección de arriba
+   asoma por el triángulo, así que el efecto se ve mejor alternando fondos. */
+.has-diagonal-top {
+  clip-path: polygon(0 var(--diagonal-size), 100% 0, 100% 100%, 0 100%);
+  margin-top: calc(var(--diagonal-size) * -1);
+  padding-top: calc(var(--section-padding-top, 4rem) + var(--diagonal-size));
+}
+
+/* Corte diagonal en el borde inferior. */
+.has-diagonal-bottom {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--diagonal-size)), 0 100%);
+  padding-bottom: calc(var(--section-padding-bottom, 4rem) + var(--diagonal-size));
+}
+
+/* Franja diagonal decorativa anclada a una esquina, como la del brand book.
+   El contenedor necesita position: relative y overflow: hidden. */
+.diagonal-accent {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.diagonal-accent::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: calc(var(--diagonal-size) * -2);
+  left: calc(var(--diagonal-size) * -1);
+  width: calc(var(--diagonal-size) * 3);
+  height: 200%;
+  background: var(--diagonal-color);
+  transform: rotate(var(--diagonal-angle-accent, 20deg));
+  pointer-events: none;
+}
+
+/* Filete diagonal fino, para separar bloques sin cortar la sección entera. */
+.diagonal-rule {
+  height: 6px;
+  border: 0;
+  background: repeating-linear-gradient(
+    calc(90deg - var(--diagonal-angle-stripe, 45deg)),
+    var(--diagonal-color) 0 10px,
+    transparent 10px 20px
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* sin animación: la diagonal es estática por diseño */
 }
