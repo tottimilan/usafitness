@@ -1,0 +1,19 @@
+Fotos de USAFITNESS C.C GRANCASA (Zaragoza).
+
+Deja aqui:
+  hero.webp      -> portada. NO se ve como fondo de la pagina; es la vista
+                    previa al compartir el enlace (WhatsApp, redes) y la
+                    imagen del JSON-LD. Mientras no exista, stores.json
+                    apunta a /hero-bg.jpg (portada compartida).
+  tienda-1.webp  -> galeria "Conoce nuestra tienda y equipo"
+  tienda-2.webp
+  tienda-3.webp  ... las que haya
+
+  reviews/<nombre>.webp -> avatares de resenas (cuando haya ficha de Google)
+
+Formato recomendado: .webp, ~1200-1600 px de ancho, por debajo de 300 KB.
+Referencia: las de Vigo son 1360x1020 y pesan 106-214 KB.
+
+Tras copiarlas hay que anadirlas al array galleryImages de la tienda
+"grancasa" en src/data/stores.json (y cambiar heroImage a /photos/grancasa/hero.webp).
+La seccion de galeria no se renderiza mientras galleryImages este vacio.
