@@ -13,6 +13,8 @@ interface Props {
   postalCode?: string;
   addressLocality?: string;
   addressRegion?: string;
+  plantilla?: string;
+  plantillaCss?: string;
   geo?: { lat: number; lng: number };
   reviewCount?: number;
   avgRating?: number;
@@ -26,6 +28,7 @@ const {
   phone, phoneDisplay, schedule, slug,
   streetAddress = '', postalCode = '',
   addressLocality = '', addressRegion = '',
+  plantilla = '', plantillaCss = '',
   geo, reviewCount = 0, avgRating = 0,
   heroImage = `/photos/${slug}/hero.jpg`,
   social = {},
@@ -46,13 +49,6 @@ const reqHost = Astro.request.headers.get('host')?.split(':')[0] ?? '';
 const isCanonicalHost = reqHost === domain || reqHost === `www.${domain}`;
 const robotsContent = isCanonicalHost ? 'index, follow, max-image-preview:large' : 'noindex, follow';
 
-// Vista previa de plantilla (?plantilla=2). DELIBERADAMENTE inhabilitada en el
-// dominio canónico de la tienda: así el parámetro no puede alterar una web viva
-// aunque alguien comparta el enlace, y como los hosts no canónicos ya van en
-// noindex, tampoco genera contenido duplicado para Google.
-const plantillaPreview = !isCanonicalHost
-  ? (Astro.url.searchParams.get('plantilla') ?? '').replace(/[^0-9a-z-]/gi, '').slice(0, 12)
-  : '';
 
 function parseScheduleToSchema(scheduleText: string) {
   const MON_FRI = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -145,7 +141,7 @@ import '@/styles/global.css';
 ---
 
 <!doctype html>
-<html lang="es" data-plantilla={plantillaPreview || undefined}>
+<html lang="es" data-plantilla={plantilla || undefined}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -177,6 +173,8 @@ import '@/styles/global.css';
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/favicon-96.png" />
     <title>{pageTitle}</title>
+
+    {plantillaCss && <style set:html={plantillaCss} />}
 
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>

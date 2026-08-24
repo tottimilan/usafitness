@@ -3,19 +3,12 @@ export const prerender = false;
 
 import Landing from '@/layouts/Landing.astro';
 import Header from '@/components/Header.astro';
-import Hero from '@/components/Hero.astro';
-import Promotions from '@/components/Promotions.astro';
-import Location from '@/components/Location.astro';
-import Gallery from '@/components/Gallery.astro';
-import Reviews from '@/components/Reviews.astro';
-import Products from '@/components/Products.astro';
-import Brands from '@/components/Brands.astro';
-import Schedule from '@/components/Schedule.astro';
-import Social from '@/components/Social.astro';
 import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
 import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
 import storesData from '@/data/stores.json';
+import { getTemplate, resolveSections, tokensToCss } from '@/data/templates';
+import { buildPlan } from '@/sections/registry';
 
 const slug = Astro.params.slug;
 const store = storesData.stores.find((s) => s.slug === slug);
@@ -28,16 +21,21 @@ const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
 const onOwnDomain = host === store.domain || host === `www.${store.domain}`;
 const legalBase = onOwnDomain ? '' : `/${store.slug}`;
 
-// Optional sections. A store may legitimately have no reviews yet (newly opened,
-// Google Business profile not created) or no WhatsApp line. In both cases the
-// section is omitted rather than rendered empty or with invented data.
-const reviews = store.reviews ?? [];
-const hasReviews = reviews.length > 0;
-const galleryImages = store.galleryImages ?? [];
-const hasGallery = galleryImages.length > 0;
-const avgRating = hasReviews
-  ? Math.round((reviews.reduce((sum: number, r: any) => sum + r.stars, 0) / reviews.length) * 10) / 10
-  : 0;
+// La tienda declara su plantilla; si no declara nada, sale la clásica con el
+// orden de siempre. Fuera del dominio canónico, ?plantilla= permite previsualizar
+// otra sin tocar la configuración (ver Landing.astro).
+const preview = !onOwnDomain
+  ? (Astro.url.searchParams.get('plantilla') ?? '').replace(/[^0-9a-z-]/gi, '').slice(0, 12)
+  : '';
+const template = getTemplate(preview || (store as any).template);
+
+// La plantilla propone el orden; la tienda puede ajustarlo con su campo `sections`.
+const orden = resolveSections(template, (store as any).sections);
+const plan = buildPlan(store, orden);
+
+// El aggregateRating ya no se emite (ver Landing.astro), pero el layout sigue
+// recibiendo el recuento por si hiciera falta para otra cosa.
+const reviews = (store as any).reviews ?? [];
 ---
 
 <Landing
@@ -56,39 +54,16 @@ const avgRating = hasReviews
   addressRegion={(store as any).addressRegion}
   geo={store.geo}
   reviewCount={reviews.length}
-  avgRating={avgRating}
   heroImage={store.heroImage}
   social={(store as any).social}
   googleSiteVerification={(store as any).googleSiteVerification}
+  plantilla={template.id}
+  plantillaCss={tokensToCss(template)}
 >
   <Header phone={store.phone} instagram={(store as any).social?.instagram} />
-  <Hero
-    name={store.name}
-    title={store.title}
-    location={store.location}
-    googleMapsLink={store.googleMapsLink}
-    heroImage={store.heroImage}
-    heroText={(store as any).heroText}
-  />
-  <Promotions phone={store.phone} />
-  <Location
-    subtitle={store.subtitle}
-    googleMapsEmbed={store.googleMapsEmbed}
-    googleMapsLink={store.googleMapsLink}
-  />
-  {hasGallery && <Gallery images={galleryImages} name={store.name} location={store.location} featured={(store as any).galleryFeatured ?? false} />}
-  {hasReviews && <Reviews reviews={reviews} />}
-  <Products />
-  <Brands />
-  <Schedule
-    schedule={store.schedule}
-    phone={store.phone}
-    phoneDisplay={store.phoneDisplay}
-    whatsapp={store.whatsapp}
-    googleMapsLink={store.googleMapsLink}
-    name={store.name}
-  />
-  <Social social={(store as any).social} name={store.name} />
+
+  {plan.map(({ component: Section, props }) => <Section {...props} />)}
+
   <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
   <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
   <CookieConsent ga4Id={(store as any).ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />

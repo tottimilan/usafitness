@@ -340,53 +340,29 @@ h1, h2, h3, h4, h5, h6 {
    dueño: uso del color, estructura, densidad, tratamiento de foto y escala
    tipográfica. La paleta es LA MISMA — es la marca.
    ========================================================================== */
-html[data-plantilla="2"] {
-  /* Forma: angular, sin redondeos ni sombras */
-  --radius: 0px;
-  --radius-sm: 0px;
-  --radius-xs: 0px;
-  --radius-btn: 0px;
-  --shadow-card: none;
-  --shadow-card-hover: none;
-  --shadow-media: none;
-  --shadow-panel: none;
-
-  /* Densidad: más apretada */
-  --section-padding: 3rem 1.5rem;
-
-  /* Foto: overlay más transparente, la imagen manda */
-  --hero-overlay: rgba(255, 255, 255, 0.62);
-
-  /* Diagonal: presente y marcada */
-  --diagonal-size: 3rem;
-
-  /* Tipografía: titulares más rotundos */
-  --font-weight-heading: 800;
-}
-
-html[data-plantilla="2"] .section-title,
-html[data-plantilla="2"] .hero-title {
+html[data-plantilla="angular"] .section-title,
+html[data-plantilla="angular"] .hero-title {
   text-transform: uppercase;
   letter-spacing: 0.01em;
 }
 
 /* Promociones: bloque de color con borde diagonal. Blanco sobre el azul de
    marca da 7:1, muy por encima del mínimo. */
-html[data-plantilla="2"] .promotions {
+html[data-plantilla="angular"] .promotions {
   background: var(--color-primary);
   clip-path: polygon(0 var(--diagonal-size), 100% 0, 100% 100%, 0 100%);
   margin-top: calc(var(--diagonal-size) * -1);
   padding-top: calc(3rem + var(--diagonal-size));
 }
-html[data-plantilla="2"] .promotions .section-title { color: #fff; }
-html[data-plantilla="2"] .promo-card { border-top-width: 4px; }
+html[data-plantilla="angular"] .promotions .section-title { color: #fff; }
+html[data-plantilla="angular"] .promo-card { border-top-width: 4px; }
 
 /* Galería: el cian aparece SOLO como filo diagonal, nunca como fondo bajo
    texto. Medido: azul sobre cian da 2,55:1 y blanco sobre cian 2,79:1 — los
    dos por debajo del mínimo. El brand book ya lo dice: el cian es color
    decorativo y de fondo, no de texto. La franja superior de 0.6rem sigue el
    corte del clip-path, así que dibuja la diagonal de marca sin nada encima. */
-html[data-plantilla="2"] .gallery {
+html[data-plantilla="angular"] .gallery {
   background:
     linear-gradient(to bottom, var(--color-cyan) 0 0.6rem, transparent 0.6rem),
     var(--color-bg-alt);
@@ -394,7 +370,7 @@ html[data-plantilla="2"] .gallery {
   margin-top: calc(var(--diagonal-size) * -1);
   padding-top: calc(3rem + var(--diagonal-size));
 }
-html[data-plantilla="2"] .gallery-grid { gap: 0.35rem; }
+html[data-plantilla="angular"] .gallery-grid { gap: 0.35rem; }
 
 /* Marcas: sin cenefas, respirando menos */
-html[data-plantilla="2"] .brands { border: 0; padding: 2rem 0; }
+html[data-plantilla="angular"] .brands { border: 0; padding: 2rem 0; }
