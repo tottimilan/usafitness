@@ -38,7 +38,10 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
   .hero-bg {
     position: absolute;
     inset: 0;
+    /* WebP con respaldo JPEG. La primera declaración la usan los navegadores
+       sin image-set(); la segunda la sobrescribe donde sí hay soporte. */
     background-image: url('/hero-bg.jpg');
+    background-image: image-set(url('/hero-bg.webp') type('image/webp'), url('/hero-bg.jpg') type('image/jpeg'));
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
