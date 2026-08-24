@@ -10,10 +10,20 @@ The product is the *system*, not any individual landing.
 
 ## The two axes of variation
 
-1. **Template** — a store picks one. Templates differ in **two ways at once**:
-   - *Visual*: colours, typography, imagery treatment, component styling.
-   - *Landing style/structure*: the shape of the page itself (e.g. long-form vs. short, different hero treatment, different narrative order).
-2. **Sections** — a store picks which ones it wants from a library. Sections are optional and composable, not a fixed list.
+**Specified by the user 2026-08-24.** Three answers that pin the design down:
+
+1. **A template differs on THREE levels** (the most demanding of the options offered, chosen deliberately):
+   - *Visual*: colours, typography, imagery treatment.
+   - *Structure*: which sections it brings and in what order (e.g. a "short" 5-section template for a new store vs. a "full" 10-section one).
+   - *Per-section design*: **the same section looks different in each template** — one Hero full-bleed, another split with the photo beside it.
+   → Consequence: sections need **variants**, not just on/off. A section is `id + variant`, and the template picks the variant. This is the expensive part: every section has to be designed N times.
+
+2. **Section order is MIXED**: the template proposes a default order; it can be adjusted per store for specific cases.
+   → Consequence: order lives in **two places** — the template's default and an optional per-store override. The override must be optional so that a store with no override simply inherits the template and can never render a blank page.
+
+3. **Scale: 2–3 templates to start.** Small enough for one person to maintain, real enough that the owner feels they are choosing. More later — so **adding a template must be cheap**, and that is the main design criterion.
+
+**Sections** — a store picks which ones it wants from a library. Optional and composable, never a fixed list.
 
 ## How a store is configured (important — defines the architecture)
 
