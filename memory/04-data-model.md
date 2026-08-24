@@ -15,7 +15,9 @@ Central entity; one object per store. Fields (full table in README):
 `{ instagram?, facebook?, tiktok?, youtube? }`. Absent → no social section / header IG icon.
 
 ### Company (legal owner) — embedded in `Store.company?` (optional)
-`{ razonSocial, nif, direccionPostal, emailLegal, telefonoLegal, lastUpdated }`. Present in **1 of 5** stores. Absent → legal pages show "en actualización" + `noindex`.
+`{ razonSocial, nif, direccionPostal, emailLegal, telefonoLegal, lastUpdated }`. Absent → legal pages show "en actualización" + `noindex`.
+
+**The same company can legitimately appear in several stores** (e.g. `USA GOVE S.L.` / B22465587 owns both El Arcángel and GranCasa). The relationship is Company 1—N Store, embedded per store for isolation; duplication of the block across stores is expected, not a data error.
 
 ### LegalDoc — `src/data/legal.ts` → `LEGAL_DOCS[]` (4 types)
 `aviso-legal`, `politica-de-privacidad`, `politica-de-cookies`, `politica-redes-sociales`. Shared templates, personalized per store from `Store.company` at render time.
