@@ -51,14 +51,21 @@ The landings stop being *only* SEO destinations and become **paid-traffic destin
 - **Any broken CTA now burns money.** With organic traffic a broken WhatsApp button loses a lead; with paid traffic it loses a *paid* lead. See `memory/08-known-risks.md` — 4 of 5 stores currently point WhatsApp at a landline.
 - The template/section system may need **landing variants per campaign or per audience**, not just per store.
 
-### Open architectural tension — do not resolve silently
+### Resolved: destination is a management platform, but staged
 
-The vision above records a deliberate constraint: **no panel, no database, no auth** — because choosing a template is an assisted commercial process. "Hacer las campañas desde aquí" may or may not break that constraint, and the two readings differ enormously in cost:
+**Decision (user, 2026-06-26): "vamos a ir por la B, pero esto se realizará en un futuro. Primero las secciones y las landings bien optimizadas."**
 
-- **Reading A (small):** this repo stays a static-ish site system; campaigns are run in Google/Meta's own tools, and "connected" means the landings carry the right tags, conversion events and UTM handling so campaigns can be measured properly.
-- **Reading B (large):** this project grows into a platform that *manages* campaigns — which would require auth, a database, API integrations with Google Ads and Meta, and a dashboard. That contradicts the no-panel/no-DB constraint.
+The end state is **Reading B** — this project eventually becomes a platform from which campaigns are *managed*, not merely measured. That will require authentication, a database and API integrations with Google Ads and Meta.
 
-**Status: unresolved.** Flagged to the user 2026-06-26. Do not assume either reading.
+**Sequencing is explicit and must be respected:**
+
+1. **Now** — section library + template system + landings properly optimized.
+2. **Later** — measurement layer (conversion events, tags).
+3. **Future** — campaign management platform (Reading B).
+
+**What this changes about today's decisions:** the "no panel, no database, no auth" constraint is now understood as **staged, not permanent**. Do not build auth or a database now — but do not make choices that *preclude* them either. Concretely: keep per-store configuration (chosen template, chosen sections, tracking IDs) as **structured data** with an explicit shape, not as ad-hoc conditionals scattered through components. A well-shaped config file migrates to a database row later; logic buried in JSX does not.
+
+**Still unknown about B:** which platforms, what the operator actually needs to see or do from the panel, whether store owners ever get read access. Not asked — deliberately deferred until stages 1 and 2 are done.
 
 ## 3-year vision
 

@@ -10,6 +10,8 @@
 ## Technical risks
 | # | Risk | Impact | Likelihood | Mitigation | Status |
 |---|---|---|---|---|---|
+| 0 | **Placeholder images shipped as real photos in production.** Villanueva, Marineda and Las Rosas have **zero real photos**: their `hero.jpg` and all 6 `tienda-N.jpg` are ~319-byte **SVG files with a `.jpg` extension** (a solid `#3B6FC1` rectangle). Alcobendas has 4 real gallery photos but a placeholder hero. `public/brands/cellucor.png` is the same. Only Vigo is fully real (`.webp`). Serving SVG bytes under a `.jpg` content type means these very likely do not render at all | **Critical** | **Confirmed — live now** | Collect real photos per store; add a build check rejecting image files below a size threshold or whose magic bytes do not match their extension | Open |
+| 0b | Because `heroImage` feeds `og:image` and the JSON-LD `image`, the broken hero propagates to **WhatsApp/social share previews and to Google** for 4 of 5 stores — on the very channel declared as a primary conversion path | High | Confirmed | Same as #0 | Open |
 | 1 | No automated tests and no CI — a change to the shared template or `stores.json` can silently break one or all live stores | High | Medium | Build-check CI + smoke test per store route | Open |
 | 2 | `stores.json` has no schema validation — a malformed/missing required field can break render for a store or the whole build | Medium | Medium | JSON schema / TS validation + build-time check | Open |
 | 3 | No error monitoring / observability — prod errors (cf. past 500s, git `388d3df`) are invisible until a user reports them | Medium | Medium | Error tracking (e.g. Sentry) + uptime monitor | Open |
