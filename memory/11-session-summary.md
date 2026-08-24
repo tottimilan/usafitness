@@ -30,10 +30,20 @@ _Link: `memory/08-known-risks.md`._
 ### Current state
 _Link: `memory/02-current-state.md` — tabla de 7 tiendas con motor real y datos legales._
 
+### Segunda mitad de la sesión (tras el onboarding)
+- **Identidad de marca**: el cliente facilitó el brand book. Paleta oficial aplicada a las 7 tiendas (`#0055B8` / `#98989A` / `#E1251B` + cian). Ni un color de la web coincidía con la marca; el rojo estaba ausente del producto entero.
+- **Rendimiento**: viewport inicial de 814 KB → 162 KB. Logo vectorial real extraído del PDF de marca (277→23 KB) y fondo de hero recomprimido midiendo la diferencia *a través del overlay* (537→139 KB).
+- **SEO estructurado**: `@type: Store`, `addressLocality` y `addressRegion` reales, y retirada del `aggregateRating` autoservido — Google declara esas páginas inelegibles para las estrellas, así que no daba nada y solo cargaba riesgo.
+- **Sistema de plantillas COMPLETO**: registro de plantillas y secciones, orden como dato, y variantes de sección. Los tres ejes que definió el usuario.
+- **Cookies**: aviso desacoplado de GA4, consentimiento revocable y señal en ambos sentidos.
+- **Contenido**: dos tiendas nuevas (GranCasa y El Arcángel → 7), fotos reales recuperadas de los WordPress, datos legales de USA GOVE en dos tiendas.
+- **Seguridad**: los originales de marca estaban en `public/` y eran descargables desde los 7 dominios. Movidos fuera.
+- **Cloudflare**: desbloqueados los bots de IA en las 7 zonas (bloqueaba `Google-Extended`, o sea los AI Overviews).
+
 ### Top 3 next priorities
-1. **Diseñar el sistema de plantillas + secciones** (el roadmap acordado).
-2. Arreglos SEO de alto riesgo pendientes: `@type` `Store` en vez de `LocalBusiness`, `addressLocality` recibiendo texto de marketing, y decidir qué hacer con el `aggregateRating` autoservido.
-3. Desbloquear migraciones: mapas reales, reseñas propias y datos legales de las 4 tiendas pendientes.
+1. **Sección de Productos real** — la única pieza del bloque de plantillas que queda, y el usuario la difirió justo hasta ahora.
+2. **Capa de medición** — `ga4Id` y `googleSiteVerification` están a 0 de 7. Es prerrequisito de las campañas y de poder demostrar resultados.
+3. **Desbloquear migraciones** — El Arcángel solo necesita DNS; las otras tres, datos legales y mapas reales.
 
 ### Lessons learned (candidates for cross-project Memory Graph)
 - **`grep` es para localizar, nunca para concluir.** Extraer campos sueltos de un fichero de datos y no leer su contenido llevó a inferir el sector equivocado del nombre de marca, y contaminó toda la memoria hasta que el usuario lo corrigió.

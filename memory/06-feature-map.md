@@ -45,6 +45,9 @@
 | Cloudflare: bots de IA desbloqueados (`987f78a`) | 7 zonas verificadas |
 | **Viewport inicial: 814 KB → 162 KB** (`7b21007`) | Logo vectorial real 277→23 KB; fondo de hero 537→139 KB en WebP, con el punto de compresión medido **a través del overlay** |
 | **Datos estructurados corregidos** (`550844d`) | `@type: Store`, `addressLocality` y `addressRegion` reales, y **fuera el `aggregateRating` autoservido** |
+| **Registro de plantillas y secciones** (`a4e071b`) | `templates.ts` + `sections/registry.ts`. La página pasa de 12 etiquetas fijas a un `.map()`. Salida por defecto idéntica |
+| **Variantes de sección** (`ac24c68`) | `{id, variant}`. Hero `compacto` y Gallery `destacada` (que además unifica el viejo flag `galleryFeatured`) |
+| **Cookies: desacople + revocación** (`fb40b4e`) | Aviso independiente de `ga4Id`, botón "Configurar cookies" en el footer, y `consent update` en ambos sentidos |
 
 ---
 
@@ -59,7 +62,7 @@
 | 3 | ~~`@type: LocalBusiness` → `Store`~~ | — | ✅ Hecho en `550844d` |
 | 4 | ~~`addressRegion: "España"`~~ | — | ✅ Hecho en `550844d` |
 | 5 | **El centro comercial en el contenido** | P1 | Parcial: el `mall` ya es campo estructurado en las 7 y Villanueva estrena el C.C. El Zoco en su meta. Queda decidir si entra también en el hero, en los `alt` de galería y en la sección de ubicación. **El `<title>` ya lo lleva en 5 de 7 vía el `name`, y los títulos rozan los 60-70 caracteres: no cabe forzarlo ahí** |
-| 6 | **Desacoplar el banner de cookies de `ga4Id`** | P1 | Hoy sin `ga4Id` no se renderiza el aviso de cookies. Son decisiones que deben ser independientes |
+| 6 | ~~Desacoplar el banner de cookies~~ | — | ✅ Hecho en `fb40b4e`, y además: consentimiento revocable (art. 7.3 RGPD) y la señal ya viaja en ambos sentidos |
 | 7 | **Sitemap: excluir legales `noindex`** | P2 | ✅ Ya hecho en `bf9aa8f` |
 
 ### Decisión pendiente antes de tocar
@@ -70,14 +73,18 @@ El `aggregateRating` **ya no era una disyuntiva**: Google declara que una págin
 
 La idea de traer las reseñas automáticamente desde la API de Google **no arregla el SEO** — *"Don't aggregate reviews or ratings from other websites"* —, pero sigue siendo válida como mejora de contenido: acabaría con las reseñas duplicadas de Marineda/Las Rosas y evitaría editar JSON a mano. Coste: clave de API, cuota, reglas de caché de la licencia de Places y una dependencia externa en tiempo de ejecución que el proyecto hoy no tiene. **Sin decidir.**
 
-### Siguiente bloque — sistema de plantillas
+### Sistema de plantillas — LOS 3 EJES COMPLETOS ✅
 
-| # | Tarea | Prioridad |
+| Eje | Estado |
+|---|---|
+| Qué secciones | ✅ `a4e071b` — registro + regla `visible` por sección |
+| En qué orden | ✅ `a4e071b` — la plantilla propone, la tienda ajusta con `sections` |
+| Con qué aspecto | ✅ `ac24c68` — tokens por plantilla + variantes de sección |
+
+| # | Lo que queda del bloque | Prioridad |
 |---|---|---|
-| 7 | **Registro de plantillas**: `templates.ts` + `"template"` en `stores.json` | P0 (visión) |
-| 8 | **Orden de secciones como dato**: la plantilla propone, la tienda ajusta | P0 (visión) |
-| 9 | **Variantes de sección** (`{sección, variante}`) | P0 (visión) |
-| 10 | Sección de **Productos** real | P1 — diferida por el usuario hasta que empiece el trabajo de secciones |
+| 10 | Sección de **Productos** real | P1 — el usuario la difirió "hasta que empiece el trabajo de secciones". Ya empezó |
+| 11 | Más variantes por sección según haga falta | P2 — se añaden cuando una plantilla las pida |
 
 ### Después — capa de medición (prerrequisito de las campañas)
 
