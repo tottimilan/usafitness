@@ -90,9 +90,9 @@ const waNumber = whatsapp?.replace('+', '').trim() ?? '';
 
   .schedule-card {
     background: var(--color-bg);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 2rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-card);
   }
 
   .card-header {
@@ -110,9 +110,9 @@ const waNumber = whatsapp?.replace('+', '').trim() ?? '';
     justify-content: center;
     width: 44px;
     height: 44px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     background: var(--color-primary);
-    color: #fff;
+    color: var(--color-on-brand);
     flex-shrink: 0;
   }
 
@@ -134,7 +134,7 @@ const waNumber = whatsapp?.replace('+', '').trim() ?? '';
     color: var(--color-text);
     line-height: 1.7;
     padding: 0.35rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid var(--color-border-hairline);
   }
 
   .schedule-line:last-child {
@@ -152,14 +152,14 @@ const waNumber = whatsapp?.replace('+', '').trim() ?? '';
     align-items: center;
     gap: 0.85rem;
     padding: 0.75rem;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     background: var(--color-bg-alt);
     transition: transform 0.15s, box-shadow 0.15s;
   }
 
   .contact-link:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-pill);
   }
 
   .contact-icon-wrap {
@@ -169,7 +169,7 @@ const waNumber = whatsapp?.replace('+', '').trim() ?? '';
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    color: #fff;
+    color: var(--color-on-brand);
     flex-shrink: 0;
   }
 

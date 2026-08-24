@@ -93,7 +93,7 @@ const { reviews } = Astro.props;
     align-items: center;
     gap: 0.4rem;
     padding: 0.7rem 1.25rem;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--color-border);
     border-radius: 50px;
     background: var(--color-bg);
     cursor: pointer;
@@ -106,7 +106,7 @@ const { reviews } = Astro.props;
 
   .review-tab.active {
     background: var(--color-cta);
-    color: #fff;
+    color: var(--color-on-brand);
     border-color: var(--color-cta);
   }
 
@@ -121,7 +121,7 @@ const { reviews } = Astro.props;
     max-width: 620px;
     margin: 0 auto;
     background: var(--color-bg-alt);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 2rem;
   }
 
@@ -157,7 +157,7 @@ const { reviews } = Astro.props;
     height: 44px;
     border-radius: 50%;
     background: var(--color-primary);
-    color: #fff;
+    color: var(--color-on-brand);
     display: flex;
     align-items: center;
     justify-content: center;

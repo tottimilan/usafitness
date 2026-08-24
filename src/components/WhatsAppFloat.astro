@@ -29,18 +29,18 @@ const waUrl = `https://wa.me/${waNumber}?text=Hola%2C%20me%20interesa%20informac
     z-index: 999;
     width: 60px;
     height: 60px;
-    background: #25D366;
+    background: var(--color-whatsapp);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    box-shadow: var(--shadow-whatsapp);
     transition: transform 0.2s, box-shadow 0.2s;
   }
 
   .whatsapp-float:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+    box-shadow: var(--shadow-whatsapp-hover);
   }
 
   @media (max-width: 480px) {

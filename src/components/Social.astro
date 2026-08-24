@@ -79,15 +79,15 @@ const links = [
     align-items: center;
     gap: 0.6rem;
     padding: 0.75rem 1.5rem;
-    border-radius: 999px;
-    color: #fff;
+    border-radius: var(--radius-pill);
+    color: var(--color-on-brand);
     font-weight: 600;
     transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
   }
 
   .social-link:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-social);
     opacity: 0.95;
   }
 
@@ -98,18 +98,18 @@ const links = [
   }
 
   .social-link--instagram {
-    background: linear-gradient(45deg, #f09433, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888);
+    background: var(--gradient-instagram);
   }
 
   .social-link--facebook {
-    background: #1877f2;
+    background: var(--color-facebook);
   }
 
   .social-link--tiktok {
-    background: #010101;
+    background: var(--color-tiktok);
   }
 
   .social-link--youtube {
-    background: #ff0000;
+    background: var(--color-youtube);
   }
 </style>

@@ -47,7 +47,7 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
   .hero-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(255, 255, 255, 0.78);
+    background: var(--hero-overlay);
   }
 
   .hero-content {
@@ -67,8 +67,8 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
   }
 
   .hero-title {
-    font-size: clamp(2rem, 5vw, 3.25rem);
-    font-weight: 800;
+    font-size: var(--font-size-hero);
+    font-weight: var(--font-weight-display);
     color: var(--color-primary);
     margin-bottom: 1.25rem;
     line-height: 1.15;

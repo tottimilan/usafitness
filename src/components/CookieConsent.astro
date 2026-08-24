@@ -80,10 +80,10 @@ const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
     z-index: 1000;
     max-width: 760px;
     margin: 0 auto;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-panel);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-float);
     padding: 1.1rem 1.25rem;
     display: flex;
     flex-wrap: wrap;
@@ -112,7 +112,7 @@ const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
 
   .uf-btn {
     padding: 0.6rem 1.4rem;
-    border-radius: 8px;
+    border-radius: var(--radius-xs);
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
@@ -122,7 +122,7 @@ const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
 
   .uf-btn-primary {
     background: var(--color-cta);
-    color: #fff;
+    color: var(--color-on-brand);
   }
 
   .uf-btn-ghost {

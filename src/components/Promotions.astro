@@ -64,16 +64,16 @@ const promos = [
   .promo-card {
     text-align: center;
     padding: 1.75rem 1.25rem;
-    border-radius: 12px;
+    border-radius: var(--radius);
     background: var(--color-bg);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-card);
     border-top: 3px solid var(--color-cta);
     transition: transform 0.2s, box-shadow 0.2s;
   }
 
   .promo-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-card-hover);
   }
 
   .promo-icon {
