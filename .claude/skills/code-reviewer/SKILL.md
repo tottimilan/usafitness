@@ -45,6 +45,8 @@ Read:
 8. Relevant `docs/flows/<slug>.md` for flow-touching code.
 9. The diff being reviewed — read every changed line, not just filenames.
 
+**Code context efficiency:** If a Code Intelligence MCP is available, use it to get precise context around the changed code (callers, impact, related symbols) instead of loading unnecessary files. This keeps reviews token-efficient especially in Claude sessions.
+
 If a non-trivial change has **no plan** referenced, that is itself a Critical issue. Either the plan exists and is missing, or the change skipped `implementation-planner` and the review should flag the process gap before looking at code.
 
 ## Process

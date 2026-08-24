@@ -28,7 +28,8 @@ The hook arms when **any** of these is true at the end of a turn:
    - Apply canonical formats.
    - Verify drift with code.
    - Dedicated `docs(memory): …` commit.
-3. If invoking `memory-updater` reveals nothing to update (nothing actually changed), emit *"memory-updater: no-op — nothing to persist this turn."* and move on.
+3. If the task used Code Intelligence for efficiency, note it in the memory update if relevant.
+4. If invoking `memory-updater` reveals nothing to update (nothing actually changed), emit *"memory-updater: no-op — nothing to persist this turn."* and move on.
 
 ## Behavior when NOT armed
 

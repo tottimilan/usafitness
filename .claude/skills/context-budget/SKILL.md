@@ -74,3 +74,4 @@ After compacting, continue from the on-disk state. If a dropped detail is needed
 - **NEVER:** Paraphrase file paths, identifiers, or commands when compacting — copy them verbatim.
 - **NEVER:** Treat compaction as optional in a session that has clearly degraded ("it's still answering"). Degradation is silent until it isn't.
 - **NEVER:** Use a semantic index to "remember everything" instead of compacting — the index is an optional accelerator, not a license to let the live context sprawl (see rule 05).
+- When Code Intelligence MCP is available, use graph queries to avoid loading large code files into context in the first place — prevention > compaction.

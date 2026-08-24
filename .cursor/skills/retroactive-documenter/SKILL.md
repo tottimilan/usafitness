@@ -35,6 +35,7 @@ Read:
 2. `.cursor/rules/00-project-operating-system.mdc`
 3. `memory/` — confirm it is skeleton (placeholders). If not, stop and recommend `memory-updater` instead.
 4. The target codebase:
+   - If a Code Intelligence MCP is available, use graph queries (symbols, dependencies, call sites) first to discover relevant structure with far lower token cost. Only fall back to raw file reads when the graph is insufficient.
    - Root: `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile` — whichever applies.
    - Lockfiles: `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `uv.lock`, etc.
    - `README.md`, `README.*` — read the whole thing.

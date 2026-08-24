@@ -55,6 +55,11 @@ Read:
 
 Run `research-first` for every third-party library call the plan will use. No plan should guess an API signature.
 
+**Code exploration (token efficiency):**
+- If a Code Intelligence MCP (tree-sitter based) is available in the project, use it for symbol, caller and dependency discovery before reading large amounts of source code.
+- This is particularly valuable for Claude multi-agent planning to keep context focused and reduce token consumption.
+- Only fall back to full file reads when the graph cannot provide the required detail.
+
 ## Process
 
 ### Step 1 — Confirm scope and success criteria

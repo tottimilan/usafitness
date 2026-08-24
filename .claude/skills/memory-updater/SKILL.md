@@ -111,7 +111,7 @@ Never delete prior sessions. When the file exceeds ~20 sessions, move the oldest
 
 ```markdown
 **Last updated:** YYYY-MM-DD
-**Phase:** Idea | Discovery | Definition | MVP | Iteration | Launch
+**Phase:** Idea | Discovery | Definition | Prototype | MVP | Iteration | Launch
 
 ## What exists today
 ## What is in progress

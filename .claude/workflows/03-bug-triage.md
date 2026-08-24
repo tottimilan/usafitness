@@ -32,6 +32,8 @@ A disciplined path from bug report to shipped fix that refuses to ship patches w
 
 ### Phase 2 — Investigation (Executor with strict discipline)
 
+**Code Intelligence note (Claude efficiency):** During investigation and isolation, if a Code Intelligence MCP is configured, use graph queries first for symbols, call paths, and impact analysis instead of broad file reads or greps. This reduces tokens in code-heavy bug triage.
+
 - **Skill:** `bug-investigator`
 - **Mode:** Executor
 - **Input:** the captured report.

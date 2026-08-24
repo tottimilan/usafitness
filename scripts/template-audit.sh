@@ -141,6 +141,36 @@ else:
 if og and "phase-criteria.json" not in og:
     add("Critical", "CRITERIA_POINTER_MISSING", "OPERATING-GUIDE.md does not reference phase-criteria.json as the source of truth (§5 may have become a parallel source).")
 
+# (g) phase-model drift: onboarding scripts + memory placeholders vs phase-criteria.json
+if os.path.isfile(crit_path):
+    order = json.load(open(crit_path, encoding="utf-8")).get("phase_order", [])
+    if order:
+        placeholder = "**Phase:** " + " | ".join(order)
+        targets = [
+            ("scripts/onboard-existing-project.ps1", r"\*\*Phase:\*\* " + r" \| ".join(order)),
+            ("scripts/onboard-existing-project.sh",  r"\*\*Phase:\*\* " + r" \\| ".join(order)),
+        ]
+        for rel, pattern in targets:
+            sp = rp(rel)
+            if not os.path.isfile(sp):
+                continue
+            sc = open(sp, encoding="utf-8").read()
+            for p in order:
+                if p not in sc:
+                    add("Critical", "PHASE_LIST_DRIFT", f"{rel} never mentions phase '{p}' from phase-criteria.json phase_order (its phase validation/help is stale).")
+            if pattern not in sc:
+                add("Critical", "PHASE_PATTERN_DRIFT", f"{rel} placeholder-rewrite pattern does not match phase_order ('{placeholder}') - the initial phase would silently not be written.")
+        for mem_rel in ("memory/02-current-state.md", "memory/13-phase-history.md"):
+            mp = rp(mem_rel)
+            if not os.path.isfile(mp):
+                continue
+            # Only enforced while the file still holds the pipe-separated placeholder (i.e. in the pristine template).
+            for line in open(mp, encoding="utf-8").read().splitlines():
+                if line.startswith("**Phase:** ") and "|" in line:
+                    if line.strip() != placeholder:
+                        add("Critical", "PHASE_PLACEHOLDER_DRIFT", f"{mem_rel} placeholder ('{line.strip()}') != phase_order-derived ('{placeholder}') - the onboarding rewrite would never match.")
+                    break
+
 # write manifest to runtime (gitignored)
 try:
     rtd = rp(".mastermind/runtime")

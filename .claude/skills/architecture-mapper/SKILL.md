@@ -43,7 +43,10 @@ Then read:
 8. `docs/product/prd.md` (what the architecture must serve)
 9. `docs/product/executive-summary.md` (phase and confidence)
 
-For existing codebases, scan: route files, service folders, config files, `docker-compose.yml` / infra-as-code, environment variables, migrations, external API clients.
+For existing codebases:
+- If a Code Intelligence MCP is available, start with graph queries (symbols, dependencies, call paths) to map the architecture with minimal token cost.
+- Only read full files when the graph data is insufficient.
+- This keeps audits and architecture work efficient, especially in Claude multi-agent sessions.
 
 ## Process
 

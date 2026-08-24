@@ -43,6 +43,8 @@ Read:
 8. Relevant `docs/flows/<slug>.md` for auth / payment / data flows.
 9. The diff, all of it. Security bugs hide in one line.
 
+**Code context efficiency:** If a Code Intelligence MCP (tree-sitter/graph) is available, use it first for dependency mapping, call paths to sensitive surfaces and blast radius before loading large amounts of source. Keeps token usage low in Claude multi-agent security reviews.
+
 ## Process
 
 ### Step 1 — Scope the review

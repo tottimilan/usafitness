@@ -2,6 +2,8 @@
 
 Custom slash commands for Claude Code (`.claude/commands/`). Each file is a short prompt that wraps a skill or a workflow, so invoking `/mm-<name>` in chat runs the correct pipeline without the user having to remember skill names, workflow paths, or argument structure.
 
+**Claude power tip:** For heavy multi-agent work (audits, plans, feature lifecycle), configure an optional Code Intelligence MCP (tree-sitter: jCodeMunch, code-review-graph or similar). Agents query symbols/callers/impact first — massive token savings in Claude sessions. See CLAUDE.md §Code Context Layer. Guidance pre-seeded in workflows 02/05 and many skills. Adoption: add to your mcp config (see claude-side/mcp-config.json example); the layer is optional and degrades gracefully to raw reads.
+
 **In Cursor**, Cursor does not yet support `/`-prefixed commands the same way Claude Code does. Use them by reference: *"Run the command `.claude/commands/mm-ship.md` with argument `auth-mvp`"* — Cursor's agent reads the file and executes it.
 
 ## Currently available

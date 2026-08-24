@@ -11,17 +11,20 @@ These rules are always loaded. They are the operational contract of this reposit
 
 ## Before ANY Change or Important Document
 
-1. **Read context first** — Always open, in this order:
+1. **Detect work context first**
+   - If the workspace root contains `.template-meta/README.md`, this is **template author meta-work**.
+     - Use `.template-meta/memory/` (02, 07, 11, 12, etc.) for the author's live state.
+     - Never write template-development content to the public `memory/` (those must stay clean for clones).
+   - Otherwise, treat as a normal cloned project and use the public `memory/`.
+
+2. **Read context first** — Always open, in this order:
    - `CLAUDE.md` (kernel)
-   - `memory/00-project-brief.md`
-   - `memory/02-current-state.md`
-   - `memory/07-decisions-log.md`
-   - `memory/11-session-summary.md`
-   - `memory/12-open-doubts-and-questions.md`
-2. If the task affects architecture → also read `memory/03-architecture.md`.
-3. If the task affects user flows → also read `memory/05-user-flows.md`.
-4. If the task affects data → also read `memory/04-data-model.md`.
-5. If a local `CLAUDE.md` exists in the module you are editing (e.g. `src/auth/CLAUDE.md`), it **overrides** the kernel for that subtree.
+   - For template author work: `.template-meta/memory/02-current-state.md`, `07-decisions-log.md`, `11-session-summary.md`, `12-open-doubts-and-questions.md`
+   - For normal projects: `memory/00-project-brief.md`, `memory/02-current-state.md`, `memory/07-decisions-log.md`, `memory/11-session-summary.md`, `memory/12-open-doubts-and-questions.md`
+3. If the task affects architecture → also read the corresponding architecture file (`memory/03-architecture.md` or meta equivalent if applicable).
+4. If the task affects user flows → also read `memory/05-user-flows.md`.
+5. If the task affects data → also read `memory/04-data-model.md`.
+6. If a local `CLAUDE.md` exists in the module you are editing (e.g. `src/auth/CLAUDE.md`), it **overrides** the kernel for that subtree.
 
 ---
 

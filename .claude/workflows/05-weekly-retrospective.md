@@ -29,6 +29,8 @@ It is intentionally short. If a retrospective takes more than 40 minutes, the pr
 
 ### Phase 1 — What was done (Auditor)
 
+**Code Intelligence note (Claude efficiency):** When reviewing code-heavy work (audits, plans), check if Code Intelligence MCP was used. If sessions show high token use from file reads, recommend adopting graph queries (jCodeMunch / code-review-graph style) for future weeks.
+
 - **Skill:** _(reading only)_
 - **Mode:** Auditor
 - **Steps:**

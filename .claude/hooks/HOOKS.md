@@ -21,6 +21,8 @@ All rules from [`.cursor/hooks/HOOKS.md`](../../.cursor/hooks/HOOKS.md) apply:
 4. Every hook is logged in `memory/07-decisions-log.md`.
 5. Never duplicate a hook between `.cursor/hooks/` and `.claude/hooks/` — pick the canonical side.
 
+**Efficiency:** Hooks can remind about Code Intelligence layer for context-heavy turns.
+
 ---
 
 ## Naming

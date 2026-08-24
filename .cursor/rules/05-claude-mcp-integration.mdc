@@ -32,6 +32,7 @@ Typical defaults:
 - **Playwright** — only for real browser verification of critical flows. Always specify URL, viewport, and selectors.
 - **Memory Graph** — cross-project lessons. Never dump sensitive data there.
 - **GitHub** — issues, PRs, code context.
+- **Code Intelligence (optional)** — tree-sitter/graph MCP (e.g. jCodeMunch, code-review-graph) for symbol-level, call-graph and impact queries on project code. Use for audits, plans and multi-agent work to cut token usage on file reads. Install per-project when heavy codebase analysis is common.
 - **Notion / Linear** — optional, depending on the project's operations stack.
 
 ### Activation-on-demand — `task-master-ai`

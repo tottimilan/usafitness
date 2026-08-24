@@ -44,6 +44,8 @@ Read:
 - `~/.mastermind/global/vendors.md` — if the vendor has a prior verdict across projects (good/avoid/with-caveats), surface it. A "Avoid" verdict does **not** veto — it reframes the research question as *"has anything changed since the verdict?"*.
 - `~/.mastermind/global/stacks.md` — if the stack decision has been made on other projects with recorded outcomes, reference them.
 
+**Code context efficiency:** When research touches how the current project uses a library or pattern (e.g. "how do we currently call Stripe here?"), prefer Code Intelligence MCP graph queries for symbols and call sites over broad file reads. This keeps token usage low during deep research sessions.
+
 If the folder does not exist, skip silently. Never treat cross-project memory as veto — it is prior evidence, not law for this project.
 
 ## Process

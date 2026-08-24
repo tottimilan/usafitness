@@ -203,6 +203,8 @@ if (-not $SkipSkill) {
     Write-Host "  [SKIP] official shadcn Skill (-SkipSkill given)."
 }
 
+$steps += "Optional: Add Code Intelligence MCP (tree-sitter/graph like jCodeMunch) to mcp.json for efficient code retrieval in audits/plans (see CLAUDE.md §Code Context Layer). Reduces full file reads dramatically."
+
 if ($finalPlatform -in @('mobile','cross') -and -not $SkipMobileClaudeMd) {
     $projectClaude = Join-Path $root 'CLAUDE.md'
     $existingSize = if (Test-Path $projectClaude) { (Get-Item $projectClaude).Length } else { 0 }

@@ -49,7 +49,10 @@ Then read:
 
 If any entry there is relevant to the current idea, surface it **before Step 1** under a "Cross-project signals" heading. Never assume a cross-project lesson applies to this project without the user confirming it fits the context. If the folder does not exist, skip silently.
 
-For existing codebases, also explore the repository directly: `package.json` / `pyproject.toml`, route files, service boundaries, DB schema/migrations, auth layer, integrations, tests, CI config.
+For existing codebases:
+- If a Code Intelligence MCP (tree-sitter / graph based, e.g. jCodeMunch or code-review-graph) is available, prefer structural queries (symbols, callers, dependencies, impact) over reading full files.
+- Fall back to direct exploration (`package.json`, routes, schema, etc.) only when the graph does not provide what is needed.
+- This reduces token usage significantly in audits with deep code analysis.
 
 ## Process
 

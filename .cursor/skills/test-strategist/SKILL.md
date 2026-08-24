@@ -44,6 +44,8 @@ Read:
 8. `docs/flows/<slug>.md` (test matrices already produced)
 9. The current implementation plan at `.cursor/plans/<latest>.md`
 
+**Code context efficiency:** Use Code Intelligence MCP (graph queries) to analyze test structure and dependencies before reading full source when designing strategy. This reduces token load in deep analysis sessions.
+
 ## Process
 
 ### Step 1 — Determine phase ratio

@@ -25,9 +25,10 @@ kill-switch: MM_HOOK_DOUBT_SURFACER=off
 Before producing any substantive output:
 
 1. State the hook's activation in a one-line note: *"(Doubt-Surfacer pre-task hook armed — running Question Protocol before proceeding.)"*
-2. Run the `doubt-surfacer` skill in full (6 steps). Present assumptions + doubts + 8–20 questions.
-3. Wait for user response or mark open in `memory/12-open-doubts-and-questions.md`.
-4. **Only then** proceed to the original task.
+2. If the task involves code exploration, remind to use Code Intelligence MCP (graph queries) for efficiency.
+3. Run the `doubt-surfacer` skill in full (6 steps). Present assumptions + doubts + 8–20 questions.
+4. Wait for user response or mark open in `memory/12-open-doubts-and-questions.md`.
+5. **Only then** proceed to the original task.
 
 ## Behavior when NOT armed
 

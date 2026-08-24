@@ -58,13 +58,13 @@ if [[ ! -d "$PROJECT_ROOT/.git" ]]; then
   echo "WARN: target is not a git repo. Onboarding proceeds but you lose git rollback."
 fi
 if [[ $APPLY -eq 1 && -z "$PHASE" ]]; then
-  echo "ERROR: --phase is required with --apply. Choose: Idea, Discovery, Definition, MVP, Iteration, Launch." >&2
+  echo "ERROR: --phase is required with --apply. Choose: Idea, Discovery, Definition, Prototype, MVP, Iteration, Launch." >&2
   exit 2
 fi
 if [[ -n "$PHASE" ]]; then
   case "$PHASE" in
-    Idea|Discovery|Definition|MVP|Iteration|Launch) ;;
-    *) echo "ERROR: invalid --phase. Must be one of: Idea, Discovery, Definition, MVP, Iteration, Launch." >&2; exit 2 ;;
+    Idea|Discovery|Definition|Prototype|MVP|Iteration|Launch) ;;
+    *) echo "ERROR: invalid --phase. Must be one of: Idea, Discovery, Definition, Prototype, MVP, Iteration, Launch." >&2; exit 2 ;;
   esac
 fi
 
@@ -88,7 +88,7 @@ echo ""
 collect_whitelist() {
   (
     cd "$TEMPLATE_ROOT"
-    for f in CLAUDE.md AGENTS.md README.md OPERATING-GUIDE.md COMMANDS.md .gitignore .env.example; do
+    for f in CLAUDE.md AGENTS.md README.md OPERATING-GUIDE.md COMMANDS.md phase-criteria.json .gitignore .env.example; do
       [[ -f "$f" ]] && echo "$f"
     done
     find .cursor/rules -type f -name '*.mdc' 2>/dev/null
@@ -304,11 +304,11 @@ done
 STATE_FILE="$PROJECT_ROOT/memory/02-current-state.md"
 HISTORY_FILE="$PROJECT_ROOT/memory/13-phase-history.md"
 if [[ -f "$STATE_FILE" ]]; then
-  sed -i.bak -E "s/^\*\*Phase:\*\* Idea \\| Discovery \\| Definition \\| MVP \\| Iteration \\| Launch$/**Phase:** $PHASE/" "$STATE_FILE"
+  sed -i.bak -E "s/^\*\*Phase:\*\* Idea \\| Discovery \\| Definition \\| Prototype \\| MVP \\| Iteration \\| Launch$/**Phase:** $PHASE/" "$STATE_FILE"
   rm -f "$STATE_FILE.bak"
 fi
 if [[ -f "$HISTORY_FILE" ]]; then
-  sed -i.bak -E "s/^\*\*Phase:\*\* Idea \\| Discovery \\| Definition \\| MVP \\| Iteration \\| Launch$/**Phase:** $PHASE/;s/^\*\*Since:\*\* YYYY-MM-DD$/**Since:** $TODAY/" "$HISTORY_FILE"
+  sed -i.bak -E "s/^\*\*Phase:\*\* Idea \\| Discovery \\| Definition \\| Prototype \\| MVP \\| Iteration \\| Launch$/**Phase:** $PHASE/;s/^\*\*Since:\*\* YYYY-MM-DD$/**Since:** $TODAY/" "$HISTORY_FILE"
   rm -f "$HISTORY_FILE.bak"
   TMP="$(mktemp)"
   awk -v today="$TODAY" -v phase="$PHASE" '

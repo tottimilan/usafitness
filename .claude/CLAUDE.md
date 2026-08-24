@@ -6,10 +6,11 @@ The **canonical** kernel lives at the repository root: [`../CLAUDE.md`](../CLAUD
 When Claude Desktop reads this folder, it must:
 
 1. Read `../CLAUDE.md` (the root kernel) as the source of truth.
-2. Read the project memory at `../memory/` (the full memory bank is shared with Cursor).
-3. Read `../AGENTS.md` for the non-Cursor agent contract.
-4. Load any skills declared under `./skills/` (Claude-Desktop-only) **in addition to** those in `../.cursor/skills/`.
-5. Load any agents declared under `./agents/` and any workflows under `./workflows/`.
+2. **Detect if this is template author work:** If `../.template-meta/README.md` exists, use `../.template-meta/memory/` for live author state (02, 07, 11, 12...) instead of public `../memory/`. Public memory/ must stay clean for clones.
+3. Read the project memory at `../memory/` (the full memory bank is shared with Cursor) — **only for normal projects**.
+4. Read `../AGENTS.md` for the non-Cursor agent contract.
+5. Load any skills declared under `./skills/` (Claude-Desktop-only) **in addition to** those in `../.cursor/skills/`.
+6. Load any agents declared under `./agents/` and any workflows under `./workflows/`.
 
 ## Why this mirror exists
 

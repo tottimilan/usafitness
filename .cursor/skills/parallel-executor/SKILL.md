@@ -126,6 +126,8 @@ Pass each dispatched subagent:
 - The task spec.
 - Conventions (same as in `subagent-dispatcher`).
 
+**Code context efficiency:** Curate any code context using Code Intelligence MCP graph queries (only the symbols and dependencies relevant to that parallel task). Do not ship large code sections to worktrees.
+
 ### Step 6 — Plan merge order before spawning
 
 Decide merge order **before** work starts. Criteria:

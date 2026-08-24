@@ -130,6 +130,28 @@ Full rule including when the agent should auto-downgrade HIGH → MEDIUM lives a
 - `scripts/` → automation (sync-skills, phase-gate-check, render-phase-criteria, worktree-spawn/cleanup, log-dispatch, template-audit, init-global-memory, install-*, sync-from-template, onboard-existing-project, export-design-md). Each is self-documented in its header; the operator cheatsheet lives in `OPERATING-GUIDE.md`.
 - `.cursor/hooks/` + `.claude/hooks/` → behavioral hook instruction files (kill-switches via `MM_HOOK_*`). Optional local `CLAUDE.md` in risky modules overrides this kernel for that subtree.
 
+**Critical for template authors:** When the workspace root contains `.template-meta/README.md`, you are developing the template itself. In that case:
+- Use `.template-meta/memory/02`, `07`, `11`, `12` (and others as needed) instead of the public `memory/`.
+- Public `memory/` files must remain clean placeholders for clones.
+- Always check for `.template-meta/README.md` early when the task involves improving or changing the MASTERMIND system itself.
+
+## Code Context Layer (optional — token efficiency for code-heavy work)
+
+Especially useful for Claude-heavy users doing audits, plans and multi-agent work:
+- Use an optional **Code Intelligence MCP** (tree-sitter based: jCodeMunch, code-review-graph or similar) when available in the project.
+- These allow symbol-level, call-graph and impact queries instead of loading full files.
+- In skills and subagent orchestration: attempt graph/structural queries first before raw `read_file` or broad exploration of project code.
+- This directly reduces tokens from repeated codebase reads without losing analysis depth.
+- The graph is an optional accelerator. Markdown + source code remain the canonical source of truth.
+- Add to `.cursor/mcp.json` or `claude-side/mcp-config.json` per project (optional, similar to task-master-ai).
+
+**Adoption (for active projects):**
+- Install the MCP (e.g. `npx jcodemunch-mcp` or equivalent) and add to your MCP config.
+- No code changes required — the layer degrades gracefully.
+- Recommended when running deep audits, feature plans or multi-agent sessions with heavy codebase interaction.
+- For template users: the guidance is already seeded in many skills and workflows; just configure the MCP.
+- Sync-from-template safe: only adds optional config.
+
 ---
 
 ## Model Routing

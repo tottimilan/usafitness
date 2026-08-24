@@ -26,6 +26,8 @@ This hook formalizes the contract. It does not replace `CLAUDE.md §5`; it wires
 
 The agent classifies the outgoing recommendation into **HIGH / MEDIUM / LOW** and uses the matching template. Never emit more than one block.
 
+**Efficiency note:** When suggesting commands after code-heavy tasks, prefer ones that leverage Code Intelligence (e.g., /mm-plan with graph context).
+
 ### HIGH — one command clearly applies
 
 Emit when a single natural next step exists and the agent would stake its reputation on it.

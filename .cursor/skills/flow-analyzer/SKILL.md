@@ -40,6 +40,8 @@ Read:
 7. `memory/04-data-model.md` (which entities the flow creates, mutates, or reads)
 8. `memory/08-known-risks.md` (pre-existing risks that intersect the flow)
 
+**Code context (token efficiency):** When analyzing implementation of flows in existing codebases, prefer Code Intelligence MCP (graph queries for call paths and dependencies) before loading large amounts of source code. Critical for efficient Claude multi-agent work.
+
 ## Process
 
 ### Step 1 — Scope the flow

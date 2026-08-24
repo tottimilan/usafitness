@@ -41,6 +41,10 @@ Read:
 
 For stack-related bugs, run `research-first` on the library or service involved — the bug might be a known issue upstream.
 
+**Code exploration (token efficiency):**
+- When isolating or diagnosing, prefer Code Intelligence MCP queries (symbols, call paths, impact) if available over repeated full file reads or broad greps.
+- This helps a lot in Claude-heavy debugging sessions with sub-agents.
+
 ## Process
 
 ### Phase 1 — Reproduce

@@ -107,6 +107,8 @@ The output is a project that has:
 - **Output:** shadcn installed, MCP active, Skill loaded, memory/14 has the project's visual identity seeded.
 - **Exit criterion:** `components.json` exists; `.cursor/mcp.json` / `.mcp.json` reference shadcn; memory/14 has the identity section filled (not placeholders).
 
+**Code Intelligence tip:** After bootstrap, when the project has code, consider adding a Code Intelligence MCP (see CLAUDE.md) for future efficient codebase work. It pairs well with the design system install.
+
 ### Phase 6 — Close and handoff (memory-updater)
 
 - **Skill:** `memory-updater`

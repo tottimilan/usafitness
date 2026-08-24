@@ -32,13 +32,14 @@ Its job is to make the agent name what it is silently assuming, list what it doe
 
 ## Prerequisites
 
+**First check work context:**
+- If `.template-meta/README.md` exists at workspace root → this is template development. Read from `.template-meta/memory/` instead of public `memory/`. Never pollute public memory with template-author doubts.
+
 Read, in this order:
 
 1. `CLAUDE.md`
-2. `memory/00-project-brief.md`
-3. `memory/02-current-state.md`
-4. `memory/07-decisions-log.md`
-5. `memory/12-open-doubts-and-questions.md` (current state — do not re-ask already-answered questions)
+2. For normal projects: `memory/00-project-brief.md`, `memory/02-current-state.md`, `memory/07-decisions-log.md`, `memory/12-open-doubts-and-questions.md`
+3. For template author work: `.template-meta/memory/02-current-state.md`, `07-decisions-log.md`, `11-session-summary.md`, `12-open-doubts-and-questions.md` (current state — do not re-ask already-answered questions)
 
 Additionally, if relevant to the task:
 - `memory/03-architecture.md` — for architecture or stack questions.

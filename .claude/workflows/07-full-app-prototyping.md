@@ -102,6 +102,8 @@ Separating it fixes all three.
 
 ### Phase 6 — Freeze
 
+**Code Intelligence note (Claude efficiency):** If prototyping involved any code exploration (e.g., reviewing existing components), ensure Code Intelligence MCP was used for precise retrieval to keep context efficient.
+
 - **Mode:** Auditor + Executor.
 - **Skill:** `mockup-factory` in `freeze` mode.
 - **Command:** `/mm-mockup freeze`.

@@ -36,6 +36,8 @@ Read:
 5. `memory/14-design-system.md` — tokens, installed components, likes/anti-patterns, patterns we reuse
 6. `~/.mastermind/global/design-patterns.md` (if exists) — cross-project visual lessons
 
+**Code context efficiency (for design decisions):** When the feature touches existing code (e.g. to decide layout based on current components or flows), use Code Intelligence MCP graph queries first for relevant symbols and call paths instead of broad reads. Keeps context tight during prototyping.
+
 Check the environment:
 
 - `components.json` exists → the design system is initialized.

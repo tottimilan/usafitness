@@ -52,6 +52,7 @@ The canonical 2026 architecture (Anthropic + industry consensus):
 - **Specialist subagents** — narrow, reliable, isolated context. Implementer, spec-reviewer, code-quality-reviewer, research fetcher, etc.
 - **Message-passing, not shared state.** The orchestrator constructs exactly the context each subagent needs and passes it in the prompt. Subagents do **not** see the orchestrator's session history.
 - **A subagent returns a summary + a pointer to its artifacts, never its full trace.** The orchestrator receives a short result (status + key decisions + paths to files/commits/notes the subagent wrote), not the subagent's raw tool calls and reasoning. Piping a subagent's whole transcript back into the orchestrator defeats the entire point of context isolation and re-pollutes the global context.
+- **Code context curation (token efficiency):** When project code is involved, the orchestrator should use Code Intelligence MCP (tree-sitter graph) to extract precise slices (relevant symbols, callers, impact) instead of dumping full files or large code sections to subagents. This is critical for Claude-heavy multi-agent audits and plans.
 - **2–4 agents total is the sweet spot.** > 5 usually means the task is poorly decomposed.
 
 ### Model selection per role

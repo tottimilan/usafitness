@@ -3,7 +3,7 @@ name: onboard-existing-project
 description: Bring an existing project (not born from MASTERMIND) into the MASTERMIND 2.0 system. Installs the template shell via scripts/onboard-existing-project, resolves conflicts, picks the initial phase, populates memory/ retroactively from the code, runs a strategic audit, and formalizes the phase with phase-gate-reviewer. Safe by construction: project code, git history, and custom content are never touched.
 triggers: ["onboard existing project", "add this project to MASTERMIND", "mm-onboard", "retroactive onboarding", "bring this repo into the system"]
 estimated_duration: "45-90 minutes per project (one session)"
-applicable_phases: [Idea, Discovery, Definition, MVP, Iteration, Launch]
+applicable_phases: [Idea, Discovery, Definition, Prototype, MVP, Iteration, Launch]
 ---
 
 # Workflow 06 — Onboard an existing project
@@ -18,7 +18,7 @@ This workflow is the canonical path for that scenario. It is deliberately parano
 
 - The target project is on disk with a working git repository (recommended).
 - You have access to an up-to-date MASTERMIND 2.0 template on disk.
-- You know roughly what phase the project is in (Idea / Discovery / Definition / MVP / Iteration / Launch). If unsure, err on the conservative side; the phase can be adjusted with `/mm-gate` later.
+- You know roughly what phase the project is in (Idea / Discovery / Definition / Prototype / MVP / Iteration / Launch). If unsure, err on the conservative side; the phase can be adjusted with `/mm-gate` later.
 - Cursor / Claude are **closed** on the target project for the shell-install step.
 
 ## Phases
@@ -89,6 +89,8 @@ This workflow is the canonical path for that scenario. It is deliberately parano
 - **Exit criterion:** MASTERMIND shell is active and being loaded by the IA layer.
 
 ### Phase 5 — Retroactive memory seed (Coach → Executor)
+
+**Code Intelligence note (Claude efficiency):** The retroactive-documenter does heavy codebase reading. If a Code Intelligence MCP is configured, it will use graph queries for symbols and structure (per its skill note) — this is the ideal moment to have it installed for onboarding existing projects.
 
 - **Skill:** [`retroactive-documenter`](../../.cursor/skills/retroactive-documenter/SKILL.md)
 - **Mode:** Coach (reviews), Executor (writes)

@@ -146,6 +146,8 @@ else
   echo "  [SKIP] official shadcn Skill (--skip-skill)."
 fi
 
+steps+=("Optional: Add Code Intelligence MCP (tree-sitter/graph like jCodeMunch) to mcp.json for efficient code retrieval in audits/plans (see CLAUDE.md §Code Context Layer). Reduces full file reads dramatically.")
+
 MOBILE_CLAUDE_MD_NEEDED=0
 if [[ ( "$FINAL_PLATFORM" == "mobile" || "$FINAL_PLATFORM" == "cross" ) && $SKIP_MOBILE_CLAUDE_MD -eq 0 ]]; then
   CLAUDE_FILE="$ROOT/CLAUDE.md"

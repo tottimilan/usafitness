@@ -69,6 +69,7 @@ For the current task:
    - Acceptance criteria.
    - Verification commands and expected outputs.
    - Project conventions (TypeScript strict, naming, imports — from `.cursor/rules/02-tech-stack.mdc`).
+   - **Code context (if Code Intelligence MCP is available):** Use graph queries first for relevant symbols/callers instead of full files. Curate only the minimal precise excerpts needed.
    - **Explicit instruction:** *"Follow TDD. Self-review before returning. Report one of DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED."*
 3. **Dispatch** with all tools the task needs (Read, Write, Edit, Bash, Grep as appropriate).
 4. **Wait for the subagent to return** with a status.
@@ -177,6 +178,8 @@ You are an implementer subagent. You have no memory of prior tasks — the contr
 
 ## Your task
 <copy verbatim from the plan: task N text, files, steps, acceptance criteria, verification commands>
+
+**Code context (if Code Intelligence MCP available):** Query the graph first for relevant symbols, callers and dependencies. Load only the minimal precise excerpts needed. Avoid broad file reads.
 
 ## Discipline
 - Follow TDD: write the failing test first, see it fail, implement minimum code, see it pass, commit.

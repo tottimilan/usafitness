@@ -90,6 +90,8 @@ If any precondition fails, the workflow aborts and recommends the missing prior 
 
 Choose one based on the breakdown:
 
+**Code Intelligence note (Claude efficiency):** Before dispatching, if a Code Intelligence MCP (tree-sitter graph like jCodeMunch or code-review-graph) is configured, instruct the orchestrator and subagents to query it first for symbol-level context, callers, and impact instead of loading full files. This dramatically cuts tokens in multi-agent execution for audits/plans.
+
 **4a. Single workspace (sequential or with internal parallelism):**
 
 - **Skill:** `subagent-dispatcher`

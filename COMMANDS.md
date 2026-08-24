@@ -1,6 +1,8 @@
 # COMMANDS.md — Quick reference for `/mm-*`
 
 > **What this is.** A fast, operational reference for the **17 slash commands** in this project. Designed to stay open and answer the question *"which command do I run now?"* in 5 seconds.
+
+**Efficiency tip:** For code-heavy work, use optional Code Intelligence MCP (see CLAUDE.md) — agents query graphs instead of full files for token savings. Pre-seeded in many skills/workflows.
 >
 > **What this is NOT.** This is not the deep system documentation — for that, open [`OPERATING-GUIDE.md`](OPERATING-GUIDE.md). This is not the skill catalog — those live in `.cursor/skills/` and `.claude/skills/`.
 
@@ -38,7 +40,7 @@ The agent reads the file and follows the script. Same end result.
 | [`/mm-bug`](.claude/commands/mm-bug.md)             | Bug → reproduce → surgical fix → regression test            | Any bug, failing test, incident                                  | Description / ID / link         |
 | [`/mm-next`](.claude/commands/mm-next.md)           | Tells you the next task to work on                         | Start of a session, to re-enter context fast                     | "details" or empty              |
 | [`/mm-review`](.claude/commands/mm-review.md)       | Code review (+ security when applicable) of the branch     | Before merging, after any large slice                            | Branch / PR (optional)          |
-| [`/mm-gate`](.claude/commands/mm-gate.md)           | Phase advance with hard verification                       | End of a phase (Idea/Discovery/Definition/MVP/Iteration/Launch)  | Target phase                    |
+| [`/mm-gate`](.claude/commands/mm-gate.md)           | Phase advance with hard verification                       | End of a phase (Idea/Discovery/Definition/Prototype/MVP/Iteration/Launch)  | Target phase                    |
 | [`/mm-retro`](.claude/commands/mm-retro.md)         | 20–40 min weekly retrospective                             | Once a week during MVP/Iteration/Launch                          | Period (optional)               |
 | [`/mm-learn`](.claude/commands/mm-learn.md)         | Promote lessons to the cross-project global memory         | End of phase, notable post-mortem, weekly retro                  | Time window (optional)          |
 | [`/mm-onboard`](.claude/commands/mm-onboard.md)     | Integrate an existing project (not born from MASTERMIND) into the system | After `scripts/onboard-existing-project` installs the shell      | Hints like `audit-focus:monetization` (optional) |
@@ -125,10 +127,10 @@ The agent reads the file and follows the script. Same end result.
 ### 9. `/mm-gate` — Phase transition
 
 - **Wraps:** workflow [`04-phase-gate-transition`](.claude/workflows/04-phase-gate-transition.md).
-- **When:** you believe you have completed the exit criteria of the current phase (Idea / Discovery / Definition / MVP / Iteration) and want to advance to the next.
+- **When:** you believe you have completed the exit criteria of the current phase (Idea / Discovery / Definition / Prototype / MVP / Iteration) and want to advance to the next.
 - **Does:** dry-run with `scripts/phase-gate-check.ps1` → reports PASS/GAPS/BLOCK → remediation if gaps exist → invokes `phase-gate-reviewer` → presents the transition entry to the user → waits for `approve`/`adjust`/`block` → writes to `memory/13-phase-history.md`, `memory/02-current-state.md`, and `memory/07-decisions-log.md` → hands off to the next natural workflow.
 - **Hard rule:** **never advance a phase by editing `memory/02-current-state.md` by hand**. The workflow runs end-to-end, always.
-- **Argument (required):** one of `Discovery`, `Definition`, `MVP`, `Iteration`, `Launch`.
+- **Argument (required):** one of `Discovery`, `Definition`, `Prototype`, `MVP`, `Iteration`, `Launch`. (`Prototype` is optional — non-UI projects skip Definition→MVP with `--skip-reason "no UI"`.)
 
 ### 10. `/mm-retro` — Weekly retrospective
 

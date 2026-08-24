@@ -169,6 +169,40 @@ if ($ogDoc -and ($ogDoc -notmatch 'phase-criteria\.json')) {
     Add-Finding 'Critical' 'CRITERIA_POINTER_MISSING' 'OPERATING-GUIDE.md does not reference phase-criteria.json as the source of truth (§5 may have become a parallel source).'
 }
 
+# ---- (g) Phase-model drift: onboarding scripts + memory placeholders vs phase-criteria.json ----
+if (Test-Path $criteriaFile) {
+    $phaseOrder = @((Get-Content $criteriaFile -Raw | ConvertFrom-Json).phase_order)
+    if ($phaseOrder.Count -gt 0) {
+        $placeholderLine = '**Phase:** ' + ($phaseOrder -join ' | ')
+        $onboardTargets = @(
+            @{ Rel = 'scripts/onboard-existing-project.ps1'; Pattern = ('\*\*Phase:\*\* ' + ($phaseOrder -join ' \| ')) },
+            @{ Rel = 'scripts/onboard-existing-project.sh';  Pattern = ('\*\*Phase:\*\* ' + ($phaseOrder -join ' \\| ')) }
+        )
+        foreach ($t in $onboardTargets) {
+            $sp = RepoPath $t.Rel
+            if (-not (Test-Path $sp)) { continue }
+            $sc = [System.IO.File]::ReadAllText($sp)
+            foreach ($p in $phaseOrder) {
+                if (-not $sc.Contains($p)) {
+                    Add-Finding 'Critical' 'PHASE_LIST_DRIFT' "$($t.Rel) never mentions phase '$p' from phase-criteria.json phase_order (its phase validation/help is stale)."
+                }
+            }
+            if (-not $sc.Contains($t.Pattern)) {
+                Add-Finding 'Critical' 'PHASE_PATTERN_DRIFT' "$($t.Rel) placeholder-rewrite pattern does not match phase_order ('$placeholderLine') - the initial phase would silently not be written."
+            }
+        }
+        foreach ($memRel in @('memory/02-current-state.md','memory/13-phase-history.md')) {
+            $mp = RepoPath $memRel
+            if (-not (Test-Path $mp)) { continue }
+            # Only enforced while the file still holds the pipe-separated placeholder (i.e. in the pristine template).
+            $phLine = @(Get-Content $mp | Where-Object { $_ -match '^\*\*Phase:\*\* .+\|' }) | Select-Object -First 1
+            if ($phLine -and $phLine.Trim() -ne $placeholderLine) {
+                Add-Finding 'Critical' 'PHASE_PLACEHOLDER_DRIFT' "$memRel placeholder ('$($phLine.Trim())') != phase_order-derived ('$placeholderLine') - the onboarding rewrite would never match."
+            }
+        }
+    }
+}
+
 # ---- Write manifest to runtime (gitignored) ----
 try {
     $runtimeDir = RepoPath '.mastermind/runtime'

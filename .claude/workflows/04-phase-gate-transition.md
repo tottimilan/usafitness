@@ -12,6 +12,8 @@ applicable_phases: [Idea, Discovery, Definition, Prototype, MVP, Iteration]
 
 Formalize the moment when the project changes posture. Phases are strategic states — "what we are paying attention to" — and transitioning between them should be a conscious, evidence-based event, not a gradual drift. This workflow makes it a deterministic ceremony with a clear verdict.
 
+**Code Intelligence note (Claude efficiency):** When the gate involves heavy codebase review (common when entering MVP or Iteration), use Code Intelligence MCP for efficient symbol/impact queries instead of raw file loads.
+
 ## Preconditions
 
 - The user believes the current phase is finished (or close to it).

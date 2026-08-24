@@ -15,7 +15,7 @@
       -KeepExistingRules to disable and treat them as conflicts instead.
     - Stack auto-detection from lockfiles pre-fills .cursor/rules/02-tech-stack.mdc
       if the target does not already have one.
-    - You pick the initial phase (Idea / Discovery / Definition / MVP / Iteration / Launch),
+    - You pick the initial phase (Idea / Discovery / Definition / Prototype / MVP / Iteration / Launch),
       and the script writes memory/02-current-state.md + memory/13-phase-history.md
       coherently.
     - Never touches src/, app/, tests/, lockfiles, .git/, node_modules/, dist/, .next/,
@@ -31,7 +31,7 @@
 
 .PARAMETER Phase
     (Required in -Apply; optional in dry-run) Initial phase for the project.
-    One of: Idea, Discovery, Definition, MVP, Iteration, Launch.
+    One of: Idea, Discovery, Definition, Prototype, MVP, Iteration, Launch.
 
 .PARAMETER Apply
     Actually write changes.
@@ -63,7 +63,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)][string]$Template,
-    [ValidateSet('Idea','Discovery','Definition','MVP','Iteration','Launch')]
+    [ValidateSet('Idea','Discovery','Definition','Prototype','MVP','Iteration','Launch')]
     [string]$Phase,
     [switch]$Apply,
     [switch]$Force,
@@ -98,7 +98,7 @@ if (-not (Test-Path (Join-Path $projectRoot '.git'))) {
     Write-Warning "Target is not a git repository. Onboarding will still work, but you lose rollback via git reset."
 }
 if ($Apply -and [string]::IsNullOrWhiteSpace($Phase)) {
-    Write-Error "-Phase is required when using -Apply. Choose: Idea, Discovery, Definition, MVP, Iteration, Launch."
+    Write-Error "-Phase is required when using -Apply. Choose: Idea, Discovery, Definition, Prototype, MVP, Iteration, Launch."
     exit 2
 }
 
@@ -116,9 +116,9 @@ Write-Host ""
 # --- Whitelist (template side) --------------------------------------------------
 $whitelistGlobs = @(
     'CLAUDE.md','AGENTS.md','README.md','OPERATING-GUIDE.md','COMMANDS.md',
-    '.gitignore','.env.example','phase-criteria.json',
+    'phase-criteria.json',
+    '.gitignore','.env.example',
     '.cursor/rules/*.mdc',
-    '.cursor/rules/references/*',
     '.cursor/skills/**/*',
     '.cursor/hooks/*.md',
     '.claude/CLAUDE.md',
@@ -384,13 +384,13 @@ $stateFile = Join-Path $projectRoot 'memory\02-current-state.md'
 $historyFile = Join-Path $projectRoot 'memory\13-phase-history.md'
 if (Test-Path $stateFile) {
     $stateContent = Get-Content $stateFile -Raw
-    $stateContent = $stateContent -replace '(?m)^\*\*Phase:\*\* Idea \| Discovery \| Definition \| MVP \| Iteration \| Launch', "**Phase:** $Phase"
+    $stateContent = $stateContent -replace '(?m)^\*\*Phase:\*\* Idea \| Discovery \| Definition \| Prototype \| MVP \| Iteration \| Launch', "**Phase:** $Phase"
     Set-Content -LiteralPath $stateFile -Value $stateContent -Encoding UTF8
 }
 if (Test-Path $historyFile) {
     $today = Get-Date -Format 'yyyy-MM-dd'
     $historyContent = Get-Content $historyFile -Raw
-    $historyContent = $historyContent -replace '(?m)^\*\*Phase:\*\* Idea \| Discovery \| Definition \| MVP \| Iteration \| Launch', "**Phase:** $Phase"
+    $historyContent = $historyContent -replace '(?m)^\*\*Phase:\*\* Idea \| Discovery \| Definition \| Prototype \| MVP \| Iteration \| Launch', "**Phase:** $Phase"
     $historyContent = $historyContent -replace '(?m)^\*\*Since:\*\* YYYY-MM-DD', "**Since:** $today"
     $entry = @"
 

@@ -41,6 +41,8 @@ Read:
 6. `memory/08-known-risks.md` (risks moved or closed in the window)
 7. `docs/bugs/*.md` (post-mortems recent enough to have cross-project value)
 
+**Code context efficiency:** When candidates involve code patterns or implementation details, prefer Code Intelligence MCP (graph queries for symbols and call sites) over loading full source. This reduces token use and keeps lessons concise.
+
 If `~/.mastermind/global/` does not exist, stop and instruct the user to initialize it (the bootstrap was done in System 2 Sub-phase 2.1; see `.cursor/rules/05-claude-mcp-integration.mdc §Cross-project Memory Protocol`).
 
 ## Process
