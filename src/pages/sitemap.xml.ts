@@ -10,8 +10,14 @@ for (const store of storesData.stores) {
   domainToSlug.set('www.' + store.domain, store.slug);
 }
 
-function urlEntry(loc: string, priority: string): string {
-  return `  <url>\n    <loc>${loc}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+// Google ignora <changefreq> y <priority> desde hace años; el único elemento
+// opcional que sí consume es <lastmod>. Se emite la fecha del build: es la
+// señal de frescura más honesta que este proyecto puede dar, porque el
+// contenido de una tienda cambia cuando se redespliega.
+const LASTMOD = new Date().toISOString().slice(0, 10);
+
+function urlEntry(loc: string): string {
+  return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`;
 }
 
 export const GET: APIRoute = ({ request }) => {
@@ -24,19 +30,19 @@ export const GET: APIRoute = ({ request }) => {
     // Per-store sitemap: only this store's canonical URLs. No mixing.
     const store = storesData.stores.find((s) => s.slug === slug)!;
     const base = `https://${store.domain}`;
-    entries.push(urlEntry(`${base}/`, '1.0'));
+    entries.push(urlEntry(`${base}/`));
     // Legal pages are only indexable when the store has real `company` data
     // (see [slug]/[doc].astro, which sets noindex otherwise). Listing them here
     // would submit URLs we ourselves tell Google not to index.
     if ((store as any).company) {
       for (const doc of LEGAL_DOCS) {
-        entries.push(urlEntry(`${base}/${doc.slug}`, '0.3'));
+        entries.push(urlEntry(`${base}/${doc.slug}`));
       }
     }
   } else {
     // Generic/preview domain: list every store's canonical homepage.
     for (const store of storesData.stores) {
-      entries.push(urlEntry(`https://${store.domain}/`, '1.0'));
+      entries.push(urlEntry(`https://${store.domain}/`));
     }
   }
 

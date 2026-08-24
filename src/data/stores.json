@@ -13,7 +13,7 @@
       "title": "Tu tienda de suplementación en Villanueva de la Cañada",
       "subtitle": "Encuéntranos en el C.C. El Zoco de Villanueva de la Cañada",
       "location": "Villanueva de la Cañada",
-      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. El Zoco, Villanueva de la Cañada. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. El Zoco, Villanueva de la Cañada. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34913916557",
       "phoneDisplay": "913 916 557",
       "whatsapp": "+34913916557",
@@ -32,12 +32,6 @@
           "text": "La atención por parte del chico que te asesora y de la chica que te cobra, es inmejorable… que sigan así, los felicito.",
           "author": "Dario Rodríguez",
           "avatar": "/photos/villanueva/reviews/dario.jpg",
-          "stars": 5
-        },
-        {
-          "text": "Muy amables y te explican todo muy bien y además te aconsejan según tus necesidades. Recomiendo totalmente!!",
-          "author": "Andrea García",
-          "avatar": "",
           "stars": 5
         }
       ],
@@ -66,7 +60,7 @@
       "title": "Tu tienda de suplementación en A Coruña",
       "subtitle": "Encuéntranos en el corazón de A Coruña",
       "location": "A Coruña",
-      "metaDescription": "Tienda de nutrición deportiva y suplementos en C.C. Marineda City, A Coruña. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en C.C. Marineda City, A Coruña. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34881169567",
       "phoneDisplay": "881 169 567",
       "whatsapp": "+34881169567",
@@ -74,26 +68,7 @@
       "googleMapsLink": "https://www.google.com/maps/place/USA+Fitness+Marineda/",
       "schedule": "De lunes a sábado: 10:00 a 22:00",
       "heroImage": "/photos/marineda/hero.webp",
-      "reviews": [
-        {
-          "text": "Vengo a esta tienda siempre que necesito algo, debido a su gran variedad en todos los productos, y la calidad que tienen. Y sobretodo estoy encantada con Carla, la dependienta que está los domingos. Da una atención increíble, super amable y con una atención al público estupenda.",
-          "author": "Hiba de la Iglesia Moreno",
-          "avatar": "",
-          "stars": 5
-        },
-        {
-          "text": "Me encanta esta tienda su variedad de productos y el trato del personal es de 10. Casi siempre coincido con Sharol que me asesora y me ayuda en mis inquietudes. Super recomendado en variedad de productos, trato y asesoramiento.",
-          "author": "Amaya Guerra",
-          "avatar": "",
-          "stars": 5
-        },
-        {
-          "text": "Muy amables y te explican todo muy bien y además te aconsejan según tus necesidades. Recomiendo totalmente!!",
-          "author": "Andrea García",
-          "avatar": "",
-          "stars": 5
-        }
-      ],
+      "reviews": [],
       "galleryImages": [
         "/photos/marineda/tienda-1.webp",
         "/photos/marineda/tienda-2.webp",
@@ -119,7 +94,7 @@
       "title": "Tu tienda de suplementación en Madrid",
       "subtitle": "Encuéntranos en el corazón de Madrid",
       "location": "Madrid",
-      "metaDescription": "Tienda de nutrición deportiva y suplementos en Las Rosas, Madrid. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en Las Rosas, Madrid. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34911464826",
       "phoneDisplay": "911 464 826",
       "whatsapp": "+34911464826",
@@ -127,26 +102,7 @@
       "googleMapsLink": "https://maps.google.com/maps?ll=40.4182,-3.620895&z=14&t=m&hl=es-ES&gl=US&mapclient=embed&cid=4897929501669774605",
       "schedule": "De lunes a domingo: 10:00 a 22:00",
       "heroImage": "/photos/lasrosas/hero.webp",
-      "reviews": [
-        {
-          "text": "Vengo a esta tienda siempre que necesito algo, debido a su gran variedad en todos los productos, y la calidad que tienen. Y sobretodo estoy encantada con Carla, la dependienta que está los domingos. Da una atención increíble, super amable y con una atención al público estupenda.",
-          "author": "Hiba de la Iglesia Moreno",
-          "avatar": "",
-          "stars": 5
-        },
-        {
-          "text": "Me encanta esta tienda su variedad de productos y el trato del personal es de 10. Casi siempre coincido con Sharol que me asesora y me ayuda en mis inquietudes. Super recomendado en variedad de productos, trato y asesoramiento.",
-          "author": "Amaya Guerra",
-          "avatar": "",
-          "stars": 5
-        },
-        {
-          "text": "Muy amables y te explican todo muy bien y además te aconsejan según tus necesidades. Recomiendo totalmente!!",
-          "author": "Andrea García",
-          "avatar": "",
-          "stars": 5
-        }
-      ],
+      "reviews": [],
       "galleryImages": [
         "/photos/lasrosas/tienda-1.webp",
         "/photos/lasrosas/tienda-2.webp",
@@ -171,7 +127,7 @@
       "title": "Tu tienda de suplementación en Alcobendas",
       "subtitle": "Encuéntranos en Alcobendas, Madrid",
       "location": "Alcobendas, Madrid",
-      "metaDescription": "Tienda de nutrición deportiva y suplementos en C.C. Carrefour Alcobendas, Madrid. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en C.C. Carrefour Alcobendas, Madrid. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34919360967",
       "phoneDisplay": "919 360 967",
       "whatsapp": "+34919360967",
@@ -218,7 +174,7 @@
       "title": "Tu tienda de suplementación en Zaragoza",
       "subtitle": "Encuéntranos en el C.C. GranCasa",
       "location": "Zaragoza",
-      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. GranCasa, Zaragoza. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. GranCasa, Zaragoza. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34876439039",
       "phoneDisplay": "876 439 039",
       "googleMapsEmbed": "https://www.google.com/maps?q=C.C.+GranCasa,+Calle+de+Maria+Zambrano,+35,+50018+Zaragoza&output=embed",
@@ -260,7 +216,7 @@
       "title": "Tu tienda de suplementación en Vigo",
       "subtitle": "Encuéntranos en el C.C. Gran Vía Vigo",
       "location": "Vigo",
-      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. Gran Vía de Vigo. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. Gran Vía de Vigo. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34986916804",
       "phoneDisplay": "986 916 804",
       "whatsapp": "+34661490626",
@@ -272,26 +228,7 @@
       "social": {
         "instagram": "https://www.instagram.com/usafitness_granviadevigo/"
       },
-      "reviews": [
-        {
-          "text": "Muy buena experiencia en USA Fitness. Es una tienda con una gran variedad de productos que llaman mucho la atención por su calidad y presentación. Todo tiene muy buena pinta y se nota que trabajan con buenas marcas. Además, el trato del personal es excelente: son muy amables, cercanos y siempre están dispuestos a ayudarte con cualquier duda o recomendarte lo que mejor se adapta a lo que buscas. Sin duda, un sitio muy recomendable tanto si ya estás metido en el mundo del fitness como si estás empezando.",
-          "author": "Hiba de la Iglesia Moreno",
-          "avatar": "/photos/vigo/reviews/hiba.jpg",
-          "stars": 5
-        },
-        {
-          "text": "Fui a la inauguración y me encantó la tienda, tienen muchísima variedad y la atención es excepcional. Sin duda, será mi nueva tienda de confianza.",
-          "author": "Amaya Guerra",
-          "avatar": "/photos/vigo/reviews/amaya.jpg",
-          "stars": 5
-        },
-        {
-          "text": "Muy buena tienda de suplementación, tienen todo lo que busco, además las chicas que me atendieron fueron encantadoras!!!",
-          "author": "Andrea García",
-          "avatar": "/photos/vigo/reviews/andrea.jpg",
-          "stars": 5
-        }
-      ],
+      "reviews": [],
       "galleryImages": [
         "/photos/vigo/tienda-1.webp",
         "/photos/vigo/tienda-2.webp",
@@ -315,7 +252,7 @@
       "title": "Tu tienda de suplementación en Córdoba",
       "subtitle": "Encuéntranos en el corazón de Córdoba",
       "location": "Córdoba",
-      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. El Arcángel, Córdoba. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. El Arcángel, Córdoba. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34957916862",
       "phoneDisplay": "957 916 862",
       "googleMapsEmbed": "https://maps.google.com/maps?q=USA%20Fitness%20Av.%20del%20Arc%C3%A1ngel%2C%20S%2FN%2C%20Sureste%2C%2014010%20C%C3%B3rdoba%2C%20Espa%C3%B1a&t=m&z=14&output=embed&iwloc=near",
