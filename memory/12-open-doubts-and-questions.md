@@ -9,161 +9,137 @@
 
 ---
 
+## 0. Correction of record (2026-06-26)
+
+The first pass of this file (and of `memory/00-project-brief.md`) described USAFitness as a chain of **gyms**. **That was wrong.** These are **tiendas de suplementación deportiva** — sports-nutrition supplement retail stores, all located inside shopping centres. The evidence was in `src/data/stores.json` all along (`"Tu tienda de suplementación en…"`, `"Proteínas, creatinas, aminoácidos"`). The error came from extracting fields with `grep` instead of reading the file, then inferring the sector from the brand name.
+
+**Process lesson:** verify the product's identity from primary content before asking the user anything about users or market. Questions Q3/Q4 below were vague *and* already answerable from the repo — they should never have been asked.
+
+---
+
 ## 1. AI Current Doubts (Open)
 
-Doubts the AI currently holds. Check as resolved when answered.
-
 ### Technical
-- [ ] How many stores must this scale to (5 → 20 → 100)? Determines whether file-based `stores.json` stays viable or needs validation/CMS.
-- [ ] Is Railway + single Node service the long-term host, or is a CDN/static/edge move planned?
-- [ ] Appetite for a test/CI safety net given zero tests today and a middleware-driven multi-domain render.
+- [ ] How many stores must this scale to (5 → 20 → 100)? Determines whether file-based `stores.json` stays viable or needs schema validation / CMS.
+- [ ] Is Railway + single Node service the long-term host? All client domains depend on one service.
+- [ ] Appetite for a test/CI safety net given zero tests and a paying-client site per domain.
 
 ### Product / Value Proposition
-- [ ] Is each store landing the PRIMARY web presence, or secondary to a corporate site / Google Business Profile?
-- [ ] What is the single strongest differentiator vs. just a Google Business Profile + Maps listing?
+- [ ] Differentiator vs. what a store already gets free from a Google Business Profile — what does the own-domain landing add that GBP does not?
+- [ ] Is the landing the store's primary web presence, or complementary to its Instagram / GBP?
 
 ### Users / Jobs-to-be-Done
-- [ ] Who is the target member per store, and does it vary by location?
-- [ ] Is the visitor actively shopping for a gym now, or just checking hours/location of a known one?
+- [x] ~~Who is the end visitor~~ — answered from code: someone searching for sports supplements near them, who values in-store personal advice (every review praises named staff) and discounts ("hasta 20% dto.").
 
 ### Business Model / Monetization
-- [ ] How does this make money *for the operator* (gym owner / paid contractor / revenue-share / product to resell)?
-- [ ] Are the 5 stores one company or independent franchisees/owners (per-store `company` legal blocks hint at the latter)?
-- [ ] Any intent to add transactional features (online signup, class booking, payments) later?
+- [x] ~~How this makes money~~ — recurring **monthly fee per store**, paid by each store owner. (Q5)
+- [x] ~~Store ownership structure~~ — **independent companies, each with its own CIF**; some owners hold 2–3 stores but as separate entities. (Q6)
+- [x] ~~Transactional roadmap~~ — **no**. (Q7)
+- [ ] Churn risk: what makes a store owner stop paying? (Not asked yet — belongs to the audit.)
+- [ ] Is the service sold beyond USAFitness-branded stores, or only within this brand?
 
 ### UX / Critical Flows / Edge Cases
-- [ ] Primary conversion action — WhatsApp vs call vs directions vs (future) online signup?
-- [ ] Are conversions (WhatsApp/call clicks) tracked as GA events today?
+- [x] ~~Primary conversion action~~ — **all three equally**: WhatsApp, phone call, directions. (Q2)
+- [ ] Are those three conversions tracked as GA4 events today? (Verifying in code.)
 
 ### Risks (technical, legal, operational, regulatory)
-- [ ] Are the published reviews genuine and consented (names + avatars)?
-- [ ] Priority of completing real legal `company` data for the 4 placeholder stores?
-- [ ] Single Railway service = SPOF for all domains — acceptable or to be hardened?
+- [ ] **Duplicate reviews across stores** — identical review text + identical author names reused across Villanueva / Marineda / Las Rosas. Trust, SEO-duplication and possibly consent implications. Needs owner decision.
+- [ ] 4 of 5 stores have no real legal `company` data → legal pages `noindex`. Priority?
+- [ ] Single Railway service = SPOF for every paying client's domain simultaneously.
 
 ### Assumptions that might be wrong
-- [ ] That this is purely a marketing/lead-gen site with no transactional roadmap.
 - [ ] That the operator is the sole builder and decision-maker.
+- [ ] That all 5 stores are current paying clients (some may be pilots/free).
 
 ---
 
 ## 2. High-Quality Questions Asked to the User
 
-Questions the AI has asked, grouped by category. Update the *Response* and *Impact* fields as answers arrive.
+### Answered
 
-### Template
+### Q2 — UX / Conversion
+- **Question:** What single thing should a visitor DO — WhatsApp, call, directions, or sign up online?
+- **Status:** Answered (2026-06-26)
+- **User response:** "las 3 que mencionas" — WhatsApp, phone and directions are all primary.
+- **Impact:** No single hero CTA; the three contact paths must each be prominent and should each be measured.
 
-```
-### Q[N] — [Category]
-- **Question:** ...
-- **Why it matters:** ...
-- **Status:** Pending | Answered | Deferred
-- **User response:** ...
-- **Impact on project:** ...
-- **Asked on:** YYYY-MM-DD
-```
+### Q5 — Business Model
+- **Question:** How does this make money for you specifically?
+- **Status:** Answered (2026-06-26)
+- **User response:** Each store pays a **monthly fee for the service**. Amounts deliberately not shared.
+- **Impact:** This is a productized recurring service, not an internal marketing site. Reliability and per-client SEO results are the retention drivers. Reframes the whole risk model.
 
-### Active questions
+### Q6 — Business Model / Ownership
+- **Question:** One company or independent franchisees?
+- **Status:** Answered (2026-06-26)
+- **User response:** **Totally independent companies**, each with its own CIF and legal entity; some owners have 2–3 stores, still independent.
+- **Impact:** Confirms the per-store `company` legal design is required, not optional. Each store is a separate legal publisher and a separate paying account.
 
-### Q1 — Product / Value Proposition
-- **Question:** Is each store's landing the PRIMARY web presence for that gym, or does it sit alongside a corporate `usafitness.es` site and/or each store's Google Business Profile?
-- **Why it matters:** Determines whether the landing must do everything (brand, trust, convert) or just capture local-search traffic and hand off.
+### Q7 — Business Model / Roadmap
+- **Question:** Any intent to add transactional features (online signup, booking, payments)?
+- **Status:** Answered (2026-06-26)
+- **User response:** No.
+- **Impact:** The no-DB / no-auth architecture is a permanent, correct choice — not tech debt. Rules out a whole class of "add e-commerce" recommendations.
+
+### Withdrawn (bad questions — answerable from the repo)
+
+### Q1, Q3, Q4 — Product / Users
+- **Status:** Withdrawn 2026-06-26. Q1 was premised on the wrong sector (gyms). Q3 and Q4 were vague and the repo already answered them: the visitor is a sports-supplement buyer looking for a store near them; store content, reviews and schedules make the job-to-be-done clear.
+- **Impact:** Process correction — investigate primary sources before asking the user.
+
+### Still open (re-scoped, not yet re-asked)
+
+### Q8 — Technical / Scale
+- **Question:** How many stores in 12 months — ~5, ~20, ~100?
+- **Why it matters:** At 5, `stores.json` is fine. At 100, unvalidated JSON editing on a paying-client system becomes the main operational risk.
 - **Status:** Pending
-- **Asked on:** 2026-06-26
 
-### Q2 — Product / Value Proposition
-- **Question:** What single thing should a visitor DO on the landing — WhatsApp, call, get directions, or (later) sign up/pay online? Please rank them.
-- **Why it matters:** Defines the primary conversion design and the success metric the whole audit hangs on.
+### Q9 — Technical / Safety net
+- **Question:** How much do you want to invest in a build check / per-store smoke test vs. keep shipping fast?
+- **Why it matters:** Every client's live site depends on one shared template and one shared service. A broken deploy breaks all paying clients at once.
 - **Status:** Pending
-- **Asked on:** 2026-06-26
 
-### Q3 — Users / Jobs-to-be-Done
-- **Question:** Who is the target member for these gyms (e.g. budget-conscious locals, students, families, serious lifters)? Same across all 5 stores or different per location?
-- **Why it matters:** Drives personas, copy, and per-store SEO localization.
+### Q10 — UX / Metrics
+- **Question:** Do you track WhatsApp/call/directions clicks as GA4 events? Do you report results to the stores?
+- **Why it matters:** For a paid monthly service, demonstrable results are the retention mechanism. Untracked conversions = no proof of value at renewal time.
 - **Status:** Pending
-- **Asked on:** 2026-06-26
 
-### Q4 — Users / Jobs-to-be-Done
-- **Question:** What is the "job" that brings someone to the page — actively shopping for a gym to join now, comparing prices, or just checking the hours/location of a gym they already know?
-- **Why it matters:** Changes whether the page should sell hard or simply inform.
+### Q11 — Risk / Legal
+- **Question:** Are the duplicated reviews across stores intentional placeholders, and is completing legal data for the 4 pending stores a near-term priority?
+- **Why it matters:** Identical reviews with identical author names on three different companies' sites is a trust and compliance exposure for your clients, not just for you.
 - **Status:** Pending
-- **Asked on:** 2026-06-26
-
-### Q5 — Business Model / Monetization
-- **Question:** How does this project make money *for you specifically* — are you the gym owner, a paid contractor per store, a revenue-share partner, or building this as a product to sell to other gyms?
-- **Why it matters:** The single biggest unknown; it reframes the entire strategy, success metric, and roadmap.
-- **Status:** Pending
-- **Asked on:** 2026-06-26
-
-### Q6 — Business Model / Monetization
-- **Question:** Are the 5 stores one company or independent franchisees/owners? (The per-store `company` legal blocks suggest different legal owners.)
-- **Why it matters:** Decides who the customer is, who pays, and how data/legal governance must work.
-- **Status:** Pending
-- **Asked on:** 2026-06-26
-
-### Q7 — Business Model / Monetization
-- **Question:** Is there any intent to add transactional features later (online membership signup, class booking, payments)?
-- **Why it matters:** Determines whether the no-DB/no-auth architecture is a permanent choice or a temporary one — a major architectural fork.
-- **Status:** Pending
-- **Asked on:** 2026-06-26
-
-### Q8 — Technical
-- **Question:** How many stores do you expect this to serve in 12 months — ~5, ~20, ~100?
-- **Why it matters:** At ~5 the file-based `stores.json` is fine; at ~100 you need schema validation, possibly a CMS, and tests. Drives the tech roadmap.
-- **Status:** Pending
-- **Asked on:** 2026-06-26
-
-### Q9 — Technical
-- **Question:** With zero tests/CI today and the live render depending on middleware + `stores.json` shape, how much do you want to invest in a safety net (build check, per-store smoke) vs. keep shipping fast?
-- **Why it matters:** Cross-project evidence: a human prod-smoke per store catches exactly the middleware/SSR bugs your git history already shows (500s, cookie banner). Sets a top-10 action.
-- **Status:** Pending
-- **Asked on:** 2026-06-26
-
-### Q10 — UX / Critical Flows
-- **Question:** Do you track conversions today (WhatsApp clicks, call clicks as GA events)? Is "which store converts best" something you want to know?
-- **Why it matters:** Decides whether analytics is mere compliance or a real decision tool — affects the metrics angle.
-- **Status:** Pending
-- **Asked on:** 2026-06-26
-
-### Q11 — Risks / Legal
-- **Question:** For the 4 stores without real legal `company` data (currently `noindex` placeholders), is completing that data a near-term priority — and are the published reviews genuine and consented?
-- **Why it matters:** Legal exposure + SEO completeness; affects risk ranking and the top-10 actions.
-- **Status:** Pending
-- **Asked on:** 2026-06-26
 
 ### Q12 — Strategy / Vision
-- **Question:** 12 months out, what does "this worked" look like — top local rankings for all stores, X leads/month per store, a template you can deploy in a day, or something else?
-- **Why it matters:** Defines the North Star and the success metric the audit and `01-product-vision.md` need.
+- **Question:** 12 months out, what does "this worked" look like?
+- **Why it matters:** Defines the North Star and success metric for `01-product-vision.md`.
 - **Status:** Pending
-- **Asked on:** 2026-06-26
 
 ---
 
 ## 3. User Observations / Notes
 
-Things the user wants on the record. Written by the user, not the AI.
-
-- ...
+- 2026-06-26: "son tiendas de suplementación deportiva", not gyms. Stores are independent companies with their own CIF; some owners have 2–3 stores.
+- 2026-06-26: prefers to be addressed in **Spanish**.
+- 2026-06-26: expects the agent to **investigate the repo properly before asking**; vague questions whose answers are in the code are not acceptable.
 
 ---
 
 ## 4. Recently Resolved Doubts
 
-Moved here once closed. Keep a short reason for the resolution.
-
-- **Phase of the project** — resolved 2026-06-26: confirmed **Iteration** by the user during MASTERMIND onboarding (live multi-store site, all recent work is post-launch). Pending formal `/mm-gate` confirmation in Phase 7.
+- **Project phase** — resolved 2026-06-26: confirmed **Iteration** by the user. Pending formal `/mm-gate` confirmation in Phase 7.
+- **Sector / what the business actually is** — resolved 2026-06-26: sports-supplement retail stores, not gyms. Source: `src/data/stores.json` + user correction.
+- **Monetization, ownership structure, transactional roadmap, conversion priority** — resolved 2026-06-26 (Q5, Q6, Q7, Q2 above).
 
 ---
 
 ## 5. Deferred / Parked
 
-Questions or doubts that are intentionally parked until a later phase.
-
-- ...
+- Pricing/amounts of the monthly fee — user explicitly declined to share; not needed for the audit.
 
 ---
 
 ## Maintenance
 
-- This file must be reviewed at every **phase gate** (Discovery → Definition → MVP → Iteration → Launch).
+- This file must be reviewed at every **phase gate**.
 - The `doubt-surfacer` and `memory-updater` skills are responsible for keeping it accurate.
 - Never delete entries. Move them to *Recently Resolved* or *Deferred*.
