@@ -34,9 +34,35 @@ The choice is an **assisted commercial process, not self-serve**:
 - SEO excellence as the through-line of every template and section — not a per-store afterthought.
 - Onboarding a new store = pick template + pick sections + fill data + drop photos.
 
+## The second anchor — paid local acquisition (future)
+
+Source: user, 2026-06-26. The service is planned to rest on **two anchors**, not one:
+
+1. **The web** — templates + sections + local SEO (everything above).
+2. **Paid campaigns** — **Google SEM and Facebook/Meta Ads**, run by the operator on behalf of each store. Campaigns are **always geo-targeted to the audience near that physical store**. Stated intent: "conectarlo todo y hacerlas desde aquí."
+
+### What this changes about the websites
+
+The landings stop being *only* SEO destinations and become **paid-traffic destinations**. That promotes several things from optional to mandatory:
+
+- **Conversion tracking is now a prerequisite, not a nice-to-have.** You cannot optimize ad spend without conversion events. The three primary actions (WhatsApp, call, directions) must fire measurable events per store.
+- **Ad platform tags** (Google Ads conversion tag, Meta Pixel / Conversions API) must be added — and must sit behind the **existing Consent Mode v2 gate**, per store. The current GDPR consent implementation is the right foundation for this.
+- **Landing quality becomes a cost lever.** Google Ads Quality Score and Meta's landing-page experience directly affect CPC. Speed, message match between ad and landing, and mobile UX stop being craft and start being budget.
+- **Any broken CTA now burns money.** With organic traffic a broken WhatsApp button loses a lead; with paid traffic it loses a *paid* lead. See `memory/08-known-risks.md` — 4 of 5 stores currently point WhatsApp at a landline.
+- The template/section system may need **landing variants per campaign or per audience**, not just per store.
+
+### Open architectural tension — do not resolve silently
+
+The vision above records a deliberate constraint: **no panel, no database, no auth** — because choosing a template is an assisted commercial process. "Hacer las campañas desde aquí" may or may not break that constraint, and the two readings differ enormously in cost:
+
+- **Reading A (small):** this repo stays a static-ish site system; campaigns are run in Google/Meta's own tools, and "connected" means the landings carry the right tags, conversion events and UTM handling so campaigns can be measured properly.
+- **Reading B (large):** this project grows into a platform that *manages* campaigns — which would require auth, a database, API integrations with Google Ads and Meta, and a dashboard. That contradicts the no-panel/no-DB constraint.
+
+**Status: unresolved.** Flagged to the user 2026-06-26. Do not assume either reading.
+
 ## 3-year vision
 
-_TBD — not yet discussed with the user._
+_Partially known:_ a two-anchor service — website system + local paid acquisition — for USAFitness stores. Scope and platform boundary still TBD.
 
 ## What we are NOT
 

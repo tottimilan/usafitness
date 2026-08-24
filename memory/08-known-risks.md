@@ -19,7 +19,12 @@
 | # | Risk | Impact | Likelihood | Mitigation | Status |
 |---|---|---|---|---|---|
 | 1 | 4 of 5 stores lack legal `company` data → legal pages `noindex`, weaker SEO/trust for those domains | Medium | High | Collect & fill legal data per store | Open |
-| 2 | Strategic / market / monetization risks not yet assessed | _TBD_ | _TBD_ | Run `/mm-audit` (Phase 6) | Open |
+| 2 | **WhatsApp CTA points at a landline in 4 of 5 stores** (`whatsapp` == `phone`; only Vigo has a separate mobile). If those numbers are not registered on WhatsApp Business, one of the three primary conversion paths is dead | High | Medium | Confirm with each owner; replace with a real mobile | Open — awaiting owner confirmation |
+| 3 | **Duplicated reviews across legally independent stores** — identical text and author reused across Villanueva/Marineda/Las Rosas; one copied review mentions a Sunday shift at a store that closes Sundays | Medium | High | Collect genuine per-store reviews; remove filler | Open |
+| 4 | Google Maps embeds for Villanueva/Marineda/Las Rosas use hand-built `place_id` values that look synthetic — may not resolve to the real business listing | Medium | Medium | Replace with verified embeds from each Google Business Profile | Open |
+| 5 | "Hasta 20% dto." is published in the `metaDescription` of all 5 stores — if the promotion lapses, it is an indexed promise the store cannot honour | Low | Medium | Review per store; make the claim data-driven or remove | Open |
+| 6 | **Ad-spend exposure (future anchor):** paid campaigns are planned (Google SEM + Meta). Without conversion tracking on WhatsApp/call/directions, campaigns cannot be optimized and spend is unattributable. Combined with risk #2, paid clicks could land on a dead CTA | High | High | Ship conversion events per store **before** any campaign goes live | Open |
+| 7 | Strategic / market risks not yet assessed | _TBD_ | _TBD_ | Run `/mm-audit` (Phase 6) | Open |
 
 ## Legal / regulatory risks
 | # | Risk | Impact | Likelihood | Mitigation | Status |
