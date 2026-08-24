@@ -11,6 +11,8 @@ interface Props {
   slug: string;
   streetAddress?: string;
   postalCode?: string;
+  addressLocality?: string;
+  addressRegion?: string;
   geo?: { lat: number; lng: number };
   reviewCount?: number;
   avgRating?: number;
@@ -23,6 +25,7 @@ const {
   name, domain, title, metaDescription, location,
   phone, phoneDisplay, schedule, slug,
   streetAddress = '', postalCode = '',
+  addressLocality = '', addressRegion = '',
   geo, reviewCount = 0, avgRating = 0,
   heroImage = `/photos/${slug}/hero.jpg`,
   social = {},
@@ -93,7 +96,10 @@ const openingHours = parseScheduleToSchema(schedule);
 
 const structuredData: Record<string, any> = {
   "@context": "https://schema.org",
-  "@type": "LocalBusiness",
+  // Store es subtipo de LocalBusiness: conserva todas sus propiedades y le dice
+  // a Google que esto es RETAIL. LocalBusiness a secas es el tipo raíz, tan
+  // genérico que un gimnasio o una notaría emitirían exactamente el mismo marcado.
+  "@type": "Store",
   "name": name,
   "description": metaDescription,
   "url": canonicalUrl,
@@ -105,23 +111,25 @@ const structuredData: Record<string, any> = {
   "address": {
     "@type": "PostalAddress",
     ...(streetAddress && { "streetAddress": streetAddress }),
-    "addressLocality": location,
+    // addressLocality es el MUNICIPIO, no el texto de marketing de `location`
+    // (que puede ser una frase como "el noroeste de Madrid"). addressRegion es
+    // la PROVINCIA: antes repetía "España", duplicando addressCountry y
+    // desperdiciando la señal local.
+    "addressLocality": addressLocality || location,
     ...(postalCode && { "postalCode": postalCode }),
-    "addressRegion": "España",
+    ...(addressRegion && { "addressRegion": addressRegion }),
     "addressCountry": "ES"
   },
-  ...(openingHours && { "openingHoursSpecification": openingHours }),
-  // Only declare a rating when the store actually has reviews. A store with none
-  // (e.g. a newly opened one) must not publish an invented aggregateRating.
-  ...(reviewCount > 0 && avgRating > 0 && {
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": String(avgRating),
-      "bestRating": "5",
-      "worstRating": "1",
-      "ratingCount": String(reviewCount)
-    }
-  })
+  ...(openingHours && { "openingHoursSpecification": openingHours })
+  // SIN aggregateRating, deliberadamente. Google: "If the entity that's being
+  // reviewed controls the reviews about itself, their pages that use
+  // LocalBusiness or any other type of Organization structured data are
+  // ineligible for star review feature". Las reseñas viven en stores.json, es
+  // decir las controla el propio negocio: el marcado no produce estrellas y sí
+  // expone a una acción manual por marcado engañoso, multiplicada por dominio.
+  // Las estrellas salen de la ficha de Google Business, en el pack local.
+  // Tampoco vale traerlas de la API de Google: "Don't aggregate reviews or
+  // ratings from other websites".
 };
 
 if (geo) {

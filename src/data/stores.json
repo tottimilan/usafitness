@@ -10,10 +10,10 @@
         "lat": 40.4483,
         "lng": -3.9942
       },
-      "title": "Tu tienda de suplementación en el noroeste de Madrid",
-      "subtitle": "Encuéntranos en el noroeste de Madrid",
-      "location": "el noroeste de Madrid",
-      "metaDescription": "Tienda de nutrición deportiva y suplementos en Villanueva de la Cañada, Madrid. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
+      "title": "Tu tienda de suplementación en Villanueva de la Cañada",
+      "subtitle": "Encuéntranos en el C.C. El Zoco de Villanueva de la Cañada",
+      "location": "Villanueva de la Cañada",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. El Zoco, Villanueva de la Cañada. Proteínas, creatinas, aminoácidos y asesoramiento personalizado. Hasta 20% dto.",
       "phone": "+34913916557",
       "phoneDisplay": "913 916 557",
       "whatsapp": "+34913916557",
@@ -48,7 +48,10 @@
         "/photos/villanueva/tienda-4.webp",
         "/photos/villanueva/tienda-5.webp",
         "/photos/villanueva/tienda-6.webp"
-      ]
+      ],
+      "addressLocality": "Villanueva de la Cañada",
+      "addressRegion": "Madrid",
+      "mall": "C.C. El Zoco"
     },
     {
       "slug": "marineda",
@@ -98,7 +101,10 @@
         "/photos/marineda/tienda-4.webp",
         "/photos/marineda/tienda-5.webp",
         "/photos/marineda/tienda-6.webp"
-      ]
+      ],
+      "addressLocality": "A Coruña",
+      "addressRegion": "A Coruña",
+      "mall": "C.C. Marineda City"
     },
     {
       "slug": "lasrosas",
@@ -147,7 +153,10 @@
         "/photos/lasrosas/tienda-3.webp",
         "/photos/lasrosas/tienda-4.webp",
         "/photos/lasrosas/tienda-5.webp"
-      ]
+      ],
+      "addressLocality": "Madrid",
+      "addressRegion": "Madrid",
+      "mall": "C.C. Las Rosas"
     },
     {
       "slug": "alcobendas",
@@ -195,7 +204,10 @@
         "/photos/alcobendas/tienda-2.jpg",
         "/photos/alcobendas/tienda-3.jpg",
         "/photos/alcobendas/tienda-4.jpg"
-      ]
+      ],
+      "addressLocality": "Alcobendas",
+      "addressRegion": "Madrid",
+      "mall": "C.C. Carrefour Alcobendas"
     },
     {
       "slug": "grancasa",
@@ -222,7 +234,10 @@
         "emailLegal": "grancasa@tiendausa.es",
         "lastUpdated": "24 de agosto de 2026",
         "telefonoLegal": "876 439 039"
-      }
+      },
+      "addressLocality": "Zaragoza",
+      "addressRegion": "Zaragoza",
+      "mall": "C.C. GranCasa"
     },
     {
       "slug": "vigo",
@@ -282,7 +297,10 @@
         "/photos/vigo/tienda-2.webp",
         "/photos/vigo/tienda-3.webp",
         "/photos/vigo/tienda-4.webp"
-      ]
+      ],
+      "addressLocality": "Vigo",
+      "addressRegion": "Pontevedra",
+      "mall": "C.C. Gran Vía de Vigo"
     },
     {
       "slug": "arcangel",
@@ -338,7 +356,10 @@
         "emailLegal": "grancasa@tiendausa.es",
         "lastUpdated": "24 de agosto de 2026",
         "telefonoLegal": "957 916 862"
-      }
+      },
+      "addressLocality": "Córdoba",
+      "addressRegion": "Córdoba",
+      "mall": "C.C. El Arcángel"
     }
   ]
 }
