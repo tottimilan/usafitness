@@ -43,7 +43,7 @@ Real photos for every pending store were recovered from their WordPress sites an
 Guardado a petición del usuario (2026-08-24). Las fotos ya no bloquean; quedan estos tres:
 
 1. **Embeds de Google Maps sospechosos.** Villanueva, Marineda y Las Rosas usan `place_id` construidos a mano (p. ej. `0x5e5a3f8c1a2d4e6f`) con coordenadas redondeadas. Pueden no resolver a la ficha real del negocio. Sustituir por el embed verificado del Google Business Profile de cada tienda.
-2. **Reseñas duplicadas entre empresas distintas.** Texto y autora idénticos reutilizados en Villanueva/Marineda/Las Rosas; una copia menciona "la dependienta que está los domingos" en una tienda cuyo horario es de lunes a sábado. Hay que conseguir reseñas propias de cada tienda.
+2. **Reseñas duplicadas entre empresas distintas.** Las MISMAS TRES AUTORAS firman en Marineda, Las Rosas y Vigo; Andrea García además en Villanueva. En Marineda y Las Rosas el texto es idéntico palabra por palabra; una copia menciona "la dependienta que está los domingos" en una tienda cuyo horario es de lunes a sábado. Hay que conseguir reseñas propias de cada tienda.
 3. **Datos legales (`company`) ausentes** en las tres (y en Gran Casa). Sin ellos las 4 páginas legales van en `noindex`. Requisito LSSI art. 10; el dato lo aporta el dueño de cada tienda.
 
 **Pendiente de confirmación del usuario:** si los números de WhatsApp de Villanueva, Marineda, Las Rosas y Alcobendas (que son fijos) están dados de alta en WhatsApp Business. Si no lo están, ahora la sección se puede ocultar sin tocar código.

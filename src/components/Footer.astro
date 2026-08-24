@@ -20,7 +20,9 @@ const year = new Date().getFullYear();
             <a href={`${legalBase}/${doc.slug}`}>{doc.label}</a>
           </li>
         ))}
-        <button type="button" class="footer-cookie-btn" data-uf-cookie-config>Configurar cookies</button>
+        <li>
+          <button type="button" class="footer-cookie-btn" data-uf-cookie-config>Configurar cookies</button>
+        </li>
       </ul>
     </nav>
     <p class="footer-copy">{name} &copy; {year} &mdash; Todos los derechos reservados</p>

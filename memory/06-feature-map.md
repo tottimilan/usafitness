@@ -1,113 +1,377 @@
-# Feature Map — USAFitness Landing Pages
+# Feature Map — USAFITNESS · ROADMAP DEFINITIVO
 
-**Última actualización:** 2026-08-24 (28 commits en la sesión)
-
-> El proyecto es la **migración de las webs WordPress a un sistema propio de plantillas y secciones**, más un segundo ancla futuro de campañas SEM/Meta. Ver `memory/01-product-vision.md`.
-
-## Leyenda
-- Estado: Planned | In progress | Shipped | Paused | Killed
-- Prioridad: P0 | P1 | P2 | P3
-- 🔒 = bloqueado por un dato que solo puede aportar el usuario
+**Última actualización:** 2026-08-24 · Sustituye al roadmap anterior.
+**Método:** todo lo marcado **[V]** lo he verificado en el código o en `src/data/stores.json` en esta sesión. Lo marcado **[S]** es supuesto o viene de fuentes externas que no he podido comprobar yo. Lo marcado 🔒 depende de un dato que solo puede aportar el franquiciado.
 
 ---
 
-## Estado por tienda (7)
+## 0. LÍNEA BASE VERIFICADA (leer antes de priorizar nada)
 
-| Tienda | Motor | Datos legales | Fotos | Reseñas | Ficha Google |
+Estos hechos reordenan todo lo demás. No son opiniones de diseño.
+
+| Hecho | Evidencia |
+|---|---|
+| **El sistema sirve 2 dominios, no 7.** Vigo y Alcobendas en Astro; GranCasa lista esperando DNS; Villanueva, Marineda, Las Rosas y El Arcángel siguen en WordPress | `memory/02-current-state.md` **[S — reverificar antes de ejecutar la Fase 2]** |
+| **Analítica: 0 de 7.** El campo `ga4Id` **no existe** en ninguna de las 7 fichas. `googleSiteVerification` tampoco | `stores.json` **[V]** |
+| **El banner de cookies no aparece en ningún dominio.** `CookieConsent.astro:16` → `const avisoCookies = analitica;` y `analitica = !!ga4Id`. El commit `fb40b4e` creó las dos variables y el comentario, pero las dejó iguales: **el desacople no está hecho**, y `memory/06` decía que sí | `CookieConsent.astro` **[V]** |
+| **Hay terceros cargando sin consentimiento hoy.** `Location.astro:21` incrusta el iframe de Google Maps; `Landing.astro:169-171` carga Google Fonts con dos `preconnect`. La IP del visitante llega a Google antes de pintar nada, y no hay aviso | **[V]** |
+| **`heroImage` es una prop muerta.** `Hero.astro` la recibe (línea 12) y nunca la usa: `.hero-bg` tiene `url('/hero-bg.jpg')` escrito a mano (línea 45). Las 7 tiendas comparten la misma foto de cabecera. La prop solo alimenta el `og:image` | **[V]** |
+| **WhatsApp utilizable: 1 de 7.** Solo Vigo tiene móvil real (`+34661490626`). Villanueva, Marineda, Las Rosas y Alcobendas tienen el **fijo copiado** en el campo `whatsapp`. GranCasa y El Arcángel no tienen campo | `stores.json` **[V]** |
+| **Responsables del tratamiento identificables: 2, no 3.** USA GOVE S.L. (B22465587) es dueña de **GranCasa y El Arcángel**; NM10 SHOP S.L. (B22854681) de Vigo. Las otras 4 no tienen bloque `company` | **[V]** |
+| **Dato legal erróneo publicado.** `emailLegal` de El Arcángel es `grancasa@tiendausa.es` (el correo de otra tienda) y el de Vigo es `adricbp@gmail.com` (Gmail personal como contacto legal de una S.L.) | **[V]** |
+| **Las reseñas se repiten en 4 tiendas, no en 3.** *Hiba de la Iglesia Moreno*, *Amaya Guerra* y *Andrea García* firman en **Marineda, Las Rosas y Vigo**; *Andrea García* además en **Villanueva**. En Marineda y Las Rosas el texto es idéntico palabra por palabra. `memory/06` marcaba Vigo como "reseñas propias": **es falso** | **[V]** |
+| **Las dos plantillas tienen cero adoptantes.** `template` y `sections` están **ausentes en las 7 tiendas**. El sistema de plantillas funciona y no lo usa nadie | **[V]** |
+| **Cualquier URL nueva es imposible hoy.** `middleware.ts` solo reescribe `/` y los 4 slugs legales, comparando **el primer segmento**. Todo lo demás cae en `[...slug].astro`, que hace `Astro.redirect('/')`. No existe `404.astro`: los 7 dominios generan soft-404 | **[V]** |
+| **Sin tests, sin CI, sin script `test`.** Un solo servicio Railway sirve los 7 dominios: un fallo tumba 7 empresas a la vez | `package.json` **[V]** |
+| **Cero reglas de foco en todo `src/`.** `grep -rn "focus" src/` no devuelve una sola coincidencia. Y `Footer.astro:23` mete un `<button>` como hijo directo de un `<ul>` | **[V]** |
+| **8,5 MB en `public/photos`** sin `srcset`, sin `sizes`, sin AVIF. Alcobendas sigue en JPG | **[V]** |
+| **`@astrojs/sitemap` está instalado y no está en `integrations`**: dependencia muerta. `site: 'https://usafitness.es'` (dominio del franquiciador) no lo consume nadie: el canonical se construye a mano en `Landing.astro` | **[V]** |
+
+**Consecuencia que gobierna el roadmap:** *el producto es un prototipo con dos usuarios*. Toda propuesta redactada como "en las 7 tiendas" hoy toca 2. Y toda propuesta que dependa del WhatsApp funciona en 1.
+
+---
+
+## 1. CATÁLOGO DE SECCIONES
+
+**Escala de esfuerzo:** S < 1 día · M 2–5 días · L 1–3 semanas · XL > 1 mes.
+**Mantenimiento** = cada cuánto hay que tocarla para que no mienta. Es la columna que decide, no el esfuerzo.
+
+> **Regla de admisión (nueva, y es la que mata propuestas):** si una sección exige refresco **más de una vez al año** y no está vendida como línea recurrente, **no se construye**. Si el dato lo aporta el franquiciado y el franquiciado no lo ha aportado, **no se pinta** — el `visible()` de `registry.ts` ya sabe hacerlo.
+
+### 1.1 Secciones que ya existen
+
+| Sección | Qué resuelve | Dato del franquiciado | Esf. | Mant. | Base/Opc. | Estado real |
+|---|---|---|---|---|---|---|
+| **Header** (fija) | Marca + CTA llamar | — | — | Nunca | Fija | ⚠ El botón "Llámanos" mide ~28-30 px de alto en móvil: es el objetivo táctil más pequeño de la página y es una de las 3 conversiones **[V]** |
+| **Hero** | Identidad de la tienda + CTA Maps | Foto de fachada | S | Anual | Base | ⚠ **La foto no se aplica**: `heroImage` está muerta. Texto autogenerado con plantilla mad-lib idéntica en las 7 **[V]** |
+| **Promotions** | 4 beneficios de fidelización | 🔒 Condiciones por escrito | — | Trimestral | Base | ⛔ Hardcodeada e idéntica ×7; 4 porcentajes sin fuente documentada; único CTA `tel:` **[V]** |
+| **Location** | Dónde está + mapa | Dirección | — | Nunca | Base | ⚠ Iframe de Google sin puerta de consentimiento. 3 `place_id` sintéticos **[V]** |
+| **Gallery** | Prueba visual del local | Fotos | S | Anual | Opc. | ✅ Con `visible()`. ⚠ Sin `srcset`; GranCasa no la pinta (0 fotos) |
+| **Reviews** | Prueba social | 🔒 Reseñas reales | — | Mensual | Opc. | ⛔ **Autoras repetidas en 4 tiendas.** Pestañas con el mismo nombre accesible ×3 **[V]** |
+| **Products** | Surtido | Categorías reales | — | Anual | Base | ⛔ 13 strings sin un solo enlace. Idéntica ×7 (`props: () => ({})`) **[V]** |
+| **Brands** | Marcas que trabaja | 🔒 Listado real | — | Anual | Base | ⛔ 8 logos idénticos ×7, sin texto, sin autorización escrita documentada **[V]** |
+| **Schedule** | Cuándo abre + 3 CTA | 🔒 Horario por día | — | Trimestral | Base | ⚠ String de texto libre parseado por regex; Villanueva ni contempla domingo |
+| **Social** | Perfiles propios | 🔒 Handles | — | Nunca | Opc. | ✅ Con `visible()`. Solo Vigo tiene datos: no se pinta en 6 de 7 **[V]** |
+| **Footer** (fija) | Legales + revocar cookies | Datos de sociedad | — | Anual | Fija | ⚠ `<button>` dentro de `<ul>`: HTML inválido **[V]** |
+| **WhatsAppFloat** (fija) | Canal directo | 🔒 Móvil real | — | Nunca | Fija | ⛔ Apunta a un fijo en 4 tiendas; ausente en 2 |
+| **CookieConsent** (fija) | Consentimiento | — | — | Anual | Fija | ⛔ **No se muestra en ningún dominio** mientras hay terceros cargando **[V]** |
+
+### 1.2 Secciones nuevas que SÍ entran en el catálogo
+
+| Sección | Qué resuelve | Dato del franquiciado | Esf. | Mant. | Base/Opc. |
 |---|---|---|---|---|---|
-| Vigo | ✅ Astro | ✅ NM10 SHOP | ✅ | ✅ propias | ✅ |
-| Alcobendas | ✅ Astro | 🔒 faltan | ✅ | ✅ propias | ✅ |
-| GranCasa | ✅ Astro | ✅ USA GOVE | 🔒 faltan | 🔒 sin ficha | 🔒 sin dar de alta |
-| El Arcángel | ⛔ WordPress | ✅ USA GOVE | ✅ | ✅ propias | ✅ |
-| Villanueva | ⛔ WordPress | 🔒 faltan | ✅ | ⚠ duplicadas | ⚠ place_id sintético |
-| Marineda | ⛔ WordPress | 🔒 faltan | ✅ | ⚠ duplicadas | ⚠ place_id sintético |
-| Las Rosas | ⛔ WordPress | 🔒 faltan | ✅ | ⚠ duplicadas | ⚠ place_id sintético |
+| **`asesoramiento`** — Asesoramiento gratuito en tienda | Nombra el único diferencial real frente a Amazon y HSN. **16 de 18 reseñas del JSON ya lo mencionan** y la web no lo dice en ninguna parte. Copy ya escrito en los activos de marca | Confirmar que el servicio existe y es gratuito en esa tienda (1 pregunta) | **S** | **Nunca** | **Base** |
+| **`centro`** — Cómo llegar *dentro* del centro | Planta, número de local, referencia visual ("junto a X"), parking y su gratuidad, transporte. Responde lo que pregunta quien **ya está dentro** del centro, que es el visitante mayoritario. Contenido imposible de canibalizar entre dominios | Planta y local. **Se puede copiar del directorio del centro** si el franquiciado no contesta **[S]** | **S** | Anual | **Base** |
+| **`horario` v2** — Horario estructurado por día | Sustituye el string por datos: 7 días con tramos + **excepciones fechadas con caducidad automática**. Alimenta `openingHoursSpecification` **y** `specialOpeningHoursSpecification`, la sección y la FAQ | 🔒 Horario real por día + calendario del centro + **bajo qué supuesto abre en domingo** (5 comunidades, 5 regímenes) | **M** | Trimestral | **Base** |
+| **`aviso`** — Aviso operativo efímero | Franja bajo el header con texto corto y **fecha de fin obligatoria en el esquema**: "hoy cerramos a las 18:00 por inventario". Es el contenido que un comerciante necesita de verdad y el que más rápido hace que note que paga un servicio vivo | Lo pide él cuando lo necesita | **S** | Bajo demanda | Opc. |
+| **`estado`** *(no es sección: es un campo que gobierna el render)* | `proxima-apertura` / `activa` / `cerrada-temporalmente` / `cerrada`. Hoy **GranCasa publica horario y emite `openingHoursSpecification` para un local que no atiende a nadie** **[V]** | Un valor | **S** | Bajo demanda | **Base** |
+| **`faq`** — 6-8 preguntas **logísticas** | Dónde aparco, en qué planta, si abren domingo, si asesoran gratis, si hacen encargos, cómo se consigue la VIP. Genera el único texto genuinamente distinto entre dominios sin inventar nada | Las preguntas reales del mostrador | **S** | Anual | Opc. |
+| **`objetivos`** — Products reorganizada por objetivo | Sustituye 13 strings muertos por 5-6 bloques enlazados (ganar masa, definición, rendimiento, descanso, salud, mujer). El objetivo es lenguaje de cliente; la categoría es lenguaje de almacén | Qué trabaja realmente | **M** | Anual | **Base** |
+| **`encargos`** — Pídelo y te lo traemos | Click&Collect del que no tiene e-commerce. Convierte el WhatsApp mudo en una petición concreta. Coste técnico casi nulo | ⛔ **Bloqueada por el móvil real** + compromiso de plazo | **S** | Nunca | Opc. |
+| **`vip`** — Tarifa VIP explicada | La web anuncia 4 descuentos y no explica cómo se consiguen. Versión honesta: "se tramita en caja, esto es lo que necesitas" | 🔒 Condiciones por escrito de quien las controla | **S** | Anual | Opc. |
+| **`marcas` v2** — Marcas con texto | Un logo sin texto no posiciona. "Optimum Nutrition Vigo" es una query real | 🔒 Listado real + autorización de uso de logotipo | **M** | Anual | Opc. |
+| **`prensa`** — Han hablado de nosotros | Respalda "más de 20 años" con algo verificable en vez de con una afirmación propia. Las aperturas ya tuvieron cobertura **[S]** | Nada: los enlaces existen | **S** | Nunca | Opc. |
+| **`video`** — Video tour del centro | Lo que un pin de Maps no sabe: en qué planta y junto a qué. Servido como fachada (póster + clic), nunca iframe directo | ⛔ El vídeo. El ANEXO ya lo exige, pero no consta que exista **[S]** | **M** | Bianual | Opc. |
+| **`eventos`** — Agenda | `Event` sigue dando rich result. **Solo con regla de expiración automática por fecha** | 🔒 Calendario real. Sin eventos, la sección no se pinta | **M** | Mensual | Opc. (⚠ solo si hay línea recurrente vendida) |
 
-**El Arcángel es la migración más cercana:** lo tiene todo menos apuntar el DNS.
+### 1.3 Rechazadas para el catálogo → ver §5
 
----
-
-## Shipped
-
-| Feature | Notas |
-|---|---|
-| Plantilla base con 12 secciones | Hero, Promotions, Location, Gallery, Reviews, Products, Brands, Schedule, Social, Footer, WhatsAppFloat, CookieConsent |
-| Enrutado por dominio (`middleware.ts`) | Verificado en producción: la cabecera `Host` sobrevive a Cloudflare+Railway |
-| SEO por dominio | canonical, `noindex` en hosts no canónicos, sitemap y robots dinámicos |
-| Páginas legales por tienda | 4 documentos; `noindex` automático si falta `company` |
-| GDPR: banner + Consent Mode v2 | Montado, **inactivo**: acoplado a `ga4Id`, que no tiene ninguna tienda |
-| **Secciones opcionales** (`828ec40`) | WhatsApp, reseñas y galería se omiten si falta el dato |
-| **Vocabulario de tokens** (`2f9ec56`) | 49 tokens; 46 literales retirados de los componentes. 0 cambio visual |
-| **Paleta oficial de marca** (`aac2478`) | `#0055B8` / `#98989A` / `#E1251B` + cian. 0 fallos de contraste |
-| **Diagonal como capacidad** (`50f3b88`) | Tokens + 4 utilidades CSS, inertes |
-| **Plantilla 2 "angular"** (`d9833ef`) | `?plantilla=2`, bloqueada en dominios canónicos. 0 componentes tocados |
-| Fotos reales (`de6946e`) | 19 recuperadas de los WordPress, convertidas a `.webp` |
-| Cloudflare: bots de IA desbloqueados (`987f78a`) | 7 zonas verificadas |
-| **Viewport inicial: 814 KB → 162 KB** (`7b21007`) | Logo vectorial real 277→23 KB; fondo de hero 537→139 KB en WebP, con el punto de compresión medido **a través del overlay** |
-| **Datos estructurados corregidos** (`550844d`) | `@type: Store`, `addressLocality` y `addressRegion` reales, y **fuera el `aggregateRating` autoservido** |
-| **Registro de plantillas y secciones** (`a4e071b`) | `templates.ts` + `sections/registry.ts`. La página pasa de 12 etiquetas fijas a un `.map()`. Salida por defecto idéntica |
-| **Variantes de sección** (`ac24c68`) | `{id, variant}`. Hero `compacto` y Gallery `destacada` (que además unifica el viejo flag `galleryFeatured`) |
-| **Cookies: desacople + revocación** (`fb40b4e`) | Aviso independiente de `ga4Id`, botón "Configurar cookies" en el footer, y `consent update` en ambos sentidos |
+`equipo` / `expertos`, `calculadora`, `gimnasios colaboradores`, `barra de promoción permanente`, `pop-up`, plantilla 3 "Guía".
 
 ---
 
-## Roadmap
+## 2. PÁGINAS MÁS ALLÁ DE LA LANDING
 
-### Ahora — sin dependencias, alto impacto
+**Corrección de encuadre obligatoria:** las 170 URLs (24 páginas × 7 dominios) están **descartadas** (§5). Lo que sigue es la arquitectura máxima a la que se puede llegar, **pilotada en UNA tienda** y ampliada solo con datos de Search Console delante.
 
-| # | Tarea | Prioridad | Por qué |
+**Bloqueante duro:** ninguna de estas URLs es alcanzable hoy. `middleware.ts` solo conoce `/` y los 4 legales, y compara únicamente el primer segmento. Hay que arreglar eso (Fase 3) antes de escribir una sola línea de copy.
+
+**Reglas de URL:** minúsculas, sin tildes, `trailingSlash: 'never'` explícito, jerarquía máxima 2 niveles, canonical absoluto al dominio propio, y **nada entra en el sitemap hasta que su copy local esté terminado** (flag `publicada` por tienda).
+
+```
+https://usafitness<tienda>.com/
+│
+├── /                                  Landing (HUB)          → "usa fitness <centro>", "suplementos <centro>"
+│
+├── /como-llegar                       Planta, local, parking → "dónde está usa fitness <centro>",
+│                                      transporte, horario      "usa fitness <centro> planta",
+│                                      del centro vs tienda     "parking <centro>"          [Tier A · replicable]
+│
+├── /asesoramiento-gratuito            El servicio + reserva  → "asesoramiento suplementos <ciudad>",
+│                                      por WhatsApp             "qué proteína me conviene <ciudad>"  [Tier A]
+│
+├── /suplementos                       Hub de categorías      → "tienda de suplementos <ciudad>",
+│                                                               "suplementos <centro>"        [Tier A]
+│   ├── /suplementos/proteinas                                → "comprar proteína <ciudad>"
+│   ├── /suplementos/creatina                                 → "creatina <centro>"
+│   ├── /suplementos/pre-entreno                              → "pre entreno <ciudad>"
+│   └── /suplementos/quemagrasas                              → "quemagrasas <ciudad>"
+│        ⚠ CUATRO categorías en el piloto, no ocho. Se amplía con datos de GSC, no por simetría.
+│
+├── /preguntas-frecuentes              FAQ logística local    → cola larga conversacional     [Tier A]
+│
+├── /promociones                       VIP, funcionario,      → "descuento funcionario suplementos"
+│                                      cumpleaños, cupón        🔒 BLOQUEADA hasta tener condiciones escritas
+│
+├── /gracias                           Destino del POST 303   → noindex, fuera del sitemap
+├── /404                               Hoy no existe          → elimina 7 soft-404
+│
+└── legales (ya existen)
+    /aviso-legal · /politica-de-privacidad · /politica-de-cookies · /politica-redes-sociales
+```
+
+**Tier B — se escribe UNA vez, vive en un dominio, los demás enlazan:** guías de contenido, fichas de marca. **No se replica ×7.**
+**Tier C — no se hace:** artículos genéricos de nutrición sin ángulo local. Ahí no hay partida contra HSN, Myprotein ni el propio `usafitness.es`.
+
+**Enlazado interno:**
+- `Products` deja de ser 13 strings muertos y pasa a ser **enlaces** al hub y a las categorías. Es la victoria SEO más barata del repo — pero **después** de que las páginas existan: enlaces a 404 son peor que texto plano.
+- Breadcrumbs + `BreadcrumbList` en toda página interior. Es lo único de esta lista que **sigue produciendo rich result** tras la retirada de las FAQ.
+- Entre dominios: **hub-and-spoke, nunca anillo.** Cada landing enlaza hacia arriba al hub de marca una sola vez desde el footer; el hub enlaza hacia abajo. Un anillo recíproco de 7 dominios con misma IP, misma plantilla y mismos textos es una huella delatora, no una estrategia.
+
+---
+
+## 3. CATÁLOGO COMERCIAL DE SERVICIOS
+
+> **La regla que protege el negocio:** *solo se cobra mensualidad por lo que se pudre o se acumula.* Una web se construye una vez → pago único. Una reseña entra cada semana, una publicación de Google caduca a los 7 días, un festivo cambia el horario, una promo rota → mensualidad. Cobrar mensual por trabajo puntual se detecta al tercer mes y se cancela.
+
+### Nivel 0 — ALTA (pago único, obligatorio antes de cualquier mensualidad)
+
+| Entregable | Qué incluye | Esf. |
+|---|---|---|
+| Web en su dominio | Migración desde WordPress, plantilla elegida, secciones elegidas, fotos | M |
+| **Capa de medición** | Search Console (TXT en DNS) + Cloudflare Web Analytics + GA4 donde vaya a haber campaña + eventos de las 3 conversiones. **Las propiedades se crean a nombre del cliente y se le da acceso: son suyas** | M |
+| Ficha de Google verificada | Reclamar, categoría, atributos, horarios especiales, fotos, Q&A sembrada | M |
+| Datos legales publicados | Recogida por escrito de razón social, NIF, domicilio, email legal + 4 documentos | S |
+| **NAP y fichas del centro** | Reapuntar la ficha del directorio del centro al dominio de la tienda y corregir teléfono/horario. **Es puro retorno: sin código, sin mantenimiento, sin RGPD** | S |
+
+*Sin el Nivel 0 no existe informe, ni campaña optimizable, ni argumento de renovación. Es el cajón que hace vendibles a los demás.*
+
+### Nivel 1 — BASE mensual (lo que se cobra aunque no contrate nada más)
+
+| Módulo | Por qué justifica recurrencia | h/tienda/mes |
+|---|---|---|
+| Guardia técnica y SLA | 7 dominios en un solo servicio Railway; caída = 7 empresas. Incluye **cambios de contenido bajo demanda**, que es lo que sí se ve | 0,5 |
+| Ficha de Google gestionada | 2-4 publicaciones (caducan a los 7 días), fotos, horarios de festivo, vigilancia de ediciones de terceros | 0,5–1 |
+| Gestión de reseñas | Respuesta en 24-48 h, protocolo de captación en tienda, reporte de falsas. Flujo semanal = se pudre | 0,5 |
+| Informe mensual de 1 página | Llamadas, clics de WhatsApp, "cómo llegar", impresiones en Maps, queries, reseñas. **Más "esto hice / esto haré"** — sin esa mitad, un mes malo es un recordatorio mensual de que no funciona | 0,25 |
+
+**≈ 1,5–2,5 h/tienda/mes → 7 tiendas = 12–18 h/mes. Sostenible.**
+
+### Nivel 2 — MÓDULOS recurrentes (elige)
+
+| Módulo | Suelo / condición | Coste real |
+|---|---|---|
+| **Google Ads local** | Search en radio 3-8 km + Maps. Honorario separado del medio. **Requiere medición viva y WhatsApp real.** Hay un suelo de presupuesto por debajo del cual no hay señal para optimizar y no debe venderse | +2–3 h/tienda/mes |
+| **Meta Ads geolocalizado** | Nunca antes que Google Ads: en Meta se compra atención, no intención, y el franquiciado espera "ver gente entrar". Sin un código canjeable en caja, no se puede demostrar | +2–3 h/tienda/mes |
+| **Kit de contenido para redes** *(el franquiciado publica)* | 8-12 piezas/mes con plantillas de marca + calendario + textos. El informe incluye **"piezas entregadas vs. publicadas"** para que el dato sea suyo y no una discusión | +2 h/tienda/mes |
+
+**Aritmética que hay que respetar:** 7 tiendas con campañas ≈ 35–40 h/mes, al límite de una persona. **La gestión completa de redes (8-10 h/tienda/mes) no cabe: máximo 2-3 plazas, a precio de escasez, nunca como línea estándar.**
+
+### Nivel 3 — ENCARGOS puntuales (catálogo de pedidos)
+
+Landing de campaña (`noindex`, con fecha de caducidad y alguien que la despublique) · Sesión de fotos · Sección nueva del catálogo §1 · Contenido local por página · Alta en directorios · Kit de nota de prensa por apertura.
+
+### Lo que hay que firmar antes de facturar
+
+1. **Contrato marco de servicio por sociedad:** alcance, tiempos reales de una persona sola (**incluidas vacaciones**), quién responde del contenido comercial (el franquiciado) y quién de su publicación fiel (el operador), límite de responsabilidad.
+2. **Contrato de encargado del tratamiento (art. 28 RGPD).** Buena noticia verificada: hoy hay **2 sociedades identificadas, no 7** → son **2 contratos**, no 7. Las otras 4 no pueden recoger un solo dato hasta que aporten su `company`.
+3. **Protocolo de baja:** titular registral de cada dominio, quién paga la renovación, propiedad de GA4/GSC/ficha de Google, qué se entrega si el cliente se va y en qué plazo. **Nadie ha nombrado nunca la renovación de dominios**, y un dominio no renovado se lleva por delante la web, el SEO y la coherencia NAP en silencio.
+4. **Declaración de conflicto de interés:** el operador trabaja para tiendas de la misma marca que compiten por la misma consulta (3 en Madrid). Decidir quién se queda la query genérica de la ciudad es una decisión del proveedor pagado por ambas partes. Se declara por escrito y, si se puede, la arbitra la central.
+
+### Palanca que multiplica a una sola persona
+
+Las 7 tiendas son **3-4 interlocutores** (USA GOVE S.L. posee dos). Vender de uno en uno tiene techo inmediato. El movimiento que escala es que **la central meta el pack de alta dentro del onboarding obligatorio del franquiciado** — el ANEXO de Integración Digital ya es un proceso obligatorio y le falta exactamente la mitad (web, ficha de Google, medición). Riesgo asumido: cambia el cliente, y quien vende también puede sustituir.
+
+---
+
+## 4. ROADMAP EJECUTABLE POR FASES
+
+### FASE 0 — Cortafuegos y arreglos de 30 minutos
+
+*No es una fase de producto: es lo que hay que quitar de encima antes de medir nada. Cero dependencias externas.*
+
+**Criterio de entrada:** ninguno. Se empieza hoy.
+
+| # | Tarea | Esf. | Por qué va aquí |
 |---|---|---|---|
-| 1 | ~~Optimizar los 812 KB~~ | — | ✅ Hecho en `7b21007`: 814 → 162 KB |
-| 2 | ~~`addressLocality` con texto de marketing~~ | — | ✅ Hecho en `550844d` |
-| 3 | ~~`@type: LocalBusiness` → `Store`~~ | — | ✅ Hecho en `550844d` |
-| 4 | ~~`addressRegion: "España"`~~ | — | ✅ Hecho en `550844d` |
-| 5 | **El centro comercial en el contenido** | P1 | Parcial: el `mall` ya es campo estructurado en las 7 y Villanueva estrena el C.C. El Zoco en su meta. Queda decidir si entra también en el hero, en los `alt` de galería y en la sección de ubicación. **El `<title>` ya lo lleva en 5 de 7 vía el `name`, y los títulos rozan los 60-70 caracteres: no cabe forzarlo ahí** |
-| 6 | ~~Desacoplar el banner de cookies~~ | — | ✅ Hecho en `fb40b4e`, y además: consentimiento revocable (art. 7.3 RGPD) y la señal ya viaja en ambos sentidos |
-| 7 | **Sitemap: excluir legales `noindex`** | P2 | ✅ Ya hecho en `bf9aa8f` |
+| 0.1 | **Vaciar las reseñas duplicadas** de Villanueva, Marineda, Las Rosas y Vigo | 20 min | Cuatro dominios de al menos tres sociedades publican testimonios de las mismas tres personas, con texto idéntico en dos. Eso no es "contenido duplicado": es publicidad con reseñas falsas, práctica desleal tipificada, reclamable **contra la sociedad titular de cada dominio**. El `visible()` ya oculta la sección sin tocar código, y GranCasa demuestra que la landing renderiza perfecta con 0 reseñas. **No hay que conseguir reseñas reales primero — hay que borrar estas ya** |
+| 0.2 | **Quitar "Hasta 20% dto." de las 7 `metaDescription`** y los 4 porcentajes de `Promotions.astro` hasta tener fuente escrita. Sustituir por "consulta las promociones vigentes en tienda" | S | Promoción indexada sin fecha ni origen, de un programa del franquiciador publicado bajo el CIF de sociedades que no lo controlan |
+| 0.3 | **Vaciar el campo `whatsapp`** en las 4 tiendas donde es el fijo | 10 min | Mejor sin botón que con un botón que abre una conversación que nadie va a leer. `WhatsAppFloat` ya no renderiza sin dato |
+| 0.4 | **Maps detrás del consentimiento** (fachada estática + clic) y **autoalojar Inter** | S | Hoy dos terceros reciben la IP del visitante antes de pintar nada y no hay aviso. Mejora cumplimiento, rendimiento (dos handshakes TLS y una hoja bloqueante menos) y robustez frente a portales cautivos de wifi de centro comercial, todo con el mismo movimiento |
+| 0.5 | **Desacoplar de verdad `avisoCookies` de `analitica`** y reescribir el texto del banner para que describa lo que realmente hay | S | El comentario del componente afirma que sin GA4 no se instala ninguna cookie. Es falso desde que existe el iframe |
+| 0.6 | **Arreglar el hero:** usar `heroImage` como `<img>` con `fetchpriority="high"` y `srcset` en vez del fondo CSS fijo | 30 min | Es a la vez el bug de diferenciación más barato del repo (la imagen a pantalla completa es idéntica en las 7) y la mayor mejora de LCP posible: hoy el elemento más grande de la página se descubre tarde porque es un `background-image` |
+| 0.7 | **Corregir `emailLegal` de El Arcángel y Vigo** | 10 min | Un dato legal erróneo publicado es peor que el vacío que el `noindex` protege |
+| 0.8 | Borrar `@astrojs/sitemap` (dependencia muerta) y `lastmod` real en el sitemap en vez de `changefreq`/`priority` | 30 min | Google ignora changefreq y priority; usa lastmod. El sitemap gasta bytes en lo que no se lee y omite lo único que sí |
 
-### Decisión pendiente antes de tocar
-
-_Ninguna._
-
-El `aggregateRating` **ya no era una disyuntiva**: Google declara que una página cuyas reseñas controla el propio negocio es *"ineligible for star review feature"*, así que el marcado no producía estrellas y solo cargaba riesgo. Retirado en `550844d`.
-
-La idea de traer las reseñas automáticamente desde la API de Google **no arregla el SEO** — *"Don't aggregate reviews or ratings from other websites"* —, pero sigue siendo válida como mejora de contenido: acabaría con las reseñas duplicadas de Marineda/Las Rosas y evitaría editar JSON a mano. Coste: clave de API, cuota, reglas de caché de la licencia de Places y una dependencia externa en tiempo de ejecución que el proyecto hoy no tiene. **Sin decidir.**
-
-### Sistema de plantillas — LOS 3 EJES COMPLETOS ✅
-
-| Eje | Estado |
-|---|---|
-| Qué secciones | ✅ `a4e071b` — registro + regla `visible` por sección |
-| En qué orden | ✅ `a4e071b` — la plantilla propone, la tienda ajusta con `sections` |
-| Con qué aspecto | ✅ `ac24c68` — tokens por plantilla + variantes de sección |
-
-| # | Lo que queda del bloque | Prioridad |
-|---|---|---|
-| 10 | Sección de **Productos** real | P1 — el usuario la difirió "hasta que empiece el trabajo de secciones". Ya empezó |
-| 11 | Más variantes por sección según haga falta | P2 — se añaden cuando una plantilla las pida |
-
-### Después — capa de medición (prerrequisito de las campañas)
-
-| # | Tarea | Prioridad |
-|---|---|---|
-| 11 | `ga4Id` por tienda: **0 de 7** lo tienen, así que hoy no hay analítica ni banner de cookies | P0 antes de campañas |
-| 12 | **Desacoplar el banner de cookies de `ga4Id`** | P1 |
-| 13 | Eventos de conversión (WhatsApp, llamada, cómo llegar) | P0 antes de campañas |
-| 14 | `googleSiteVerification`: **0 de 7**. Sin Search Console no hay informe que enseñar | P1 |
-
-### Bloqueado por el usuario 🔒
-
-| # | Qué falta | Efecto |
-|---|---|---|
-| 15 | Datos legales de **Villanueva, Marineda, Las Rosas y Alcobendas** | Sus 16 páginas legales siguen en `noindex` |
-| 16 | Confirmar si los **WhatsApp en fijo** funcionan (esas mismas 4) | Si no, ocultar la sección es trivial desde `828ec40` |
-| 17 | **DNS de El Arcángel** a Railway | Es la migración más cercana: ya tiene todo lo demás |
-| 18 | Fotos y ficha de Google de **GranCasa** | Su galería no se renderiza y el mapa apunta a la dirección, no a la ficha |
-| 19 | Decidir sobre las **reseñas duplicadas** entre Villanueva/Marineda/Las Rosas | Mismo texto y misma autora en tres empresas distintas |
-| 20 | Sustituir los **`place_id` sintéticos** de esas tres | Sus mapas pueden no apuntar al negocio real |
+**Criterio de salida (medible):**
+`grep` de los nombres de autora repetidos en `stores.json` → 0 coincidencias · `grep "20% dto"` en `stores.json` → 0 · petición a Google en el HTML inicial de las 2 tiendas vivas → 0 antes del consentimiento · las 2 tiendas vivas sirven cada una **su** foto de hero · LCP de laboratorio mejorado y anotado.
 
 ---
 
-## Killed / deferred
+### FASE 1 — Medición (la fase que desbloquea saber si algo funciona)
 
-_Ninguna._ (Los puntos del brand-slider se quitaron en `94d0f19`: retoque visual, no feature.)
+**Criterio de entrada:** Fase 0 cerrada. Encender GA4 antes de arreglar el banner sería encender el aviso en varios dominios el mismo día que el iframe sigue cargando sin puerta.
+
+| # | Tarea | Esf. | Nota |
+|---|---|---|---|
+| 1.1 | **Search Console en los 7 dominios por registro TXT en DNS** (Domain property: cubre www, no-www, http y https, y no se pierde si alguien toca el layout) | S | **Es la única medición que funciona hoy en las 7**, porque es agnóstica del motor: mide también los 4 WordPress. Y es lo único que responde la pregunta que sostiene toda la tesis del producto — *¿alguien busca "suplementos GranCasa"?* — que nadie ha medido nunca |
+| 1.2 | **Cloudflare Web Analytics** en las zonas que ya existen | S | Gratis, sin cookies, sin consentimiento, sin código. Es un suelo, no un techo: no hace atribución de campaña |
+| 1.3 | **Campo `ga4Id` + GA4 solo en las tiendas vivas** con campaña prevista | S | Una propiedad por tienda, no una compartida: el dato pertenece a cada sociedad y el franquiciado puede querer acceso |
+| 1.4 | **Un solo listener delegado** que emita `contacto_llamada`, `contacto_whatsapp` y `contacto_maps` con la sección de origen como parámetro | S | ~15 líneas. La fontanería del Consent Mode v2 ya está montada |
+| 1.5 | Enviar el sitemap de cada dominio en GSC | 10 min | Nadie ha comprobado nunca si el sitemap dinámico se lee |
+
+**Trampa que hay que evitar explícitamente:** números de teléfono de tracking por fuente. Romperían la coherencia NAP entre la web, la ficha de Google y el directorio del centro, que es justo el activo que se está vendiendo. **Se mide el clic; no se toca el número.** Y en el informe la métrica se llama *intención de llamada*, no *llamadas*: un clic en `tel:` no es una llamada, sobre todo en escritorio.
+
+**Criterio de salida (medible):** 7/7 dominios verificados en GSC con sitemap enviado y sin errores de cobertura críticos · primera exportación de queries reales guardada como línea base · 3 eventos de conversión disparando en las tiendas vivas · **primera respuesta documentada a "¿cuánto tráfico tiene esto y por qué consultas entra?"** — una pregunta que hoy nadie del proyecto puede contestar.
+
+---
+
+### FASE 2 — Terminar la migración
+
+**Criterio de entrada:** Fase 1 cerrada, o al menos GSC en los 7 (para tener la línea base **antes** de migrar y poder demostrar el efecto).
+
+| # | Tarea | Bloqueante |
+|---|---|---|
+| 2.1 | Reverificar cuántos dominios sirven Astro hoy (memory/02 puede haber envejecido) | — |
+| 2.2 | Apuntar el DNS de GranCasa y de El Arcángel | 🔒 Quién controla el DNS de cada dominio |
+| 2.3 | Migrar Villanueva, Marineda y Las Rosas | 🔒 `place_id` reales + datos legales |
+| 2.4 | Sustituir los 3 `place_id` sintéticos por el embed verificado de la ficha real | 🔒 Ficha de Google de cada tienda |
+| 2.5 | Resolver la contradicción **C.C. El Zoco vs. C.C. La Pasada** en Villanueva **[S]** | Una llamada. Si el JSON está mal, hay **una dirección falsa publicada** alimentando el `Store` schema |
+| 2.6 | Campo `estado` por tienda y aplicarlo a GranCasa | — |
+
+**Criterio de salida:** 7/7 dominios sirviendo Astro · 0 WordPress vivos con el nombre de la marca · 0 `place_id` sintéticos · ninguna tienda emitiendo `openingHoursSpecification` sin atender.
+
+---
+
+### FASE 3 — Cimientos técnicos (antes de añadir una sola página o sección)
+
+**Criterio de entrada:** Fase 2 cerrada. **Orden interno no negociable: el test va antes del refactor.** Al revés es una apuesta con el negocio del cliente sobre el punto de entrada compartido por 7 webs vivas.
+
+| # | Tarea | Esf. |
+|---|---|---|
+| 3.1 | **Smoke test de los 7 hosts + CI.** Con `node:test`, sin dependencias: por dominio, `Host` falseado → `/` devuelve 200, canonical correcto, `index` solo en el host canónico, sitemap XML válido y sin mezclar tiendas, 4 rutas legales vivas | M |
+| 3.2 | **Esquema Zod + Content Layer sobre `stores.json`** (`astro/zod` ya viene con Astro). Mejor ratio del repo. **Aviso honesto: el primer build estricto va a fallar en cadena** — 4 tiendas sin `company`, `place_id` sintéticos, `sections`/`template` inexistentes. Eso es el objetivo; hay que reservar la sesión para arreglar datos | M |
+| 3.3 | **`locals.store` + `env.d.ts` + una sola resolución de host.** Hoy `headers.get('host')?.split(':')[0]` está copiado en 5 ficheros y `domainToSlug` se construye 2 veces; hay 12 `as any` | S |
+| 3.4 | **`404.astro`** y dejar de hacer `Astro.redirect('/')` | S |
+| 3.5 | **Registro de páginas** (`PAGES`, calcado de `LEGAL_DOCS`) + middleware que resuelva rutas anidadas + `trailingSlash: 'never'` | M |
+| 3.6 | **`Base.astro` + `Page.astro`**: el `<head>` está duplicado a mano entre `Landing.astro` y `[slug]/[doc].astro`. Con páginas nuevas, la regla de `noindex` por host se aplicaría o no según qué fichero se copió: el fallo silencioso más caro posible en 7 dominios | M |
+| 3.7 | **Verificador de assets en build** (20 líneas): que toda ruta de `heroImage`, `galleryImages` y avatares exista. Hoy una ruta mal escrita no da error: da una imagen rota en el dominio de un cliente que paga | S |
+| 3.8 | **Imágenes responsive** (`srcset`/`sizes`, AVIF con respaldo WebP, reconvertir los JPG de Alcobendas) + **presupuesto de peso verificado en build** | M |
+| 3.9 | **Accesibilidad WCAG 2.2 AA como criterio de aceptación**, no como auditoría única: `:focus-visible` en los tokens (hoy hay **cero** reglas de foco), enlace de salto, sacar el `<button>` del `<ul>`, pestañas de reseñas con nombres accesibles distintos (o sustituirlas por 3 citas apiladas y borrar el script), estrellas con nombre, `prefers-reduced-motion` (el bloque está vacío), **CTA "Llámanos" a 44 px en móvil**, y contraste del hero verificado sobre **cada** foto real | M |
+| 3.10 | Partir `stores.json` en un fichero por tienda + `shared.json` para promociones, categorías y marcas (hoy dentro de los `.astro`) | S |
+
+**Criterio de salida:** CI en verde en cada push, con el smoke test de los 7 hosts pasando · build que **falla** si un asset no existe o si `stores.json` no valida · una URL nueva de prueba servida correctamente en un dominio canónico · 404 real en los 7 · 0 reglas de foco → cobertura completa · presupuesto de imagen documentado y respetado.
+
+---
+
+### FASE 4 — Diferenciación de contenido (donde por fin se gana algo)
+
+**Criterio de entrada:** Fase 3 cerrada + datos de GSC de al menos 6 semanas.
+
+| # | Tarea | Depende de |
+|---|---|---|
+| 4.1 | **Sección `asesoramiento`** en las 7 | Confirmación de 1 pregunta |
+| 4.2 | **Sección `centro`** (planta, local, parking, transporte) — la excepción que **no** depende del franquiciado: lo publican los propios centros | Copiar del directorio del centro **[S]** |
+| 4.3 | **Reapuntar las 7 fichas de los centros comerciales** al dominio de la tienda y corregir teléfono y horario | Un email por centro **firmado por el franquiciado** |
+| 4.4 | **Descanibalizar los 3 dominios de Madrid**: Las Rosas → San Blas-Canillejas, Alcobendas → Alcobendas y San Sebastián de los Reyes, Villanueva → noroeste. **Con los datos de GSC delante, no antes** | Fase 1 |
+| 4.5 | **`horario` v2** con excepciones fechadas | 🔒 Horario por día + régimen de domingo |
+| 4.6 | **Sección `faq`** logística | 🔒 Preguntas del mostrador |
+| 4.7 | **`objetivos`** sustituyendo a `Products` | — |
+| 4.8 | Reseñas reales por tienda | 🔒 Protocolo de captación en tienda |
+| 4.9 | **Adoptar por fin las plantillas**: hoy `template` está ausente en las 7 y las dos plantillas existentes tienen cero adoptantes. Enseñarlas y que cada dueño elija | Muestrario (ver 4.10) |
+| 4.10 | **Muestrario interno** (`noindex`) con plantillas y secciones sobre datos ficticios: hoy el artefacto central del modelo de venta no existe y la única forma de enseñar `angular` es un `?plantilla=2` que solo funciona fuera del dominio canónico | S |
+
+**Criterio de salida:** ≥ 3 secciones nuevas en producción · **< 40% del texto visible byte-idéntico entre dominios** (hoy 60-70% **[S]**) · ≥ 4 de 7 fichas de centro comercial apuntando al dominio propio · 0 reseñas con autoría compartida · al menos 2 tiendas con plantilla elegida explícitamente.
+
+---
+
+### FASE 5 — Páginas y captación mínima (PILOTO EN UNA TIENDA)
+
+**Criterio de entrada:** Fase 4 cerrada + una tienda con franquiciado que **realmente contesta**. La tienda piloto se elige por colaboración demostrada, no por "completitud" — y ojo: El Arcángel, propuesto como piloto por varios análisis, está en WordPress **[S]**.
+
+| # | Tarea |
+|---|---|
+| 5.1 | `/como-llegar`, `/asesoramiento-gratuito`, `/preguntas-frecuentes` en la tienda piloto |
+| 5.2 | `/suplementos` + **4** categorías (no 8), con 150-250 palabras genuinamente locales cada una |
+| 5.3 | Breadcrumbs + `BreadcrumbList` (lo único de la lista que sigue dando rich result) |
+| 5.4 | Enlazar `Products` a las categorías |
+| 5.5 | **Solo si hay contrato art. 28 firmado y `company` completo:** endpoint `/api/lead` con `<form method="POST">` nativo (0 KB de JS), Zod, honeypot + time-trap, y 303 a `/gracias`. **Probar `security.checkOrigin` en producción antes de prometer nada**: el propio `robots.txt.ts` documenta que detrás de Cloudflare+Railway la URL interna apunta a localhost, así que el primer POST puede dar 403 en producción y funcionar en local |
+| 5.6 | Proveedor de email con servidores en la UE, **una lista por tienda** (compartir leads entre sociedades es comunicación de datos sin base legal) |
+
+**Criterio de salida (a 8-10 semanas):** las páginas nuevas del piloto acumulan **≥ 15% de las impresiones del dominio** en GSC · al menos una posiciona en top-20 por una query con el nombre del centro · **si no, se revierte y no se replica.** 24 URLs perdidas, no 170.
+
+---
+
+### FASE 6 — Campañas (el segundo ancla)
+
+**Criterio de entrada:** conversiones midiéndose ≥ 8 semanas · WhatsApp real en la tienda · landing de campaña con `noindex` y fecha de caducidad · presupuesto de medios por encima del suelo de señal.
+
+Google Ads local primero (search + Maps), Meta después y solo con un código canjeable en caja que cierre el bucle web→mostrador. La landing de campaña es el producto de mayor margen del catálogo: se compone eligiendo secciones, no escribiendo código.
+
+**Criterio de salida:** coste por intención de contacto conocido y estable por tienda · al menos un mes con canjes de código registrados en caja.
+
+---
+
+### FASE 7 — Plataforma (diferida, con disparador escrito)
+
+**No se construye ahora. Se escribe el ADR con el disparador**, o la decisión se tomará por agotamiento en mitad de una urgencia:
+
+1. Datos escritos por alguien que no es el operador.
+2. Datos que cambian más rápido que un deploy.
+3. Más de un editor.
+
+**Umbral operativo medible:** más de ~2 deploys semanales motivados **solo** por contenido, o la primera petición con urgencia menor a 24 h. Candidato preseleccionado: un Postgres gestionado con Auth incluida, porque el panel la va a necesitar. Con Zod + un fichero por tienda, 25-30 tiendas y 25 secciones se llevan bien en Git.
+
+---
+
+## 5. LO QUE NO VAMOS A HACER
+
+| Descartado | Por qué |
+|---|---|
+| **Las ~170 URLs (24 páginas × 7 dominios)** | Depende de que el franquiciado aporte 150-250 palabras genuinas por página — el mismo que lleva meses sin dar su razón social. Sin ese input es un generador de contenido escalado en una red de 7 dominios, en un vertical de salud, redactado por alguien sin titulación en nutrición, bajo el CIF de sociedades ajenas. **Máximo: el piloto de la Fase 5 en una tienda** |
+| **Pop-up, exit-intent, modal de scroll o de tiempo** | Google degrada los intersticiales intrusivos en móvil en páginas de aterrizaje desde buscador, que es exactamente el activo que se vende. El exit-intent se apoya en `mouseleave`, que no existe en móvil. Y el visitante típico busca el horario **estando ya dentro del centro**: el modal no intercepta a quien se va, intercepta a quien iba a entrar en la tienda. **Motivo adicional decisivo: sin analítica no se puede evaluar** — un pop-up sube emails y baja visitas a la vez |
+| **Vender FAQ como rich result** | Google restringió las FAQ en agosto de 2023 y retiró la función por completo el 7 de mayo de 2026 **[S, con tres fuentes independientes]**. La sección se hace, pero **por conversión y logística local**, que es comprobable. Justificarla "por motores conversacionales e ingesta de IA" es un beneficio infalsificable: no se puede medir, atribuir ni desmentir |
+| **El teatro de datos estructurados** (`hasOfferCatalog`, `ImageObject`, `Person`, `Service`+`Offer` a 0 €, `CollectionPage`, `containedInPlace`) | Cero rich result garantizado, lo admiten sus propios proponentes. Produce diffs bonitos y mueve cero métricas. Coste conjunto: una hora dentro de `Landing.astro` **el día que se toque por otra cosa**. Nunca como proyecto. Excepción: `BreadcrumbList` (sí da rich result) y `Event` (sigue vivo) |
+| **Sección "Equipo / Nuestros expertos"** | Suma tres riesgos multiplicados por 7: *nutricionista* y *dietista-nutricionista* son títulos regulados en España; no consta rastro público que corrobore las credenciales de una de las dos personas **[S]**; y harían falta consentimientos de imagen que cubran 7 dominios de sociedades que **no las emplean**. Upside: E-E-A-T especulativo. Downside: intrusismo, derechos de imagen y publicidad engañosa |
+| **Badge "Abierto ahora / Cierra en X"** | Exige horario por día **más el calendario de festivos de 7 centros distintos en 5 comunidades autónomas**, mantenido para siempre, y sin caché. El día que un centro cambia un festivo, la web **miente** justo en el dato por el que alguien se desplaza. **Sí al horario estructurado como dato; no al badge en vivo** |
+| **Calculadora de proteína y calorías** | Mete JS en un proyecto de ~0 JS, entra en territorio de consejo dietético personalizado (con el riesgo real de devolver calorías objetivo a un menor), y su conversión final es "ven a tienda", que es lo que ya hacen los 3 CTA. Tesis de tráfico sin un solo dato que la respalde |
+| **Plantilla 3 "Guía" con máscaras blob · `--font-accent` script** | Las dos plantillas que ya existen tienen **cero adoptantes** **[V]**. Construir la tercera es construir para un usuario imaginario. Y una segunda familia tipográfica contra un presupuesto de 162 KB que costó conseguir, para pintar cinco palabras **en inglés** en una landing de SEO local en español, rompe el match de mensaje |
+| **`/comunidad` replicada por dominio** | `comunidadusafitness.com` existe y es del franquiciador **[S — verificarlo cuesta 1 minuto y cancela tres propuestas de golpe]**. Reconstruirla en 7 dominios sería duplicar un activo ajeno y competir con la propia marca. La jugada correcta es una página local que **enlace** a la comunidad |
+| **Publicar la guía de nutrición en HTML en los 7 dominios** | Mismo texto en 7 dominios = canibalización. Las tres salidas (uno solo publica / canonical cruzado / reescribir ×7) implican decidir a qué sociedad se le regala el tráfico, y **eso no es una decisión del operador** |
+| **Alta digital de la Tarifa VIP con base de datos** | Convierte "7 landings" en una plataforma con panel para una persona sin socio técnico, saltándose la secuencia decidida en `memory/01`. Además es dato personal de consumidor a escala, con el descuento de funcionario implicando acreditar profesión |
+| **Email marketing como módulo del catálogo** | Vender envíos a una lista de cero personas. Fuera del catálogo el primer año |
+| **Gestión completa de redes como línea estándar** | 8-10 h/tienda/mes: tres tiendas se comen un tercio del mes de una persona. Plaza limitada a 2-3 y precio de escasez, o no se ofrece. El **kit de contenido** tampoco escala bien (84 piezas/mes ×7), solo se rompe más despacio |
+| **Formulario Tally → GitHub Action → commit automático** | Dar escritura efectiva sobre el repo a 7 personas no técnicas, en un repo que despliega **un solo servicio con los 7 dominios dentro**. Un commit malo tumba las 7 a la vez. Ni con Zod delante |
+| **Formulario de contacto genérico** | Compite en desventaja contra WhatsApp, que ya está en el móvil del cliente y contesta al momento. Añade un tratamiento más, un buzón que vigilar y un plazo de conservación. Los formularios que valen aquí piden algo concreto a cambio de algo concreto. **Condición de reapertura:** si GSC/GA4 muestran muchas sesiones de escritorio en horario de oficina sin ningún clic de contacto |
+| **Números de teléfono de tracking** | Rompen la coherencia NAP entre web, ficha de Google y directorio del centro: destruyen el activo que se está vendiendo para medir una métrica que se puede aproximar con el clic |
+| **Registro `citations[]` con fecha de verificación** | Una hoja de cálculo que se pudre. Sin revisión trimestral —que no va a ocurrir— da falsa sensación de control, que es peor que no tenerla |
+| **Anillo de enlaces recíprocos entre los 7 dominios** | Misma IP, misma plantilla, mismos textos, probablemente mismo registrador. El anillo es una huella delatora. **Hub-and-spoke, nunca recíproco** |
+| **Gimnasios y clubes colaboradores** | Depende de acuerdos firmados que el operador no puede conseguir. Es trabajo comercial del franquiciado disfrazado de sección web |
+| **Rodaje del video tour como producto** | A Coruña, Vigo, Zaragoza, Córdoba y tres puntos de Madrid, una persona, más permiso de grabación en zona común que puede tumbar la entrega **después** de cobrar. Y la central ya edita el vídeo gratis **[S]**: vender "video tour" a secas choca con lo que el franquiciado ya recibe. Como mucho, subproducto de un viaje que se hace por otra razón |
+| **Volver a emitir `aggregateRating`** | Retirado en `550844d` con razón: Google declara inelegible para estrellas a quien controla sus propias reseñas. Marcarlo es riesgo de acción manual a cambio de cero estrellas, ×7 |
+| **Tratar `site: 'https://usafitness.es'` como un problema** | **[V]** No lo consume nadie: el canonical, el og:url y el sitemap se construyen desde `store.domain`. Es cosmético. Lo que sí hay que hacer es borrar `@astrojs/sitemap`, que está instalado y sin usar |
+| **Traducir al gallego** | Hoy no hay tienda en Cataluña y el volumen de búsqueda en gallego para este vertical es marginal. Lo que sí se hace es **abrir la costura**: un campo `locale` por tienda con un solo valor, porque hacerlo con 7 dominios cuesta una tarde y con 170 URLs cuesta un proyecto |
+
+---
+
+## 6. DATOS QUE BLOQUEAN EL ROADMAP (una llamada cada uno)
+
+1. ¿Cuántos dominios sirven Astro **hoy** y **quién controla el DNS** de cada uno — el operador o el franquiciado?
+2. **¿El contrato de franquicia permite dominio y web propios con la marca?** Es la única pregunta que puede invalidar el proyecto entero: el ANEXO demuestra que la central regula la presencia digital hasta el detalle de quién debe ser titular de las cuentas. Nadie ha leído ese contrato.
+3. ¿Las reseñas actuales son reales? ¿Quién autorizó publicarlas y desde cuándo están vivas?
+4. ¿De dónde salen "Hasta 20% dto." y los 4 porcentajes de `Promotions.astro`? ¿Hay documento del franquiciador?
+5. Villanueva: **¿El Zoco o La Pasada?**
+6. ¿Cuál es el móvil real de cada tienda y está dado de alta en WhatsApp Business?
+7. Las 4 tiendas sin `company`: ¿hay fecha, o se asume `noindex` indefinido?
+8. ¿Bajo qué supuesto abre en domingo cada tienda de Galicia, Andalucía y Aragón?
+9. ¿El franquiciador acepta que las fichas de los centros y `usafitness.es` enlacen al dominio de cada tienda?
+10. ¿Las 30 fotos ya publicadas contienen personas identificables sin consentimiento?
+
+---
+
+## Autocrítica
+
+- **Supuesto del que más depende este roadmap:** que `memory/02-current-state.md` sigue siendo cierto (2 dominios en Astro). Si la migración avanzó y no está reflejada, la Fase 2 se acorta mucho y las Fases 4-5 suben. Lo que **no** cambia en ningún escenario es la Fase 0: las reseñas repetidas y el iframe sin consentimiento son ciertos hoy, verificados en el código.
+- **La parte más floja son las Fases 5 y 6.** Descansan sobre que exista un franquiciado que conteste y sobre un presupuesto de medios que nadie ha comprometido. Si ninguno aparece, el roadmap real termina en la Fase 4 — y eso ya sería un producto mucho mejor que el actual.
+- **Riesgo que este documento no cubre:** he priorizado por coste de mantenimiento del operador, y eso sesga sistemáticamente contra lo que el franquiciado quizá sí pagaría (gente entrando por su puerta). Este plan optimiza que el sistema no se caiga; no demuestra que el cliente renueve. El único mecanismo que ataca eso es el cupón canjeable en caja de la Fase 6, y llega tarde.
+- **Contradicción que asumo:** he añadido una regla para matar propuestas por coste de mantenimiento y he mantenido 13 secciones nuevas. Aplicando la regla a mi propio catálogo, las que sobreviven a "impacto alto + mantenimiento nunca o anual" son cinco: `asesoramiento`, `centro`, `estado`, `faq` y `aviso`. Las demás deben esperar a que haya una línea recurrente vendida que las pague.
