@@ -3,7 +3,7 @@
 **Date:** 2026-08-25
 **Branch:** `feat/medicion-y-observabilidad`
 **Author:** User + Claude Opus 5
-**Status:** Executing — T1, T2 y T3 hechas (`5bbe43e`, `9f75208`). Quedan T4, T5, T6.
+**Status:** Done — las 6 tareas ejecutadas, PR #1 mezclado (`348150c`) y desplegado con la puerta de salud activa. Revisión formal: **No listo** → 2 críticos (alcance del consentimiento) corregidos en `d832181` → mezclado. Seguimiento de la revisión (I-3, I-4, P-1 y menores) en `feat/seguimiento-revision-pr1`.
 
 ## Goal
 
@@ -37,15 +37,15 @@ No es un bug latente que convenga arreglar algún día. **Es el bug que activa l
 
 ## Success criteria (observables)
 
-- [ ] **C1** — Con `ga4Id` relleno, `curl -s https://<dominio>/ | grep -c googletagmanager` devuelve **0**. La petición a Google solo ocurre tras pulsar Aceptar.
-- [ ] **C2** — `npm test` afirma la ausencia de `googletagmanager` en las 7 tiendas **incondicionalmente**: poner un `ga4Id` de mentira en `stores.json` no debe silenciar ninguna aserción.
-- [ ] **C3** — `curl -s -H 'Host: usafitnessvigo.com' localhost:4321/health` devuelve 200 con `"tienda":"vigo"`; con un host desconocido, `"tienda":null`; y ninguna respuesta nombra a otra tienda.
-- [ ] **C4** — `/health` responde **503** si la tabla de dominios no tiene exactamente 2 entradas por tienda.
-- [ ] **C5** — `curl -s -H 'Host: usafitness.es' localhost:4321/vigo | grep -c google-site-verification` devuelve **0**; con `Host: usafitnessvigo.com` devuelve **1**.
-- [ ] **C6** — `grep -rn 'transport_type' src/` y `grep -rn 'define:vars' src/` devuelven ambos vacío.
-- [ ] **C7** — Un `ga4Id` con prefijo `GT-` valida; `UA-12345-1` sigue siendo rechazado.
-- [ ] **C8** — `railway.json` versionado con `healthcheckPath: "/health"`, y el sondeo de Railway (`Host: healthcheck.railway.app`) devuelve 200 comprobado en local antes de commitearlo.
-- [ ] **C9** — `npm run build && npm test` verde. 65 tests hoy → ~73.
+- [x] **C1** — Con `ga4Id` relleno, ningún `src`/`href` del HTML inicial apunta a Google; la petición solo ocurre tras Aceptar. ⚠ **El comando literal original (`grep -c googletagmanager` → 0) está MAL para este criterio**: con el arreglo funcionando devuelve **1**, porque la URL vive como cadena dentro del cargador diferido — quien audite con ese grep concluirá lo contrario de la verdad. La comprobación correcta es `pideRecursoDe` en `tests/smoke.test.mjs` (mención ≠ petición), o contar peticiones de red en el navegador, que se hizo.
+- [x] **C2** — `npm test` afirma la ausencia de `googletagmanager` en las 7 tiendas **incondicionalmente**: poner un `ga4Id` de mentira en `stores.json` no debe silenciar ninguna aserción.
+- [x] **C3** — `curl -s -H 'Host: usafitnessvigo.com' localhost:4321/health` devuelve 200 con `"tienda":"vigo"`; con un host desconocido, `"tienda":null`; y ninguna respuesta nombra a otra tienda.
+- [x] **C4** — `/health` responde **503** si la tabla de dominios no tiene exactamente 2 entradas por tienda.
+- [x] **C5** — `curl -s -H 'Host: usafitness.es' localhost:4321/vigo | grep -c google-site-verification` devuelve **0**; con `Host: usafitnessvigo.com` devuelve **1**.
+- [x] **C6** — `grep -rn 'transport_type' src/` y `grep -rn 'define:vars' src/` devuelven ambos vacío.
+- [x] **C7** — Un `ga4Id` con prefijo `GT-` valida; `UA-12345-1` sigue siendo rechazado.
+- [x] **C8** — `railway.json` versionado con `healthcheckPath: "/health"`, y el sondeo de Railway (`Host: healthcheck.railway.app`) devuelve 200 comprobado en local antes de commitearlo.
+- [x] **C9** — `npm run build && npm test` verde. 65 tests hoy → ~73.
 
 ---
 
