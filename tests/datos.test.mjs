@@ -20,6 +20,12 @@ import { fileURLToPath } from 'node:url';
 
 import { stores, esquemaTiendas, avisosDeDatos, tablaCoherente } from '../src/data/stores.ts';
 import { respuestaDeSalud } from '../src/data/salud.ts';
+import {
+  planDeConsentimiento,
+  ambitosDeBorrado,
+  esCookieDeGoogle,
+  fuenteInline,
+} from '../src/data/consentimiento.ts';
 import { parseHorario } from '../src/data/horario.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
@@ -213,5 +219,85 @@ describe('La respuesta de /health, incluido el camino del 503', () => {
   test('sin tiendas → 503', () => {
     assert.equal(respuestaDeSalud([], new Map(), 'x', null, 0).status, 503);
     assert.equal(tablaCoherente([], new Map()), false);
+  });
+});
+
+
+describe('Las decisiones del consentimiento (I-2 de la revisión del PR #1)', () => {
+  // Antes, esta lógica vivía dentro de un `<script is:inline>` y ningún test
+  // podía importarla: la suite comprobaba la FORMA del HTML, no el
+  // COMPORTAMIENTO. La revisión lo demostró con 4 mutaciones de comportamiento,
+  // las 4 en verde. Tres de ellas eran decisiones puras y ahora están aquí.
+
+  test('aceptar concede analítica y manda cargar', () => {
+    const p = planDeConsentimiento('granted');
+    assert.equal(p.consent.analytics_storage, 'granted');
+    assert.equal(p.cargarAnalitica, true, 'mutación "borrar la llamada al cargador"');
+    assert.equal(p.borrarCookies, false);
+  });
+
+  test('rechazar deniega, no carga y manda borrar', () => {
+    const p = planDeConsentimiento('denied');
+    assert.equal(p.consent.analytics_storage, 'denied');
+    assert.equal(p.cargarAnalitica, false, 'rechazar no puede descargar gtag.js');
+    assert.equal(p.borrarCookies, true, 'mutación "borrar el filtro de cookies"');
+  });
+
+  test('NUNCA se concede publicidad — el banner solo informa de analítica', () => {
+    // Mutación "ad_storage: granted fijo". Los ad_* se declaran en `denied` en
+    // el consent default y no vuelven a tocarse: conceder publicidad bajo un
+    // aviso que habla de analítica es el crítico C-1 de la revisión.
+    for (const valor of ['granted', 'denied']) {
+      const claves = Object.keys(planDeConsentimiento(valor).consent);
+      assert.deepEqual(claves, ['analytics_storage'], `en "${valor}" solo se toca analytics_storage`);
+    }
+  });
+
+  describe('Los ámbitos de borrado de cookies', () => {
+    test('desde www. cubre el dominio registrable, que es donde GA las escribe', () => {
+      // El fallo I-1: con solo el host exacto, visitando por www. la cookie
+      // sobrevivía mientras el comentario afirmaba lo contrario.
+      const a = ambitosDeBorrado('www.ejemplo.com');
+      assert.ok(a.includes('.ejemplo.com'), 'el dominio registrable con punto');
+      assert.ok(a.includes('ejemplo.com'), 'y sin punto');
+      assert.ok(a.includes(''), 'y sin atributo domain');
+    });
+
+    test('desde el dominio pelado también', () => {
+      const a = ambitosDeBorrado('ejemplo.com');
+      assert.ok(a.includes('.ejemplo.com') && a.includes('ejemplo.com'));
+    });
+
+    test('en localhost no inventa ámbitos', () => {
+      assert.deepEqual(ambitosDeBorrado('localhost'), ['']);
+    });
+  });
+
+  describe('Qué cookies se consideran de Google', () => {
+    test('las de Analytics y las de Ads', () => {
+      for (const n of ['_ga', '_ga_ABC123', '_gid', '_gat', '_gac_x', '_gcl_au']) {
+        assert.ok(esCookieDeGoogle(n), `${n} debería borrarse`);
+      }
+    });
+
+    test('y nada más — no se tocan cookies ajenas', () => {
+      for (const n of ['uf-consent', 'ga', '_gustavo', 'session', '__cf_bm']) {
+        assert.ok(!esCookieDeGoogle(n), `${n} NO es de Google y no se toca`);
+      }
+    });
+  });
+
+  test('el HTML recibe estas MISMAS funciones, no una copia', () => {
+    // La garantía de que no hay dos implementaciones: el componente inyecta
+    // `fuenteInline()`, que es el toString() de las funciones de arriba. Si
+    // alguien las cambia, cambian el test y el HTML a la vez.
+    const fuente = fuenteInline();
+    for (const nombre of ['planDeConsentimiento', 'ambitosDeBorrado', 'esCookieDeGoogle']) {
+      assert.ok(fuente.includes(`function ${nombre}`), `${nombre} viaja al HTML`);
+    }
+    // Y lo que viaja tiene que ser JS que un navegador entienda: el fichero es
+    // TypeScript, así que si un tipo sobreviviera al toString() se rompería el
+    // script inline en los 7 dominios a la vez, sin que el build se queje.
+    assert.doesNotThrow(() => new Function(fuente), 'la fuente inyectada parsea como JS');
   });
 });
