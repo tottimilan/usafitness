@@ -23,35 +23,56 @@ const analitica = !!ga4Id;
 // puede mostrarse siempre y RECHAZARLO IMPIDE ALGO DE VERDAD, que es lo único
 // que lo hace honesto.
 const avisoCookies = true;
-const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
 ---
 
 {analitica && (
-  <Fragment>
-    {/* Google Consent Mode v2: todo denegado por defecto hasta que el usuario acepte */}
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
-      window.gtag = gtag;
-      gtag('consent', 'default', {
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        analytics_storage: 'denied',
-        wait_for_update: 500
-      });
-      try {
-        if (localStorage.getItem('uf-consent') === 'granted') {
-          gtag('consent', 'update', { analytics_storage: 'granted' });
-        }
-      } catch (e) {}
-    </script>
-    <script is:inline async src={gtagSrc}></script>
-    <script define:vars={{ ga4Id }}>
-      gtag('js', new Date());
-      gtag('config', ga4Id, { anonymize_ip: true });
-    </script>
-  </Fragment>
+  <script
+    is:inline
+    data-cfasync="false"
+    set:html={`
+window.dataLayer = window.dataLayer || [];
+function gtag(){ dataLayer.push(arguments); }
+window.gtag = gtag;
+
+// Todo denegado por defecto. Sin wait_for_update: ese parámetro hace esperar
+// medio segundo a un update que, en este montaje, se emite tres líneas más
+// abajo de forma síncrona o no se emite nunca. Solo penalizaba al visitante.
+gtag('consent', 'default', {
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  analytics_storage: 'denied'
+});
+
+// gtag.js NO se descarga aquí. Son 145 KB comprimidos de Google — casi cinco
+// veces el peso de la página entera — y descargarlos antes de que el visitante
+// toque el banner haría que "Rechazar" no impidiese la petición. Se inyecta
+// solo al aceptar, y una sola vez.
+window.ufCargarAnalitica = function () {
+  if (window.__ufAnaliticaCargada) return;
+  window.__ufAnaliticaCargada = true;
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=${ga4Id}';
+  document.head.appendChild(s);
+  gtag('js', new Date());
+  gtag('config', '${ga4Id}', { anonymize_ip: true });
+};
+
+// Visitante que ya aceptó en una visita anterior: no se le vuelve a preguntar.
+try {
+  if (localStorage.getItem('uf-consent') === 'granted') {
+    gtag('consent', 'update', {
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted',
+      analytics_storage: 'granted'
+    });
+    window.ufCargarAnalitica();
+  }
+} catch (e) {}
+`}
+  />
 )}
 
 {avisoCookies && (
@@ -78,11 +99,41 @@ const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
         function decide(value) {
           try { localStorage.setItem(KEY, value); } catch (e) {}
           banner.hidden = true;
+          var concedido = value === 'granted';
           if (window.gtag) {
             // Se emite en los dos sentidos: retirar el consentimiento tiene que
-            // revocar de verdad, no solo dejar de conceder.
+            // revocar de verdad, no solo dejar de conceder (RGPD art. 7.3).
+            // Los cuatro parámetros, no solo analytics_storage: Consent Mode v2
+            // exige ad_user_data y ad_personalization desde marzo de 2024, y son
+            // justo los que harán falta cuando lleguen las campañas.
             window.gtag('consent', 'update', {
-              analytics_storage: value === 'granted' ? 'granted' : 'denied'
+              ad_storage: concedido ? 'granted' : 'denied',
+              ad_user_data: concedido ? 'granted' : 'denied',
+              ad_personalization: concedido ? 'granted' : 'denied',
+              analytics_storage: concedido ? 'granted' : 'denied'
+            });
+          }
+          // La descarga del tag ocurre AQUÍ y no antes. Sin esta línea el
+          // consentimiento funciona pero no mide nada: comprobado en navegador
+          // — aceptar dejaba 0 scripts de Google y 0 cookies.
+          // `ufCargarAnalitica` no existe en una tienda sin ga4Id, de ahí la
+          // comprobación.
+          if (concedido && window.ufCargarAnalitica) { window.ufCargarAnalitica(); }
+
+          // Y al revocar, se borran las cookies que se escribieron con el
+          // consentimiento. gtag deja de usarlas pero NO las borra, así que sin
+          // esto la revocación es medio simbólica: el identificador del visitante
+          // seguiría en su navegador. Comprobado: tras rechazar quedaban `_ga` y
+          // `_ga_<ID>` vivas. Se intenta con el host exacto y con el punto
+          // delante porque GA las escribe en el dominio registrable.
+          if (!concedido) {
+            var host = location.hostname;
+            document.cookie.split(';').forEach(function (par) {
+              var nombre = par.split('=')[0].trim();
+              if (nombre.indexOf('_ga') !== 0) return;
+              [host, '.' + host, ''].forEach(function (d) {
+                document.cookie = nombre + '=; Max-Age=0; path=/' + (d ? '; domain=' + d : '');
+              });
             });
           }
         }

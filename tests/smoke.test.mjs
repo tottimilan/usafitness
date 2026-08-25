@@ -236,23 +236,81 @@ describe('Ningún dominio filtra datos de otra sociedad', () => {
 });
 
 describe('Nada de terceros antes del consentimiento', () => {
+  /**
+   * ¿El HTML inicial hace que el navegador PIDA algo a ese dominio?
+   *
+   * Un `includes('dominio')` no sirve, porque no distingue una PETICIÓN de una
+   * MENCIÓN. Este proyecto ha tropezado con eso DOS veces:
+   *
+   *   1. Un comentario del CSS que nombraba `fonts.googleapis.com` viajaba al
+   *      bundle y satisfacía su propia aserción.
+   *   2. La URL de gtag.js vive como cadena dentro del cargador diferido y solo
+   *      se usa si el usuario acepta. Mencionarla no descarga nada — pero un
+   *      `includes` la daba por descargada, y eso hacía imposible escribir el
+   *      código correcto: el test bloqueaba la solución en vez del problema.
+   *
+   * Se comprueba lo único que sí es una petición al pintar la página: un
+   * atributo `src`/`href` que el navegador vaya a resolver.
+   *
+   * LÍMITE HONESTO: esto no demuestra que no salga NINGUNA petición. Un
+   * `document.createElement('script')` ejecutado al cargar pasaría este test.
+   * Eso solo lo prueba el navegador contando peticiones de red.
+   */
+  /**
+   * Vacía el CUERPO de cada `<script>` conservando su etiqueta de apertura.
+   *
+   * Es la distinción que hace falta y que un regex sobre el HTML crudo no puede
+   * hacer: dentro de un script, `s.src = '…'` es una ASIGNACIÓN que solo se
+   * ejecuta si alguien llama a la función que la contiene; en la etiqueta de
+   * apertura, `src="…"` es una DESCARGA que el navegador hace sí o sí.
+   * Se parecen tanto que el primer intento de este test daba por descargado lo
+   * que solo estaba escrito.
+   */
+  const sinCuerposDeScript = (html) =>
+    html.replace(/(<script\b[^>]*>)[\s\S]*?<\/script>/gi, '$1</script>');
+
+  const pideRecursoDe = (html, dominio) =>
+    new RegExp(`(?:src|href)\\s*=\\s*["']?[^"'\\s>]*${dominio.replace(/\./g, '\\.')}`, 'i').test(
+      sinCuerposDeScript(html)
+    );
+
   for (const s of stores) {
     test(`${s.slug}`, async () => {
       const html = (await get('/', s.domain)).text();
-      // Se buscan referencias REALES (href/url), no menciones sueltas: un
-      // comentario en el CSS que nombre el dominio viaja al bundle y daría un
-      // falso positivo, que en un test es tan malo como un falso negativo.
-      assert.doesNotMatch(html, /(?:href|src|url\()="?https:\/\/fonts\.googleapis\.com/, 'las fuentes se sirven desde el propio dominio');
-      assert.doesNotMatch(html, /(?:href|src|url\()="?https:\/\/fonts\.gstatic\.com/, 'sin preconnect a Google');
+      assert.ok(!pideRecursoDe(html, 'fonts.googleapis.com'), 'las fuentes se sirven desde el propio dominio');
+      assert.ok(!pideRecursoDe(html, 'fonts.gstatic.com'), 'sin preconnect a Google');
       assert.ok(!html.includes('<iframe'), 'el mapa es una fachada hasta que el usuario lo pide');
-      // Incondicional a propósito, y es UNA LÍNEA MENOS que antes. Estaba
-      // envuelto en `if (!s.ga4Id)`, así que se desarmaba solo en cuanto una
-      // tienda tuviera ID — justo cuando empieza a hacer falta. La política
-      // elegida no es "sin ga4Id no se carga GA4": es "GA4 no se carga hasta
-      // que el usuario acepta", y eso vale con ID y sin él.
-      assert.ok(!html.includes('googletagmanager'), 'GA4 no se carga antes del consentimiento');
+      // Incondicional a propósito: estaba envuelto en `if (!s.ga4Id)`, así que
+      // se desarmaba solo en cuanto una tienda tuviera ID — justo cuando empieza
+      // a hacer falta. La política no es "sin ga4Id no se carga GA4": es "GA4 no
+      // se pide hasta que el usuario acepta", y eso vale con ID y sin él.
+      assert.ok(!pideRecursoDe(html, 'googletagmanager.com'), 'GA4 no se pide antes del consentimiento');
     });
   }
+
+  test('con ga4Id, la URL de gtag.js solo vive dentro del cargador diferido', async () => {
+    // Contra la tienda que tenga ID; si aún no hay ninguna, se salta en vez de
+    // dar un verde que no significa nada.
+    const s = stores.find((x) => x.ga4Id);
+    if (!s) return;
+    const html = (await get('/', s.domain)).text();
+
+    assert.ok(!pideRecursoDe(html, 'googletagmanager.com'), 'ningún src/href apunta a Google al cargar');
+
+    // Y aparece UNA sola vez, dentro de la función que solo se invoca al aceptar.
+    // Sin esta parte, sacar la inyección de la función pasaría el test anterior:
+    // `s.src = …` es una asignación, no un atributo del marcado.
+    const veces = (html.match(/googletagmanager/g) ?? []).length;
+    assert.equal(veces, 1, 'la URL de gtag.js aparece exactamente una vez');
+
+    const desde = html.indexOf('window.ufCargarAnalitica = function');
+    assert.ok(desde > -1, 'existe el cargador diferido');
+    const cargador = html.slice(desde, html.indexOf('};', desde));
+    assert.ok(cargador.includes('googletagmanager'), 'la URL está dentro del cargador, no en el ámbito global');
+
+    assert.ok(html.includes("gtag('consent', 'default'"), 'Consent Mode se declara desde el principio');
+    assert.ok(html.includes(s.ga4Id), 'el id viaja en el HTML para poder cargarlo al aceptar');
+  });
 });
 
 describe('Una URL que no existe da 404, no un redirect a la home', () => {
