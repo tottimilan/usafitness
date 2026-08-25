@@ -5,7 +5,7 @@ import Base from '@/layouts/Base.astro';
 import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
 import { porSlug } from '@/data/stores';
-import { getLegalDoc, isLegalDoc, LEGAL_DOCS } from '@/data/legal';
+import { getLegalDoc, isLegalDoc, LEGAL_DOCS, identificacionProvisional } from '@/data/legal';
 
 const { slug, doc } = Astro.params;
 const store = slug ? porSlug.get(slug) : undefined;
@@ -36,7 +36,25 @@ if (legalReady) {
   }
   bodyHtml = legal.html;
 } else {
-  bodyHtml = `<p>Estamos actualizando la información legal de esta tienda. Si necesitas cualquier dato o tienes una consulta, puedes contactar con nosotros a través de los canales de contacto disponibles en la web.</p>`;
+  // Sin `company` no se puede publicar un aviso legal completo — y no se
+  // inventa: la regla del proyecto es pedir los datos, no rellenarlos.
+  // Lo que sí se publica son los datos identificativos del establecimiento
+  // que constan y son verificables, diciendo con claridad qué falta. Ver el
+  // comentario largo en src/data/legal.ts: es reducción de daño, no
+  // cumplimiento del art. 10 LSSI. Sigue en `noindex`.
+  bodyHtml = identificacionProvisional(
+    {
+      name: store.name,
+      domain: store.domain,
+      streetAddress: store.streetAddress,
+      postalCode: store.postalCode,
+      addressLocality: store.addressLocality,
+      addressRegion: store.addressRegion,
+      phoneDisplay: store.phoneDisplay,
+      phone: store.phone,
+    },
+    docTitle
+  );
 }
 
 const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';

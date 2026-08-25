@@ -176,3 +176,71 @@ export function getLegalDoc(
   const html = `${body}<p class="legal-updated">Última actualización: ${c.lastUpdated}</p>`;
   return { title: meta.label, html };
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   IDENTIFICACIÓN PROVISIONAL — reducción de daño, NO cumplimiento
+
+   Mientras una tienda no tenga su bloque `company`, sus cuatro documentos
+   legales mostraban un párrafo que no identificaba a nadie:
+
+     "Estamos actualizando la información legal de esta tienda."
+
+   El problema no es estético. El gate del 2026-08-25 comprobó en vivo que
+   Marineda y Alcobendas sirven su portada en `index, follow` con ese texto
+   detrás: dos sociedades reales publicando un sitio comercial sin que el
+   visitante pueda saber quién está detrás.
+
+   Esto NO lo arregla. El artículo 10 de la LSSI exige razón social, NIF y
+   datos registrales, y la regla del proyecto es explícita: no se inventan
+   datos legales, se piden. Lo que hace esta función es publicar los datos
+   identificativos que SÍ constan y son verificables —el establecimiento
+   físico, su dirección completa, su teléfono y el dominio— y decir con
+   claridad qué falta y cómo pedirlo, en vez de no decir nada.
+
+   Es un puente hasta que lleguen los datos reales. El día que llegan, este
+   bloque desaparece solo: `company` pasa a existir y se sirve el documento
+   completo.
+   ──────────────────────────────────────────────────────────────────────── */
+
+export interface EstablecimientoConocido {
+  name: string;
+  domain: string;
+  streetAddress: string;
+  postalCode: string;
+  addressLocality: string;
+  addressRegion: string;
+  phoneDisplay: string;
+  phone: string;
+}
+
+export function identificacionProvisional(e: EstablecimientoConocido, docLabel: string): string {
+  const direccion = `${e.streetAddress}, ${e.postalCode} ${e.addressLocality} (${e.addressRegion})`;
+  return `
+    <div class="legal-aviso-incompleto" role="note">
+      <p><strong>Este documento está incompleto.</strong> Falta la información registral del
+      titular (razón social, NIF y datos de inscripción), que se está recabando e incorporará
+      en cuanto esté disponible. Hasta entonces se publican abajo los datos identificativos
+      del establecimiento que sí constan.</p>
+      <p>Si necesitas la información completa del titular antes de esa fecha —por ejemplo para
+      una reclamación, una factura o el ejercicio de tus derechos de protección de datos—
+      puedes solicitarla llamando al <a href="tel:${e.phone}">${e.phoneDisplay}</a> o
+      presencialmente en el establecimiento, y se te facilitará.</p>
+    </div>
+
+    <h3>Datos del establecimiento</h3>
+    <table class="legal-table">
+      <tbody>
+        <tr><th>Establecimiento</th><td>${e.name}</td></tr>
+        <tr><th>Dominio</th><td>https://${e.domain}</td></tr>
+        <tr><th>Dirección</th><td>${direccion}</td></tr>
+        <tr><th>Teléfono</th><td><a href="tel:${e.phone}">${e.phoneDisplay}</a></td></tr>
+        <tr><th>Razón social del titular</th><td><em>pendiente de incorporar</em></td></tr>
+        <tr><th>NIF</th><td><em>pendiente de incorporar</em></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Sobre este documento</h3>
+    <p>La versión completa de «${docLabel}» se publicará en esta misma dirección en cuanto se
+    disponga de los datos del titular. Mientras tanto, esta página no se indexa en buscadores
+    precisamente porque no está completa.</p>`;
+}

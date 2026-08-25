@@ -289,6 +289,29 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
 }
 
+/* Documento legal incompleto: la advertencia tiene que verse ANTES que la
+   tabla, no perderse como un párrafo más. Usa el rojo de marca porque es lo
+   que ese rojo significa aquí — algo que hay que atender, no decoración. */
+.legal-aviso-incompleto {
+  border-left: 4px solid var(--color-accent);
+  background: var(--color-bg-alt);
+  padding: 1rem 1.15rem;
+  margin: 0 0 1.75rem;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.legal-aviso-incompleto p {
+  margin: 0 0 0.75rem;
+}
+
+.legal-aviso-incompleto p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-table em {
+  color: var(--color-text-light);
+}
+
 .legal-updated {
   margin-top: 2rem;
   font-style: italic;

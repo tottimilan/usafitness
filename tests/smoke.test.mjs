@@ -181,6 +181,47 @@ describe('Las 4 páginas legales responden', () => {
   }
 });
 
+describe('Una tienda sin datos legales identifica al menos su establecimiento', () => {
+  // Antes, sin `company`, los 4 documentos servían un párrafo que no
+  // identificaba a nadie: "Estamos actualizando la información legal". El gate
+  // del 2026-08-25 comprobó en vivo que Marineda y Alcobendas servían su
+  // portada en `index, follow` con eso detrás. Esto NO cumple el art. 10 LSSI
+  // —para eso hacen falta razón social y NIF, que no se inventan— pero publica
+  // lo que sí consta en vez de no decir nada.
+  const sinDatos = stores.filter((s) => !s.company);
+
+  for (const s of sinDatos) {
+    test(`${s.slug}`, async () => {
+      const html = (await get('/aviso-legal', s.domain)).text();
+
+      assert.match(html, /name="robots" content="noindex/, 'un documento incompleto no se indexa');
+      assert.ok(!html.includes('Estamos actualizando la información legal'), 'el texto vacío ya no se sirve');
+
+      // Lo que sí se publica, y es verificable.
+      assert.ok(html.includes(s.name), 'nombra el establecimiento');
+      assert.ok(html.includes(s.streetAddress), 'publica la dirección real');
+      assert.ok(html.includes(s.phoneDisplay), 'da un teléfono por el que pedir los datos completos');
+
+      // Y lo que NO se publica, que es la mitad importante.
+      assert.match(html, /pendiente de incorporar/, 'dice explícitamente qué falta');
+      assert.doesNotMatch(html, /[A-HJ-NP-SUVW]\d{7}[0-9A-J]/, 'jamás un NIF inventado');
+      for (const otra of stores) {
+        if (!otra.company) continue;
+        assert.ok(!html.includes(otra.company.razonSocial), `no toma prestada la razón social de ${otra.slug}`);
+        assert.ok(!html.includes(otra.company.nif), `no toma prestado el NIF de ${otra.slug}`);
+      }
+    });
+  }
+
+  test('las tiendas que SÍ tienen datos siguen sirviendo el documento completo', async () => {
+    const s = stores.find((x) => x.company);
+    const html = (await get('/aviso-legal', s.domain)).text();
+    assert.ok(html.includes(s.company.razonSocial));
+    assert.ok(html.includes(s.company.nif));
+    assert.ok(!html.includes('pendiente de incorporar'), 'sin bloque provisional donde no hace falta');
+  });
+});
+
 describe('Ningún dominio filtra datos de otra sociedad', () => {
   test('cada NIF aparece solo donde debe', async () => {
     for (const s of stores) {
