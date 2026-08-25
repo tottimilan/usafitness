@@ -1,4 +1,6 @@
 ---
+import { fuenteInline } from '@/data/consentimiento';
+
 interface Props {
   ga4Id?: string;
   cookiePolicyHref: string;
@@ -23,6 +25,11 @@ const analitica = !!ga4Id;
 // puede mostrarse siempre y RECHAZARLO IMPIDE ALGO DE VERDAD, que es lo único
 // que lo hace honesto.
 const avisoCookies = true;
+
+// El código fuente de las decisiones de consentimiento, inyectado tal cual en
+// el script inline. No es una copia: es literalmente la misma función que
+// `tests/datos.test.mjs` importa y prueba. Ver `src/data/consentimiento.ts`.
+const logicaConsentimiento = fuenteInline();
 ---
 
 {analitica && (
@@ -103,7 +110,8 @@ try {
     {/* data-cfasync tambien aqui: si Rocket Loader difiriera este script y
         no el de arriba, el banner quedaria pintado pero con los botones
         muertos durante una ventana. O los tres scripts lo llevan o ninguno. */}
-    <script is:inline data-cfasync="false">
+    <script is:inline data-cfasync="false" set:html={`
+      ${logicaConsentimiento}
       (function () {
         var KEY = 'uf-consent';
         var banner = document.getElementById('uf-cookie-banner');
@@ -113,56 +121,30 @@ try {
         function decide(value) {
           try { localStorage.setItem(KEY, value); } catch (e) {}
           banner.hidden = true;
-          var concedido = value === 'granted';
-          if (window.gtag) {
-            // Se emite en los dos sentidos: retirar el consentimiento tiene que
-            // revocar de verdad, no solo dejar de conceder (RGPD art. 7.3).
-            //
-            // SOLO analytics_storage. Los tres ad_* quedan en el 'denied' del
-            // default y ahí se quedan: el banner habla de "cookies analíticas"
-            // y la Política de Cookies no menciona publicidad, así que no hay
-            // consentimiento informado que conceder para eso (lo señaló la
-            // revisión del PR #1). Cuando existan campañas: primero banner y
-            // política nuevos, después los ad_*.
-            window.gtag('consent', 'update', {
-              analytics_storage: concedido ? 'granted' : 'denied'
-            });
-          }
-          // La descarga del tag ocurre AQUÍ y no antes. Sin esta línea el
-          // consentimiento funciona pero no mide nada: comprobado en navegador
-          // — aceptar dejaba 0 scripts de Google y 0 cookies.
-          // `ufCargarAnalitica` no existe en una tienda sin ga4Id, de ahí la
-          // comprobación.
-          if (concedido && window.ufCargarAnalitica) { window.ufCargarAnalitica(); }
 
-          // Y al revocar, se borran las cookies que se escribieron con el
-          // consentimiento. gtag deja de usarlas pero NO las borra, así que sin
-          // esto la revocación es medio simbólica: el identificador del visitante
-          // seguiría en su navegador.
-          //
-          // Sufijos PROGRESIVOS del hostname, no solo el host exacto: GA escribe
-          // en el dominio registrable, así que visitando con el prefijo www. la
-          // cookie vive en el dominio pelado con punto delante — y la primera
-          // versión de este bloque, que solo probaba el host y '.'+host, la
-          // dejaba viva ahí. Lo encontró la revisión del PR #1; el www. no es
-          // hipotético: responde 200 sin redirect en las 7 tiendas.
-          // (Sin nombres de dominio reales en este comentario: es un script
-          // inline, VIAJA EN EL HTML de las 7 sociedades, y el test de
-          // aislamiento se puso rojo cuando este texto nombró a una de ellas.)
-          if (!concedido) {
-            var partes = location.hostname.split('.');
-            var dominios = [''];
-            for (var i = 0; i < partes.length - 1; i++) {
-              dominios.push(partes.slice(i).join('.'));
-              dominios.push('.' + partes.slice(i).join('.'));
-            }
+          // Toda la decisión sale de planDeConsentimiento(), la MISMA función
+          // que prueba tests/datos.test.mjs. Aquí solo queda el cableado con el
+          // DOM: qué se guarda, qué se oculta y a quién se llama.
+          var plan = planDeConsentimiento(value);
+
+          if (window.gtag) {
+            // En los dos sentidos: retirar el consentimiento tiene que revocar
+            // de verdad, no solo dejar de conceder (RGPD art. 7.3).
+            window.gtag('consent', 'update', plan.consent);
+          }
+
+          // La descarga del tag ocurre AQUÍ y no antes. 'ufCargarAnalitica' no
+          // existe en una tienda sin ga4Id, de ahí la comprobación.
+          if (plan.cargarAnalitica && window.ufCargarAnalitica) { window.ufCargarAnalitica(); }
+
+          // Y al revocar se borran las cookies ya escritas: gtag deja de usarlas
+          // pero no las borra, así que sin esto la revocación sería simbólica.
+          if (plan.borrarCookies) {
+            var ambitos = ambitosDeBorrado(location.hostname);
             document.cookie.split(';').forEach(function (par) {
               var nombre = par.split('=')[0].trim();
-              // _ga/_gid/_gat (Analytics) y _gac/_gcl (Ads). Los ad_* nunca se
-              // conceden hoy, pero borrar de más es gratis y borrar de menos
-              // incumple el art. 7.3.
-              if (!/^_(ga|gid|gat|gac|gcl)/.test(nombre)) return;
-              dominios.forEach(function (d) {
+              if (!esCookieDeGoogle(nombre)) return;
+              ambitos.forEach(function (d) {
                 document.cookie = nombre + '=; Max-Age=0; path=/' + (d ? '; domain=' + d : '');
               });
             });
@@ -184,7 +166,7 @@ try {
           banner.scrollIntoView({ block: 'nearest' });
         });
       })();
-    </script>
+    `} />
   </Fragment>
 )}
 
