@@ -245,9 +245,12 @@ describe('Nada de terceros antes del consentimiento', () => {
       assert.doesNotMatch(html, /(?:href|src|url\()="?https:\/\/fonts\.googleapis\.com/, 'las fuentes se sirven desde el propio dominio');
       assert.doesNotMatch(html, /(?:href|src|url\()="?https:\/\/fonts\.gstatic\.com/, 'sin preconnect a Google');
       assert.ok(!html.includes('<iframe'), 'el mapa es una fachada hasta que el usuario lo pide');
-      if (!s.ga4Id) {
-        assert.ok(!html.includes('googletagmanager'), 'sin ga4Id no se carga GA4');
-      }
+      // Incondicional a propósito, y es UNA LÍNEA MENOS que antes. Estaba
+      // envuelto en `if (!s.ga4Id)`, así que se desarmaba solo en cuanto una
+      // tienda tuviera ID — justo cuando empieza a hacer falta. La política
+      // elegida no es "sin ga4Id no se carga GA4": es "GA4 no se carga hasta
+      // que el usuario acepta", y eso vale con ID y sin él.
+      assert.ok(!html.includes('googletagmanager'), 'GA4 no se carga antes del consentimiento');
     });
   }
 });
