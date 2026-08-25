@@ -15,7 +15,10 @@ const slug = Astro.params.slug;
 const store = slug ? porSlug.get(slug) : undefined;
 
 if (!store) {
-  return Astro.redirect('/');
+  // 404 real, no un 302 a la home. El redirect anterior hacía que ninguna URL
+  // rota fuera reportable en Search Console y que cualquier ruta inventada
+  // acabara devolviendo 200.
+  return Astro.rewrite('/404');
 }
 
 const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';

@@ -1,0 +1,127 @@
+---
+/**
+ * 404 REAL — antes esto no existía.
+ *
+ * Cualquier URL que no existiera hacía `Astro.redirect('/')`: un 302 a la home.
+ * Eso es un *soft 404*, y tiene tres consecuencias concretas:
+ *
+ *  1. Google no lo puede reportar. En Search Console no aparece "página no
+ *     encontrada" — aparece la home varias veces, y el enlace roto sigue ahí
+ *     años. Es el fallo que se acaba de dar de alta en GSC y no se vería.
+ *  2. Cualquier URL inventada devuelve 200 tras el redirect, así que un
+ *     tercero puede generar enlaces infinitos que Google rastrea.
+ *  3. Para una persona es peor: pierdes el contexto de qué buscabas y acabas
+ *     en la home sin saber por qué.
+ *
+ * Esta página devuelve **404 de verdad** y, si la petición llega al dominio de
+ * una tienda, la devuelve con la marca de ESA tienda y sus caminos de contacto
+ * — que es donde interesa que siga la persona.
+ */
+export const prerender = false;
+
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import CookieConsent from '@/components/CookieConsent.astro';
+import ConversionTracking from '@/components/ConversionTracking.astro';
+import { porDominio } from '@/data/stores';
+import '@/styles/global.css';
+
+const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const store = porDominio.get(host);
+
+// Si hay tienda es porque la petición llegó a SU dominio, así que los enlaces
+// legales van en la raíz. Fuera de ahí (host genérico, preview de Railway) no
+// se pinta ni cabecera ni pie: no hay tienda a la que devolver a nadie.
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon-96.png" />
+    <title>Página no encontrada{store ? ` | ${store.name}` : ''}</title>
+  </head>
+  <body>
+    {store && <Header phone={store.phone} instagram={store.social?.instagram} />}
+
+    <main id="inicio">
+      <!-- `section[class]` y no `main`: la medición de conversión saca el
+           nombre de la sección de ahí, y si no lo encuentra reporta
+           "desconocida". Desde un 404 interesa especialmente saberlo. -->
+      <section class="notfound">
+        <div class="container notfound-inner">
+        <p class="notfound-code">404</p>
+        <h1>Esta página no existe</h1>
+        <p class="notfound-text">
+          {store
+            ? `El enlace que has seguido no lleva a ninguna parte, pero la tienda sigue donde estaba: ${store.mall}, ${store.addressLocality}.`
+            : 'El enlace que has seguido no lleva a ninguna parte.'}
+        </p>
+
+        {store ? (
+          <div class="notfound-acciones">
+            <a href="/" class="btn btn-primary">Volver al inicio</a>
+            <a href={`tel:${store.phone}`} class="btn btn-secondary">
+              Llamar al {store.phoneDisplay}
+            </a>
+            <a href={store.googleMapsLink} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+              Cómo llegar
+            </a>
+          </div>
+        ) : (
+          <div class="notfound-acciones">
+            <a href="/" class="btn btn-primary">Volver al inicio</a>
+          </div>
+        )}
+        </div>
+      </section>
+    </main>
+
+    {store && <Footer name={store.name} slug={store.slug} legalBase="" />}
+    {store && <CookieConsent ga4Id={store.ga4Id} cookiePolicyHref="/politica-de-cookies" />}
+    {store && <ConversionTracking />}
+  </body>
+</html>
+
+<style>
+  .notfound {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    padding: var(--section-padding, 4rem) 0;
+  }
+
+  .notfound-inner {
+    text-align: center;
+    max-width: 42rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .notfound-code {
+    font-size: clamp(3.5rem, 12vw, 6rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--color-primary);
+    margin: 0;
+  }
+
+  .notfound-text {
+    color: var(--color-text-light);
+    margin: 0;
+  }
+
+  .notfound-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+</style>

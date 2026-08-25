@@ -26,6 +26,11 @@ function validarDatosDeTienda() {
 
 export default defineConfig({
   output: 'server',
+  // Una sola forma canónica por URL. Sin esto, /aviso-legal y /aviso-legal/
+  // son dos URLs que devuelven la misma página, y Google las trata como
+  // contenido duplicado. El middleware redirige con 301 las que lleguen con
+  // barra final, para que el enlace externo acabe corrigiéndose.
+  trailingSlash: 'never',
   adapter: node({ mode: 'standalone' }),
   site: 'https://usafitness.es',
   integrations: [validarDatosDeTienda()],

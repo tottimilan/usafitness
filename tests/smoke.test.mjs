@@ -192,6 +192,62 @@ describe('Nada de terceros antes del consentimiento', () => {
   }
 });
 
+describe('Una URL que no existe da 404, no un redirect a la home', () => {
+  for (const s of stores) {
+    test(`${s.slug}`, async () => {
+      // Antes esto devolvía 302 a `/`. Un soft 404 no es reportable en Search
+      // Console (el enlace roto no aparece nunca) y hace que cualquier URL
+      // inventada acabe respondiendo 200.
+      const res = await get('/pagina-que-no-existe', s.domain);
+      assert.equal(res.status, 404, 'debe ser un 404 de verdad');
+
+      const html = res.text();
+      assert.match(html, /name="robots" content="noindex/, 'la página de error nunca se indexa');
+      // Y llega con la marca de SU tienda, no con un error genérico: es la
+      // única pantalla desde la que se puede recuperar a esa visita.
+      assert.ok(html.includes(s.name), 'el 404 lleva el nombre de la tienda');
+      assert.ok(html.includes(`tel:${s.phone}`), 'el 404 ofrece llamar a esa tienda');
+
+      for (const otra of stores) {
+        if (otra.domain === s.domain) continue;
+        assert.ok(!html.includes(otra.domain), `el 404 de ${s.slug} no puede nombrar a ${otra.slug}`);
+      }
+    });
+  }
+
+  test('una ruta anidada también da 404 y no redirige', async () => {
+    // El middleware antiguo solo miraba el PRIMER segmento: /suplementos/x
+    // caía en el catch-all y acababa en la home. Era el motivo por el que no
+    // se podía añadir ninguna página nueva al sitio.
+    const res = await get('/suplementos/creatina', stores[0].domain);
+    assert.equal(res.status, 404);
+  });
+});
+
+describe('Una sola URL canónica por página', () => {
+  test('la barra final se corrige con un 301', async () => {
+    const s = stores.find((x) => x.company) ?? stores[0];
+    const res = await get('/aviso-legal/', s.domain);
+    assert.equal(res.status, 301, 'permanente, para que el enlace externo se corrija');
+    assert.equal(res.headers.location, '/aviso-legal');
+  });
+
+  test('la home con barra sigue siendo la home', async () => {
+    const res = await get('/', stores[0].domain);
+    assert.equal(res.status, 200, '"/" no debe entrar en el bucle de redirección');
+  });
+});
+
+describe('Los estáticos no pasan por el enrutado de tiendas', () => {
+  test('el logo, la tipografía y una foto se sirven en el dominio de la tienda', async () => {
+    const s = stores.find((x) => x.galleryImages.length > 0) ?? stores[0];
+    for (const ruta of ['/usafitness.svg', '/fonts/inter-latin.woff2', s.heroImage]) {
+      const res = await get(ruta, s.domain);
+      assert.equal(res.status, 200, `${ruta} debe servirse tal cual, sin reescribir a /${s.slug}${ruta}`);
+    }
+  });
+});
+
 // La integridad de `stores.json` (unicidad, horarios, reseñas cruzadas) vive
 // ahora en `tests/datos.test.mjs`, contra el esquema real. Este fichero se
 // queda solo con lo que los 7 dominios RESPONDEN por HTTP.

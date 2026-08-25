@@ -11,7 +11,7 @@ const { slug, doc } = Astro.params;
 const store = slug ? porSlug.get(slug) : undefined;
 
 if (!store || !isLegalDoc(doc)) {
-  return Astro.redirect('/');
+  return Astro.rewrite('/404');
 }
 
 // Legal data is per-store. Only render real policy text when the store has its own
