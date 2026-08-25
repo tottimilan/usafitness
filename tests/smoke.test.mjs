@@ -222,6 +222,60 @@ describe('Las 4 páginas legales responden', () => {
   }
 });
 
+describe('Accesibilidad: landmarks y las reglas que no puede haber borrado nadie', () => {
+  // Estos tests son estructurales a propósito y no fingen ser otra cosa: no
+  // demuestran que el foco SE VEA, demuestran que la regla que lo dibuja sigue
+  // ahí. Es el techo de lo que puede afirmar un test HTTP; lo visual se mide en
+  // navegador y está anotado en el commit.
+
+  for (const s of stores) {
+    test(`${s.slug} — <main> contiene el contenido y NADA más`, async () => {
+      const html = (await get('/', s.domain)).text();
+      const dentro = html.slice(html.indexOf('<main'), html.indexOf('</main>'));
+
+      // `Landing.astro` envolvía el slot entero en <main>, y como la página mete
+      // ahí la cabecera y el pie, quedaban DENTRO: banner y contentinfo anidados
+      // en main. Además dejaba el enlace de salto sin destino — saltar "al
+      // contenido" llevaba a la cabecera.
+      assert.ok(!dentro.includes('<header'), 'el <header> va fuera de <main>');
+      assert.ok(!dentro.includes('<footer'), 'el <footer> va fuera de <main>');
+      assert.ok(dentro.includes('<section'), 'y las secciones dentro');
+
+      // El enlace de salto es el primer elemento focusable de la página: si va
+      // después de la cabecera no ahorra ni una tabulación.
+      const iSalto = html.indexOf('salto-contenido');
+      assert.ok(iSalto > -1, 'existe el enlace de salto');
+      assert.ok(iSalto < html.indexOf('<header'), 'y va antes de la cabecera');
+      assert.ok(html.includes('id="contenido"'), 'su destino existe');
+    });
+  }
+
+  test('las reglas de accesibilidad viajan al CSS servido', async () => {
+    const html = (await get('/', stores[0].domain)).text();
+    const hoja = html.match(/\/_astro\/[^"]*\.css/)?.[0];
+    assert.ok(hoja, 'la página enlaza una hoja de estilos');
+    const css = (await get(hoja, stores[0].domain)).text();
+
+    for (const [regla, porque] of [
+      [':focus-visible', 'antes no había NINGUNA regla de foco en todo el CSS'],
+      ['.salto-contenido:focus', 'sin esto el enlace de salto nunca se ve'],
+      ['scroll-padding-top', 'sin esto la cabecera sticky tapa el elemento enfocado (WCAG 2.4.11)'],
+      ['prefers-reduced-motion:reduce', 'el bloque anterior usaba no-preference y no apagaba nada'],
+    ]) {
+      assert.ok(css.includes(regla), `falta "${regla}": ${porque}`);
+    }
+
+    // Este va aparte porque no basta con que el selector exista: hay que
+    // comprobar QUÉ declara. Una mutación que cambiara `display:none` por
+    // `display:block` dejaba el selector en su sitio y el test en verde —
+    // mientras la burbuja de WhatsApp volvía a quedar tapada por el aviso, con
+    // el 40% de sus píxeles cayendo sobre el botón "Aceptar".
+    const reglaWhatsApp = css.match(/:root:has\(#uf-cookie-banner:not\(\[hidden\]\)\)\s*\.whatsapp-float\{([^}]*)\}/);
+    assert.ok(reglaWhatsApp, 'existe la regla que oculta la burbuja mientras el aviso pide decisión');
+    assert.match(reglaWhatsApp[1], /display:\s*none/, 'y la oculta de verdad — display:none la saca también del orden de tabulación');
+  });
+});
+
 describe('Una tienda sin datos legales identifica al menos su establecimiento', () => {
   // Antes, sin `company`, los 4 documentos servían un párrafo que no
   // identificaba a nadie: "Estamos actualizando la información legal". El gate

@@ -425,3 +425,137 @@ html[data-plantilla="angular"] .gallery-grid { gap: 0.35rem; }
 
 /* Marcas: sin cenefas, respirando menos */
 html[data-plantilla="angular"] .brands { border: 0; padding: 2rem 0; }
+
+/* ============================================================================
+   ACCESIBILIDAD — la burbuja de WhatsApp y el aviso de cookies se pisaban
+   ============================================================================
+   No era "un poco tapada". Medido en el navegador a 375x812, muestreando la
+   burbuja píxel a píxel con elementFromPoint:
+
+       píxeles alcanzables de la burbuja:  0 de 324
+       quién recibe el toque:             uf-accept → 132 píxeles
+
+   Los dos están anclados a `bottom:1rem/1.5rem; right:1rem/1.5rem`, y el aviso
+   tiene z-index 1000 contra los 999 de la burbuja. Como el aviso es
+   `max-width:760px` con 1rem a cada lado, ocupa TODO el ancho por debajo de
+   792px de viewport: o sea todos los móviles y las tabletas en vertical.
+
+   Las dos consecuencias, y ninguna es estética:
+     · WhatsApp es uno de los tres caminos de conversión del negocio y estaba
+       muerto en móvil, en la PRIMERA visita de cualquiera.
+     · Quien intentaba tocarlo pulsaba "Aceptar" — un consentimiento que nadie
+       quiso dar, que es exactamente lo que el RGPD no considera consentimiento.
+
+   Se oculta mientras el aviso pide una decisión. `display:none` y no
+   `visibility` a propósito: la saca también del orden de tabulación, que es lo
+   que pide el criterio 2.4.11 (Focus Not Obscured) de WCAG 2.2 — no hay foco
+   que ocultar si el elemento no es focusable. En cuanto el visitante decide,
+   el componente quita el atributo `hidden` del aviso y la burbuja vuelve sola:
+   cero JavaScript para coordinarlos.
+
+   Esta regla vive aquí y no en WhatsAppFloat.astro porque es una RELACIÓN
+   entre dos componentes que no se conocen entre sí. Ninguno de los dos es el
+   dueño del problema.
+   ========================================================================== */
+:root:has(#uf-cookie-banner:not([hidden])) .whatsapp-float {
+  display: none;
+}
+
+/* ============================================================================
+   ACCESIBILIDAD — foco, movimiento y salto de contenido
+   ============================================================================
+   Antes de esto había UNA sola aparición de "focus" en los 20 KB de CSS y el
+   bloque de `prefers-reduced-motion` estaba vacío. Cada número de aquí está
+   medido, y el criterio WCAG va citado al lado porque dentro de seis meses
+   nadie va a recordar de dónde salió.
+   ========================================================================== */
+
+:root {
+  /* Anillo de foco de DOS TONOS. Uno solo no vale en este sitio: el mismo
+     anillo tiene que verse sobre el blanco de la página Y sobre el azul de
+     marca de los CTA y del pie. Un oscuro da 14,55:1 sobre blanco pero 2,07:1
+     sobre #0055B8. El filo blanco interior resuelve el azul y el aro oscuro
+     exterior resuelve la página. Criterios 1.4.11 y 2.4.13. */
+  --focus-ring: #0A2A4A;
+  --focus-ring-contrast: #FFFFFF;
+  --focus-ring-width: 3px;
+
+  /* Debe coincidir con .header{height} de Header.astro. Si cambia allí, cambia
+     aquí: el scroll-padding de abajo depende de este número. */
+  --header-height: 70px;
+}
+
+/* ---------------------------------------------------------------------------
+   2.4.7 FOCO VISIBLE
+   No había ningún `outline:none`, así que el foco del navegador sobrevivía —
+   pero su color lo pone el sistema operativo del visitante, no nosotros, y
+   sobre el relleno azul de .btn-primary se pierde. Esto lo pone bajo control.
+
+   `:where()` mantiene especificidad 0: cualquier componente puede afinarlo sin
+   recurrir a !important.
+   -------------------------------------------------------------------------*/
+:where(a, button, [tabindex], iframe, summary, input, select, textarea):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--focus-ring-contrast);
+}
+
+/* ---------------------------------------------------------------------------
+   2.4.11 FOCO NO OSCURECIDO — criterio NUEVO de WCAG 2.2, nivel AA.
+   La cabecera es sticky y mide 70px, y `scroll-padding-top` estaba sin definir.
+   Al tabular hacia atrás el navegador alineaba el elemento con el borde
+   superior del viewport y lo metía DEBAJO de la cabecera: los controles que
+   miden menos de 70px desaparecían enteros.
+   -------------------------------------------------------------------------*/
+html {
+  scroll-padding-top: calc(var(--header-height) + 8px);
+  scroll-padding-bottom: 92px; /* burbuja de WhatsApp: 60 de alto + 24 de margen + holgura del aro */
+}
+
+/* ---------------------------------------------------------------------------
+   ENLACE DE SALTO (2.4.1 Evitar bloques)
+   Visible solo al recibir el foco. Sin él había que atravesar la cabecera
+   entera con el tabulador en cada página.
+   -------------------------------------------------------------------------*/
+.salto-contenido {
+  /* `fixed` y no `absolute`: con absolute, el enlace se posiciona respecto al
+     documento, así que si alguien tabula después de haber bajado la página
+     aparecería fuera de la pantalla — visible en el DOM, invisible para quien
+     lo necesita. Medido: con absolute salía en top:-812 tras un scroll. */
+  position: fixed;
+  left: 0.5rem;
+  top: -6rem;
+  z-index: 1001; /* por encima del aviso de cookies, que es 1000 */
+  background: var(--color-bg);
+  color: var(--color-primary);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-float);
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+
+.salto-contenido:focus {
+  top: 0.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+   2.3.3 MOVIMIENTO A PARTIR DE INTERACCIONES
+   El bloque anterior estaba vacío y además invertido: usaba
+   `no-preference`, que no apaga nada para quien SÍ pide menos movimiento.
+   Aquí se apaga de verdad, respetando la intención: no se elimina la
+   transición (un cambio instantáneo también desorienta), se reduce a algo
+   imperceptible pero presente, que es lo que recomienda la propia técnica
+   de WCAG.
+   -------------------------------------------------------------------------*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

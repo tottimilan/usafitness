@@ -3,7 +3,7 @@
  * LANDING — la portada de una tienda
  *
  * Solo aporta dos cosas sobre `Base.astro`: los datos estructurados de
- * Schema.org y el `<main>`. Todo el `<head>` vive en Base.
+ * Schema.org. El `<head>` vive en Base y el `<main>` lo pone la página.
  *
  * Recibe la tienda ENTERA y no 20 props sueltas. Antes `[...slug].astro`
  * copiaba campo a campo (`name={store.name}`, `domain={store.domain}`…), y ahí
@@ -97,7 +97,11 @@ if (store.geo) {
 >
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(structuredData)} />
 
-  <main>
-    <slot />
-  </main>
+  {/* Sin <main> aquí: la página mete dentro de este slot la cabecera, las
+      secciones y el pie, así que envolverlo todo dejaba el <header> y el
+      <footer> DENTRO de <main> — comprobado en el HTML servido. Eso rompe los
+      landmarks (banner y contentinfo anidados en main) y deja el enlace de
+      salto sin destino, porque saltar a "el contenido" saltaba a la cabecera.
+      El <main> lo pone la página, alrededor de lo que de verdad es contenido. */}
+  <slot />
 </Base>

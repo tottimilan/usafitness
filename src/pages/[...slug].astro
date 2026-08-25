@@ -39,9 +39,16 @@ const plan = buildPlan(store, orden);
 ---
 
 <Landing store={store} plantilla={template.id} plantillaCss={tokensToCss(template)}>
+  {/* Enlace de salto: primer elemento focusable de la página. Sin esto había
+      que atravesar la cabecera entera con el tabulador en cada visita. Solo se
+      ve al recibir el foco (ver .salto-contenido en global.css). */}
+  <a href="#contenido" class="salto-contenido">Saltar al contenido</a>
+
   <Header phone={store.phone} instagram={store.social?.instagram} />
 
-  {plan.map(({ component: Section, props }) => <Section {...props} />)}
+  <main id="contenido">
+    {plan.map(({ component: Section, props }) => <Section {...props} />)}
+  </main>
 
   <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
   <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
