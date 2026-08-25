@@ -10,10 +10,10 @@
 
 ## Current phase
 
-**Phase:** Iteration
-**Since:** 2026-06-24
-**Confidence:** Medium
-**Next expected phase:** Launch
+**Phase:** MVP
+**Since:** 2026-06-24 (corregido el 2026-08-25 — ver la transición del 2026-08-25)
+**Confidence:** High (verificado con evidencia en el primer /mm-gate, no elegido)
+**Next expected phase:** Iteration
 
 ---
 
@@ -43,6 +43,53 @@ Transitions between phases require explicit approval via `phase-gate-reviewer`. 
 
 > Newest first. Each transition = one entry. Use the template below.
 
+### 2026-08-25 — Corrección de registro: Iteration → MVP (la fase declarada era falsa)
+
+- **Decided by:** User + Claude Opus 5 (el usuario aprobó la corrección explícitamente)
+- **Trigger:** Primer `/mm-gate` del proyecto. Resuelve además la confirmación retroactiva
+  que quedó pendiente el 2026-06-24 (*"Confidence at entry: Medium … confirm with /mm-gate
+  after retroactive audit"*; *"Link to gate review: pending first /mm-gate run"*). Llevaba
+  2 meses y 58 commits sin hacerse.
+- **Esto NO es un avance de fase.** Es una corrección hacia atrás. El gate Iteration → Launch
+  se ejecutó y salió **BLOCK** con 0 de 4 criterios de entrada cumplidos; al verificar la
+  entrada en Iteration se descubrió que tampoco se había alcanzado nunca.
+
+- **Hallazgo — 3 de los 4 `entry_criteria` de Iteration no se cumplían el 2026-06-24 y
+  siguen sin cumplirse el 2026-08-25:**
+
+  | Criterio | Evidencia (2026-08-25) |
+  |---|---|
+  | First user sessions logged | `ga4Id` en **0 de 7** tiendas. `curl` a los 4 dominios que ya sirven Astro: cero peticiones a `googletagmanager`. Inversión perversa: los 3 que siguen en WordPress **sí** miden (Las Rosas sirve `GTM-MR7678J5`), así que hoy migrar una tienda le *quita* la única medición que tenía. |
+  | Observability in place | `package.json` tiene 2 dependencias (`astro`, `@astrojs/node`), ninguna de observabilidad. Sin endpoint de salud. `memory/08` Technical #3 sigue Open: *"prod errors are invisible until a user reports them"*. |
+  | Zero Critical/High security findings open | Nunca se ejecutó `security-review`: el criterio se dio por cumplido por **ausencia de hallazgos, no de problemas**. `npm audit` devuelve hoy 10 vulnerabilidades, **8 High**, sin un solo triaje escrito. |
+  | All P0 features shipped | **No evaluable.** No existe `docs/product/prd.md` ni frontera de MVP escrita. Sustantivamente la misión (migrar WordPress → sistema propio) va por **4 de 7**. |
+
+- **Conclusión:** el proyecto no *transitó* a Iteration, fue **colocado** ahí durante el
+  onboarding. La entrada del 2026-06-24 se conserva íntegra; esta la supersede en cuanto al
+  registro de fase, no la borra.
+
+- **Nota justa:** los 3 `exit_criteria` de Iteration **sí** se cumplen hoy (`memory/08` con
+  riesgos reales y 7 cerrados citando commit, `memory/07` con 19 decisiones, 58 commits de
+  slices nuevas). Cumplir la salida de una fase en la que no se entró legítimamente no
+  valida la entrada en la siguiente.
+
+- **Deuda de fases anteriores, registrada explícitamente:**
+  - `docs/adr/` no existía hasta hoy. Cobertura: 1 ADR (este gate) sobre ~13 decisiones
+    identificables. `Definition` exit *"first ADRs accepted"* y `MVP` entry *"Architecture
+    ADRs accepted"* siguen incumplidos.
+  - `expected_artifact_paths` que nunca existieron: `docs/product/prd.md`,
+    `docs/architecture/system-map.md`, `docs/testing/strategy.md`, `docs/flows/`, `docs/features/`.
+
+- **Condiciones de salida de MVP hacia Iteration (el próximo gate):**
+  1. `ga4Id` relleno en las 4 tiendas que sirven Astro, verificado con `curl … | grep googletagmanager`.
+  2. Monitor de uptime externo sobre los 7 dominios **emitiendo avisos**, no solo dado de alta.
+  3. Triaje escrito de las 8 vulnerabilidades High, con las aceptadas en `memory/08` como *Accepted* y justificadas.
+  4. Frontera de P0 declarada en `memory/06-feature-map.md` — hoy no existe, y sin ella "All P0 shipped" es inevaluable para siempre.
+
+- **Confidence at entry:** High — corregido contra evidencia verificable, no por criterio.
+- **Success metric for this phase:** 7/7 dominios sirviendo el sistema propio, con medición viva y datos legales completos en las 7 sociedades.
+- **Link to gate review:** [`docs/adr/0001-phase-gate-iteration-launch.md`](../docs/adr/0001-phase-gate-iteration-launch.md)
+
 ### 2026-06-24 - Onboarded existing project into MASTERMIND at phase Iteration
 - **Decided by:** User + <Model>
 - **Trigger:** Existing codebase incorporated into MASTERMIND 2.0 via scripts/onboard-existing-project.
@@ -54,7 +101,7 @@ Transitions between phases require explicit approval via `phase-gate-reviewer`. 
 - **Confidence at entry:** Medium (phase picked by user during onboarding; confirm with /mm-gate after retroactive audit).
 - **Expected duration in new phase:** depends on where the project actually is.
 - **Success metric for this phase:** to be set once memory/00-project-brief.md is filled.
-- **Link to gate review:** pending first /mm-gate run.
+- **Link to gate review:** ejecutado el 2026-08-25 → resultado: la fase elegida aquí era incorrecta. **Superseded** por la transición del 2026-08-25 (fase corregida a MVP). Esta entrada se conserva como registro de lo que se decidió entonces y con qué confianza.
 
 ### Transition template
 

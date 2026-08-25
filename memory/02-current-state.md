@@ -1,8 +1,8 @@
 # Current State — USAFitness Landing Pages
 
-**Phase:** Iteration
+**Phase:** MVP
 
-**Última actualización:** 2026-08-25 (47 commits)
+**Última actualización:** 2026-08-25 (52 commits) · fase corregida desde `Iteration` en el primer `/mm-gate` — ver [`docs/adr/0001`](../docs/adr/0001-phase-gate-iteration-launch.md) y la transición del 2026-08-25 en `memory/13`. No fue un retroceso del proyecto: la etiqueta llevaba dos meses siendo falsa.
 
 > `**Phase:**` arriba, en inglés y en su propia línea, no es un descuido de idioma:
 > `scripts/phase-gate-check` lo lee con `^\*\*Phase:\*\*`. Al reescribir este
