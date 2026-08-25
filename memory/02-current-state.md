@@ -28,10 +28,16 @@ Sistema de plantillas y secciones que genera una landing por **tienda física de
 | GranCasa | usafitnessgrancasa.com | ✅ Astro | ✅ USA GOVE | 🔒 faltan | ⛔ 0 | 🔒 sin dar de alta |
 | El Arcángel | usafitnesselarcangel.com | ⛔ WordPress | ✅ USA GOVE | ✅ | ✅ 3 | ✅ |
 | Villanueva | usafitnessvillanueva.com | ⛔ WordPress | 🔒 faltan | ✅ | ✅ 2 | ⚠ place_id sintético |
-| Marineda | usafitnessmarineda.com | ⛔ WordPress | 🔒 faltan | ✅ | ⛔ 0 | ⚠ place_id sintético |
+| Marineda | usafitnessmarineda.com | ✅ Astro | 🔒 faltan | ✅ | ⛔ 0 | ⚠ embed hecho a mano |
 | Las Rosas | usafitnesslasrosas.com | ⛔ WordPress | 🔒 faltan | ✅ | ⛔ 0 | ⚠ place_id sintético |
 
+**Verificado en vivo el 2026-08-25** (curl a los 7): sirven Astro **Marineda, Alcobendas, GranCasa y Vigo** — 4 de 7. Siguen en WordPress Villanueva, Las Rosas y El Arcángel. Marineda migró desde la última revisión de este fichero.
+
 **El Arcángel es la migración más cercana:** tiene todo menos apuntar el DNS.
+
+⚠️ **Marineda y Alcobendas están vivas, indexables (`index, follow`) y sin datos legales.** Su `/aviso-legal` responde 200 con "Estamos actualizando la información legal de esta tienda", cero razón social y cero NIF. Son dos sociedades reales publicando un sitio comercial sin identificar al prestador (LSSI art. 10). El `noindex` de la página legal impide que Google indexe un documento vacío; no cubre la obligación.
+
+⚠️ **Migrar a Astro hoy quita la única medición que había.** Los 3 dominios que siguen en WordPress llevan GTM; los 4 en Astro no llevan nada (`ga4Id` sigue a 0 de 7).
 
 Las reseñas a 0 son **deliberadas**: se borraron 10 firmadas por las mismas tres personas en varias empresas distintas. La sección no se renderiza sin datos, que es el comportamiento correcto.
 
