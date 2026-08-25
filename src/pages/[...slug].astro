@@ -7,12 +7,12 @@ import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
 import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
 import ConversionTracking from '@/components/ConversionTracking.astro';
-import storesData from '@/data/stores.json';
+import { porSlug } from '@/data/stores';
 import { getTemplate, resolveSections, tokensToCss } from '@/data/templates';
 import { buildPlan } from '@/sections/registry';
 
 const slug = Astro.params.slug;
-const store = storesData.stores.find((s) => s.slug === slug);
+const store = slug ? porSlug.get(slug) : undefined;
 
 if (!store) {
   return Astro.redirect('/');
@@ -28,15 +28,15 @@ const legalBase = onOwnDomain ? '' : `/${store.slug}`;
 const preview = !onOwnDomain
   ? (Astro.url.searchParams.get('plantilla') ?? '').replace(/[^0-9a-z-]/gi, '').slice(0, 12)
   : '';
-const template = getTemplate(preview || (store as any).template);
+const template = getTemplate(preview || store.template);
 
 // La plantilla propone el orden; la tienda puede ajustarlo con su campo `sections`.
-const orden = resolveSections(template, (store as any).sections);
+const orden = resolveSections(template, store.sections);
 const plan = buildPlan(store, orden);
 
 // El aggregateRating ya no se emite (ver Landing.astro), pero el layout sigue
 // recibiendo el recuento por si hiciera falta para otra cosa.
-const reviews = (store as any).reviews ?? [];
+const reviews = store.reviews;
 ---
 
 <Landing
@@ -51,22 +51,22 @@ const reviews = (store as any).reviews ?? [];
   slug={store.slug}
   streetAddress={store.streetAddress}
   postalCode={store.postalCode}
-  addressLocality={(store as any).addressLocality}
-  addressRegion={(store as any).addressRegion}
+  addressLocality={store.addressLocality}
+  addressRegion={store.addressRegion}
   geo={store.geo}
   reviewCount={reviews.length}
   heroImage={store.heroImage}
-  social={(store as any).social}
-  googleSiteVerification={(store as any).googleSiteVerification}
+  social={store.social}
+  googleSiteVerification={store.googleSiteVerification}
   plantilla={template.id}
   plantillaCss={tokensToCss(template)}
 >
-  <Header phone={store.phone} instagram={(store as any).social?.instagram} />
+  <Header phone={store.phone} instagram={store.social?.instagram} />
 
   {plan.map(({ component: Section, props }) => <Section {...props} />)}
 
   <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
   <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
-  <CookieConsent ga4Id={(store as any).ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
+  <CookieConsent ga4Id={store.ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
   <ConversionTracking />
 </Landing>

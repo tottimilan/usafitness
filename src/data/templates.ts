@@ -13,16 +13,22 @@
  * su campo `sections` en stores.json — la plantilla propone, la tienda ajusta.
  */
 
-export type SectionId =
-  | 'hero'
-  | 'promotions'
-  | 'location'
-  | 'gallery'
-  | 'reviews'
-  | 'products'
-  | 'brands'
-  | 'schedule'
-  | 'social';
+/** Las secciones que existen. Es un array y no solo un tipo porque el esquema
+ *  de `stores.json` necesita la lista EN TIEMPO DE EJECUCIÓN para rechazar un
+ *  id inventado; si fueran dos listas separadas acabarían desincronizadas. */
+export const SECTION_IDS = [
+  'hero',
+  'promotions',
+  'location',
+  'gallery',
+  'reviews',
+  'products',
+  'brands',
+  'schedule',
+  'social',
+] as const;
+
+export type SectionId = (typeof SECTION_IDS)[number];
 
 /** Una sección en una plantilla es su id, o el id con una variante.
  *  La VARIANTE es el tercer eje de diferenciación: el mismo Hero puede verse

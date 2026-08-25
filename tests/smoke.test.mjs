@@ -192,40 +192,6 @@ describe('Nada de terceros antes del consentimiento', () => {
   }
 });
 
-describe('Integridad de los datos de tienda', () => {
-  test('no hay dominios ni slugs repetidos', () => {
-    const dominios = stores.map((s) => s.domain);
-    const slugs = stores.map((s) => s.slug);
-    assert.equal(new Set(dominios).size, dominios.length, 'dominios únicos');
-    assert.equal(new Set(slugs).size, slugs.length, 'slugs únicos');
-  });
-
-  test('ninguna reseña se firma en dos tiendas distintas', () => {
-    const porAutor = new Map();
-    for (const s of stores) {
-      for (const r of s.reviews ?? []) {
-        if (!porAutor.has(r.author)) porAutor.set(r.author, new Set());
-        porAutor.get(r.author).add(s.slug);
-      }
-    }
-    const repetidos = [...porAutor.entries()].filter(([, t]) => t.size > 1);
-    assert.deepEqual(
-      repetidos.map(([a, t]) => `${a}: ${[...t].join(', ')}`),
-      [],
-      'la misma persona no puede firmar reseñas en varias empresas'
-    );
-  });
-
-  test('el horario de todas las tiendas parsea a Schema.org', () => {
-    // El parser reconoce "lunes a viernes/sábado/domingo" y días sueltos. Si un
-    // franquiciado escribe el horario de otra forma, openingHoursSpecification
-    // desaparece del marcado SIN dar error. Este test lo convierte en fallo.
-    const RE = /(\d{1,2}:\d{2})\s*[a–-]\s*(\d{1,2}:\d{2})/;
-    const DIAS = /lunes a domingo|lunes a sábado|lunes a viernes|domingo|sábado/i;
-    for (const s of stores) {
-      const lineas = s.schedule.split('\n');
-      const validas = lineas.filter((l) => RE.test(l) && DIAS.test(l));
-      assert.ok(validas.length > 0, `el horario de ${s.slug} no lo entiende el parser: "${s.schedule}"`);
-    }
-  });
-});
+// La integridad de `stores.json` (unicidad, horarios, reseñas cruzadas) vive
+// ahora en `tests/datos.test.mjs`, contra el esquema real. Este fichero se
+// queda solo con lo que los 7 dominios RESPONDEN por HTTP.

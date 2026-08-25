@@ -1,10 +1,34 @@
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 
+/**
+ * Valida `stores.json` ANTES de compilar y al arrancar `astro dev`.
+ *
+ * Sin esto, el esquema de `src/data/stores.ts` solo se ejecuta cuando el
+ * servidor carga el módulo — es decir, ya desplegado. Un dato roto pasaría el
+ * build, pasaría el CI, se desplegaría, y tumbaría los 7 dominios a la vez al
+ * arrancar. El fallo tiene que ocurrir aquí, en la máquina de quien lo escribió.
+ */
+function validarDatosDeTienda() {
+  return {
+    name: 'usafitness:validar-datos',
+    hooks: {
+      'astro:config:setup': async ({ logger }) => {
+        const { stores, avisosDeDatos } = await import('./src/data/stores.ts');
+        logger.info(`stores.json válido — ${stores.length} tiendas`);
+        // Los avisos no rompen nada: son carencias que dependen de datos que
+        // tiene que dar el franquiciado. Se listan para que se vean.
+        for (const aviso of avisosDeDatos()) logger.warn(aviso);
+      },
+    },
+  };
+}
+
 export default defineConfig({
   output: 'server',
   adapter: node({ mode: 'standalone' }),
   site: 'https://usafitness.es',
+  integrations: [validarDatosDeTienda()],
   server: {
     host: '0.0.0.0',
     port: parseInt(process.env.PORT || '4321'),

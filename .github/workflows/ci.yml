@@ -17,9 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Node 24: tanto la validación de datos del build como `tests/datos.test.mjs`
+      # importan ficheros .ts directamente, y eso necesita el soporte nativo de
+      # TypeScript de Node. Con Node 22 el paso de compilar fallaría.
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       # `npm ci` y no `npm install`: respeta el lockfile, así que el CI
@@ -27,11 +30,19 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      # El build ya valida stores.json: la integración `usafitness:validar-datos`
+      # corre el esquema en `astro:config:setup`, así que un dato roto tumba
+      # este paso antes de llegar a los tests.
       - name: Compilar
         run: npm run build
 
-      # El test levanta el build de producción y le pide los 7 dominios con la
-      # cabecera Host falseada. Contra `astro dev` no valdría: Vite bloquea Host
-      # y devolvería 403 igual antes y después de cualquier cambio.
-      - name: Humo de los 7 dominios
-        run: node --test tests/smoke.test.mjs
+      # Dos suites, dos preguntas distintas:
+      #  · datos  — qué RECHAZA el esquema de stores.json (rompe datos a
+      #             propósito y exige que falle; si alguien relaja una regla,
+      #             se pone rojo).
+      #  · humo   — qué RESPONDEN los 7 dominios. Levanta el build de
+      #             producción y les pide con la cabecera Host falseada.
+      #             Contra `astro dev` no valdría: Vite bloquea Host y
+      #             devolvería 403 igual antes y después de cualquier cambio.
+      - name: Datos y humo de los 7 dominios
+        run: npm test

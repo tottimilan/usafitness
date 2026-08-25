@@ -1,12 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
-import storesData from './data/stores.json';
+import { porDominio } from './data/stores';
 import { LEGAL_DOCS } from './data/legal';
-
-const domainToSlug = new Map<string, string>();
-for (const store of storesData.stores) {
-  domainToSlug.set(store.domain, store.slug);
-  domainToSlug.set('www.' + store.domain, store.slug);
-}
 
 const legalSlugs = new Set(LEGAL_DOCS.map((d) => d.slug));
 
@@ -14,7 +8,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const host = context.request.headers.get('host')?.split(':')[0] ?? '';
   const path = context.url.pathname;
 
-  const slug = domainToSlug.get(host);
+  const slug = porDominio.get(host)?.slug;
 
   if (slug) {
     // On a store's own domain, serve its content directly without mixing stores.

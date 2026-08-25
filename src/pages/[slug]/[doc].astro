@@ -3,12 +3,12 @@ export const prerender = false;
 
 import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
-import storesData from '@/data/stores.json';
-import { getLegalDoc, isLegalDoc, LEGAL_DOCS, type Company } from '@/data/legal';
+import { porSlug } from '@/data/stores';
+import { getLegalDoc, isLegalDoc, LEGAL_DOCS } from '@/data/legal';
 import '@/styles/global.css';
 
 const { slug, doc } = Astro.params;
-const store = storesData.stores.find((s) => s.slug === slug);
+const store = slug ? porSlug.get(slug) : undefined;
 
 if (!store || !isLegalDoc(doc)) {
   return Astro.redirect('/');
@@ -17,7 +17,7 @@ if (!store || !isLegalDoc(doc)) {
 // Legal data is per-store. Only render real policy text when the store has its own
 // legal entity configured; otherwise show a clearly-marked "pending" notice (noindex)
 // so we never publish another company's data on the wrong store.
-const storeCompany = (store as any).company as Company | undefined;
+const storeCompany = store.company;
 const legalReady = !!storeCompany;
 
 const docMeta = LEGAL_DOCS.find((d) => d.slug === doc)!;
@@ -83,7 +83,7 @@ const robots = legalReady ? 'index, follow' : 'noindex, follow';
     </main>
 
     <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
-    <CookieConsent ga4Id={(store as any).ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
+    <CookieConsent ga4Id={store.ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
   </body>
 </html>
 

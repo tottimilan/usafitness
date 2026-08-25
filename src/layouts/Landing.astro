@@ -1,4 +1,6 @@
 ---
+import { parseHorario } from '@/data/horario';
+
 interface Props {
   name: string;
   domain: string;
@@ -50,45 +52,7 @@ const isCanonicalHost = reqHost === domain || reqHost === `www.${domain}`;
 const robotsContent = isCanonicalHost ? 'index, follow, max-image-preview:large' : 'noindex, follow';
 
 
-function parseScheduleToSchema(scheduleText: string) {
-  const MON_FRI = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-  const MON_SAT = [...MON_FRI, "Saturday"];
-  const MON_SUN = [...MON_SAT, "Sunday"];
-
-  const specs: any[] = [];
-  const lines = scheduleText.split('\n');
-  for (const line of lines) {
-    const lower = line.toLowerCase();
-    const timeMatch = line.match(/(\d{1,2}:\d{2})\s*[a–-]\s*(\d{1,2}:\d{2})/);
-    if (!timeMatch) continue;
-
-    // Match day ranges first to avoid duplicating single days (e.g. "lunes a domingo").
-    let dayOfWeek: string[] | null = null;
-    if (lower.includes('lunes a domingo')) {
-      dayOfWeek = MON_SUN;
-    } else if (lower.includes('lunes a sábado')) {
-      dayOfWeek = MON_SAT;
-    } else if (lower.includes('lunes a viernes')) {
-      dayOfWeek = MON_FRI;
-    } else if (lower.includes('domingo')) {
-      dayOfWeek = ["Sunday"];
-    } else if (lower.includes('sábado')) {
-      dayOfWeek = ["Saturday"];
-    }
-
-    if (dayOfWeek) {
-      specs.push({
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": dayOfWeek,
-        "opens": timeMatch[1],
-        "closes": timeMatch[2]
-      });
-    }
-  }
-  return specs.length > 0 ? specs : undefined;
-}
-
-const openingHours = parseScheduleToSchema(schedule);
+const openingHours = parseHorario(schedule);
 
 const structuredData: Record<string, any> = {
   "@context": "https://schema.org",
@@ -116,7 +80,7 @@ const structuredData: Record<string, any> = {
     ...(addressRegion && { "addressRegion": addressRegion }),
     "addressCountry": "ES"
   },
-  ...(openingHours && { "openingHoursSpecification": openingHours })
+  ...(openingHours.length > 0 && { "openingHoursSpecification": openingHours })
   // SIN aggregateRating, deliberadamente. Google: "If the entity that's being
   // reviewed controls the reviews about itself, their pages that use
   // LocalBusiness or any other type of Organization structured data are

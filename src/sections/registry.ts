@@ -30,8 +30,13 @@ import Schedule from '@/components/Schedule.astro';
 import Social from '@/components/Social.astro';
 
 import type { SectionId } from '@/data/templates';
+import type { Tienda } from '@/data/stores';
 
-type Store = Record<string, any>;
+/** El tipo sale del esquema Zod de `stores.json`, no de una interfaz escrita a
+ *  mano: si se añade un campo al esquema, aquí aparece solo; si se lee un campo
+ *  que no existe, no compila. Antes esto era `Record<string, any>` y un typo en
+ *  `props` daba `undefined` sin decir nada. */
+type Store = Tienda;
 
 export interface SectionDef {
   component: any;
@@ -69,9 +74,9 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
   gallery: {
     component: Gallery,
     // Sin fotos no hay galería: antes salía la sección con el título y nada debajo.
-    visible: (s) => Array.isArray(s.galleryImages) && s.galleryImages.length > 0,
+    visible: (s) => s.galleryImages.length > 0,
     props: (s) => ({
-      images: s.galleryImages ?? [],
+      images: s.galleryImages,
       name: s.name,
       location: s.location,
       featured: s.galleryFeatured ?? false,
@@ -81,8 +86,8 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
   reviews: {
     component: Reviews,
     // Una tienda recién abierta no tiene reseñas todavía.
-    visible: (s) => Array.isArray(s.reviews) && s.reviews.length > 0,
-    props: (s) => ({ reviews: s.reviews ?? [] }),
+    visible: (s) => s.reviews.length > 0,
+    props: (s) => ({ reviews: s.reviews }),
   },
 
   products: {
