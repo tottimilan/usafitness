@@ -384,3 +384,74 @@ describe('Los estáticos no pasan por el enrutado de tiendas', () => {
 // La integridad de `stores.json` (unicidad, horarios, reseñas cruzadas) vive
 // ahora en `tests/datos.test.mjs`, contra el esquema real. Este fichero se
 // queda solo con lo que los 7 dominios RESPONDEN por HTTP.
+
+describe('El endpoint de salud sirve para diagnosticar, no solo para hacer ping', () => {
+  test('responde por dominio y dice qué tienda cree servir', async () => {
+    for (const s of stores) {
+      const res = await get('/health', s.domain);
+      assert.equal(res.status, 200, `${s.slug} debe responder 200`);
+      const d = JSON.parse(res.text());
+      assert.equal(d.ok, true);
+      assert.equal(d.tienda, s.slug, 'la tienda que el proceso cree servir en ese host');
+      assert.equal(d.tiendas, stores.length);
+      assert.equal(d.dominios, stores.length * 2, 'dominio pelado + www. por tienda');
+      // Un endpoint de diagnóstico tampoco puede filtrar datos entre sociedades.
+      // Se comprueba el SLUG además del dominio: el cuerpo no emite dominios
+      // nunca, así que mirar solo el dominio es un guardián tautológico — pasa
+      // por construcción y seguiría verde el día que el cuerpo empezara a
+      // publicar el censo de las otras seis sociedades.
+      for (const otra of stores) {
+        if (otra.slug === s.slug) continue;
+        assert.ok(
+          !res.text().includes(otra.slug) && !res.text().includes(otra.domain),
+          `no nombra a ${otra.slug}`
+        );
+      }
+      // El alcance de `midiendo` es el host: dice si mide ESTA tienda, y es
+      // booleano en todos los hosts. Sin esta aserción el campo podía cambiar de
+      // tipo o de significado sin que fallara nada.
+      assert.equal(typeof d.midiendo, 'boolean', 'midiendo es booleano en el dominio de una tienda');
+      assert.equal(d.midiendo, Boolean(s.ga4Id), `midiendo sigue al ga4Id de ${s.slug}`);
+      assert.equal(d.midiendoFlota, stores.filter((x) => x.ga4Id).length, 'recuento de flota');
+    }
+  });
+
+  test('en un host desconocido dice que no sabe, y sigue estando sano', async () => {
+    // Es el caso del sondeo de Railway, que llega con Host: healthcheck.railway.app.
+    const res = await get('/health', 'healthcheck.railway.app');
+    assert.equal(res.status, 200);
+    const d = JSON.parse(res.text());
+    assert.equal(d.tienda, null);
+    // Un host sin tienda no es un host de confianza: `preview.up.railway.app`
+    // entra por aquí y es público. Así que el cuerpo tampoco puede cambiar de
+    // forma aquí: mismos tipos que en el dominio de una tienda.
+    assert.equal(typeof d.midiendo, 'boolean', 'midiendo no cambia de tipo según el host');
+    assert.equal(d.midiendo, false, 'sin tienda en el host no hay nada que medir');
+    assert.equal(d.midiendoFlota, stores.filter((x) => x.ga4Id).length, 'recuento de flota');
+  });
+
+  test('el cuerpo tiene la misma forma en un dominio de tienda, en la sonda y en la preview pública', async () => {
+    // `preview.up.railway.app` es el host hostil que este fichero ya usa para el
+    // token de Search Console. Un campo que aparezca o desaparezca según el Host
+    // rompe al monitor que lee el JSON y esconde qué se publica y dónde.
+    const claves = ['ok', 'tienda', 'tiendas', 'dominios', 'midiendo', 'midiendoFlota', 'sha', 'uptime'];
+    for (const host of [stores[0].domain, 'healthcheck.railway.app', 'preview.up.railway.app']) {
+      const d = JSON.parse((await get('/health', host)).text());
+      assert.deepEqual(Object.keys(d), claves, `mismas claves y en el mismo orden en ${host}`);
+      // `sha` viaja en TODOS los hosts, incluida la preview pública: es el
+      // contrato que fija el plan. Un hash de un repo privado no nombra a
+      // ninguna sociedad, que es lo que protege C3.
+      assert.ok(d.sha === null || typeof d.sha === 'string', `sha es string o null en ${host}`);
+      assert.equal(typeof d.midiendo, 'boolean');
+      assert.equal(typeof d.midiendoFlota, 'number');
+    }
+  });
+
+  test('no se cachea y no se indexa', async () => {
+    // Un diagnóstico cacheado por Cloudflare miente. Y un JSON rastreable en un
+    // dominio cuyo SEO es el producto es daño autoinfligido.
+    const res = await get('/health', stores[0].domain);
+    assert.match(res.headers['cache-control'], /no-store/);
+    assert.match(res.headers['x-robots-tag'], /noindex/);
+  });
+});

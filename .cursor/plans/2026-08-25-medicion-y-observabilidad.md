@@ -443,18 +443,26 @@ Hoy nadie puede responder qué commit sirve producción ni qué tienda cree serv
    */
   export const GET: APIRoute = ({ request }) => {
     const host = request.headers.get('host')?.split(':')[0] ?? '';
-    const tienda = porDominio.get(host)?.slug ?? null;
+    const tiendaDelHost = porDominio.get(host) ?? null;
 
     const dominiosEsperados = stores.length * 2;
     const ok = stores.length > 0 && porDominio.size === dominiosEsperados;
 
     const cuerpo = {
       ok,
-      tienda,
+      tienda: tiendaDelHost?.slug ?? null,
       tiendas: stores.length,
       dominios: porDominio.size,
-      // Solo slugs propios: nunca dominios ni razones sociales de otras tiendas.
-      midiendo: stores.filter((s) => s.ga4Id).map((s) => s.slug),
+      // CORREGIDO respecto al borrador de este plan, que aquí ponía
+      // `midiendo: stores.filter((s) => s.ga4Id).map((s) => s.slug)`. Ese array
+      // nombra a las otras seis sociedades en el dominio de un cliente, que es
+      // exactamente lo que prohíbe el criterio C3. El contrato real es:
+      // `midiendo` booleano con el alcance del host, y el recuento de flota en
+      // un campo aparte — un mismo nombre no puede ser booleano en un host y
+      // número en otro.
+      midiendo: Boolean(tiendaDelHost?.ga4Id),
+      // Un recuento no nombra a nadie, así que puede viajar en cualquier host.
+      midiendoFlota: stores.filter((s) => s.ga4Id).length,
       // `?? null` porque las variables RAILWAY_GIT_* no existen en un rollback
       // ni en un despliegue por imagen. Afirmar un SHA que no se tiene es peor
       // que no afirmarlo.
@@ -548,7 +556,7 @@ Hoy nadie puede responder qué commit sirve producción ni qué tienda cree serv
 
 1. **Cobertura de criterios.** C1→T2/T3 · C2→T1 · C3→T5.1 · C4→T5.4 · C5→T4.1/4.2 · C6→T4.3/T2.2 · C7→T4.4/4.5 · C8→T6.1 · C9→todas. **Sin huecos.**
 2. **Escaneo de placeholders.** `grep -E "TBD|TODO|<fill|placeholder" .cursor/plans/2026-08-25-medicion-y-observabilidad.md` → solo el `--body "..."` de `gh pr create`, que es texto de una orden interactiva, no del código.
-3. **Consistencia de tipos.** `ufCargarAnalitica` y `__ufAnaliticaCargada` se escriben igual en T2.2 y T3.1. Los campos de `/health` (`ok`, `tienda`, `tiendas`, `dominios`, `midiendo`, `sha`, `uptime`) coinciden entre T5.2 y las aserciones de T5.1.
+3. **Consistencia de tipos.** `ufCargarAnalitica` y `__ufAnaliticaCargada` se escriben igual en T2.2 y T3.1. Los campos de `/health` (`ok`, `tienda`, `tiendas`, `dominios`, `midiendo`, `midiendoFlota`, `sha`, `uptime`) coinciden entre T5.2 y las aserciones de T5.1. Las claves y sus tipos son los MISMOS en cualquier host —lo único que cambia con el `Host` es el valor de `tienda` y el de `midiendo`—, y T5.1 lo fija con una aserción de `Object.keys` sobre tres hosts: el dominio de una tienda, la sonda de Railway y `preview.up.railway.app`. `sha` viaja en todos ellos, tal y como especifica T5.2.
 4. **Rutas de error.** T5.1 cubre host desconocido; T5.4 la invariante rota; T3.1 el `window.ufCargarAnalitica` inexistente en tienda sin ID; T2.1 el caso "aún no hay ninguna tienda con ID". El `try/catch` de `localStorage` cubre navegación privada.
 5. **Test primero.** T1.1, T2.1, T4.1 y T5.1 son tests antes de código. T4.3 y T4.4 son borrados verificados por `grep` y por el test existente.
 6. **Tamaño.** La más larga es T2 (~10 min). Ninguna se pasa.

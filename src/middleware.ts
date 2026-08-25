@@ -39,7 +39,7 @@ import { porDominio } from './data/stores';
  * Sin meterlo en esta lista se reescribiría a `/<slug>/_image` y todas las
  * imágenes optimizadas darían 404 en los 7 dominios a la vez.
  */
-const RAIZ_COMPARTIDA = new Set(['/sitemap.xml', '/robots.txt', '/404']);
+const RAIZ_COMPARTIDA = new Set(['/sitemap.xml', '/robots.txt', '/404', '/health']);
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const host = context.request.headers.get('host')?.split(':')[0] ?? '';
