@@ -75,10 +75,30 @@ El usuario cortó las preguntas: *"lo que necesito que hagas es no hacerme caso 
 
 **Estado de la red:** 60 tests en dos suites. `smoke` comprueba qué RESPONDEN los 7 dominios; `datos` comprueba qué RECHAZA el esquema, rompiéndolo a propósito.
 
+### Quinta parte — el primer `/mm-gate` del proyecto (2026-08-25)
+
+**Veredicto: BLOCK.** 13 agentes, 6 dimensiones auditadas contra `phase-criteria.json`, un escéptico por dimensión. De 29 bloqueos propuestos, 6 refutados y 23 confirmados. Los 4 criterios de entrada a Launch fallan los 4: sin SLA/SLO escrito (`memory/03:52` dice literal `_TBD_`, y `memory/06:153` vende "Guardia técnica y SLA" como módulo mensual), sin runbook, sin un solo rollback probado en 80 commits, y sin ninguna revisión de cumplimiento.
+
+**Y la fase declarada era falsa.** El gate resolvió de paso la confirmación retroactiva que llevaba pendiente desde el 2026-06-24. 3 de los 4 criterios de entrada de Iteration no se cumplían entonces y siguen sin cumplirse. El proyecto no transitó a Iteration: fue **colocado** ahí durante el onboarding. Corregido a **MVP** con aprobación explícita del usuario (`45666d9`).
+
+**Dos correcciones al informe, verificadas a mano:**
+1. La exposición legal viva eran **dos** tiendas, no una: Marineda **y** Alcobendas servían `index, follow` con un aviso legal que no identificaba a nadie.
+2. **Marineda ya había migrado a Astro.** Son 4 de 7, no 3. `memory/02` estaba obsoleta.
+
+**Un hallazgo que nadie buscaba:** los 3 dominios que siguen en WordPress llevan GTM; los 4 en Astro no llevan nada. Hoy migrar una tienda le **quita** la única medición que tenía. Eso reordena la prioridad de rellenar `ga4Id`.
+
+**Donde no seguí la recomendación:** el informe proponía poner también la portada en `noindex` mientras faltaran datos legales. No se hizo. El `noindex` no cura la LSSI —la obligación nace de que el sitio esté público, no de que esté indexado— y destruiría el posicionamiento de dos tiendas vivas. En su lugar (`b29dcbb`) los documentos legales publican ahora los datos identificativos del establecimiento que sí constan, con una advertencia visible de qué falta. **Es reducción de daño, no cumplimiento**, y el código lo dice con esas palabras. Verificado en vivo tras el despliegue: ambos dominios ya lo sirven.
+
+**Primer ADR del proyecto:** `docs/adr/0001-phase-gate-iteration-launch.md`. El directorio no existía, y su ausencia es a la vez uno de los huecos que el gate señala.
+
 ### Top 3 next priorities
-1. **Cerrar el círculo de medición.** En cuanto el usuario devuelva los `G-…`, la Fase 1 pasa de escrita a viva. Es el prerrequisito de las campañas y de poder demostrar resultados.
-2. **Fase 2 — terminar las migraciones.** El Arcángel solo necesita DNS. Las otras tres, datos legales y `place_id` reales. Es lo que más mueve la aguja y depende del franquiciado, no del código.
-3. **Fase 3.9 — accesibilidad.** Lo único de la Fase 3 que sigue teniendo trabajo real: no hay **ni una** regla de `:focus-visible` en el proyecto y `prefers-reduced-motion` está vacío.
+Las fija ahora el gate, no el roadmap interno. Las cuatro condiciones de salida de MVP hacia Iteration están en `memory/13`. Por orden de lo que desbloquea más:
+
+1. **Datos legales de las 4 sociedades.** Es una llamada por tienda y cierra la única exposición viva del proyecto. Marineda y Alcobendas están publicadas hoy sin identificar al titular; la identificación provisional reduce el daño, no lo cierra.
+2. **`ga4Id` + monitor de uptime.** Cierra dos criterios de un golpe (medición y observabilidad) y es prerrequisito de poder definir un SLO honesto después: hoy no existe una sola cifra de disponibilidad. El código de conversión ya está escrito y solo espera el ID.
+3. **Triaje de las 8 vulnerabilidades High.** Hoy no hay riesgo aceptado, hay riesgo ignorado. Ojo: `astro@7` es salto mayor, no `npm audit fix`.
+
+Fuera del gate pero sin dependencias: **3.9 accesibilidad** — no hay **ni una** regla de `:focus-visible` en el proyecto y `prefers-reduced-motion` está vacío.
 
 ### Lessons learned (candidates for cross-project Memory Graph)
 - **`grep` es para localizar, nunca para concluir.** Extraer campos sueltos de un fichero de datos y no leer su contenido llevó a inferir el sector equivocado del nombre de marca, y contaminó toda la memoria hasta que el usuario lo corrigió.
