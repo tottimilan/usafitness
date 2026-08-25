@@ -16,6 +16,7 @@
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 
 import { stores, esquemaTiendas, avisosDeDatos } from '../src/data/stores.ts';
 import { parseHorario } from '../src/data/horario.ts';
@@ -133,5 +134,25 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
     const t = valida();
     t.heroImage = 'photos/vigo/hero.webp'; // relativa: 404 en /aviso-legal
     rechaza([t], 'ruta absoluta');
+  });
+});
+
+describe('Los ficheros que declaran los datos existen de verdad', () => {
+  test('no falta ninguna imagen ni la tipografía', async () => {
+    // El esquema comprueba que una ruta TENGA forma de ruta. Esto comprueba
+    // que el fichero esté. Una ruta mal escrita no da error en ningún sitio:
+    // da un hueco roto en el dominio de un cliente que paga.
+    const { assetsQueFaltan } = await import('../src/build/verificar-assets.ts');
+    const dirPublic = fileURLToPath(new URL('../public', import.meta.url));
+    assert.deepEqual(assetsQueFaltan(stores, dirPublic), []);
+  });
+
+  test('y si falta uno, lo dice con nombre y sitio', async () => {
+    const { assetsQueFaltan } = await import('../src/build/verificar-assets.ts');
+    const dirPublic = fileURLToPath(new URL('../public', import.meta.url));
+    const rota = { ...stores[0], heroImage: '/photos/vigo/no-existe.webp' };
+    const faltan = assetsQueFaltan([rota], dirPublic);
+    assert.equal(faltan.length, 1);
+    assert.match(faltan[0], /no-existe\.webp — declarado en .*heroImage/);
   });
 });
