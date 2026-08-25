@@ -339,6 +339,27 @@ describe('Nada de terceros antes del consentimiento', () => {
     assert.ok(html.includes(s.ga4Id), 'el id viaja en el HTML para poder cargarlo al aceptar');
     }
   );
+
+  test(
+    'el ga4Id no viaja a hosts que no son el de su tienda',
+    { skip: conGa4 ? false : 'ninguna tienda tiene ga4Id todavía' },
+    async () => {
+      // Mismo acotado que el token de Search Console: en el host de preview, el
+      // cargador mediría sesiones ajenas dentro de la propiedad GA4 del
+      // franquiciado (P-1 de la revisión del PR #1). No es un secreto — viaja
+      // en el HTML de SU dominio en cada visita — pero el dato de cada tienda
+      // pertenece a su sociedad, y contaminarlo también es filtrarlo.
+      const s = conGa4;
+      const ajeno = (await get(`/${s.slug}`, 'preview.up.railway.app')).text();
+      assert.ok(!ajeno.includes(s.ga4Id), 'fuera de su dominio, el id no aparece');
+      // La DEFINICIÓN del cargador, no su nombre: el banner (que se emite
+      // siempre) lo menciona en su punto de llamada, con guarda de existencia.
+      // La primera versión de esta aserción buscaba el nombre a secas y la
+      // suite armada la tumbó: cuarta vez que este repo confunde mencionar
+      // con emitir. Lo peligroso es la función con el id dentro, no la palabra.
+      assert.ok(!ajeno.includes('window.ufCargarAnalitica = function'), 'sin id no se emite la definición del cargador');
+    }
+  );
 });
 
 describe('Una URL que no existe da 404, no un redirect a la home', () => {

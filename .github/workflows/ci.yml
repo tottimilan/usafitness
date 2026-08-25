@@ -46,3 +46,12 @@ jobs:
       #             devolvería 403 igual antes y después de cualquier cambio.
       - name: Datos y humo de los 7 dominios
         run: npm test
+
+      # La misma suite con un fixture inyectado (ga4Id + token de GSC en una
+      # tienda): despiertan los tests dormidos y el bloque de terceros deja de
+      # pasar por construccion. Sin este paso, reponer la carga de gtag.js sin
+      # consentimiento dejaria el CI en verde — demostrado en la revision del
+      # PR #1 (I-3). El script restaura stores.json SIEMPRE y falla si difiere
+      # de git al terminar.
+      - name: La suite armada (fixture con ga4Id)
+        run: npm run test:armado

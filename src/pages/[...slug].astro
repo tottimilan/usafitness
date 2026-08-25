@@ -45,6 +45,13 @@ const plan = buildPlan(store, orden);
 
   <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
   <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
-  <CookieConsent ga4Id={store.ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
+  {/* ga4Id solo en el dominio propio (más localhost, para poder probar el
+      banner en desarrollo): en el host de preview mediría sesiones ajenas
+      dentro de la propiedad GA4 del franquiciado. Mismo acotado que ya
+      tiene el token de Search Console en Base.astro. */}
+  <CookieConsent
+    ga4Id={onOwnDomain || host === 'localhost' || host === '127.0.0.1' ? store.ga4Id : undefined}
+    cookiePolicyHref={`${legalBase}/politica-de-cookies`}
+  />
   <ConversionTracking />
 </Landing>
