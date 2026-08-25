@@ -14,7 +14,16 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
 ---
 
 <section class={`hero${variant ? ` hero--${variant}` : ''}`} id="inicio">
-  <div class="hero-bg"></div>
+  <img
+    class="hero-bg"
+    src={heroImage}
+    alt=""
+    aria-hidden="true"
+    fetchpriority="high"
+    decoding="async"
+    width="1400"
+    height="1050"
+  />
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <p class="hero-label">{name}</p>
@@ -37,16 +46,17 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
     overflow: hidden;
   }
 
+  /* Antes era un div con background-image fijo a /hero-bg.jpg: la misma foto en
+     las 7 tiendas, y descubierta tarde por el navegador porque vive en el CSS.
+     Ahora es un <img> con la foto de CADA tienda y fetchpriority="high": es el
+     elemento LCP y el navegador lo encuentra al parsear el HTML. */
   .hero-bg {
     position: absolute;
     inset: 0;
-    /* WebP con respaldo JPEG. La primera declaración la usan los navegadores
-       sin image-set(); la segunda la sobrescribe donde sí hay soporte. */
-    background-image: url('/hero-bg.jpg');
-    background-image: image-set(url('/hero-bg.webp') type('image/webp'), url('/hero-bg.jpg') type('image/jpeg'));
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
 
   .hero-overlay {

@@ -57,10 +57,8 @@ const robots = legalReady ? 'index, follow' : 'noindex, follow';
     <meta name="description" content={`${docTitle} de ${store.name}.`} />
     <meta name="robots" content={robots} />
     <link rel="canonical" href={canonicalUrl} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <meta name="theme-color" content="#1B3A6B" />
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/favicon-96.png" />

@@ -17,22 +17,101 @@ const { subtitle, googleMapsEmbed, googleMapsLink } = Astro.props;
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
       </a>
     </div>
+    {/* FACHADA CON CLIC-PARA-CARGAR.
+        Antes el <iframe> de Google se incrustaba directamente: instalaba cookies
+        y enviaba la IP del visitante a Google antes de que la página terminara
+        de pintar, sin aviso ni posibilidad de rechazarlo.
+
+        Ahora no se carga nada de Google hasta que el usuario lo pide. El enlace
+        "Abrir en Google Maps" de al lado sigue disponible, así que nadie pierde
+        el acceso al mapa: solo deja de imponerse.
+
+        Efecto secundario: se ahorra un iframe de ~700 KB en la carga inicial. */}
     <div class="location-map">
-      <iframe
-        src={googleMapsEmbed}
-        width="100%"
-        height="350"
-        style="border:0; border-radius: var(--radius);"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        title="Ubicación de la tienda en Google Maps"
-      ></iframe>
+      <div class="map-facade" data-map-src={googleMapsEmbed}>
+        <button type="button" class="map-load" data-map-load>
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="map-load-title">Ver el mapa</span>
+          <span class="map-load-note">Al cargarlo, Google Maps puede instalar cookies y recibir tu dirección IP.</span>
+        </button>
+      </div>
     </div>
   </div>
 </section>
 
+<script is:inline>
+  (function () {
+    // Sustituye la fachada por el iframe real solo cuando el usuario lo pide.
+    // Si ademas ya habia consentimiento guardado, se carga directamente.
+    function cargar(fachada) {
+      var src = fachada.getAttribute('data-map-src');
+      if (!src) return;
+      var f = document.createElement('iframe');
+      f.src = src;
+      f.width = '100%';
+      f.height = '350';
+      f.style.cssText = 'border:0;border-radius:var(--radius);display:block';
+      f.loading = 'lazy';
+      f.referrerPolicy = 'no-referrer-when-downgrade';
+      f.title = 'Ubicacion de la tienda en Google Maps';
+      f.setAttribute('allowfullscreen', '');
+      fachada.replaceWith(f);
+    }
+    document.addEventListener('click', function (ev) {
+      var b = ev.target.closest && ev.target.closest('[data-map-load]');
+      if (!b) return;
+      var fachada = b.closest('.map-facade');
+      if (fachada) cargar(fachada);
+    });
+    try {
+      if (localStorage.getItem('uf-consent') === 'granted') {
+        document.querySelectorAll('.map-facade').forEach(cargar);
+      }
+    } catch (e) {}
+  })();
+</script>
+
 <style>
+  .map-facade {
+    border-radius: var(--radius);
+    overflow: hidden;
+    background:
+      linear-gradient(var(--color-bg-alt), var(--color-bg-alt));
+    border: 1px solid var(--color-border);
+    min-height: 350px;
+    display: flex;
+  }
+
+  .map-load {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem 1.5rem;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--color-primary);
+    text-align: center;
+  }
+
+  .map-load:hover { background: var(--color-bg); }
+
+  .map-load-title {
+    font-weight: var(--font-weight-strong);
+    font-size: 1.05rem;
+  }
+
+  .map-load-note {
+    font-size: 0.8rem;
+    color: var(--color-text-light);
+    max-width: 32ch;
+    line-height: 1.45;
+  }
+
   .location {
     background: var(--color-bg);
   }

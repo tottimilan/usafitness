@@ -14,18 +14,15 @@ const { ga4Id = '', cookiePolicyHref } = Astro.props;
 // las webs sin aviso el día que entre el Pixel de Meta.
 const analitica = !!ga4Id;
 
-// OJO: hoy esto sigue valiendo lo mismo que `analitica`, y NO es un descuido.
-// El aviso de cookies solo es honesto si de verdad hay algo que se pueda
-// bloquear al rechazarlo. Y hoy hay DOS terceros que cargan sin puerta y que
-// este componente no controla:
-//   - Location.astro incrusta el iframe de Google Maps (instala cookies).
-//   - Landing.astro carga Google Fonts desde el CDN de Google (transmite la IP).
-// Encender el aviso antes de poner esos dos detrás del consentimiento daría un
-// banner decorativo: rechazar no impediría nada. El orden correcto es
-// autoalojar las fuentes y convertir el mapa en fachada con clic-para-cargar;
-// entonces `avisoCookies` pasa a ser true siempre y este comentario se borra.
-// Registrado como Fase 1 del roadmap en memory/06-feature-map.md.
-const avisoCookies = analitica;
+// El aviso ya NO depende de que haya GA4. Antes sí, y era incoherente: el
+// iframe de Google Maps y Google Fonts cargaban sin puerta, así que había
+// terceros recibiendo la IP del visitante sin aviso posible.
+//
+// Ya no: las fuentes se sirven desde este dominio y el mapa es una fachada que
+// solo carga Google si el usuario lo pide (Location.astro). Con eso, el aviso
+// puede mostrarse siempre y RECHAZARLO IMPIDE ALGO DE VERDAD, que es lo único
+// que lo hace honesto.
+const avisoCookies = true;
 const gtagSrc = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
 ---
 
