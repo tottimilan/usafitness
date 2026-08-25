@@ -130,6 +130,14 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
     rechaza([t], 'g-');
   });
 
+  test('un ga4Id con prefijo GT- sí vale', () => {
+    // Es lo que entrega la interfaz de Google hoy. Rechazarlo haría fallar el
+    // build de los 7 dominios el día que se pegue el ID recién creado.
+    const t = valida();
+    t.ga4Id = 'GT-ABC1234';
+    assert.ok(esquemaTiendas.safeParse([t]).success);
+  });
+
   test('una ruta de imagen sin barra inicial', () => {
     const t = valida();
     t.heroImage = 'photos/vigo/hero.webp'; // relativa: 404 en /aviso-legal

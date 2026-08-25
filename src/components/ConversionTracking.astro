@@ -59,12 +59,7 @@
         var evento = tipoDe(a);
         if (!evento) return;
         if (typeof window.gtag !== 'function') return;
-        window.gtag('event', evento, {
-          seccion: seccionDe(a),
-          // La navegación puede llevarse la página por delante antes de que la
-          // baliza salga. `transport_type: 'beacon'` la envía igualmente.
-          transport_type: 'beacon',
-        });
+        window.gtag('event', evento, { seccion: seccionDe(a) });
       },
       // Fase de captura: así se registra aunque otro handler llame a
       // stopPropagation más abajo en el árbol.

@@ -124,6 +124,18 @@ describe('Los hosts no canónicos no compiten en Google', () => {
     assert.equal(res.status, 200);
     assert.match(res.text(), /name="robots" content="index, follow/);
   });
+
+  test('el token de Search Console no se publica fuera del dominio de su tienda', async () => {
+    // `Base.astro` calcula `enSuDominio` para el meta robots pero no lo aplicaba
+    // al token de verificación: cualquier host que sirviera /vigo publicaba el
+    // token de propiedad de Vigo.
+    const s = stores.find((x) => x.googleSiteVerification);
+    if (!s) return;
+    const ajeno = (await get(`/${s.slug}`, 'preview.up.railway.app')).text();
+    assert.ok(!ajeno.includes('google-site-verification'), 'fuera de su dominio, no');
+    const propio = (await get('/', s.domain)).text();
+    assert.ok(propio.includes(s.googleSiteVerification), 'en su dominio, sí');
+  });
 });
 
 describe('Sitemap por dominio, sin mezclar tiendas', () => {
