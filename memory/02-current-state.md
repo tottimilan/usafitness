@@ -1,6 +1,13 @@
 # Current State — USAFitness Landing Pages
 
-**Última actualización:** 2026-08-25 (47 commits) · **Fase:** Iteration
+**Phase:** Iteration
+
+**Última actualización:** 2026-08-25 (47 commits)
+
+> `**Phase:**` arriba, en inglés y en su propia línea, no es un descuido de idioma:
+> `scripts/phase-gate-check` lo lee con `^\*\*Phase:\*\*`. Al reescribir este
+> fichero se puso `**Fase:**` en una línea compartida y el gate devolvió BLOCK
+> — no porque el proyecto estuviera bloqueado, sino porque no encontraba la fase.
 
 > Reescrito limpio: el fichero había acumulado secciones duplicadas y contradictorias de tanta edición incremental. El roadmap completo vive en `memory/06-feature-map.md`.
 
