@@ -3,7 +3,7 @@
 **Date:** 2026-08-25
 **Branch:** `feat/medicion-y-observabilidad`
 **Author:** User + Claude Opus 5
-**Status:** Draft
+**Status:** Executing — T1, T2 y T3 hechas (`5bbe43e`, `9f75208`). Quedan T4, T5, T6.
 
 ## Goal
 
@@ -67,6 +67,29 @@ No es un bug latente que convenga arreglar algún día. **Es el bug que activa l
 
 ---
 
+## ⚠ Corrección del propio plan (2026-08-25, durante la ejecución)
+
+El subagente de la Tarea 2 paró con **BLOCKED** y tenía razón: **este plan se contradecía consigo mismo.**
+
+La aserción que la Tarea 1 mandaba escribir era `!html.includes('googletagmanager')`. Pero el código que la Tarea 2 manda escribir necesita la URL de gtag.js **como cadena dentro del cargador diferido** — es la única forma de tenerla sin descargarla. El test daba por **descargado** lo que solo estaba **escrito**, así que impedía escribir la solución correcta. No era un test estricto: era un test equivocado bloqueando el arreglo.
+
+Es la **segunda vez** que este proyecto tropieza con lo mismo. La primera fue un comentario del CSS que nombraba `fonts.googleapis.com` y satisfacía su propia aserción. El comentario que lo explicaba estaba **tres líneas encima** de la aserción que escribí mal.
+
+**Arreglado** vaciando el cuerpo de los `<script>` antes de buscar:
+
+```js
+const sinCuerposDeScript = (html) =>
+  html.replace(/(<script[^>]*>)[\s\S]*?<\/script>/gi, '$1</script>');
+```
+
+Dentro de un script, `s.src = '…'` es una **asignación** que solo corre si alguien llama a la función. En la etiqueta de apertura, `src="…"` es una **descarga**. Se parecen tanto que el primer intento de arreglo también falló: el regex `src\s*=\s*…` casaba las dos.
+
+Más una segunda aserción —la URL aparece exactamente una vez y **dentro** del cargador— para que sacarla de la función también se note.
+
+**Y el límite que ningún test de cadenas puede cruzar:** esto no demuestra que no salga ninguna petición. Un `document.createElement('script')` ejecutado al cargar pasaría. Eso solo lo prueba el navegador contando peticiones, y se hizo (ver el cierre de T3).
+
+---
+
 ## Task 1 — El test que se apaga solo
 
 `tests/smoke.test.mjs:248` envuelve su única aserción en `if (!s.ga4Id)`. Hoy pasa porque ninguna tienda tiene ID. En cuanto se rellene el primero, esa condición se hace falsa para esa tienda y el test **deja de afirmar nada: no falla, enmudece**, con el nombre del bloque ya mintiendo. El guardián se apaga en el instante exacto en que empieza a hacer falta. Va primero para que todo lo demás tenga red.
@@ -91,12 +114,12 @@ No es un bug latente que convenga arreglar algún día. **Es el bug que activa l
 
 - [ ] **1.2** — Quitar la condición. Sustituir las líneas 248-250 de `tests/smoke.test.mjs`:
   ```js
-        // Incondicional a propósito, y es UNA LÍNEA MENOS que antes. Estaba
+        // Incondicional a propósito. Estaba
         // envuelto en `if (!s.ga4Id)`, así que se desarmaba solo en cuanto una
         // tienda tuviera ID — justo cuando empieza a hacer falta. La política
         // elegida no es "sin ga4Id no se carga GA4": es "GA4 no se carga hasta
         // que el usuario acepta", y eso vale con ID y sin él.
-        assert.ok(!html.includes('googletagmanager'), 'GA4 no se carga antes del consentimiento');
+        assert.ok(!pideRecursoDe(html, 'googletagmanager.com'), 'GA4 no se pide antes del consentimiento');
   ```
   **Run:** `npm test 2>&1 | grep -E "^ℹ (tests|pass|fail)"`
   **Expected:** **FAIL** en `vigo` — el test ya afirma algo y lo que afirma es falso.
@@ -132,7 +155,7 @@ Se elige **Consent Mode básico** (no cargar el tag) sobre el avanzado (cargarlo
     const s = stores.find((x) => x.ga4Id);
     if (!s) return;
     const html = (await get('/', s.domain)).text();
-    assert.ok(!html.includes('googletagmanager'), 'gtag.js no se descarga en la carga inicial');
+    assert.ok(!pideRecursoDe(html, 'googletagmanager.com'), 'ningún src/href apunta a Google al cargar');
     assert.ok(html.includes("gtag('consent', 'default'"), 'Consent Mode sí se declara desde el principio');
     assert.ok(html.includes(s.ga4Id), 'el id viaja en el HTML para poder cargarlo al aceptar');
   });
