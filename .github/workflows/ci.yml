@@ -1,0 +1,37 @@
+name: CI
+
+# Railway despliega en cada push a main y un solo servicio sirve los 7 dominios:
+# un fallo no rompe una web, rompe siete, cada una de un cliente distinto.
+# Esto corre ANTES de que eso pase.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` y no `npm install`: respeta el lockfile, así que el CI
+      # verifica exactamente las versiones que va a desplegar Railway.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar
+        run: npm run build
+
+      # El test levanta el build de producción y le pide los 7 dominios con la
+      # cabecera Host falseada. Contra `astro dev` no valdría: Vite bloquea Host
+      # y devolvería 403 igual antes y después de cualquier cambio.
+      - name: Humo de los 7 dominios
+        run: node --test tests/smoke.test.mjs

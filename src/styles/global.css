@@ -1,8 +1,8 @@
 /* ============================================================================
    TIPOGRAFÍA AUTOALOJADA
-   Antes se cargaba desde fonts.googleapis.com. Eso significaba dos handshakes
-   TLS con Google, una hoja de estilo BLOQUEANTE en la ruta crítica, y la IP de
-   cada visitante enviada a Google antes de pintar nada — sin aviso de cookies.
+   Antes se cargaba desde el CDN de Google: dos handshakes TLS, una hoja de
+   estilo BLOQUEANTE en la ruta crítica, y la IP de cada visitante enviada a
+   un tercero antes de pintar nada, sin aviso de cookies posible.
 
    Inter variable cubre los pesos 400-800 en un solo fichero. Al servirse desde
    el propio dominio también sobrevive a los portales cautivos del wifi de
