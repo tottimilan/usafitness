@@ -3,7 +3,7 @@
 **Date:** 2026-08-25
 **Branch:** `feat/medicion-y-observabilidad`
 **Author:** User + Claude Opus 5
-**Status:** Draft
+**Status:** Executing — T1, T2 y T3 hechas (`5bbe43e`, `9f75208`). Quedan T4, T5, T6.
 
 ## Goal
 
@@ -67,6 +67,29 @@ No es un bug latente que convenga arreglar algún día. **Es el bug que activa l
 
 ---
 
+## ⚠ Corrección del propio plan (2026-08-25, durante la ejecución)
+
+El subagente de la Tarea 2 paró con **BLOCKED** y tenía razón: **este plan se contradecía consigo mismo.**
+
+La aserción que la Tarea 1 mandaba escribir era `!html.includes('googletagmanager')`. Pero el código que la Tarea 2 manda escribir necesita la URL de gtag.js **como cadena dentro del cargador diferido** — es la única forma de tenerla sin descargarla. El test daba por **descargado** lo que solo estaba **escrito**, así que impedía escribir la solución correcta. No era un test estricto: era un test equivocado bloqueando el arreglo.
+
+Es la **segunda vez** que este proyecto tropieza con lo mismo. La primera fue un comentario del CSS que nombraba `fonts.googleapis.com` y satisfacía su propia aserción. El comentario que lo explicaba estaba **tres líneas encima** de la aserción que escribí mal.
+
+**Arreglado** vaciando el cuerpo de los `<script>` antes de buscar:
+
+```js
+const sinCuerposDeScript = (html) =>
+  html.replace(/(<script[^>]*>)[\s\S]*?<\/script>/gi, '$1</script>');
+```
+
+Dentro de un script, `s.src = '…'` es una **asignación** que solo corre si alguien llama a la función. En la etiqueta de apertura, `src="…"` es una **descarga**. Se parecen tanto que el primer intento de arreglo también falló: el regex `src\s*=\s*…` casaba las dos.
+
+Más una segunda aserción —la URL aparece exactamente una vez y **dentro** del cargador— para que sacarla de la función también se note.
+
+**Y el límite que ningún test de cadenas puede cruzar:** esto no demuestra que no salga ninguna petición. Un `document.createElement('script')` ejecutado al cargar pasaría. Eso solo lo prueba el navegador contando peticiones, y se hizo (ver el cierre de T3).
+
+---
+
 ## Task 1 — El test que se apaga solo
 
 `tests/smoke.test.mjs:248` envuelve su única aserción en `if (!s.ga4Id)`. Hoy pasa porque ninguna tienda tiene ID. En cuanto se rellene el primero, esa condición se hace falsa para esa tienda y el test **deja de afirmar nada: no falla, enmudece**, con el nombre del bloque ya mintiendo. El guardián se apaga en el instante exacto en que empieza a hacer falta. Va primero para que todo lo demás tenga red.
@@ -91,12 +114,12 @@ No es un bug latente que convenga arreglar algún día. **Es el bug que activa l
 
 - [ ] **1.2** — Quitar la condición. Sustituir las líneas 248-250 de `tests/smoke.test.mjs`:
   ```js
-        // Incondicional a propósito, y es UNA LÍNEA MENOS que antes. Estaba
+        // Incondicional a propósito. Estaba
         // envuelto en `if (!s.ga4Id)`, así que se desarmaba solo en cuanto una
         // tienda tuviera ID — justo cuando empieza a hacer falta. La política
         // elegida no es "sin ga4Id no se carga GA4": es "GA4 no se carga hasta
         // que el usuario acepta", y eso vale con ID y sin él.
-        assert.ok(!html.includes('googletagmanager'), 'GA4 no se carga antes del consentimiento');
+        assert.ok(!pideRecursoDe(html, 'googletagmanager.com'), 'GA4 no se pide antes del consentimiento');
   ```
   **Run:** `npm test 2>&1 | grep -E "^ℹ (tests|pass|fail)"`
   **Expected:** **FAIL** en `vigo` — el test ya afirma algo y lo que afirma es falso.
@@ -132,7 +155,7 @@ Se elige **Consent Mode básico** (no cargar el tag) sobre el avanzado (cargarlo
     const s = stores.find((x) => x.ga4Id);
     if (!s) return;
     const html = (await get('/', s.domain)).text();
-    assert.ok(!html.includes('googletagmanager'), 'gtag.js no se descarga en la carga inicial');
+    assert.ok(!pideRecursoDe(html, 'googletagmanager.com'), 'ningún src/href apunta a Google al cargar');
     assert.ok(html.includes("gtag('consent', 'default'"), 'Consent Mode sí se declara desde el principio');
     assert.ok(html.includes(s.ga4Id), 'el id viaja en el HTML para poder cargarlo al aceptar');
   });
@@ -420,18 +443,26 @@ Hoy nadie puede responder qué commit sirve producción ni qué tienda cree serv
    */
   export const GET: APIRoute = ({ request }) => {
     const host = request.headers.get('host')?.split(':')[0] ?? '';
-    const tienda = porDominio.get(host)?.slug ?? null;
+    const tiendaDelHost = porDominio.get(host) ?? null;
 
     const dominiosEsperados = stores.length * 2;
     const ok = stores.length > 0 && porDominio.size === dominiosEsperados;
 
     const cuerpo = {
       ok,
-      tienda,
+      tienda: tiendaDelHost?.slug ?? null,
       tiendas: stores.length,
       dominios: porDominio.size,
-      // Solo slugs propios: nunca dominios ni razones sociales de otras tiendas.
-      midiendo: stores.filter((s) => s.ga4Id).map((s) => s.slug),
+      // CORREGIDO respecto al borrador de este plan, que aquí ponía
+      // `midiendo: stores.filter((s) => s.ga4Id).map((s) => s.slug)`. Ese array
+      // nombra a las otras seis sociedades en el dominio de un cliente, que es
+      // exactamente lo que prohíbe el criterio C3. El contrato real es:
+      // `midiendo` booleano con el alcance del host, y el recuento de flota en
+      // un campo aparte — un mismo nombre no puede ser booleano en un host y
+      // número en otro.
+      midiendo: Boolean(tiendaDelHost?.ga4Id),
+      // Un recuento no nombra a nadie, así que puede viajar en cualquier host.
+      midiendoFlota: stores.filter((s) => s.ga4Id).length,
       // `?? null` porque las variables RAILWAY_GIT_* no existen en un rollback
       // ni en un despliegue por imagen. Afirmar un SHA que no se tiene es peor
       // que no afirmarlo.
@@ -525,7 +556,7 @@ Hoy nadie puede responder qué commit sirve producción ni qué tienda cree serv
 
 1. **Cobertura de criterios.** C1→T2/T3 · C2→T1 · C3→T5.1 · C4→T5.4 · C5→T4.1/4.2 · C6→T4.3/T2.2 · C7→T4.4/4.5 · C8→T6.1 · C9→todas. **Sin huecos.**
 2. **Escaneo de placeholders.** `grep -E "TBD|TODO|<fill|placeholder" .cursor/plans/2026-08-25-medicion-y-observabilidad.md` → solo el `--body "..."` de `gh pr create`, que es texto de una orden interactiva, no del código.
-3. **Consistencia de tipos.** `ufCargarAnalitica` y `__ufAnaliticaCargada` se escriben igual en T2.2 y T3.1. Los campos de `/health` (`ok`, `tienda`, `tiendas`, `dominios`, `midiendo`, `sha`, `uptime`) coinciden entre T5.2 y las aserciones de T5.1.
+3. **Consistencia de tipos.** `ufCargarAnalitica` y `__ufAnaliticaCargada` se escriben igual en T2.2 y T3.1. Los campos de `/health` (`ok`, `tienda`, `tiendas`, `dominios`, `midiendo`, `midiendoFlota`, `sha`, `uptime`) coinciden entre T5.2 y las aserciones de T5.1. Las claves y sus tipos son los MISMOS en cualquier host —lo único que cambia con el `Host` es el valor de `tienda` y el de `midiendo`—, y T5.1 lo fija con una aserción de `Object.keys` sobre tres hosts: el dominio de una tienda, la sonda de Railway y `preview.up.railway.app`. `sha` viaja en todos ellos, tal y como especifica T5.2.
 4. **Rutas de error.** T5.1 cubre host desconocido; T5.4 la invariante rota; T3.1 el `window.ufCargarAnalitica` inexistente en tienda sin ID; T2.1 el caso "aún no hay ninguna tienda con ID". El `try/catch` de `localStorage` cubre navegación privada.
 5. **Test primero.** T1.1, T2.1, T4.1 y T5.1 son tests antes de código. T4.3 y T4.4 son borrados verificados por `grep` y por el test existente.
 6. **Tamaño.** La más larga es T2 (~10 min). Ninguna se pasa.

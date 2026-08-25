@@ -73,7 +73,10 @@ const robots = !noindex && enSuDominio ? 'index, follow, max-image-preview:large
     <meta name="robots" content={robots} />
     {/* theme-color es atributo HTML: no admite var(). Mantener en sync con --color-primary. */}
     <meta name="theme-color" content="#0055B8" />
-    {store?.googleSiteVerification && (
+    {/* Acotado a `enSuDominio`: el token es la prueba de propiedad de UNA tienda.
+        Publicarlo en el preview de Railway o en el dominio genérico se lo regala
+        a quien sirva esa ruta. El fichero ya calculaba la variable para robots. */}
+    {enSuDominio && store?.googleSiteVerification && (
       <meta name="google-site-verification" content={store.googleSiteVerification} />
     )}
     {canonical && <link rel="canonical" href={canonical} />}

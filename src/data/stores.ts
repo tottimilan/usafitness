@@ -153,7 +153,11 @@ const EsquemaTienda = z.strictObject({
     .optional(),
 
   /* Medición (Fase 1) — el código ya está, faltan los identificadores */
-  ga4Id: z.string().regex(/^G-[A-Z0-9]+$/, 'un ID de GA4 tiene la forma "G-XXXXXXXXXX"').optional(),
+  // `GT-` además de `G-`: la interfaz de Google entrega hoy identificadores
+  // `GT-` y `gtag('config')` acepta los dos. Con el regex anterior, pegar el
+  // ID que Google acaba de dar reventaba el build de los 7 dominios con un
+  // mensaje que mandaba a buscar un ID que quizá no existe.
+  ga4Id: z.string().regex(/^(G|GT)-[A-Z0-9]+$/, 'un ID de GA4 tiene la forma "G-XXXXXXXXXX" o "GT-XXXXXXXX"').optional(),
   googleSiteVerification: z.string().min(10).optional(),
 });
 
