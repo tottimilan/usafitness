@@ -1,0 +1,74 @@
+---
+/**
+ * MEDICIÓN DE INTENCIÓN DE CONTACTO
+ *
+ * Un único listener delegado para las tres conversiones del negocio: llamada,
+ * WhatsApp y "cómo llegar". Antes no se medía ninguna, así que era imposible
+ * saber si una sección funciona o si una campaña trae algo.
+ *
+ * POR QUÉ UN SOLO LISTENER Y NO UNO POR BOTÓN:
+ * los CTA están repartidos por 5 componentes y algunos se renderizan de forma
+ * condicional. Delegar en `document` cubre los que existen hoy, los que
+ * aparezcan mañana y los que inserte una plantilla nueva, sin tocar nada.
+ *
+ * SE MIDE EL CLIC, NO SE TOCA EL NÚMERO.
+ * La tentación clásica aquí es poner números de teléfono distintos por fuente
+ * para atribuir llamadas. NO se hace: rompería la coherencia NAP entre la web,
+ * la ficha de Google Business y el directorio del centro comercial — que es
+ * justo el activo que este proyecto vende.
+ *
+ * Y LA MÉTRICA SE LLAMA "INTENCIÓN", NO "LLAMADAS".
+ * Un clic en `tel:` no es una llamada: en escritorio a menudo no marca nada, y
+ * en móvil el usuario todavía puede colgar. Llamar "llamadas" a esto sería
+ * inflar el informe que se le enseña al franquiciado.
+ *
+ * Funciona con o sin GA4: si `gtag` no existe todavía (ninguna tienda tiene
+ * `ga4Id` aún), el listener no hace nada y no rompe. En cuanto se rellene el
+ * campo, empieza a medir sin tocar este fichero.
+ */
+---
+
+<script is:inline>
+  (function () {
+    // La sección de origen es el dato que convierte esto en accionable: no es
+    // lo mismo un WhatsApp desde el hero que desde el horario.
+    function seccionDe(el) {
+      var s = el.closest && el.closest('section[class]');
+      if (s) {
+        var c = s.className.split(' ')[0];
+        if (c) return c;
+      }
+      if (el.closest && el.closest('.whatsapp-float')) return 'flotante';
+      if (el.closest && el.closest('header')) return 'header';
+      return 'desconocida';
+    }
+
+    function tipoDe(a) {
+      var href = a.getAttribute('href') || '';
+      if (href.indexOf('tel:') === 0) return 'contacto_llamada';
+      if (href.indexOf('wa.me') > -1 || href.indexOf('whatsapp') > -1) return 'contacto_whatsapp';
+      if (/google\.[a-z.]+\/maps|maps\.google|maps\.app\.goo\.gl/.test(href)) return 'contacto_maps';
+      return null;
+    }
+
+    document.addEventListener(
+      'click',
+      function (ev) {
+        var a = ev.target.closest && ev.target.closest('a[href]');
+        if (!a) return;
+        var evento = tipoDe(a);
+        if (!evento) return;
+        if (typeof window.gtag !== 'function') return;
+        window.gtag('event', evento, {
+          seccion: seccionDe(a),
+          // La navegación puede llevarse la página por delante antes de que la
+          // baliza salga. `transport_type: 'beacon'` la envía igualmente.
+          transport_type: 'beacon',
+        });
+      },
+      // Fase de captura: así se registra aunque otro handler llame a
+      // stopPropagation más abajo en el árbol.
+      true
+    );
+  })();
+</script>

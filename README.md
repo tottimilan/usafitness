@@ -55,6 +55,10 @@ Cada tienda es un objeto dentro de `stores`. Campos:
 | `galleryFeatured` | no | `true` → primera foto a todo el ancho + fila de 3 |
 | `social` | no | `{ "instagram": "...", "facebook": "...", "tiktok": "...", "youtube": "..." }` |
 | `company` | no | Datos legales del titular de ESA tienda (ver abajo) |
+| `ga4Id` | no | ID de medición de GA4 (`G-XXXXXXX`). **Una propiedad por tienda, no compartida**: los datos pertenecen a cada sociedad y el franquiciado puede querer acceso. Al rellenarlo se activan GA4, los eventos de conversión y el Consent Mode |
+| `googleSiteVerification` | no | Código de verificación de Search Console por meta-etiqueta. Preferible verificar por **registro TXT en DNS** (cubre www, no-www, http y https, y no se pierde si alguien toca el layout) |
+| `template` | no | Plantilla del catálogo (`clasica` por defecto, `angular`). Ver `src/data/templates.ts` |
+| `sections` | no | Orden de secciones solo para esta tienda. La plantilla propone; esto es la excepción |
 
 ### Horario (`schedule`)
 

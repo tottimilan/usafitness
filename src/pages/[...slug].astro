@@ -6,6 +6,7 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
 import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
+import ConversionTracking from '@/components/ConversionTracking.astro';
 import storesData from '@/data/stores.json';
 import { getTemplate, resolveSections, tokensToCss } from '@/data/templates';
 import { buildPlan } from '@/sections/registry';
@@ -67,4 +68,5 @@ const reviews = (store as any).reviews ?? [];
   <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
   <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
   <CookieConsent ga4Id={(store as any).ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
+  <ConversionTracking />
 </Landing>
