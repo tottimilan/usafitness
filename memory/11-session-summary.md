@@ -61,10 +61,24 @@ El usuario cortó las preguntas: *"lo que necesito que hagas es no hacerme caso 
 - Encontró dos fallos reales que no se sabía que existían: `src/pages/index.astro` seguía cargando Google Fonts, y una aserción propia coincidía con un comentario del CSS.
 - CI en GitHub Actions en cada push y PR.
 
+### Cuarta parte — Fase 3 casi entera (2026-08-25)
+
+**3.2 — esquema de `stores.json` (`fbd52d0`).** `strictObject`: una clave con typo ya no compila. Corre en `astro:config:setup`, no solo al importar el módulo — si solo estuviera en el módulo, se ejecutaría al arrancar el servidor, o sea ya desplegado, tumbando los 7 dominios a la vez. El aviso del roadmap ("el primer build estricto va a fallar en cadena") **no se cumplió**: la línea se puso en error para lo que rompe render o publica un dato falso, y en aviso para lo que solo degrada. 21 avisos, ninguno bloqueante. De propina: el parser de horario salió a `src/data/horario.ts` para que el esquema valide con el MISMO código que emite el marcado, y desaparecieron los 12 `as any`.
+
+**3.4 + 3.5 — 404 real y rutas anidadas (`24b0a17`).** El bloqueante duro del roadmap. El middleware solo conocía `/` y las 4 legales y comparaba solo el primer segmento: era **literalmente imposible añadir una URL**. Ahora reescribe cualquier ruta bajo el slug de la tienda. Y las URLs inexistentes dan 404 de verdad en vez de 302 a la home — 7 soft-404 que Search Console no podía reportar, justo ahora que se acaban de dar de alta los dominios.
+
+**3.7 — verificador de assets (`e50de48`).** Las 39 rutas de `stores.json` **y** los 4 assets que el código referencia a mano. Ese segundo grupo no estaba en el enunciado y es el peor: si falta la tipografía no se ve un hueco, se ve otra letra.
+
+**3.6 — un solo `<head>` (`61dd93e`).** Estaba escrito a mano cuatro veces. No era un riesgo teórico, ya había producido dos fallos vivos: las páginas legales se publicaban `index, follow` **en cualquier host** (comprobado: `preview.up.railway.app/vigo/aviso-legal` → indexable, compitiendo con el dominio del propio cliente), y seguían con `theme-color: #1B3A6B`, el azul anterior al manual de marca.
+
+**Un fallo propio que atrapó el CI (`7252c54`).** `.gitignore` traía `build/` sin anclar — en git eso significa "cualquier carpeta llamada build a cualquier profundidad" — y se tragó `src/build/`, que es código fuente. El fichero existía en local, el build pasaba en local y los 59 tests pasaban en local. El CI cayó con "Cannot find module". Anclados los seis patrones de salida de build a la raíz, y añadido un test que importa el módulo para que un clon recién hecho falle si vuelve a pasar.
+
+**Estado de la red:** 60 tests en dos suites. `smoke` comprueba qué RESPONDEN los 7 dominios; `datos` comprueba qué RECHAZA el esquema, rompiéndolo a propósito.
+
 ### Top 3 next priorities
-1. **Fase 3.5 — rutas anidadas.** Es el bloqueante duro: hoy `middleware.ts` solo conoce `/` y las 4 legales, y todo lo demás redirige a la home. **Ninguna** página nueva del roadmap puede existir hasta arreglarlo.
-2. **Fase 3.2 — esquema de `stores.json`.** Siguiente tarea inmediata, sin dependencias. Avisado: el primer build estricto fallará en cadena, y ese es el objetivo.
-3. **Cerrar el círculo de medición.** En cuanto el usuario devuelva los `G-…`, la Fase 1 pasa de escrita a viva y se puede empezar a demostrar resultados — que es el prerrequisito de las campañas.
+1. **Cerrar el círculo de medición.** En cuanto el usuario devuelva los `G-…`, la Fase 1 pasa de escrita a viva. Es el prerrequisito de las campañas y de poder demostrar resultados.
+2. **Fase 2 — terminar las migraciones.** El Arcángel solo necesita DNS. Las otras tres, datos legales y `place_id` reales. Es lo que más mueve la aguja y depende del franquiciado, no del código.
+3. **Fase 3.9 — accesibilidad.** Lo único de la Fase 3 que sigue teniendo trabajo real: no hay **ni una** regla de `:focus-visible` en el proyecto y `prefers-reduced-motion` está vacío.
 
 ### Lessons learned (candidates for cross-project Memory Graph)
 - **`grep` es para localizar, nunca para concluir.** Extraer campos sueltos de un fichero de datos y no leer su contenido llevó a inferir el sector equivocado del nombre de marca, y contaminó toda la memoria hasta que el usuario lo corrigió.
@@ -73,6 +87,9 @@ El usuario cortó las preguntas: *"lo que necesito que hagas es no hacerme caso 
 - **Un test hay que verlo fallar.** Dos falsos verdes (`fetch` descarta la cabecera `Host`; `astro dev` devuelve 403 a cualquier `Host`) habrían dado una suite verde que no comprobaba nada. La mutación deliberada es la única prueba de que un test sirve.
 - **Un manual de marca no es un sistema de diseño.** Sus colores están pensados para impresión y rotulación. Aplicar el gris corporativo a texto de 13 px dio 2.63:1 sobre el 4.5:1 exigido. Medir después de aplicar, siempre.
 - **"Desacoplado" hay que comprobarlo, no declararlo.** Se dieron por separadas dos variables que seguían valiendo lo mismo (`avisoCookies = analitica`): funcionalmente idéntico a no haber hecho nada.
+- **Un `git status` limpio no demuestra que el árbol esté completo.** Un fichero ignorado es invisible en `git status` Y en el repositorio. `build/` sin barra inicial se tragó `src/build/`; todo pasaba en local y el CI cayó con "Cannot find module". Los patrones de salida de build hay que anclarlos con `/`.
+- **Duplicar el `<head>` no es un riesgo, es un fallo con retardo.** Dos de las cuatro copias ya habían derivado: una publicaba páginas legales de un cliente como indexables en el host de preview, la otra llevaba un color de marca retirado. Ninguna de las dos daba error en ningún sitio.
+- **Un esquema que rechaza todo lo importante bloquea el despliegue de clientes vivos.** La línea útil no es "estricto" ni "laxo": error para lo que rompe render o publica un dato falso, aviso para lo que solo degrada y depende de terceros.
 
 
 ---

@@ -1,6 +1,6 @@
 # Current State — USAFitness Landing Pages
 
-**Última actualización:** 2026-08-24 (41 commits) · **Fase:** Iteration
+**Última actualización:** 2026-08-25 (47 commits) · **Fase:** Iteration
 
 > Reescrito limpio: el fichero había acumulado secciones duplicadas y contradictorias de tanta edición incremental. El roadmap completo vive en `memory/06-feature-map.md`.
 
@@ -47,7 +47,15 @@ Las reseñas a 0 son **deliberadas**: se borraron 10 firmadas por las mismas tre
 
 **Cumplimiento** — cero terceros antes del consentimiento: fuentes autoalojadas, mapa como fachada con clic-para-cargar, aviso de cookies revocable desde el footer.
 
-**Red de seguridad** — 34 tests de humo (`npm test`) + CI en cada push. Validados por mutación.
+**Red de seguridad** — 60 tests en dos suites (`npm test`) + CI en cada push, todos validados por mutación:
+- `smoke` — qué responden los 7 dominios por HTTP.
+- `datos` — qué **rechaza** el esquema de `stores.json`, rompiéndolo a propósito.
+
+**El build valida antes de compilar** — esquema Zod estricto (`strictObject`: una clave con typo no compila) + verificador de assets (los 43 ficheros declarados, incluidos logo, tipografía y favicons). Corre en `astro:config:setup`, así que un dato roto cae en la máquina de quien lo escribió, no al arrancar los 7 dominios ya desplegados.
+
+**Se pueden añadir URLs** — el middleware reescribe cualquier ruta bajo el slug de la tienda; añadir una página es crear un `.astro` bajo `src/pages/[slug]/`. Con 404 real (antes había 7 soft-404) y `trailingSlash: 'never'`.
+
+**Un solo `<head>`** — `Base.astro`. Estaba escrito a mano cuatro veces y ya había producido dos fallos vivos: las páginas legales se publicaban `index, follow` en cualquier host, y seguían con el azul anterior al manual de marca.
 
 **Medición lista y esperando** — `ConversionTracking.astro` emite `contacto_llamada`, `contacto_whatsapp` y `contacto_maps` con la sección de origen. Se activa solo con rellenar `ga4Id`.
 
@@ -73,10 +81,8 @@ Fase 1 de medición: Search Console en los 7 dominios (TXT en DNS), Cloudflare W
 
 ## Siguiente tarea sin dependencias
 
-**Fase 3.2 — esquema de validación de `stores.json`** (`astro/zod`, ya viene con Astro).
+**Fase 3.9 — accesibilidad WCAG 2.2 AA como criterio de aceptación.** Hoy no hay **ni una** regla de `:focus-visible` en todo el proyecto, el bloque de `prefers-reduced-motion` está vacío, y el contraste del hero no se ha verificado sobre cada foto real (solo sobre una).
 
-Aviso honesto del roadmap: **el primer build estricto fallará en cadena** — 4 tiendas sin `company`, `place_id` sintéticos, campos inexistentes. Eso es el objetivo: convertir errores silenciosos en errores de build. Hay que reservar sesión para arreglar datos.
+También sin dependencias: **3.8** imágenes responsive + presupuesto de peso en build, **3.3** `locals.store`, **3.10** partir `stores.json`.
 
-Después: 3.4 `404.astro` (hoy hay soft-404 en los 7) y 3.5 registro de páginas + middleware para rutas anidadas.
-
-**Bloqueante duro conocido:** hoy es **imposible añadir una URL nueva**. `middleware.ts` solo conoce `/` y las 4 legales, y compara solo el primer segmento; todo lo demás cae en el catch-all y redirige a la home. Nada de la arquitectura de contenido puede existir hasta arreglarlo.
+**El bloqueante duro ya no existe.** Se podía cerrar la Fase 3 entera, pero conviene parar aquí: lo que de verdad mueve la aguja ahora es la Fase 2 (terminar migraciones) y la Fase 4 (contenido diferenciado), y ambas dependen de datos del franquiciado.

@@ -92,3 +92,29 @@
 - **Reason:** el usuario pidió dejar de preguntar y analizar. El orden no es por dificultad, es por dependencia: sin medición no se puede demostrar nada; sin rutas anidadas no puede existir ninguna página nueva.
 - **Consequences:** `memory/06-feature-map.md` deja de ser un mapa de funcionalidades y pasa a ser el roadmap operativo. Lo descartado se documenta con el motivo, para no volver a discutirlo.
 - **Files affected:** `memory/06-feature-map.md`. Commit `aee0e44`.
+
+### 2026-08-25 — La validación de datos corre en `astro:config:setup`, no solo al importar el módulo
+- **Decision:** el esquema de `stores.json` y el verificador de assets se ejecutan desde una integración de Astro en `astro:config:setup`, no únicamente al cargarse `src/data/stores.ts`.
+- **Reason:** un módulo solo se ejecuta cuando alguien lo importa, y en SSR eso pasa **al arrancar el servidor** — es decir, ya desplegado. Un dato roto habría pasado el build, pasado el CI, desplegado, y tumbado los 7 dominios a la vez al arrancar. El fallo tiene que ocurrir en la máquina de quien escribió el dato.
+- **Alternatives considered:** un script `prebuild` con `tsx` — rechazado: añade una dependencia para algo que la config ya puede hacer.
+- **Consequences:** el build importa ficheros `.ts` a través del cargador de Node, así que hace falta el soporte nativo de TypeScript. Declarado `engines.node >=22.18.0` y el CI a Node 24. Verificado rompiendo un dato: el build sale con código distinto de cero y nombra la tienda, no el índice del array.
+- **Files affected:** `astro.config.mjs`, `src/data/stores.ts`, `src/build/verificar-assets.ts`, `package.json`, `.github/workflows/ci.yml`. Commits `fbd52d0`, `e50de48`.
+
+### 2026-08-25 — Error frente a aviso: dónde está la línea en el esquema
+- **Decision:** el esquema **rompe el build** con lo que rompe el render o publica un dato falso, y solo **avisa** con lo que degrada.
+- **Reason:** el roadmap avisaba de que "el primer build estricto va a fallar en cadena". Habría sido cierto con un esquema estricto de verdad: 4 tiendas sin `company`, `place_id` construidos a mano, campos que dependen de datos que solo puede dar el franquiciado. Bloquear el despliegue de 7 dominios vivos hasta que lleguen esos datos es peor que la carencia — y además el `visible()` de cada sección ya maneja bien el caso vacío.
+- **Consequences:** hoy salen 21 avisos en el log del build, con el slug delante, y bajan solos según lleguen datos. Lo que sí rompe: clave con typo (`strictObject`), teléfono que no se puede marcar, NIF imposible, `company` a medias (peor que vacía: publica un aviso legal incompleto en `index`), horario que el parser no entiende, dominio repetido, y la misma persona firmando reseñas en dos sociedades.
+- **Files affected:** `src/data/stores.ts`, `tests/datos.test.mjs`.
+
+### 2026-08-25 — El middleware no lleva lista blanca de páginas
+- **Decision:** en el dominio de una tienda, **cualquier** ruta se reescribe bajo su slug y decide el enrutador de Astro. No se construye el registro `PAGES` que pedía el roadmap.
+- **Reason:** la regla general es MENOS código que la lista blanca anterior y resuelve el bloqueo entero. Un registro con cero entradas más allá de las legales sería abstracción especulativa: no hay ninguna página de contenido escrita todavía.
+- **Alternatives considered:** `PAGES` calcado de `LEGAL_DOCS` — diferido a cuando exista la primera página con copy, que es cuando el flag `publicada` por tienda tendrá algo que publicar o no.
+- **Consequences:** añadir una página = crear un `.astro` bajo `src/pages/[slug]/`. Detalle que costó un 508 Loop Detected: hay que usar `next(ruta)` y no `context.rewrite(ruta)` — rewrite relanza la cadena de middleware y la ruta ya reescrita vuelve a entrar.
+- **Files affected:** `src/middleware.ts`, `src/pages/404.astro`, `astro.config.mjs`. Commit `24b0a17`.
+
+### 2026-08-25 — La regla de indexación por host vive en un solo sitio
+- **Decision:** `Base.astro` calcula `robots` para todas las páginas: `noindex` explícito manda siempre; con tienda, `index` solo si la petición llegó a SU dominio; sin tienda, `noindex`.
+- **Reason:** el `<head>` estaba escrito a mano cuatro veces y **ya había fallado**: `[slug]/[doc].astro` calculaba `robots` mirando solo si la tienda tenía datos legales, sin mirar el host, así que `preview.up.railway.app/vigo/aviso-legal` se publicaba `index, follow` — compitiendo en Google con el dominio del propio cliente. Verificado contra el build antes de arreglarlo.
+- **Consequences:** `Landing.astro` recibe la tienda entera en vez de 20 props sueltas; el compilador impide pasar un campo por otro. `Page.astro` no se ha hecho: no hay página de contenido que lo justifique.
+- **Files affected:** `src/layouts/Base.astro`, `src/layouts/Landing.astro`, `src/pages/*`. Commit `61dd93e`.
