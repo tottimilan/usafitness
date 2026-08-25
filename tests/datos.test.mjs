@@ -18,7 +18,8 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 
-import { stores, esquemaTiendas, avisosDeDatos } from '../src/data/stores.ts';
+import { stores, esquemaTiendas, avisosDeDatos, tablaCoherente } from '../src/data/stores.ts';
+import { respuestaDeSalud } from '../src/data/salud.ts';
 import { parseHorario } from '../src/data/horario.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
@@ -172,5 +173,45 @@ describe('Los ficheros que declaran los datos existen de verdad', () => {
     const faltan = assetsQueFaltan([rota], dirPublic);
     assert.equal(faltan.length, 1);
     assert.match(faltan[0], /no-existe\.webp — declarado en .*heroImage/);
+  });
+});
+
+describe('La respuesta de /health, incluido el camino del 503', () => {
+  // El camino de error de /health no lo ejercía ningún test, y probarlo contra
+  // el build real exigiría compilar con una tabla rota. La revisión del PR #1
+  // lo marcó (I-4), y la primera corrección se quedó corta: probaba solo
+  // `tablaCoherente`, y mutar `status: ok ? 200 : 503` a `200` fijo en la ruta
+  // dejaba la suite en verde. Por eso la respuesta ENTERA — cuerpo y status —
+  // es ahora función pura y se prueba aquí con la tabla rota de verdad.
+  const tablaReal = () => new Map(stores.flatMap((t) => [[t.domain, t], [`www.${t.domain}`, t]]));
+
+  test('tabla entera → 200 y la tienda del host', () => {
+    const r = respuestaDeSalud(stores, tablaReal(), stores[0].domain, 'abc123', 42);
+    assert.equal(r.status, 200);
+    assert.equal(r.cuerpo.ok, true);
+    assert.equal(r.cuerpo.tienda, stores[0].slug);
+    assert.equal(r.cuerpo.dominios, stores.length * 2);
+  });
+
+  test('tabla a medias → 503, que es lo único que Railway lee', () => {
+    // Un dominio duplicado en los datos colapsa dos entradas del Map en una:
+    // el tamaño baja y una sociedad serviría el contenido de otra con un 200
+    // impecable en la home. El healthcheck solo actúa si esto es un 503.
+    const mapa = tablaReal();
+    mapa.delete(`www.${stores[0].domain}`);
+    const r = respuestaDeSalud(stores, mapa, stores[0].domain, null, 0);
+    assert.equal(r.status, 503);
+    assert.equal(r.cuerpo.ok, false);
+  });
+
+  test('host desconocido → tienda null, y sigue sano', () => {
+    const r = respuestaDeSalud(stores, tablaReal(), 'healthcheck.railway.app', null, 0);
+    assert.equal(r.status, 200);
+    assert.equal(r.cuerpo.tienda, null);
+  });
+
+  test('sin tiendas → 503', () => {
+    assert.equal(respuestaDeSalud([], new Map(), 'x', null, 0).status, 503);
+    assert.equal(tablaCoherente([], new Map()), false);
   });
 });

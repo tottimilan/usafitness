@@ -96,7 +96,12 @@ const canonicalUrl = `https://${store.domain}/${doc}`;
     </main>
 
     <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
-    <CookieConsent ga4Id={store.ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
+    {/* Mismo acotado que en la landing: el ga4Id no viaja fuera del dominio
+        propio de la tienda. */}
+    <CookieConsent
+      ga4Id={onOwnDomain || host === 'localhost' || host === '127.0.0.1' ? store.ga4Id : undefined}
+      cookiePolicyHref={`${legalBase}/politica-de-cookies`}
+    />
 </Base>
 
 <style>

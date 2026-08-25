@@ -11,10 +11,11 @@
     "preview": "astro preview",
     "start": "node dist/server/entry.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:ci": "npm run build && node --test tests/*.test.mjs"
+    "test:ci": "npm run build && node --test tests/*.test.mjs",
+    "test:armado": "node scripts/test-armado.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^10.0.4",
+    "@astrojs/node": "^10.0.6",
     "astro": "^6.1.5"
   }
 }

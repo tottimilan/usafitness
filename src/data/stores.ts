@@ -240,6 +240,24 @@ for (const t of stores) {
 
 export const porSlug = new Map(stores.map((t) => [t.slug, t]));
 
+/**
+ * ¿La tabla de dominios está entera?
+ *
+ * El bucle de arriba registra DOS entradas por tienda (el dominio pelado y el
+ * `www.`). Una tabla a medias es el fallo más caro posible aquí: el middleware
+ * dejaría de reconocer un dominio y su tráfico caería al host genérico — o
+ * peor, un dominio duplicado haría que una sociedad sirviera el contenido y el
+ * NIF de otra, con un 200 impecable que ningún ping detecta.
+ *
+ * Es función pura y exportada para poder probarla con una tabla ROTA en
+ * `tests/datos.test.mjs`: `/health` la usa para decidir su 503, y un camino de
+ * error que ningún test ejerce es una puerta que nadie ha comprobado que
+ * cierre (I-4 de la revisión del PR #1).
+ */
+export function tablaCoherente(tiendas: Tienda[], mapa: Map<string, Tienda>): boolean {
+  return tiendas.length > 0 && mapa.size === tiendas.length * 2;
+}
+
 /* ── Avisos: degradan, no rompen ───────────────────────────────────────── */
 
 /**

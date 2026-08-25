@@ -100,7 +100,10 @@ try {
       </div>
     </div>
 
-    <script is:inline>
+    {/* data-cfasync tambien aqui: si Rocket Loader difiriera este script y
+        no el de arriba, el banner quedaria pintado pero con los botones
+        muertos durante una ventana. O los tres scripts lo llevan o ninguno. */}
+    <script is:inline data-cfasync="false">
       (function () {
         var KEY = 'uf-consent';
         var banner = document.getElementById('uf-cookie-banner');

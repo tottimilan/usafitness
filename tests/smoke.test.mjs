@@ -54,6 +54,23 @@ function get(path, host) {
   });
 }
 
+/** Como `get`, pero con cabeceras extra. Para probar vectores concretos. */
+function getCon(path, host, cabeceras) {
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      { host: '127.0.0.1', port: PORT, path, method: 'GET', headers: { ...(host ? { Host: host } : {}), ...cabeceras } },
+      (res) => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (c) => (body += c));
+        res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, text: () => body }));
+      }
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
 before(async () => {
   server = spawn(process.execPath, ['dist/server/entry.mjs'], {
     env: { ...process.env, PORT: String(PORT), HOST: '127.0.0.1' },
@@ -339,6 +356,27 @@ describe('Nada de terceros antes del consentimiento', () => {
     assert.ok(html.includes(s.ga4Id), 'el id viaja en el HTML para poder cargarlo al aceptar');
     }
   );
+
+  test(
+    'el ga4Id no viaja a hosts que no son el de su tienda',
+    { skip: conGa4 ? false : 'ninguna tienda tiene ga4Id todavía' },
+    async () => {
+      // Mismo acotado que el token de Search Console: en el host de preview, el
+      // cargador mediría sesiones ajenas dentro de la propiedad GA4 del
+      // franquiciado (P-1 de la revisión del PR #1). No es un secreto — viaja
+      // en el HTML de SU dominio en cada visita — pero el dato de cada tienda
+      // pertenece a su sociedad, y contaminarlo también es filtrarlo.
+      const s = conGa4;
+      const ajeno = (await get(`/${s.slug}`, 'preview.up.railway.app')).text();
+      assert.ok(!ajeno.includes(s.ga4Id), 'fuera de su dominio, el id no aparece');
+      // La DEFINICIÓN del cargador, no su nombre: el banner (que se emite
+      // siempre) lo menciona en su punto de llamada, con guarda de existencia.
+      // La primera versión de esta aserción buscaba el nombre a secas y la
+      // suite armada la tumbó: cuarta vez que este repo confunde mencionar
+      // con emitir. Lo peligroso es la función con el id dentro, no la palabra.
+      assert.ok(!ajeno.includes('window.ufCargarAnalitica = function'), 'sin id no se emite la definición del cargador');
+    }
+  );
 });
 
 describe('Una URL que no existe da 404, no un redirect a la home', () => {
@@ -384,6 +422,26 @@ describe('Una sola URL canónica por página', () => {
   test('la home con barra sigue siendo la home', async () => {
     const res = await get('/', stores[0].domain);
     assert.equal(res.status, 200, '"/" no debe entrar en el bucle de redirección');
+  });
+});
+
+describe('Una cabecera malformada no tumba un estático', () => {
+  test('if-match inválido da 412, no 500', async () => {
+    // GHSA de @astrojs/node: con `if-match` malformado el adaptador respondía
+    // 500 en los ficheros estáticos — cache poisoning, y la única de las 10
+    // vulnerabilidades de `npm audit` alcanzable desde internet en este
+    // despliegue. Reproducido antes de arreglar (500) y después (412).
+    //
+    // El arreglo fue @astrojs/node 10.0.4 → 10.0.6, un PATCH del mismo major
+    // (`peerDependencies: astro ^6.0.0`), no el salto a astro@7 que el ADR del
+    // gate daba por necesario para las diez.
+    const res = await getCon('/usafitness.svg', 'usafitnessvigo.com', { 'if-match': 'malformed-etag' });
+    assert.equal(res.status, 412, 'Precondition Failed es la semántica correcta');
+  });
+
+  test('sin la cabecera, el estático se sirve normal', async () => {
+    const res = await get('/usafitness.svg', 'usafitnessvigo.com');
+    assert.equal(res.status, 200);
   });
 });
 
