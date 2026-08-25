@@ -186,7 +186,7 @@ Las 7 tiendas son **3-4 interlocutores** (USA GOVE S.L. posee dos). Vender de un
 
 ## 4. ROADMAP EJECUTABLE POR FASES
 
-### FASE 0 — Cortafuegos y arreglos de 30 minutos
+### FASE 0 — Cortafuegos y arreglos de 30 minutos ✅ **CERRADA 2026-08-24** (`d13a1e1`, `7e31c45`)
 
 *No es una fase de producto: es lo que hay que quitar de encima antes de medir nada. Cero dependencias externas.*
 
@@ -194,33 +194,37 @@ Las 7 tiendas son **3-4 interlocutores** (USA GOVE S.L. posee dos). Vender de un
 
 | # | Tarea | Esf. | Por qué va aquí |
 |---|---|---|---|
-| 0.1 | **Vaciar las reseñas duplicadas** de Villanueva, Marineda, Las Rosas y Vigo | 20 min | Cuatro dominios de al menos tres sociedades publican testimonios de las mismas tres personas, con texto idéntico en dos. Eso no es "contenido duplicado": es publicidad con reseñas falsas, práctica desleal tipificada, reclamable **contra la sociedad titular de cada dominio**. El `visible()` ya oculta la sección sin tocar código, y GranCasa demuestra que la landing renderiza perfecta con 0 reseñas. **No hay que conseguir reseñas reales primero — hay que borrar estas ya** |
-| 0.2 | **Quitar "Hasta 20% dto." de las 7 `metaDescription`** y los 4 porcentajes de `Promotions.astro` hasta tener fuente escrita. Sustituir por "consulta las promociones vigentes en tienda" | S | Promoción indexada sin fecha ni origen, de un programa del franquiciador publicado bajo el CIF de sociedades que no lo controlan |
-| 0.3 | **Vaciar el campo `whatsapp`** en las 4 tiendas donde es el fijo | 10 min | Mejor sin botón que con un botón que abre una conversación que nadie va a leer. `WhatsAppFloat` ya no renderiza sin dato |
-| 0.4 | **Maps detrás del consentimiento** (fachada estática + clic) y **autoalojar Inter** | S | Hoy dos terceros reciben la IP del visitante antes de pintar nada y no hay aviso. Mejora cumplimiento, rendimiento (dos handshakes TLS y una hoja bloqueante menos) y robustez frente a portales cautivos de wifi de centro comercial, todo con el mismo movimiento |
-| 0.5 | **Desacoplar de verdad `avisoCookies` de `analitica`** y reescribir el texto del banner para que describa lo que realmente hay | S | El comentario del componente afirma que sin GA4 no se instala ninguna cookie. Es falso desde que existe el iframe |
-| 0.6 | **Arreglar el hero:** usar `heroImage` como `<img>` con `fetchpriority="high"` y `srcset` en vez del fondo CSS fijo | 30 min | Es a la vez el bug de diferenciación más barato del repo (la imagen a pantalla completa es idéntica en las 7) y la mayor mejora de LCP posible: hoy el elemento más grande de la página se descubre tarde porque es un `background-image` |
-| 0.7 | **Corregir `emailLegal` de El Arcángel y Vigo** | 10 min | Un dato legal erróneo publicado es peor que el vacío que el `noindex` protege |
-| 0.8 | Borrar `@astrojs/sitemap` (dependencia muerta) y `lastmod` real en el sitemap en vez de `changefreq`/`priority` | 30 min | Google ignora changefreq y priority; usa lastmod. El sitemap gasta bytes en lo que no se lee y omite lo único que sí |
+| ✅ 0.1 | **Vaciar las reseñas duplicadas** de Villanueva, Marineda, Las Rosas y Vigo | 20 min | Cuatro dominios de al menos tres sociedades publican testimonios de las mismas tres personas, con texto idéntico en dos. Eso no es "contenido duplicado": es publicidad con reseñas falsas, práctica desleal tipificada, reclamable **contra la sociedad titular de cada dominio**. El `visible()` ya oculta la sección sin tocar código, y GranCasa demuestra que la landing renderiza perfecta con 0 reseñas. **No hay que conseguir reseñas reales primero — hay que borrar estas ya** |
+| ✅ 0.2 | **Quitar "Hasta 20% dto." de las 7 `metaDescription`** y los 4 porcentajes de `Promotions.astro` hasta tener fuente escrita. Sustituir por "consulta las promociones vigentes en tienda" | S | Promoción indexada sin fecha ni origen, de un programa del franquiciador publicado bajo el CIF de sociedades que no lo controlan |
+| ⛔ 0.3 | ~~**Vaciar el campo `whatsapp`** en las 4 tiendas donde es el fijo~~ — **DESCARTADA POR EL USUARIO 2026-08-24** | 10 min | El usuario decidió mantenerlos: *"yo ya les hice las web hace tiempo, tiene que funcionar"*. Sigue **sin verificar**: `wa.me` responde igual con un número real que con uno inventado, así que desde aquí no se puede comprobar. Se cierra con una llamada, no con código. Riesgo asumido por el usuario, no mitigado |
+| ✅ 0.4 | **Maps detrás del consentimiento** (fachada estática + clic) y **autoalojar Inter** | S | Hoy dos terceros reciben la IP del visitante antes de pintar nada y no hay aviso. Mejora cumplimiento, rendimiento (dos handshakes TLS y una hoja bloqueante menos) y robustez frente a portales cautivos de wifi de centro comercial, todo con el mismo movimiento |
+| ✅ 0.5 | **Desacoplar de verdad `avisoCookies` de `analitica`** y reescribir el texto del banner para que describa lo que realmente hay | S | El comentario del componente afirma que sin GA4 no se instala ninguna cookie. Es falso desde que existe el iframe |
+| ✅ 0.6 | **Arreglar el hero:** usar `heroImage` como `<img>` con `fetchpriority="high"` y `srcset` en vez del fondo CSS fijo | 30 min | Es a la vez el bug de diferenciación más barato del repo (la imagen a pantalla completa es idéntica en las 7) y la mayor mejora de LCP posible: hoy el elemento más grande de la página se descubre tarde porque es un `background-image` |
+| ✅ 0.7 | **Corregir `emailLegal` de El Arcángel y Vigo** | 10 min | Un dato legal erróneo publicado es peor que el vacío que el `noindex` protege |
+| ✅ 0.8 | Borrar `@astrojs/sitemap` (dependencia muerta) y `lastmod` real en el sitemap en vez de `changefreq`/`priority` | 30 min | Google ignora changefreq y priority; usa lastmod. El sitemap gasta bytes en lo que no se lee y omite lo único que sí |
 
 **Criterio de salida (medible):**
 `grep` de los nombres de autora repetidos en `stores.json` → 0 coincidencias · `grep "20% dto"` en `stores.json` → 0 · petición a Google en el HTML inicial de las 2 tiendas vivas → 0 antes del consentimiento · las 2 tiendas vivas sirven cada una **su** foto de hero · LCP de laboratorio mejorado y anotado.
 
+✅ **Verificado 2026-08-24.** Los cuatro criterios se cumplen y además quedan **fijados por tests** (`tests/smoke.test.mjs`): el aislamiento de reseñas por autora y el «cero terceros» se comprueban en los 7 dominios en cada push, así que no pueden volver por descuido. Viewport inicial 814 KB → 162 KB.
+
 ---
 
-### FASE 1 — Medición (la fase que desbloquea saber si algo funciona)
+### FASE 1 — Medición ⏳ **EN CURSO** — código hecho (`2800b67`), altas en manos del usuario
 
 **Criterio de entrada:** Fase 0 cerrada. Encender GA4 antes de arreglar el banner sería encender el aviso en varios dominios el mismo día que el iframe sigue cargando sin puerta.
 
 | # | Tarea | Esf. | Nota |
 |---|---|---|---|
-| 1.1 | **Search Console en los 7 dominios por registro TXT en DNS** (Domain property: cubre www, no-www, http y https, y no se pierde si alguien toca el layout) | S | **Es la única medición que funciona hoy en las 7**, porque es agnóstica del motor: mide también los 4 WordPress. Y es lo único que responde la pregunta que sostiene toda la tesis del producto — *¿alguien busca "suplementos GranCasa"?* — que nadie ha medido nunca |
-| 1.2 | **Cloudflare Web Analytics** en las zonas que ya existen | S | Gratis, sin cookies, sin consentimiento, sin código. Es un suelo, no un techo: no hace atribución de campaña |
-| 1.3 | **Campo `ga4Id` + GA4 solo en las tiendas vivas** con campaña prevista | S | Una propiedad por tienda, no una compartida: el dato pertenece a cada sociedad y el franquiciado puede querer acceso |
-| 1.4 | **Un solo listener delegado** que emita `contacto_llamada`, `contacto_whatsapp` y `contacto_maps` con la sección de origen como parámetro | S | ~15 líneas. La fontanería del Consent Mode v2 ya está montada |
-| 1.5 | Enviar el sitemap de cada dominio en GSC | 10 min | Nadie ha comprobado nunca si el sitemap dinámico se lee |
+| ⏳ 1.1 | **Search Console en los 7 dominios por registro TXT en DNS** (Domain property: cubre www, no-www, http y https, y no se pierde si alguien toca el layout) | S | **Es la única medición que funciona hoy en las 7**, porque es agnóstica del motor: mide también los 4 WordPress. Y es lo único que responde la pregunta que sostiene toda la tesis del producto — *¿alguien busca "suplementos GranCasa"?* — que nadie ha medido nunca |
+| ⏳ 1.2 | **Cloudflare Web Analytics** en las zonas que ya existen | S | Gratis, sin cookies, sin consentimiento, sin código. Es un suelo, no un techo: no hace atribución de campaña |
+| ⏳ 1.3 | **Campo `ga4Id` + GA4 solo en las tiendas vivas** con campaña prevista | S | Una propiedad por tienda, no una compartida: el dato pertenece a cada sociedad y el franquiciado puede querer acceso |
+| ✅ 1.4 | **Un solo listener delegado** que emita `contacto_llamada`, `contacto_whatsapp` y `contacto_maps` con la sección de origen como parámetro | S | ~15 líneas. La fontanería del Consent Mode v2 ya está montada |
+| ⏳ 1.5 | Enviar el sitemap de cada dominio en GSC | 10 min | Nadie ha comprobado nunca si el sitemap dinámico se lee |
 
 **Trampa que hay que evitar explícitamente:** números de teléfono de tracking por fuente. Romperían la coherencia NAP entre la web, la ficha de Google y el directorio del centro, que es justo el activo que se está vendiendo. **Se mide el clic; no se toca el número.** Y en el informe la métrica se llama *intención de llamada*, no *llamadas*: un clic en `tel:` no es una llamada, sobre todo en escritorio.
+
+**Estado 2026-08-24:** 1.4 hecho — `ConversionTracking.astro` emite los tres eventos con la sección de origen, en captura y con `transport_type: 'beacon'`. **Escrito pero sin medir todavía: `ga4Id` está a 0 de 7.** 1.1, 1.2, 1.3 y 1.5 son altas en paneles externos y las está haciendo el usuario con la guía entregada. Lo que devuelve son los `G-…`; se pegan en `stores.json` y la fase se cierra sola.
 
 **Criterio de salida (medible):** 7/7 dominios verificados en GSC con sitemap enviado y sin errores de cobertura críticos · primera exportación de queries reales guardada como línea base · 3 eventos de conversión disparando en las tiendas vivas · **primera respuesta documentada a "¿cuánto tráfico tiene esto y por qué consultas entra?"** — una pregunta que hoy nadie del proyecto puede contestar.
 
@@ -243,14 +247,14 @@ Las 7 tiendas son **3-4 interlocutores** (USA GOVE S.L. posee dos). Vender de un
 
 ---
 
-### FASE 3 — Cimientos técnicos (antes de añadir una sola página o sección)
+### FASE 3 — Cimientos técnicos ⏳ **EN CURSO** — 3.1 cerrada (`c9626f8`), siguiente 3.2
 
 **Criterio de entrada:** Fase 2 cerrada. **Orden interno no negociable: el test va antes del refactor.** Al revés es una apuesta con el negocio del cliente sobre el punto de entrada compartido por 7 webs vivas.
 
 | # | Tarea | Esf. |
 |---|---|---|
-| 3.1 | **Smoke test de los 7 hosts + CI.** Con `node:test`, sin dependencias: por dominio, `Host` falseado → `/` devuelve 200, canonical correcto, `index` solo en el host canónico, sitemap XML válido y sin mezclar tiendas, 4 rutas legales vivas | M |
-| 3.2 | **Esquema Zod + Content Layer sobre `stores.json`** (`astro/zod` ya viene con Astro). Mejor ratio del repo. **Aviso honesto: el primer build estricto va a fallar en cadena** — 4 tiendas sin `company`, `place_id` sintéticos, `sections`/`template` inexistentes. Eso es el objetivo; hay que reservar la sesión para arreglar datos | M |
+| ✅ 3.1 | **Smoke test de los 7 hosts + CI.** Con `node:test`, sin dependencias: por dominio, `Host` falseado → `/` devuelve 200, canonical correcto, `index` solo en el host canónico, sitemap XML válido y sin mezclar tiendas, 4 rutas legales vivas | M |
+| ⏭ 3.2 | **Esquema Zod + Content Layer sobre `stores.json`** (`astro/zod` ya viene con Astro). Mejor ratio del repo. **Aviso honesto: el primer build estricto va a fallar en cadena** — 4 tiendas sin `company`, `place_id` sintéticos, `sections`/`template` inexistentes. Eso es el objetivo; hay que reservar la sesión para arreglar datos | M |
 | 3.3 | **`locals.store` + `env.d.ts` + una sola resolución de host.** Hoy `headers.get('host')?.split(':')[0]` está copiado en 5 ficheros y `domainToSlug` se construye 2 veces; hay 12 `as any` | S |
 | 3.4 | **`404.astro`** y dejar de hacer `Astro.redirect('/')` | S |
 | 3.5 | **Registro de páginas** (`PAGES`, calcado de `LEGAL_DOCS`) + middleware que resuelva rutas anidadas + `trailingSlash: 'never'` | M |

@@ -50,3 +50,45 @@
 - **Consequences:** `memory/` now reflects code reality at commit `77ccd78`. Strategic layer (personas, monetization, UVP, non-negotiables, prioritized Top-10 risks, Hard Truth) still pending via `/mm-audit` (Phase 6); phase confirmation pending via `/mm-gate` (Phase 7).
 - **Files affected:** `memory/00-project-brief.md`, `memory/02-current-state.md`, `memory/03-architecture.md`, `memory/04-data-model.md`, `memory/06-feature-map.md`, `memory/08-known-risks.md`, `memory/13-phase-history.md`.
 - **Supersedes:** —
+
+
+### 2026-08-24 — Sin `aggregateRating` autoservido, y sin automatizar reseñas de Google
+- **Decision:** se retira el `aggregateRating` que la propia web se atribuía a sí misma, y se descarta traer automáticamente las reseñas y la nota de Google.
+- **Reason:** Google es explícito en dos puntos. Uno: las valoraciones que un sitio se da a sí mismo (*self-serving*) hacen la página **inelegible para las estrellas** — el marcado no daba nada y sí cargaba riesgo de acción manual. Dos: *"Don't aggregate reviews or ratings from other websites"*. Además la Places API solo devuelve 5 reseñas y sus condiciones prohíben cachearlas.
+- **Alternatives considered:** (a) mantenerlo — rechazado, es exactamente lo que la documentación desaconseja; (b) scrapear Google — rechazado, incumple los términos y rompería en cualquier cambio de maquetación; (c) Places API — rechazado por el límite de 5 y la prohibición de caché.
+- **Consequences:** las estrellas no van a salir en los resultados de Google por esta vía. La palanca real es la **ficha de Google Business**, que sí las muestra en el mapa y en el panel de la derecha. Las reseñas en la web quedan como prueba social, no como marcado.
+- **Files affected:** `src/layouts/Landing.astro`, `src/components/Reviews.astro`.
+
+### 2026-08-24 — Los colores del manual de marca se miden antes de adoptarlos
+- **Decision:** la paleta oficial del brand book se aplica, pero **cada color se mide contra WCAG 2.2 AA antes de asignarlo a un token de texto**. Dos colores del manual se rechazaron para texto.
+- **Reason:** aplicar el gris corporativo `#98989A` a `--color-text-light` dio **2.63:1** sobre blanco (el mínimo es 4.5:1). El cian sobre texto daba 2.9:1. Detectado midiendo la luminancia relativa en el navegador **después** de aplicarlo, no antes.
+- **Alternatives considered:** confiar en el manual — rechazado: un manual de marca está pensado para impresión y rotulación, no para texto de 13 px en pantalla.
+- **Consequences:** `--color-text-light` es `#6E6E70` (4.65:1), una variante más oscura del gris de marca. La identidad se respeta; la legibilidad manda. **Regla general: color de manual ≠ color de interfaz. Medir siempre.**
+- **Files affected:** `src/styles/global.css`, `memory/14-design-system.md`.
+
+### 2026-08-24 — Header, Footer, cookies y WhatsApp NO son componibles
+- **Decision:** el sistema de secciones permite reordenar y quitar secciones de contenido, pero Header, Footer, `WhatsAppFloat` y `CookieConsent` quedan fuera del registro y se renderizan siempre.
+- **Reason:** un error de configuración en un array de secciones no puede dejar una landing sin aviso de cookies ni sin enlaces legales. Son obligaciones legales, no decisiones de diseño.
+- **Alternatives considered:** meterlas en el registro con una marca `obligatoria: true` — rechazado: sigue siendo un sitio donde un typo las apaga. Si no están en el registro, no hay typo posible.
+- **Consequences:** una plantilla no puede mover el footer ni prescindir del aviso. Es el límite deliberado del sistema.
+- **Files affected:** `src/sections/registry.ts`, `src/pages/[...slug].astro`.
+
+### 2026-08-24 — Cero terceros antes del consentimiento
+- **Decision:** ninguna petición sale a un dominio de terceros hasta que el usuario consiente. Tipografía autoalojada, mapa como fachada con clic-para-cargar, GA4 solo con `ga4Id`.
+- **Reason:** cargar Google Fonts o un iframe de Maps **es** una transferencia de la IP del visitante a Google antes de que consienta. El aviso de cookies no cubre lo que ya se ha cargado al pintar la página.
+- **Alternatives considered:** dejar las fuentes de Google porque "solo es una fuente" — rechazado: es el mismo tratamiento de datos, y además cuesta rendimiento.
+- **Consequences:** el mapa exige un clic más. A cambio, la página no carga nada de terceros de salida y el consentimiento es revocable desde el footer.
+- **Files affected:** `src/styles/global.css`, `src/components/Location.astro`, `src/components/CookieConsent.astro`, `public/fonts/`.
+
+### 2026-08-24 — Los tests corren contra el build de producción y con `node:http`
+- **Decision:** la suite levanta `dist/server/entry.mjs` y hace las peticiones con `node:http`. No contra `astro dev` y no con `fetch`.
+- **Reason:** dos falsos verdes reales, encontrados al construirla. (1) Vite bloquea la cabecera `Host` y devuelve 403 — un test contra dev daría el mismo error antes y después de cualquier cambio. (2) `Host` es *forbidden header name* en la especificación de fetch: undici la descarta en silencio, así que **todas** las peticiones llegaban al host genérico y el test parecía comprobar el enrutado por dominio sin comprobar nada.
+- **Alternatives considered:** Playwright — rechazado por ahora: pesa mucho para lo que hace falta, que es verificar respuestas HTTP, no render.
+- **Consequences:** `npm test` exige `npm run build` antes. La suite se validó **por mutación**: se reintrodujo Google Fonts a propósito → 7 fallos; se revirtió → 34/34.
+- **Files affected:** `tests/smoke.test.mjs`, `.github/workflows/ci.yml`, `package.json`. Commit `c9626f8`.
+
+### 2026-08-24 — Roadmap definitivo de 8 fases
+- **Decision:** el catálogo de secciones, la arquitectura de URLs y el catálogo comercial quedan fijados en `memory/06-feature-map.md`, con una lista explícita de **lo que NO se va a hacer**.
+- **Reason:** el usuario pidió dejar de preguntar y analizar. El orden no es por dificultad, es por dependencia: sin medición no se puede demostrar nada; sin rutas anidadas no puede existir ninguna página nueva.
+- **Consequences:** `memory/06-feature-map.md` deja de ser un mapa de funcionalidades y pasa a ser el roadmap operativo. Lo descartado se documenta con el motivo, para no volver a discutirlo.
+- **Files affected:** `memory/06-feature-map.md`. Commit `aee0e44`.

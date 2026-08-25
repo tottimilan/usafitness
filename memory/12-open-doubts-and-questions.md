@@ -115,6 +115,32 @@ The first pass of this file (and of `memory/00-project-brief.md`) described USAF
 - **Why it matters:** Defines the North Star and success metric for `01-product-vision.md`.
 - **Status:** Pending
 
+### Q13 — Datos que bloquean el roadmap (2026-08-24)
+No son preguntas de estrategia: cada una es una llamada de teléfono y desbloquea trabajo ya escrito.
+
+| # | Qué falta | Qué desbloquea | A quién |
+|---|---|---|---|
+| a | **Razón social + NIF + domicilio + email legal** de Villanueva, Marineda, Las Rosas y Alcobendas | 16 páginas legales salen de `noindex` | franquiciado de cada tienda |
+| b | **Apuntar el DNS de El Arcángel** a Railway | Es la migración más cercana: ya tiene todo lo demás | el usuario |
+| c | **Fotos de GranCasa** (6) y **alta de su ficha de Google Business** | Galería + mapa por ficha en vez de por dirección | franquiciado de GranCasa |
+| d | **`place_id` reales** de Villanueva, Marineda y Las Rosas | Los mapas actuales usan valores que parecen sintéticos | ficha de Google de cada tienda |
+| e | **Confirmar dirección de Villanueva**: el JSON dice C.C. El Zoco, una fuente externa apunta a C.C. La Pasada | Coherencia NAP, que es el activo que se vende | franquiciado |
+| f | **Confirmar los 4 números de WhatsApp** (son fijos). El usuario asume que funcionan; **desde aquí es imposible verificarlo** — `wa.me` responde igual con un número inventado | Uno de los tres caminos de conversión | franquiciado |
+| g | **Reseñas propias reales** para las 4 tiendas que se quedaron a 0 | Prueba social; la sección hoy no se renderiza | franquiciado / ficha de Google |
+
+- **Status:** Pending — entregada al usuario la lista con el paso a paso.
+
+### Q14 — Ninguna tienda usa el sistema de plantillas
+- **Question:** ¿a qué tienda se le asigna `angular`, y quién lo decide — el usuario, o el franquiciado de esa tienda?
+- **Why it matters:** `clasica` y `angular` existen, funcionan y **no las usa nadie**: las 7 tiendas se ven igual. Un sistema de diferenciación que ninguna tienda ha estrenado no está validado — no sabemos si `angular` aguanta el contenido real de una tienda concreta hasta verlo en su dominio.
+- **Status:** Pending
+
+### Q15 — Qué pasa cuando el esquema estricto haga fallar el build
+- **Question:** cuando la Fase 3.2 convierta los datos incompletos en errores de build, ¿se bloquea el despliegue de las tiendas afectadas, o se degradan a "campo opcional con aviso" hasta tener los datos?
+- **Why it matters:** hay 4 tiendas sin `company` y 3 con `place_id` sintéticos. Un esquema estricto de verdad impide desplegar 7 dominios vivos hasta que lleguen datos que dependen de terceros. Un esquema laxo no arregla nada.
+- **Recomendación:** estricto para lo que rompe render o publica un dato falso; aviso en build para lo que solo degrada (galería vacía, mapa por dirección). Se implementa así salvo indicación en contra.
+- **Status:** Pending — no bloquea empezar 3.2.
+
 ---
 
 ## 3. User Observations / Notes
@@ -122,6 +148,9 @@ The first pass of this file (and of `memory/00-project-brief.md`) described USAF
 - 2026-08-24: "son tiendas de suplementación deportiva", not gyms. Stores are independent companies with their own CIF; some owners have 2–3 stores.
 - 2026-08-24: prefers to be addressed in **Spanish**.
 - 2026-08-24: expects the agent to **investigate the repo properly before asking**; vague questions whose answers are in the code are not acceptable.
+- 2026-08-24: *"lo que necesito que hagas es no hacerme caso a mi, sino analizar"* — pide análisis propio y contraste, no ejecución literal de lo que él dice.
+- 2026-08-24: decidió **mantener los WhatsApp que son fijos** en contra de la recomendación (tarea 0.3). Riesgo asumido explícitamente, no mitigado.
+- 2026-08-24: quería **automatizar reseñas y nota de Google**. Se descartó con fundamento (ver `07-decisions-log`): Google declara inelegibles las valoraciones autoservidas y prohíbe agregar reseñas de otros sitios. La palanca real es la ficha de Google Business.
 
 ---
 
@@ -130,6 +159,9 @@ The first pass of this file (and of `memory/00-project-brief.md`) described USAF
 - **Project phase** — resolved 2026-08-24: confirmed **Iteration** by the user. Pending formal `/mm-gate` confirmation in Phase 7.
 - **Sector / what the business actually is** — resolved 2026-08-24: sports-supplement retail stores, not gyms. Source: `src/data/stores.json` + user correction.
 - **Monetization, ownership structure, transactional roadmap, conversion priority** — resolved 2026-08-24 (Q5, Q6, Q7, Q2 above).
+- **Q11 (reseñas duplicadas)** — resuelto 2026-08-24: no eran placeholders intencionados. **Retiradas las 10** (`d13a1e1`) y fijado con un test que impide que la misma persona firme en dos tiendas. Los datos legales siguen pendientes → Q13a.
+- **Q9 (cuánta red de seguridad)** — resuelto 2026-08-24 por los hechos: 34 tests de humo + CI (`c9626f8`), sin dependencias y sin coste de mantenimiento apreciable. Encontraron dos fallos reales el mismo día.
+- **Los tres ejes de diferenciación de plantillas** — resuelto 2026-08-24 por el usuario: visual + estructura + diseño por sección; el orden lo propone la plantilla y lo ajusta la tienda; 2-3 plantillas para empezar.
 
 ---
 

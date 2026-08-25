@@ -1,70 +1,82 @@
 # Current State — USAFitness Landing Pages
 
-> One-page summary of where the project is right now. Kept concise.
+**Última actualización:** 2026-08-24 (41 commits) · **Fase:** Iteration
 
-**Last updated:** 2026-08-24
-**Phase:** Iteration
+> Reescrito limpio: el fichero había acumulado secciones duplicadas y contradictorias de tanta edición incremental. El roadmap completo vive en `memory/06-feature-map.md`.
 
-## What exists today
+---
 
-**This project is a MIGRATION IN PROGRESS, not a finished product.** Verified live 2026-08-24 by checking each domain's HTML:
+## Qué es esto en una frase
 
-| Store | Domain | Engine today | Legal `company` |
-|---|---|---|---|
-| Vigo | usafitnessvigo.com | ✅ **Astro** | ✅ NM10 SHOP S.L. |
-| Alcobendas | usafitnessalcobendas.com | ✅ **Astro** | ❌ |
-| GranCasa (Zaragoza) | usafitnessgrancasa.com | 🆕 ready, awaiting DNS | ✅ USA GOVE S.L. |
-| El Arcángel (Córdoba) | usafitnesselarcangel.com | ⛔ WordPress 7.1 | ✅ USA GOVE S.L. |
-| Villanueva | usafitnessvillanueva.com | ⛔ WordPress 7.1 | ❌ |
-| Marineda | usafitnessmarineda.com | ⛔ WordPress 7.1 | ❌ |
-| Las Rosas | usafitnesslasrosas.com | ⛔ WordPress 7.1 | ❌ |
+Sistema de plantillas y secciones que genera una landing por **tienda física de suplementación deportiva USAFitness**, cada una en su dominio. Es la **migración de las webs anteriores en WordPress** a sistema propio, y está a medias.
 
-**Since then (same day):** two more stores were added — **GranCasa** (Zaragoza, brand new, no WordPress, waiting only on DNS) and **El Arcángel** (Córdoba, still on WordPress). Total: **7 stores**.
+---
 
-Real photos for every pending store were recovered from their WordPress sites and converted to `.webp` (commit `de6946e`); `scripts/generate-placeholders.js` was deleted in `bf9aa8f` because it would overwrite real brand logos if run.
+## Las 7 tiendas
 
-- Per-store landing sections (Astro): Hero, brand slider, Products, Promotions, Gallery, Reviews (tabbed), Schedule, Location/map, Social, floating WhatsApp, Footer (`src/components/`).
-- Per-store landing sections: Hero, auto-scrolling brand slider, Products, Promotions, Gallery, Reviews (tabbed), Schedule, Location/map, Social, floating WhatsApp, Footer (`src/components/`).
-- Domain→slug routing middleware; each store served at the root of its own domain; clean per-store legal URLs (`src/middleware.ts`).
-- Dynamic per-domain `sitemap.xml` + `robots.txt` (each domain exposes only its own canonical URLs).
-- SEO: Schema.org `LocalBusiness`, Open Graph/Twitter, per-domain canonical, per-store Search Console verification, `noindex` on non-canonical hosts, localized hero text & gallery alt per store.
-- GDPR cookie consent banner + GA4 + Google Consent Mode v2 (per-store, opt-in).
-- 4 legal document types per store (aviso-legal, política-de-privacidad, política-de-cookies, política-redes-sociales) via `src/data/legal.ts`.
+| Tienda | Dominio | Motor | Legales | Fotos | Reseñas | Ficha Google |
+|---|---|---|---|---|---|---|
+| Vigo | usafitnessvigo.com | ✅ Astro | ✅ NM10 SHOP | ✅ | ⛔ 0 | ✅ |
+| Alcobendas | usafitnessalcobendas.com | ✅ Astro | 🔒 faltan | ✅ | ✅ 3 | ✅ |
+| GranCasa | usafitnessgrancasa.com | ✅ Astro | ✅ USA GOVE | 🔒 faltan | ⛔ 0 | 🔒 sin dar de alta |
+| El Arcángel | usafitnesselarcangel.com | ⛔ WordPress | ✅ USA GOVE | ✅ | ✅ 3 | ✅ |
+| Villanueva | usafitnessvillanueva.com | ⛔ WordPress | 🔒 faltan | ✅ | ✅ 2 | ⚠ place_id sintético |
+| Marineda | usafitnessmarineda.com | ⛔ WordPress | 🔒 faltan | ✅ | ⛔ 0 | ⚠ place_id sintético |
+| Las Rosas | usafitnesslasrosas.com | ⛔ WordPress | 🔒 faltan | ✅ | ⛔ 0 | ⚠ place_id sintético |
 
-## What is in progress
-- MASTERMIND 2.x onboarding (this session): retroactive memory seed → strategic audit → phase gate → first retrospective.
-- No application feature branches active (only `main`; single contributor).
+**El Arcángel es la migración más cercana:** tiene todo menos apuntar el DNS.
 
-## What is blocked
-- Full legal indexing for 4 of 5 stores: only 1 store has a real `company` legal block in `stores.json`; the others ship `noindex` placeholder legal pages until real data is added. _Confirm priority in /mm-audit._
+Las reseñas a 0 son **deliberadas**: se borraron 10 firmadas por las mismas tres personas en varias empresas distintas. La sección no se renderiza sin datos, que es el comportamiento correcto.
 
-## Cola pendiente para migrar Villanueva, Marineda y Las Rosas
+---
 
-Guardado a petición del usuario (2026-08-24). Las fotos ya no bloquean; quedan estos tres:
+## Lo que se construyó y funciona
 
-1. **Embeds de Google Maps sospechosos.** Villanueva, Marineda y Las Rosas usan `place_id` construidos a mano (p. ej. `0x5e5a3f8c1a2d4e6f`) con coordenadas redondeadas. Pueden no resolver a la ficha real del negocio. Sustituir por el embed verificado del Google Business Profile de cada tienda.
-2. **Reseñas duplicadas entre empresas distintas.** Las MISMAS TRES AUTORAS firman en Marineda, Las Rosas y Vigo; Andrea García además en Villanueva. En Marineda y Las Rosas el texto es idéntico palabra por palabra; una copia menciona "la dependienta que está los domingos" en una tienda cuyo horario es de lunes a sábado. Hay que conseguir reseñas propias de cada tienda.
-3. **Datos legales (`company`) ausentes** en las tres (y en Gran Casa). Sin ellos las 4 páginas legales van en `noindex`. Requisito LSSI art. 10; el dato lo aporta el dueño de cada tienda.
+**Sistema de plantillas completo** — los tres ejes que definió el usuario:
+- `src/data/templates.ts` — catálogo (`clasica`, `angular`). Una plantilla declara tokens, orden de secciones y variantes. Sin código.
+- `src/sections/registry.ts` — qué componente es cada sección, qué props necesita y cuándo tiene datos (`visible()`).
+- Resolución: sin nada declarado → `clasica` + orden base. Con `template` → su orden. Con `sections` → manda ese array.
+- **Ninguna tienda declara `template` todavía: el sistema funciona y no lo usa nadie.**
+- Vista previa con `?plantilla=angular`, bloqueada en dominios canónicos.
 
-**Pendiente de confirmación del usuario:** si los números de WhatsApp de Villanueva, Marineda, Las Rosas y Alcobendas (que son fijos) están dados de alta en WhatsApp Business. Si no lo están, ahora la sección se puede ocultar sin tocar código.
+**No componibles a propósito:** Header, Footer, WhatsAppFloat y CookieConsent. Un error de configuración no puede dejar una landing sin aviso de cookies ni enlaces legales.
 
-**Mejora menor detectada 2026-08-24:** el `sitemap.xml` incluye las 4 páginas legales aunque estén en `noindex` cuando la tienda no tiene `company`. Conviene excluirlas del sitemap en ese caso.
+**Identidad de marca aplicada** — paleta oficial del brand book: `#0055B8` / `#98989A` / `#E1251B` + cian `#00A7E1`. 49 tokens en `global.css`; los componentes no declaran color, radio ni sombra propios.
 
-## The gap that defines the next stage
-What ships today is **one template with twelve fixed sections in a fixed order** (`src/pages/[...slug].astro`). Only content varies per store, plus four minor toggles (`social`, `galleryFeatured`, `heroText`, `googleSiteVerification`); `Products` and `Brands` receive no props at all and are identical everywhere.
+**Rendimiento** — viewport inicial de 814 KB → 162 KB. Logo vectorial real (277→23 KB) y hero por tienda como `<img fetchpriority="high">`.
 
-The product goal (`memory/01-product-vision.md`) is a **catalogue of templates + a library of composable sections**, from which each store picks a style and the sections it wants. **That system does not exist yet.** Reaching it is new construction, not iteration on what is there.
+**Cumplimiento** — cero terceros antes del consentimiento: fuentes autoalojadas, mapa como fachada con clic-para-cargar, aviso de cookies revocable desde el footer.
 
-**Phase tension to resolve at the gate:** the *deployed product* is in Iteration; the *template system* is closer to Definition. Flagged for `/mm-gate` (Phase 7).
+**Red de seguridad** — 34 tests de humo (`npm test`) + CI en cada push. Validados por mutación.
 
-## What is next
+**Medición lista y esperando** — `ConversionTracking.astro` emite `contacto_llamada`, `contacto_whatsapp` y `contacto_maps` con la sección de origen. Se activa solo con rellenar `ga4Id`.
 
-**Roadmap completo y priorizado en `memory/06-feature-map.md`.**
+---
 
-Siguiente tarea sin dependencias: **optimizar los 812 KB del viewport inicial** (logo de 276 KB con el vectorial real ya disponible en `docs/brand/fuentes/`, y fondo de hero de 536 KB que es el LCP de las 7 tiendas). Afecta a todas a la vez y el rendimiento es el producto.
+## Bloqueado esperando datos del usuario 🔒
 
-Después: los arreglos de SEO estructurado (`addressLocality` recibiendo copy publicitario, `@type` genérico, `addressRegion` duplicando el país) y meter el centro comercial en el contenido.
+1. **Datos legales** de Villanueva, Marineda, Las Rosas y Alcobendas → 16 páginas legales en `noindex`.
+2. **DNS de El Arcángel** → es la migración más cercana.
+3. **Fotos y ficha de Google de GranCasa** → sin galería y con mapa por dirección, no por ficha.
+4. **`place_id` reales** de Villanueva, Marineda y Las Rosas.
+5. **Reseñas propias** para las 4 tiendas que se quedaron a 0.
+6. **WhatsApp en fijo** en 4 tiendas: el usuario dice que debe funcionar, **no se ha podido verificar** (`wa.me` responde igual a un número inventado que a uno real).
+7. **Contradicción de dirección en Villanueva**: el JSON dice C.C. El Zoco; una fuente externa apunta a C.C. La Pasada. Una llamada lo resuelve.
 
-Decisión pendiente antes de tocar: qué hacer con el `aggregateRating` autoservido, que es riesgo de acción manual de Google en 7 dominios.
+## En curso por el usuario ahora mismo
 
-Luego el bloque grande: registro de plantillas → orden de secciones como dato → variantes de sección.
+Fase 1 de medición: Search Console en los 7 dominios (TXT en DNS), Cloudflare Web Analytics, y propiedades de GA4 para las 3 tiendas en Astro. Guía publicada como artifact.
+
+**Lo que devuelve:** los IDs `G-…` → se meten en `stores.json` y arranca todo.
+
+---
+
+## Siguiente tarea sin dependencias
+
+**Fase 3.2 — esquema de validación de `stores.json`** (`astro/zod`, ya viene con Astro).
+
+Aviso honesto del roadmap: **el primer build estricto fallará en cadena** — 4 tiendas sin `company`, `place_id` sintéticos, campos inexistentes. Eso es el objetivo: convertir errores silenciosos en errores de build. Hay que reservar sesión para arreglar datos.
+
+Después: 3.4 `404.astro` (hoy hay soft-404 en los 7) y 3.5 registro de páginas + middleware para rutas anidadas.
+
+**Bloqueante duro conocido:** hoy es **imposible añadir una URL nueva**. `middleware.ts` solo conoce `/` y las 4 legales, y compara solo el primer segmento; todo lo demás cae en el catch-all y redirige a la home. Nada de la arquitectura de contenido puede existir hasta arreglarlo.
