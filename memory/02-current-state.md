@@ -60,7 +60,7 @@ Las reseñas a 0 son **deliberadas**: se borraron 10 firmadas por las mismas tre
 
 **Cumplimiento** — cero terceros antes del consentimiento: fuentes autoalojadas, mapa como fachada con clic-para-cargar, aviso de cookies revocable desde el footer.
 
-**Red de seguridad** — 60 tests en dos suites (`npm test`) + CI en cada push, todos validados por mutación:
+**Red de seguridad** — 72 tests en dos suites (`npm test`, 70 pass + 2 dormidos con `skip` declarado hasta que exista el primer `ga4Id`) + CI en cada push, validados por mutación:
 - `smoke` — qué responden los 7 dominios por HTTP.
 - `datos` — qué **rechaza** el esquema de `stores.json`, rompiéndolo a propósito.
 

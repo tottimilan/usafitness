@@ -51,7 +51,7 @@ El usuario cortó las preguntas: *"lo que necesito que hagas es no hacerme caso 
 - **Tipografía autoalojada** y **mapa como fachada**: cero peticiones a terceros antes del consentimiento.
 
 **Fase 1 — medición (`2800b67`)**
-- `ConversionTracking.astro`: un solo listener delegado en fase de captura que emite `contacto_llamada`, `contacto_whatsapp` y `contacto_maps` con la **sección de origen** y `transport_type: 'beacon'` (para que el evento salga aunque el navegador ya esté cambiando de app).
+- `ConversionTracking.astro`: un solo listener delegado en fase de captura que emite `contacto_llamada`, `contacto_whatsapp` y `contacto_maps` con la **sección de origen**. (Llevaba `transport_type: 'beacon'`, retirado después en el PR #1: no existe en gtag de GA4 y gtag ya usa `sendBeacon` solo.)
 - **Está escrito y no mide nada todavía:** `ga4Id` sigue a 0 de 7. Se activa solo con rellenar el ID.
 - Entregada al usuario una guía paso a paso (artifact) para Search Console × 7, Cloudflare Web Analytics y GA4. **Lo está haciendo él ahora.**
 

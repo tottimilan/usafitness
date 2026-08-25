@@ -4,7 +4,7 @@
 
 > Este fichero llegó a existir como copia byte-idéntica del homónimo de la plantilla MASTERMIND (describía Pester y skill-quality-evaluator, no este proyecto). Reescrito con el estado real; a partir de aquí describe lo que hay.
 
-## Estado: 60 tests en dos suites + CI
+## Estado: 72 tests en dos suites + CI (70 pass · 2 skipped declarados)
 
 ```bash
 npm run build && npm test
@@ -51,11 +51,11 @@ Encontró dos fallos reales que nadie sabía que existían:
 
 ## CI
 
-`.github/workflows/ci.yml` — en cada push a `main`, cada PR y bajo demanda: `npm ci` → `npm run build` → los 34 tests. `npm ci` y no `npm install`, para que el CI verifique exactamente las versiones que va a desplegar Railway.
+`.github/workflows/ci.yml` — en cada push a `main`, cada PR y bajo demanda: `npm ci` → `npm run build` → la suite completa. `npm ci` y no `npm install`, para que el CI verifique exactamente las versiones que va a desplegar Railway.
 
 ## Qué NO cubre (honesto)
 
-- **Render visual.** Nada comprueba que la página se vea bien. Un CSS que rompa la maqueta pasa los 34 tests.
+- **Render visual.** Nada comprueba que la página se vea bien. Un CSS que rompa la maqueta pasa la suite entera.
 - **JavaScript de cliente.** El aviso de cookies, la fachada del mapa y `ConversionTracking` no se ejecutan: se verifica que el marcado esté, no que funcione al pulsarlo.
 - **GA4 de extremo a extremo.** No se podrá hasta que exista un `ga4Id` real.
 - **Accesibilidad y contraste.** Se mide a mano → tarea **3.9**.
