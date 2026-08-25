@@ -113,3 +113,7 @@ temp/
 docs/brand/fuentes/*.pdf
 docs/brand/fuentes/*.ai
 docs/brand/fuentes/*Banner*
+
+# Ficheros de trabajo de una sesion (salida cruda de workflows, borradores)
+.plan-*.md
+.gate-*.md
