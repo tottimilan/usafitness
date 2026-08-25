@@ -54,6 +54,23 @@ function get(path, host) {
   });
 }
 
+/** Como `get`, pero con cabeceras extra. Para probar vectores concretos. */
+function getCon(path, host, cabeceras) {
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      { host: '127.0.0.1', port: PORT, path, method: 'GET', headers: { ...(host ? { Host: host } : {}), ...cabeceras } },
+      (res) => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (c) => (body += c));
+        res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, text: () => body }));
+      }
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
 before(async () => {
   server = spawn(process.execPath, ['dist/server/entry.mjs'], {
     env: { ...process.env, PORT: String(PORT), HOST: '127.0.0.1' },
@@ -405,6 +422,26 @@ describe('Una sola URL canónica por página', () => {
   test('la home con barra sigue siendo la home', async () => {
     const res = await get('/', stores[0].domain);
     assert.equal(res.status, 200, '"/" no debe entrar en el bucle de redirección');
+  });
+});
+
+describe('Una cabecera malformada no tumba un estático', () => {
+  test('if-match inválido da 412, no 500', async () => {
+    // GHSA de @astrojs/node: con `if-match` malformado el adaptador respondía
+    // 500 en los ficheros estáticos — cache poisoning, y la única de las 10
+    // vulnerabilidades de `npm audit` alcanzable desde internet en este
+    // despliegue. Reproducido antes de arreglar (500) y después (412).
+    //
+    // El arreglo fue @astrojs/node 10.0.4 → 10.0.6, un PATCH del mismo major
+    // (`peerDependencies: astro ^6.0.0`), no el salto a astro@7 que el ADR del
+    // gate daba por necesario para las diez.
+    const res = await getCon('/usafitness.svg', 'usafitnessvigo.com', { 'if-match': 'malformed-etag' });
+    assert.equal(res.status, 412, 'Precondition Failed es la semántica correcta');
+  });
+
+  test('sin la cabecera, el estático se sirve normal', async () => {
+    const res = await get('/usafitness.svg', 'usafitnessvigo.com');
+    assert.equal(res.status, 200);
   });
 });
 

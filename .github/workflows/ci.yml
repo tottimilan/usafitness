@@ -55,3 +55,9 @@ jobs:
       # de git al terminar.
       - name: La suite armada (fixture con ga4Id)
         run: npm run test:armado
+
+      # Tripwire de dependencias: hoy pasa (0 critical). Se pone rojo el dia
+      # que aparezca algo genuinamente nuevo y grave — que es exactamente
+      # cuando el triaje de docs/security/ debe reevaluarse, no antes.
+      - name: Auditoria de dependencias (tripwire)
+        run: npm audit --audit-level=critical
