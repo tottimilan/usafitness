@@ -23,8 +23,8 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
 import ConversionTracking from '@/components/ConversionTracking.astro';
+import Base from '@/layouts/Base.astro';
 import { porDominio } from '@/data/stores';
-import '@/styles/global.css';
 
 const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
 const store = porDominio.get(host);
@@ -34,18 +34,9 @@ const store = porDominio.get(host);
 // se pinta ni cabecera ni pie: no hay tienda a la que devolver a nadie.
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <meta name="robots" content="noindex, follow" />
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/favicon-96.png" />
-    <title>Página no encontrada{store ? ` | ${store.name}` : ''}</title>
-  </head>
-  <body>
+<!-- `noindex` explícito: una página de error nunca se indexa, esté en el
+     dominio que esté. -->
+<Base title={`Página no encontrada${store ? ` | ${store.name}` : ''}`} store={store} noindex>
     {store && <Header phone={store.phone} instagram={store.social?.instagram} />}
 
     <main id="inicio">
@@ -84,8 +75,7 @@ const store = porDominio.get(host);
     {store && <Footer name={store.name} slug={store.slug} legalBase="" />}
     {store && <CookieConsent ga4Id={store.ga4Id} cookiePolicyHref="/politica-de-cookies" />}
     {store && <ConversionTracking />}
-  </body>
-</html>
+</Base>
 
 <style>
   .notfound {

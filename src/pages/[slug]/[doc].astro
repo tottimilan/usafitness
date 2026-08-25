@@ -1,11 +1,11 @@
 ---
 export const prerender = false;
 
+import Base from '@/layouts/Base.astro';
 import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
 import { porSlug } from '@/data/stores';
 import { getLegalDoc, isLegalDoc, LEGAL_DOCS } from '@/data/legal';
-import '@/styles/global.css';
 
 const { slug, doc } = Astro.params;
 const store = slug ? porSlug.get(slug) : undefined;
@@ -46,25 +46,20 @@ const homeHref = onOwnDomain ? '/' : `/${store.slug}`;
 
 const pageTitle = `${docTitle} | ${store.name}`;
 const canonicalUrl = `https://${store.domain}/${doc}`;
-const robots = legalReady ? 'index, follow' : 'noindex, follow';
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={`${docTitle} de ${store.name}.`} />
-    <meta name="robots" content={robots} />
-    <link rel="canonical" href={canonicalUrl} />
-    <meta name="theme-color" content="#1B3A6B" />
-    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/favicon-96.png" />
-    <title>{pageTitle}</title>
-  </head>
-  <body>
+<!-- `noindex` cuando no hay datos legales: un aviso legal sin titular no debe
+     estar en Google. La OTRA mitad de la regla —indexar solo en el dominio
+     propio de la tienda— la aplica Base para todas las páginas por igual.
+     Aquí faltaba, y este documento se publicaba `index, follow` también en el
+     host de preview de Railway y en el dominio genérico. -->
+<Base
+  title={pageTitle}
+  description={`${docTitle} de ${store.name}.`}
+  canonical={canonicalUrl}
+  store={store}
+  noindex={!legalReady}
+>
     <header class="legal-header">
       <div class="container legal-header-inner">
         <a href={homeHref} class="logo-link" aria-label="Volver al inicio">
@@ -84,8 +79,7 @@ const robots = legalReady ? 'index, follow' : 'noindex, follow';
 
     <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
     <CookieConsent ga4Id={store.ga4Id} cookiePolicyHref={`${legalBase}/politica-de-cookies`} />
-  </body>
-</html>
+</Base>
 
 <style>
   .legal-header {

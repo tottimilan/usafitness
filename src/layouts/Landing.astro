@@ -1,86 +1,65 @@
 ---
+/**
+ * LANDING — la portada de una tienda
+ *
+ * Solo aporta dos cosas sobre `Base.astro`: los datos estructurados de
+ * Schema.org y el `<main>`. Todo el `<head>` vive en Base.
+ *
+ * Recibe la tienda ENTERA y no 20 props sueltas. Antes `[...slug].astro`
+ * copiaba campo a campo (`name={store.name}`, `domain={store.domain}`…), y ahí
+ * cabe pasar un campo por otro sin que nada avise. Ahora hay un tipo real
+ * derivado del esquema de `stores.json`, así que el compilador lo impide.
+ */
+import Base from '@/layouts/Base.astro';
 import { parseHorario } from '@/data/horario';
+import type { Tienda } from '@/data/stores';
 
 interface Props {
-  name: string;
-  domain: string;
-  title: string;
-  metaDescription: string;
-  location: string;
-  phone: string;
-  phoneDisplay: string;
-  schedule: string;
-  slug: string;
-  streetAddress?: string;
-  postalCode?: string;
-  addressLocality?: string;
-  addressRegion?: string;
+  store: Tienda;
+  /** Id de la plantilla activa y su CSS de tokens (ver `data/templates.ts`). */
   plantilla?: string;
   plantillaCss?: string;
-  geo?: { lat: number; lng: number };
-  reviewCount?: number;
-  avgRating?: number;
-  heroImage?: string;
-  social?: { instagram?: string; facebook?: string; tiktok?: string; youtube?: string };
-  googleSiteVerification?: string;
 }
 
-const {
-  name, domain, title, metaDescription, location,
-  phone, phoneDisplay, schedule, slug,
-  streetAddress = '', postalCode = '',
-  addressLocality = '', addressRegion = '',
-  plantilla = '', plantillaCss = '',
-  geo, reviewCount = 0, avgRating = 0,
-  heroImage = `/photos/${slug}/hero.jpg`,
-  social = {},
-  googleSiteVerification = ''
-} = Astro.props;
+const { store, plantilla = '', plantillaCss = '' } = Astro.props;
 
-const pageTitle = `${name} | Nutrición Deportiva en ${location}`;
-const canonicalUrl = `https://${domain}/`;
-const ogImage = heroImage;
-const ogImageUrl = `https://${domain}${ogImage}`;
-const logoUrl = `https://${domain}/usafitness.svg`;
-const sameAs = [social.instagram, social.facebook, social.tiktok, social.youtube].filter(Boolean) as string[];
+const pageTitle = `${store.name} | Nutrición Deportiva en ${store.location}`;
+const canonicalUrl = `https://${store.domain}/`;
+const ogImageUrl = `https://${store.domain}${store.heroImage}`;
+const sameAs = [
+  store.social?.instagram,
+  store.social?.facebook,
+  store.social?.tiktok,
+  store.social?.youtube,
+].filter(Boolean) as string[];
 
-// Only the store's own canonical domain should be indexable. Any other host
-// (Railway preview, the generic domain serving /slug, etc.) is set to noindex
-// so it never competes with or mixes into the store's own domain in Google.
-const reqHost = Astro.request.headers.get('host')?.split(':')[0] ?? '';
-const isCanonicalHost = reqHost === domain || reqHost === `www.${domain}`;
-const robotsContent = isCanonicalHost ? 'index, follow, max-image-preview:large' : 'noindex, follow';
-
-
-const openingHours = parseHorario(schedule);
+const openingHours = parseHorario(store.schedule);
 
 const structuredData: Record<string, any> = {
-  "@context": "https://schema.org",
+  '@context': 'https://schema.org',
   // Store es subtipo de LocalBusiness: conserva todas sus propiedades y le dice
-  // a Google que esto es RETAIL. LocalBusiness a secas es el tipo raíz, tan
-  // genérico que un gimnasio o una notaría emitirían exactamente el mismo marcado.
-  "@type": "Store",
-  "name": name,
-  "description": metaDescription,
-  "url": canonicalUrl,
-  "telephone": phone,
-  "image": ogImageUrl,
-  "logo": logoUrl,
-  ...(sameAs.length > 0 && { "sameAs": sameAs }),
-  "priceRange": "€€",
-  "address": {
-    "@type": "PostalAddress",
-    ...(streetAddress && { "streetAddress": streetAddress }),
+  // a Google que esto es un comercio con local, no una empresa cualquiera.
+  '@type': 'Store',
+  '@id': `${canonicalUrl}#store`,
+  name: store.name,
+  description: store.metaDescription,
+  url: canonicalUrl,
+  telephone: store.phone,
+  image: ogImageUrl,
+  logo: `https://${store.domain}/usafitness.svg`,
+  ...(sameAs.length > 0 && { sameAs }),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: store.streetAddress,
     // addressLocality es el MUNICIPIO, no el texto de marketing de `location`
     // (que puede ser una frase como "el noroeste de Madrid"). addressRegion es
-    // la PROVINCIA: antes repetía "España", duplicando addressCountry y
-    // desperdiciando la señal local.
-    "addressLocality": addressLocality || location,
-    ...(postalCode && { "postalCode": postalCode }),
-    ...(addressRegion && { "addressRegion": addressRegion }),
-    "addressCountry": "ES"
+    // la provincia.
+    addressLocality: store.addressLocality,
+    postalCode: store.postalCode,
+    addressRegion: store.addressRegion,
+    addressCountry: 'ES',
   },
-  ...(openingHours.length > 0 && { "openingHoursSpecification": openingHours })
+  ...(openingHours.length > 0 && { openingHoursSpecification: openingHours }),
   // SIN aggregateRating, deliberadamente. Google: "If the entity that's being
   // reviewed controls the reviews about itself, their pages that use
   // LocalBusiness or any other type of Organization structured data are
@@ -92,56 +71,33 @@ const structuredData: Record<string, any> = {
   // ratings from other websites".
 };
 
-if (geo) {
-  structuredData["geo"] = {
-    "@type": "GeoCoordinates",
-    "latitude": geo.lat,
-    "longitude": geo.lng
+if (store.geo) {
+  structuredData.geo = {
+    '@type': 'GeoCoordinates',
+    latitude: store.geo.lat,
+    longitude: store.geo.lng,
   };
-  structuredData["hasMap"] = `https://www.google.com/maps?q=${geo.lat},${geo.lng}`;
+  structuredData.hasMap = `https://www.google.com/maps?q=${store.geo.lat},${store.geo.lng}`;
 }
-
-import '@/styles/global.css';
 ---
 
-<!doctype html>
-<html lang="es" data-plantilla={plantilla || undefined}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={metaDescription} />
-    <meta name="robots" content={robotsContent} />
-    {/* theme-color es atributo HTML: no admite var(). Mantener en sync con --color-primary. */}
-    <meta name="theme-color" content="#0055B8" />
-    {googleSiteVerification && <meta name="google-site-verification" content={googleSiteVerification} />}
-    <link rel="canonical" href={canonicalUrl} />
+<Base
+  title={pageTitle}
+  description={store.metaDescription}
+  canonical={canonicalUrl}
+  store={store}
+  plantilla={plantilla}
+  plantillaCss={plantillaCss}
+  og={{
+    type: 'business.business',
+    image: ogImageUrl,
+    imageAlt: `${store.name} - Tienda de nutrición deportiva`,
+    siteName: store.name,
+  }}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(structuredData)} />
 
-    <meta property="og:type" content="business.business" />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={metaDescription} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:alt" content={`${name} - Tienda de nutrición deportiva`} />
-    <meta property="og:locale" content="es_ES" />
-    <meta property="og:site_name" content={name} />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={pageTitle} />
-    <meta name="twitter:description" content={metaDescription} />
-    <meta name="twitter:image" content={ogImageUrl} />
-    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/favicon-96.png" />
-    <title>{pageTitle}</title>
-
-    {plantillaCss && <style set:html={plantillaCss} />}
-
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
-  </head>
-  <body>
-    <main>
-      <slot />
-    </main>
-  </body>
-</html>
+  <main>
+    <slot />
+  </main>
+</Base>

@@ -36,34 +36,9 @@ const template = getTemplate(preview || store.template);
 // La plantilla propone el orden; la tienda puede ajustarlo con su campo `sections`.
 const orden = resolveSections(template, store.sections);
 const plan = buildPlan(store, orden);
-
-// El aggregateRating ya no se emite (ver Landing.astro), pero el layout sigue
-// recibiendo el recuento por si hiciera falta para otra cosa.
-const reviews = store.reviews;
 ---
 
-<Landing
-  name={store.name}
-  domain={store.domain}
-  title={store.title}
-  metaDescription={store.metaDescription}
-  location={store.location}
-  phone={store.phone}
-  phoneDisplay={store.phoneDisplay}
-  schedule={store.schedule}
-  slug={store.slug}
-  streetAddress={store.streetAddress}
-  postalCode={store.postalCode}
-  addressLocality={store.addressLocality}
-  addressRegion={store.addressRegion}
-  geo={store.geo}
-  reviewCount={reviews.length}
-  heroImage={store.heroImage}
-  social={store.social}
-  googleSiteVerification={store.googleSiteVerification}
-  plantilla={template.id}
-  plantillaCss={tokensToCss(template)}
->
+<Landing store={store} plantilla={template.id} plantillaCss={tokensToCss(template)}>
   <Header phone={store.phone} instagram={store.social?.instagram} />
 
   {plan.map(({ component: Section, props }) => <Section {...props} />)}

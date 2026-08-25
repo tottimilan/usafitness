@@ -1,0 +1,114 @@
+---
+/**
+ * BASE — el único `<head>` del proyecto
+ *
+ * Estaba escrito a mano cuatro veces: `Landing.astro`, `[slug]/[doc].astro`,
+ * `index.astro` y `404.astro`. No es una molestia estética; es el fallo
+ * silencioso más caro que puede tener este repo, y ya se había producido:
+ *
+ *  · las páginas legales seguían declarando `theme-color: #1B3A6B`, el azul
+ *    marino anterior al manual de marca. En la landing es `#0055B8`. Nadie lo
+ *    vio porque solo se nota en la barra del navegador en móvil.
+ *
+ * Y el que importa de verdad: **la regla de `noindex` por host**. Una copia de
+ * un `<head>` sin esa regla publica en `index` una URL que no es la canónica
+ * de la tienda, y esa copia compite en Google con el dominio del cliente que
+ * la paga. Ahora la regla se calcula AQUÍ y en ningún otro sitio.
+ *
+ * QUIÉN DECIDE SI SE INDEXA
+ *   1. `noindex` explícito manda siempre (páginas legales sin datos de empresa).
+ *   2. Con `store`: `index` solo si la petición llegó a SU dominio.
+ *   3. Sin `store` (listado genérico, 404 pelado): `noindex`.
+ */
+
+import type { Tienda } from '@/data/stores';
+import '@/styles/global.css';
+
+interface Props {
+  /** Título completo de la pestaña. */
+  title: string;
+  description?: string;
+  /** URL canónica absoluta. Sin ella no se emite la etiqueta. */
+  canonical?: string;
+  /** La tienda a la que pertenece la página, si pertenece a alguna. */
+  store?: Tienda;
+  /** Fuerza `noindex` pase lo que pase. Para páginas que no deben indexarse nunca. */
+  noindex?: boolean;
+  /** Valor de `data-plantilla` en `<html>` y CSS de tokens de la plantilla. */
+  plantilla?: string;
+  plantillaCss?: string;
+  og?: {
+    type?: string;
+    image?: string;
+    imageAlt?: string;
+    siteName?: string;
+  };
+}
+
+const {
+  title,
+  description = '',
+  canonical = '',
+  store,
+  noindex = false,
+  plantilla = '',
+  plantillaCss = '',
+  og,
+} = Astro.props;
+
+const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const enSuDominio = !!store && (host === store.domain || host === `www.${store.domain}`);
+
+// `max-image-preview:large` solo donde se indexa: es lo que permite la miniatura
+// grande en el resultado, y en una tienda física la foto del local vende.
+const robots = !noindex && enSuDominio ? 'index, follow, max-image-preview:large' : 'noindex, follow';
+---
+
+<!doctype html>
+<html lang="es" data-plantilla={plantilla || undefined}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {description && <meta name="description" content={description} />}
+    <meta name="robots" content={robots} />
+    {/* theme-color es atributo HTML: no admite var(). Mantener en sync con --color-primary. */}
+    <meta name="theme-color" content="#0055B8" />
+    {store?.googleSiteVerification && (
+      <meta name="google-site-verification" content={store.googleSiteVerification} />
+    )}
+    {canonical && <link rel="canonical" href={canonical} />}
+
+    {og && (
+      <>
+        <meta property="og:type" content={og.type ?? 'website'} />
+        <meta property="og:title" content={title} />
+        {description && <meta property="og:description" content={description} />}
+        {canonical && <meta property="og:url" content={canonical} />}
+        {og.image && <meta property="og:image" content={og.image} />}
+        {og.imageAlt && <meta property="og:image:alt" content={og.imageAlt} />}
+        <meta property="og:locale" content="es_ES" />
+        {og.siteName && <meta property="og:site_name" content={og.siteName} />}
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        {description && <meta name="twitter:description" content={description} />}
+        {og.image && <meta name="twitter:image" content={og.image} />}
+      </>
+    )}
+
+    {/* La tipografía se autoaloja: cero peticiones a terceros antes del consentimiento. */}
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon-96.png" />
+    <title>{title}</title>
+
+    {plantillaCss && <style set:html={plantillaCss} />}
+
+    {/* Datos estructurados y cualquier otra cosa propia de la página. */}
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

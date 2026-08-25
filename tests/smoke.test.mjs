@@ -102,6 +102,22 @@ describe('Los hosts no canónicos no compiten en Google', () => {
     assert.match(html, /name="robots" content="noindex/, 'noindex fuera del dominio de la tienda');
   });
 
+  test('las páginas legales tampoco se indexan fuera del dominio de su tienda', async () => {
+    // Era un fallo REAL, no una hipótesis: `[slug]/[doc].astro` calculaba
+    // `robots` solo a partir de si la tienda tenía datos legales, sin mirar el
+    // host. En el preview de Railway y en el dominio genérico, el aviso legal
+    // de un cliente se publicaba `index, follow`. Ahora la regla vive en
+    // `Base.astro` y se aplica igual a todas las páginas.
+    const s = stores.find((x) => x.company);
+    const res = await get(`/${s.slug}/aviso-legal`, 'preview.up.railway.app');
+    assert.match(res.text(), /name="robots" content="noindex/);
+  });
+
+  test('el 404 no se indexa ni en el dominio propio de la tienda', async () => {
+    const res = await get('/no-existe', stores[0].domain);
+    assert.match(res.text(), /name="robots" content="noindex/);
+  });
+
   test('www resuelve igual que el dominio pelado', async () => {
     const s = stores[0];
     const res = await get('/', `www.${s.domain}`);
@@ -142,7 +158,10 @@ describe('Las 4 páginas legales responden', () => {
         const res = await get(`/${doc}`, s.domain);
         assert.equal(res.status, 200, `/${doc} debe responder en ${s.domain}`);
         const html = res.text();
-        const esperado = s.company ? /content="index, follow"/ : /content="noindex/;
+        // Se comprueba el prefijo, no la cadena exacta: `Base.astro` añade
+        // `max-image-preview:large` donde se indexa. Lo que importa es que
+        // empiece por `index` y no por `noindex`.
+        const esperado = s.company ? /content="index, follow/ : /content="noindex/;
         assert.match(html, esperado, `robots correcto en /${doc} según tenga o no datos legales`);
         if (s.company) {
           // La razón social sí está en los cuatro documentos. El NIF solo en
