@@ -125,17 +125,29 @@ describe('Los hosts no canónicos no compiten en Google', () => {
     assert.match(res.text(), /name="robots" content="index, follow/);
   });
 
-  test('el token de Search Console no se publica fuera del dominio de su tienda', async () => {
+  // `{ skip: … }` y NO `if (!s) return`. Con el return temprano, node:test lo
+  // cuenta como PASS: el marcador dice 72 verdes y reclama una cobertura que no
+  // existe, porque ninguna tienda tiene token todavía. Con `skip`, el resumen
+  // dice `skipped 1` y la ausencia se ve en cada ejecución.
+  //
+  // La diferencia con el guardián que desarmó la Tarea 1 importa: aquel se
+  // APAGABA al llegar el dato, este se ENCIENDE. Pero mientras esté dormido no
+  // puede fingir que vigila.
+  const conToken = stores.find((x) => x.googleSiteVerification);
+  test(
+    'el token de Search Console no se publica fuera del dominio de su tienda',
+    { skip: conToken ? false : 'ninguna tienda tiene googleSiteVerification todavía' },
+    async () => {
     // `Base.astro` calcula `enSuDominio` para el meta robots pero no lo aplicaba
     // al token de verificación: cualquier host que sirviera /vigo publicaba el
     // token de propiedad de Vigo.
-    const s = stores.find((x) => x.googleSiteVerification);
-    if (!s) return;
+    const s = conToken;
     const ajeno = (await get(`/${s.slug}`, 'preview.up.railway.app')).text();
     assert.ok(!ajeno.includes('google-site-verification'), 'fuera de su dominio, no');
     const propio = (await get('/', s.domain)).text();
     assert.ok(propio.includes(s.googleSiteVerification), 'en su dominio, sí');
-  });
+    }
+  );
 });
 
 describe('Sitemap por dominio, sin mezclar tiendas', () => {
@@ -300,11 +312,14 @@ describe('Nada de terceros antes del consentimiento', () => {
     });
   }
 
-  test('con ga4Id, la URL de gtag.js solo vive dentro del cargador diferido', async () => {
-    // Contra la tienda que tenga ID; si aún no hay ninguna, se salta en vez de
-    // dar un verde que no significa nada.
-    const s = stores.find((x) => x.ga4Id);
-    if (!s) return;
+  // Mismo motivo que el test del token de Search Console: `skip` y no un return
+  // temprano, para que el marcador no cuente como verde lo que no se ha probado.
+  const conGa4 = stores.find((x) => x.ga4Id);
+  test(
+    'con ga4Id, la URL de gtag.js solo vive dentro del cargador diferido',
+    { skip: conGa4 ? false : 'ninguna tienda tiene ga4Id todavía' },
+    async () => {
+    const s = conGa4;
     const html = (await get('/', s.domain)).text();
 
     assert.ok(!pideRecursoDe(html, 'googletagmanager.com'), 'ningún src/href apunta a Google al cargar');
@@ -322,7 +337,8 @@ describe('Nada de terceros antes del consentimiento', () => {
 
     assert.ok(html.includes("gtag('consent', 'default'"), 'Consent Mode se declara desde el principio');
     assert.ok(html.includes(s.ga4Id), 'el id viaja en el HTML para poder cargarlo al aceptar');
-  });
+    }
+  );
 });
 
 describe('Una URL que no existe da 404, no un redirect a la home', () => {
