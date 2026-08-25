@@ -138,6 +138,16 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
 });
 
 describe('Los ficheros que declaran los datos existen de verdad', () => {
+  test('el propio verificador está en el repositorio', async () => {
+    // No es paranoia: `.gitignore` traía `build/` sin anclar, o sea "cualquier
+    // carpeta llamada build a cualquier profundidad", y se tragó `src/build/`.
+    // El fichero existía en local, la suite entera pasaba en local, y el CI
+    // caía con "Cannot find module". Un `git status` limpio no demuestra que
+    // el árbol esté completo. Este test falla en un clon recién hecho.
+    const m = await import('../src/build/verificar-assets.ts');
+    assert.equal(typeof m.assetsQueFaltan, 'function');
+  });
+
   test('no falta ninguna imagen ni la tipografía', async () => {
     // El esquema comprueba que una ruta TENGA forma de ruta. Esto comprueba
     // que el fichero esté. Una ruta mal escrita no da error en ningún sitio:

@@ -20,12 +20,17 @@ yarn-error.log*
 pnpm-debug.log*
 
 # --- Build output ---
-dist/
-build/
-out/
-.next/
-.nuxt/
-.turbo/
+# Anclados a la raiz con "/" a proposito. Sin la barra, `build/` significa
+# "cualquier carpeta llamada build a cualquier profundidad", y eso se tragaba
+# `src/build/` — codigo fuente. El fichero existia en local, los tests pasaban
+# en local, y el CI fallaba con "Cannot find module" porque nunca se subio.
+# Un `git status` limpio no demuestra que el arbol este completo.
+/dist/
+/build/
+/out/
+/.next/
+/.nuxt/
+/.turbo/
 .cache/
 coverage/
 .vercel/
