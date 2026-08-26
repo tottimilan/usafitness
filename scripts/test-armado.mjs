@@ -83,5 +83,21 @@ if (readFileSync(FICHERO, 'utf8') !== original) {
   codigo = 1;
 }
 
+// Y se RECONSTRUYE. Restaurar el fuente no bastaba: `dist/` se quedaba
+// compilado CON el fixture dentro, así que un `npm test` posterior —que no
+// recompila— corría contra un build que decía `midiendo: true` para una tienda
+// sin `ga4Id`. Pasó de verdad, y el fallo apuntaba a un cambio que no tenía
+// nada que ver.
+//
+// Peor que el falso rojo: un `npm start` después de esto servía un ID de Google
+// inventado desde el propio portátil. La promesa del script es «restaura
+// SIEMPRE», y el artefacto también es estado.
+try {
+  correr('npm run build');
+} catch {
+  console.error('\n[test-armado] ✖ no se pudo reconstruir tras restaurar: `dist/` sigue teniendo el fixture. Ejecuta `npm run build`.\n');
+  codigo = 1;
+}
+
 console.log(codigo === 0 ? '\n[test-armado] ✔ suite armada en verde y datos restaurados\n' : '\n[test-armado] ✖ fallo — ver arriba\n');
 process.exit(codigo);

@@ -655,3 +655,59 @@ describe('La huella de WordPress tiene que aparecer PRONTO', () => {
     assert.match(d.detalle, /WordPress/);
   });
 });
+
+describe('El DNS hay que preguntárselo a internet, no a tu router', () => {
+  // ESTE BLOQUE EXISTE POR UN FALLO DE ESTA MISMA HERRAMIENTA.
+  //
+  // La primera versión de `estado-flota.mjs` resolvía con `dns.lookup()`, que
+  // usa el resolvedor del sistema. El 2026-08-26, `usafitnesslagoh.com` estaba
+  // caído para todo internet —SERVFAIL en 8.8.8.8 y en 1.1.1.1— y esta máquina
+  // lo seguía resolviendo a 185.45.73.103 desde una caché rancia. La
+  // herramienta informó "responde 404, lo sirve WordPress" cuando la verdad era
+  // "no existe para nadie". Diagnóstico equivocado, y encima tranquilizador.
+  //
+  // Preguntar al resolvedor local es justo lo que no sirve: durante una
+  // migración, tu máquina es la que peor informada está.
+
+  const base = { slug: 'lagoh', dominio: 'usafitnesslagoh.com', codigo: null, cuerpo: null };
+
+  test('si ningún resolvedor público lo ve, está caído aunque tu PC lo resuelva', () => {
+    const d = clasificar({ ...base, resuelveDns: false });
+    assert.equal(d.estado, 'sin-dns');
+  });
+
+  test('resolvedores públicos que no coinciden es propagación, no caída', () => {
+    // Estado REAL y esperable justo cuando se usa esto: en mitad de un cambio
+    // de nameservers unos resolvedores ya tienen el dato y otros no. Informar
+    // "caído" aquí sería alarmar por algo que se arregla solo en minutos.
+    const d = clasificar({ ...base, resuelveDns: true, dnsDiscrepante: true });
+    assert.equal(d.estado, 'dns-propagando');
+    assert.match(d.detalle, /propag/i);
+    assert.equal(esProblema('dns-propagando'), true, 'no es normal: hay que volver a mirarlo');
+  });
+
+  test('la discrepancia manda sobre lo que devuelva el HTTP', () => {
+    // Si media internet no te ve, que TU petición HTTP funcione no significa
+    // nada: la estás haciendo desde el lado que sí resuelve.
+    const d = clasificar({
+      ...base,
+      resuelveDns: true,
+      dnsDiscrepante: true,
+      codigo: 200,
+      cuerpo: JSON.stringify({ ok: true, tienda: 'lagoh', tiendas: 8, dominios: 16, sha: 'abc' }),
+    });
+    assert.equal(d.estado, 'dns-propagando');
+  });
+
+  test('sin discrepancia, todo sigue como antes', () => {
+    const d = clasificar({
+      ...base,
+      slug: 'vigo',
+      resuelveDns: true,
+      dnsDiscrepante: false,
+      codigo: 200,
+      cuerpo: JSON.stringify({ ok: true, tienda: 'vigo', tiendas: 8, dominios: 16, sha: 'abc' }),
+    });
+    assert.equal(d.estado, 'servida');
+  });
+});

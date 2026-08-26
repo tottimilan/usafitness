@@ -18,10 +18,55 @@
 
 import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
-import { lookup } from 'node:dns/promises';
 import { clasificar, resumirFlota } from '../src/data/flota.ts';
 
 const TIEMPO_LIMITE = 20_000;
+
+/**
+ * SE PREGUNTA A INTERNET, NO AL RESOLVEDOR DE ESTA MÁQUINA.
+ *
+ * La primera versión usaba `dns.lookup()`, que va contra el resolvedor del
+ * sistema. El mismo día que se escribió, con `usafitnesslagoh.com` caído para
+ * todo el mundo, esta máquina lo seguía resolviendo desde caché y la
+ * herramienta informó «responde 404, lo sirve WordPress» en vez de «no existe
+ * para nadie». Un diagnóstico equivocado y encima tranquilizador.
+ *
+ * Se consultan DOS resolvedores públicos independientes. Si discrepan, es
+ * propagación en curso — un estado real y frecuente justo cuando se usa esto—,
+ * y merece un diagnóstico propio en vez de contarse como caída.
+ */
+const RESOLVEDORES = [
+  ['Google', 'https://dns.google/resolve'],
+  ['Cloudflare', 'https://cloudflare-dns.com/dns-query'],
+];
+
+async function resuelveEn(url, dominio) {
+  try {
+    const res = await fetch(`${url}?name=${encodeURIComponent(dominio)}&type=A`, {
+      headers: { accept: 'application/dns-json' },
+      signal: AbortSignal.timeout(TIEMPO_LIMITE),
+    });
+    const j = await res.json();
+    // Status 0 = NOERROR. 2 = SERVFAIL (el caso de hoy), 3 = NXDOMAIN.
+    return j.Status === 0 && Array.isArray(j.Answer) && j.Answer.length > 0;
+  } catch {
+    // Un fallo de red al hablar con el resolvedor NO es un fallo del dominio.
+    // `null` se descarta más abajo para no acusar a un dominio sano.
+    return null;
+  }
+}
+
+async function estadoDns(dominio) {
+  const votos = (await Promise.all(RESOLVEDORES.map(([, url]) => resuelveEn(url, dominio)))).filter(
+    (v) => v !== null
+  );
+  if (!votos.length) return { resuelveDns: true, dnsDiscrepante: false, sinConsultar: true };
+  return {
+    resuelveDns: votos.some(Boolean),
+    dnsDiscrepante: votos.some(Boolean) && !votos.every(Boolean),
+    sinConsultar: false,
+  };
+}
 
 const { stores } = JSON.parse(readFileSync(new URL('../src/data/stores.json', import.meta.url), 'utf8'));
 
@@ -32,10 +77,17 @@ const { stores } = JSON.parse(readFileSync(new URL('../src/data/stores.json', im
  * llamar: al registrador o a Railway.
  */
 async function sondear(tienda) {
-  try {
-    await lookup(tienda.domain);
-  } catch {
-    return { slug: tienda.slug, dominio: tienda.domain, resuelveDns: false, codigo: null, cuerpo: null };
+  const dns = await estadoDns(tienda.domain);
+
+  if (!dns.resuelveDns || dns.dnsDiscrepante) {
+    return {
+      slug: tienda.slug,
+      dominio: tienda.domain,
+      resuelveDns: dns.resuelveDns,
+      dnsDiscrepante: dns.dnsDiscrepante,
+      codigo: null,
+      cuerpo: null,
+    };
   }
 
   try {
@@ -48,7 +100,7 @@ async function sondear(tienda) {
     // entera de WordPress y solo hacen falta las primeras líneas para
     // reconocerla.
     const cuerpo = (await res.text()).slice(0, 4000);
-    const base = { slug: tienda.slug, dominio: tienda.domain, resuelveDns: true, codigo: res.status, cuerpo };
+    const base = { slug: tienda.slug, dominio: tienda.domain, resuelveDns: true, dnsDiscrepante: false, codigo: res.status, cuerpo };
 
     // Segunda petición SOLO si la primera no fue nuestra. El 404 que devuelve
     // `/health` en un WordPress no lleva ninguna huella reconocible; la portada
@@ -57,7 +109,7 @@ async function sondear(tienda) {
     if (cuerpo.includes('"dominios"')) return base;
     return { ...base, cuerpoPortada: await portada(tienda.domain) };
   } catch {
-    return { slug: tienda.slug, dominio: tienda.domain, resuelveDns: true, codigo: null, cuerpo: null };
+    return { slug: tienda.slug, dominio: tienda.domain, resuelveDns: true, dnsDiscrepante: false, codigo: null, cuerpo: null };
   }
 }
 
@@ -77,6 +129,7 @@ async function portada(dominio) {
 const ICONO = {
   servida: '✔',
   'sin-dns': '✖',
+  'dns-propagando': '~',
   'otro-sistema': '✖',
   'enrutado-roto': '✖',
   degradada: '!',

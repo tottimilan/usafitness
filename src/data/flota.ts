@@ -38,8 +38,23 @@
 export interface Sonda {
   slug: string;
   dominio: string;
-  /** `false` cuando el nombre no resuelve. Entonces `codigo` y `cuerpo` son null. */
+  /**
+   * ¿Lo ve INTERNET? No «¿lo ve esta máquina?».
+   *
+   * La distinción costó un diagnóstico equivocado el 2026-08-26: con
+   * `usafitnesslagoh.com` caído para todo el mundo (SERVFAIL en 8.8.8.8 y en
+   * 1.1.1.1), esta máquina lo seguía resolviendo desde una caché rancia y la
+   * herramienta informó «responde 404, lo sirve WordPress». Durante una
+   * migración —que es cuando se usa esto— tu resolvedor local es el peor
+   * informado de todos.
+   */
   resuelveDns: boolean;
+  /**
+   * Los resolvedores públicos consultados no coinciden: unos lo ven y otros no.
+   * Es propagación en curso, no una caída, y es un estado normal en mitad de un
+   * cambio de nameservers.
+   */
+  dnsDiscrepante?: boolean;
   /** Código HTTP, o `null` si no llegó a haber respuesta. */
   codigo: number | null;
   /** Cuerpo crudo de `/health`. Puede no ser JSON: eso es justamente un dato. */
@@ -59,8 +74,10 @@ export interface Sonda {
 export type Estado =
   /** Sirve nuestro código y se identifica como la tienda correcta. */
   | 'servida'
-  /** El nombre no resuelve. No hay web, ni siquiera la anterior. */
+  /** El nombre no resuelve para NADIE. No hay web, ni siquiera la anterior. */
   | 'sin-dns'
+  /** Unos resolvedores públicos lo ven y otros no: cambio de DNS en curso. */
+  | 'dns-propagando'
   /** Contesta, pero no es nuestro sistema. El DNS apunta a otro sitio. */
   | 'otro-sistema'
   /** Es nuestro, pero se identifica como otra tienda (o como ninguna). */
@@ -81,7 +98,14 @@ export interface Diagnostico {
 }
 
 /** Los estados que exigen que alguien haga algo. */
-const PROBLEMAS: readonly Estado[] = ['sin-dns', 'otro-sistema', 'enrutado-roto', 'degradada', 'sin-clasificar'];
+const PROBLEMAS: readonly Estado[] = [
+  'sin-dns',
+  'dns-propagando',
+  'otro-sistema',
+  'enrutado-roto',
+  'degradada',
+  'sin-clasificar',
+];
 
 export function esProblema(estado: Estado): boolean {
   return PROBLEMAS.includes(estado);
@@ -150,6 +174,18 @@ export function clasificar(sonda: Sonda): Diagnostico {
       estado: 'sin-dns',
       detalle:
         'el dominio no resuelve: no hay web, ni siquiera la anterior. Mira si la zona está activa en Cloudflare',
+    };
+  }
+
+  // Va ANTES de mirar el HTTP a propósito: si media internet no ve el dominio,
+  // que TU petición funcione no dice nada — la estás haciendo desde el lado que
+  // sí resuelve.
+  if (sonda.dnsDiscrepante) {
+    return {
+      ...base,
+      estado: 'dns-propagando',
+      detalle:
+        'unos resolvedores públicos lo ven y otros no: el cambio de DNS se está propagando. Vuelve a mirarlo en unos minutos',
     };
   }
 
