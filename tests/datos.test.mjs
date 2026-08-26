@@ -29,6 +29,7 @@ import {
 import { parseHorario } from '../src/data/horario.ts';
 import { clasificar, resumirFlota, esProblema } from '../src/data/flota.ts';
 import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.ts';
+import { anchosDe, srcsetDe, rutaVariante, sizesDe } from '../src/data/imagen.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -799,5 +800,72 @@ describe('La galería se coloca según la foto, no al revés', () => {
       'una foto de 500px cruzando una fila de 900px tiene que avisar'
     );
     assert.equal(p.avisos.length, 1, 'y las demás, que sí llenan su columna, no');
+  });
+});
+
+describe('Cada pantalla se lleva el tamaño de foto que necesita', () => {
+  // Hoy cada dominio sirve el original a todo el mundo. En GranCasa son 1770 KB
+  // de imágenes para llenar columnas de 289 px. Medido: servir 600 px baja esa
+  // página a 542 KB, un 69% menos, sin que se note.
+
+  const grande = { src: '/photos/vigo/tienda-1.webp', ancho: 1400, alto: 1050 };
+  const pequena = { src: '/photos/lagoh/tienda-1.webp', ancho: 382, alto: 510 };
+
+  test('nunca se genera una variante MÁS GRANDE que el original', () => {
+    // Ampliar una foto no añade un solo píxel de información y sí peso. Es el
+    // error que ya cometía la galería antes de medir: estiraba los 382px de
+    // Lagoh hasta 442.
+    assert.deepEqual(anchosDe(grande), [400, 600, 900]);
+    assert.deepEqual(anchosDe(pequena), [], 'una foto de 382px no tiene variantes que generar');
+    assert.deepEqual(anchosDe({ src: 'x', ancho: 700, alto: 500 }), [400, 600]);
+  });
+
+  test('el srcset acaba SIEMPRE en el original, con su ancho real', () => {
+    // El original es la mejor copia que existe: volver a codificarla solo puede
+    // empeorarla, así que entra tal cual.
+    const s = srcsetDe(grande);
+    assert.match(s, /\/photos\/vigo\/tienda-1\.webp 1400w$/);
+    assert.equal(s.split(', ').length, 4, '3 variantes + el original');
+  });
+
+  test('una foto pequeña se sirve sola, sin variantes inútiles', () => {
+    assert.equal(srcsetDe(pequena), '/photos/lagoh/tienda-1.webp 382w');
+  });
+
+  test('las variantes van bajo /_img/ y no junto al original', () => {
+    // Así `public/photos` sigue conteniendo solo lo que subió un humano, y las
+    // generadas se pueden borrar enteras sin mirar qué había dentro.
+    assert.equal(rutaVariante('/photos/vigo/tienda-1.webp', 600), '/_img/photos/vigo/tienda-1-600.webp');
+    assert.equal(rutaVariante('/photos/alcobendas/tienda-1.jpg', 400), '/_img/photos/alcobendas/tienda-1-400.webp');
+  });
+
+  test('/_img/ son ficheros reales, así que no pisan la trampa del middleware', async () => {
+    // `astro:assets` habría añadido el endpoint /_image, que SÍ pasa por el
+    // middleware: sin meterlo en RAIZ_COMPARTIDA se reescribiría a
+    // /<slug>/_image y todas las imágenes darían 404 en los 8 dominios a la vez.
+    // Pregenerar lo evita por construcción, no por acordarse de una lista.
+    const mw = await import('node:fs').then((fs) =>
+      fs.readFileSync(new URL('../src/middleware.ts', import.meta.url), 'utf8')
+    );
+    assert.ok(
+      mw.includes('_image'),
+      'el aviso sobre /_image tiene que seguir en el middleware para quien venga después'
+    );
+    assert.ok(!rutaVariante('/photos/x.webp', 400).startsWith('/_image'), 'y no usamos esa ruta');
+  });
+
+  test('sizes describe las tres franjas que tiene el CSS de la galería', () => {
+    const tres = sizesDe(3);
+    assert.match(tres, /\(max-width: 640px\) 100vw/, 'móvil: una columna a ancho completo');
+    assert.match(tres, /calc\(100vw \/ 3\)/, 'entre 640 y 932 manda el viewport');
+    assert.match(tres, /289px$/, 'y a partir de ahí la columna es fija');
+
+    assert.match(sizesDe(2), /442px$/, '2 columnas dan celdas de 442px');
+  });
+
+  test('la foto destacada declara que cruza todo el ancho', () => {
+    // Si declarara el ancho de una columna, el navegador se traería una
+    // variante pequeña y la estiraría a 900px.
+    assert.equal(sizesDe(3, true), '(max-width: 932px) 100vw, 900px');
   });
 });

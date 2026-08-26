@@ -18,5 +18,8 @@
   "dependencies": {
     "@astrojs/node": "^10.0.6",
     "astro": "^6.1.5"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }

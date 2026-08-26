@@ -26,7 +26,27 @@ const MAPA = dimensiones as Record<string, { ancho: number; alto: number; huella
 const POR_DEFECTO = { ancho: 1400, alto: 1050 };
 
 export function fotosDe(tienda: Tienda): Foto[] {
-  return tienda.galleryImages.map((src) => ({ src, ...(MAPA[src] ?? POR_DEFECTO) }));
+  const hero = MAPA[tienda.heroImage];
+
+  return tienda.galleryImages.map((src) => {
+    const m = MAPA[src] ?? POR_DEFECTO;
+
+    // Si esta foto de galería es EL MISMO FICHERO que el hero —pasa en 7 de las
+    // 8 tiendas: `hero.webp` y `tienda-1.webp` son idénticos byte a byte— se
+    // apunta a la URL del hero.
+    //
+    // La página se ve exactamente igual: es la misma imagen. Lo que cambia es
+    // que el navegador deja de descargarla DOS VECES por tener dos nombres.
+    // Medido: entre 35 KB (lagoh) y 134 KB (arcangel) por visita, tirados.
+    //
+    // Esto NO decide si la foto debe repetirse o no —eso es una decisión
+    // editorial y está anotada aparte en `repitenElHero`—; solo deja de
+    // cobrarla dos veces mientras se decide.
+    if (hero && m !== POR_DEFECTO && m.huella === hero.huella) {
+      return { src: tienda.heroImage, ...hero };
+    }
+    return { src, ...m };
+  });
 }
 
 export function galeriaDe(tienda: Tienda): PlanDeGaleria {
@@ -57,4 +77,28 @@ export function repitenElHero(tienda: Tienda): string[] {
   // (`hero.webp` y `tienda-1.webp`) con exactamente los mismos bytes, así que
   // comparar rutas no detectaría ni uno de los siete.
   return tienda.galleryImages.filter((src) => src !== tienda.heroImage && MAPA[src]?.huella === hero.huella);
+}
+
+/**
+ * TODAS las fotos que descarga la página de una tienda: la galería y el hero.
+ *
+ * El hero se olvidaba con facilidad al contar peso —no está en
+ * `galleryImages`—, y es la única que se descarga SIEMPRE, sin esperar a que
+ * nadie baje. En 7 de las 8 tiendas además es el mismo fichero que la primera
+ * de la galería, así que `fotosDePagina` puede devolver la misma ruta dos
+ * veces; quien cuente peso debe deduplicar por `src`.
+ */
+export function fotosDePagina(tienda: Tienda): Foto[] {
+  return [{ src: tienda.heroImage, ...(MAPA[tienda.heroImage] ?? POR_DEFECTO) }, ...fotosDe(tienda)];
+}
+
+/**
+ * El hero, con sus dimensiones REALES.
+ *
+ * `Hero.astro` las llevaba escritas a mano —`width="1400" height="1050"`— y
+ * eran falsas en 5 de las 8 tiendas. La peor, Lagoh: declaraba 1400×1050
+ * midiendo 382×510, o sea 3,7 veces más ancho del que tiene.
+ */
+export function fotoHero(tienda: Tienda): Foto {
+  return { src: tienda.heroImage, ...(MAPA[tienda.heroImage] ?? POR_DEFECTO) };
 }

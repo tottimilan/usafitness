@@ -117,3 +117,7 @@ docs/brand/fuentes/*Banner*
 # Ficheros de trabajo de una sesion (salida cruda de workflows, borradores)
 .plan-*.md
 .gate-*.md
+
+# Variantes de imagen generadas en el build (src/build/generar-variantes.ts).
+# No se commitean: se rehacen solas y ocuparian mas que las fuentes.
+/public/_img/

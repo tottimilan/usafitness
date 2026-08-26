@@ -119,6 +119,11 @@ export function medirDirectorio(raiz: string): Record<string, Dimensiones> {
 
   const recorrer = (dir: string) => {
     for (const entrada of readdirSync(dir)) {
+      // Los directorios con guion bajo son GENERADOS (hoy `_img`, las variantes
+      // responsive). Medirlos metía las 120 variantes en el fichero que este
+      // módulo escribe, así que el segundo build veía 184 imágenes en vez de
+      // 64 y `dimensiones.json` crecía con datos derivados de sí mismo.
+      if (entrada.startsWith('_')) continue;
       const completa = join(dir, entrada);
       if (statSync(completa).isDirectory()) {
         recorrer(completa);
@@ -152,6 +157,15 @@ export function escribirDimensiones(dirPublic: string, destino: string): { total
     /* primera vez */
   }
 
-  if (anterior !== texto) writeFileSync(destino, texto);
-  return { total: Object.keys(medidas).length, cambios: anterior !== texto };
+  // Se comparan los finales de línea NORMALIZADOS. En Windows con
+  // `core.autocrlf=true` —que es la máquina donde se trabaja— git deja el
+  // fichero con CRLF y aquí se escribe con LF, así que una comparación literal
+  // daba «ACTUALIZADO, commitéalo» en cada build sin que hubiera cambiado nada.
+  // Un aviso que salta siempre es un aviso que se ignora, y entonces no avisa
+  // el día que sí hay algo que commitear.
+  const nl = (s: string) => s.replace(/\r\n/g, '\n');
+  const cambios = anterior === null || nl(anterior) !== nl(texto);
+
+  if (cambios) writeFileSync(destino, texto);
+  return { total: Object.keys(medidas).length, cambios };
 }
