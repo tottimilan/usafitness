@@ -375,3 +375,55 @@ describe('Los mapas apuntan a la ficha de la tienda, no a una búsqueda', () => 
     }
   });
 });
+
+
+describe('Las redes sociales que se publican son de ESA tienda', () => {
+  // `social.instagram` no solo pinta un icono: alimenta el `sameAs` de
+  // Schema.org en Landing.astro, o sea que le DECLARA A GOOGLE que ese negocio
+  // es dueño de esa cuenta. Publicar el handle equivocado es una afirmación
+  // falsa sobre una empresa real y manda los clientes de un franquiciado a la
+  // cuenta de otro.
+  //
+  // Cada handle se verificó leyendo el og:title real de Instagram, no
+  // deduciéndolo del patrón. Es la misma disciplina que se instauró tras el bug
+  // de los mapas: no se publica un identificador que no se haya comprobado.
+
+  const conIg = stores.filter((s) => s.social?.instagram);
+
+  test('el formato es una URL de perfil, no una búsqueda ni un enlace suelto', () => {
+    for (const s of conIg) {
+      assert.match(s.social.instagram, /^https:\/\/www\.instagram\.com\/[A-Za-z0-9._]+\/$/,
+        `${s.slug}: debe ser https://www.instagram.com/<handle>/`);
+    }
+  });
+
+  test('dos tiendas no comparten cuenta', () => {
+    // Sociedades distintas no pueden declararle a Google que son dueñas del
+    // mismo perfil. Un duplicado aquí es copy-paste.
+    const urls = conIg.map((s) => s.social.instagram.toLowerCase());
+    assert.equal(new Set(urls).size, urls.length, 'hay una cuenta de Instagram repetida entre tiendas');
+  });
+
+  test('el handle no es el de otra tienda de la lista', () => {
+    // Guarda contra el error más fácil: pegar el de Vigo en Marineda. Se
+    // comprueba que el handle de cada una no aparezca en el `social` de otra.
+    for (const a of conIg) {
+      const handleA = a.social.instagram.split('/').filter(Boolean).pop();
+      for (const b of conIg) {
+        if (b.slug === a.slug) continue;
+        const handleB = b.social.instagram.split('/').filter(Boolean).pop();
+        assert.notEqual(handleA, handleB, `${a.slug} y ${b.slug} comparten el handle ${handleA}`);
+      }
+    }
+  });
+
+  test('una tienda sin cuenta no publica sameAs ni sección', () => {
+    // Es lo correcto: mejor sin sección que enlazando la cuenta que más se
+    // parezca. Las Rosas y El Arcángel están así a propósito.
+    for (const s of stores) {
+      if (s.social?.instagram) continue;
+      assert.ok(!s.social || Object.values(s.social).every((v) => !v),
+        `${s.slug} tiene un objeto social sin contenido útil`);
+    }
+  });
+});
