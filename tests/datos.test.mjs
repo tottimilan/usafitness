@@ -427,3 +427,37 @@ describe('Las redes sociales que se publican son de ESA tienda', () => {
     }
   });
 });
+
+describe('No se enlaza la cuenta de marca desde ninguna tienda', () => {
+  // Regla del usuario (2026-08-26). Tiene además fundamento técnico:
+  // `social.*` alimenta el `sameAs` de Schema.org, que declara de QUIÉN ES la
+  // cuenta. Poner la corporativa en la ficha de una tienda le diría a Google
+  // que esa sociedad es dueña del perfil de la cadena — son entidades
+  // distintas — y mandaría el tráfico que paga cada franquiciado a una cuenta
+  // que no es suya.
+  //
+  // Es fácil heredar la confusión: los directorios de varios centros
+  // comerciales enlazan @usafitnessoficial en vez de la cuenta de la tienda.
+  const MARCA = ['usafitnessoficial', 'comunidadusafitness'];
+
+  test('ninguna tienda enlaza una cuenta corporativa', () => {
+    for (const s of stores) {
+      for (const [red, url] of Object.entries(s.social ?? {})) {
+        if (!url) continue;
+        for (const m of MARCA) {
+          assert.ok(!url.toLowerCase().includes(m),
+            `${s.slug}.social.${red} enlaza ${m}, que es de la marca y no de esta tienda`);
+        }
+      }
+    }
+  });
+
+  test('las 7 tiendas tienen su propia cuenta de Instagram', () => {
+    // Se llegó aquí en dos tandas: 5 el 2026-08-26 y las 2 últimas cuando se
+    // descubrió que el patrón de la cadena usa PUNTOS (usafitness_c.c.<sitio>),
+    // que no se había probado. Si alguna desaparece, que se note.
+    for (const s of stores) {
+      assert.ok(s.social?.instagram, `${s.slug} se ha quedado sin Instagram`);
+    }
+  });
+});

@@ -118,7 +118,10 @@
       ],
       "addressLocality": "Madrid",
       "addressRegion": "Madrid",
-      "mall": "C.C. Las Rosas"
+      "mall": "C.C. Las Rosas",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_c.c.lasrosas/"
+      }
     },
     {
       "slug": "alcobendas",
@@ -308,7 +311,10 @@
       },
       "addressLocality": "Córdoba",
       "addressRegion": "Córdoba",
-      "mall": "C.C. El Arcángel"
+      "mall": "C.C. El Arcángel",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_cordoba/"
+      }
     }
   ]
 }
