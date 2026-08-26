@@ -185,3 +185,31 @@
 - **Alternatives considered:** (a) fiarse de `spotlit` como única señal — insuficiente: `spotlit` estaba a 1 en los dos casos que devolvían coordenadas de otro país; (b) validar solo por nombre — insuficiente: Xanadu devuelve «USA Fitness» a secas, indistinguible de las otras 57. Por eso van **tres guardas independientes**: que sea de USA Fitness, que el nombre nombre esa tienda, y que las coordenadas caigan en la provincia de su código postal.
 - **Consequences:** una dependencia nueva y solo de desarrollo (`sharp`, que ya estaba en disco como transitiva de Astro). El patrón depende de un formato que Google no documenta; si cambia, `extraerFicha` devuelve `null` — fallo seguro, no invención. Y `investigar` acepta **nombre o dominio**: de las 58 tiendas solo 8 tienen dominio, así que atar el alta al dominio habría dejado 50 fuera desde el primer día (era un error de la primera versión del plan, detectado al revisarlo).
 - **Files affected:** planificado — `src/build/ficha-google.ts`, `src/build/instagram.ts`, `src/build/alta.ts`, `scripts/alta-tienda.mjs`, `tests/fixtures/`, `tests/datos.test.mjs`, `package.json`.
+
+### 2026-08-26 — `merge=union` no funciona en GitHub: la premisa del diseño de 3.10 es falsa
+
+- **Decision:** **descartar `merge=union`** como mecanismo para que dos altas de tienda no choquen. El diseño ganador de la tarea 3.10 se apoyaba en él y su beneficio principal —«dos altas simultáneas nunca conflictan»— **no se sostiene**. En su lugar, la palanca real es **mantener el índice ordenado alfabéticamente**.
+- **Reason:** el panel que juzgó los tres diseños marcó esta suposición como la única que sostenía el 0% de conflictos, y avisó de que estaba verificada **solo en el merge local**. Lo estaba. Comprobado.
+- **La medida, con el mismo par de ramas en los dos sitios:**
+
+  | Vía | Resultado |
+  |---|---|
+  | `git merge` local, con `.gitattributes` presente | ✔ limpio, y el fichero resultante correcto |
+  | `POST /repos/…/merges` de la API de GitHub | ✖ **409 Merge conflict** |
+  | Pull request real (`mergeable`) | ✖ **`CONFLICTING` / `DIRTY`** |
+
+  **GitHub no honra los drivers de `merge` de `.gitattributes`.** Da igual que el driver `union` sea interno de git: el merge del servidor no lo aplica. Como todo el trabajo se fusiona por PR, el mecanismo es inservible aquí.
+
+- **Lo que SÍ funciona, medido en el mismo experimento:** un índice **ordenado alfabéticamente**, sin `.gitattributes` ni driver ninguno.
+
+  | Escenario | Merge en GitHub |
+  |---|---|
+  | Altas en letras lejanas (`badajoz` + `zaragoza`) | ✔ **sin conflicto**, y el resultado cuadra: las dos en imports y en el array, y sigue ordenado |
+  | Altas en letras pegadas (`malaga` + `marbella`) | ✖ conflicto |
+
+  Dos inserciones en puntos distintos de un fichero no son un conflicto para git: lo son cuando caen en el mismo hueco. Con la lista ordenada, dos altas solo chocan si sus slugs caen contiguos — y cuantas más tiendas hay, más raro es. Cuando choque, el conflicto son **dos líneas planas** con resolución obvia, no un JSON anidado de 353 líneas como el que dio Lagoh.
+
+- **Alternatives considered:** (a) configurar el driver en el runner de CI — no sirve, el conflicto lo declara GitHub antes de que CI llegue a correr; (b) fusionar siempre en local y empujar — renuncia a los PR, que es donde vive la revisión; (c) no partir el fichero — sigue en pie como opción, pero pierde el resto de ventajas (diffs legibles, encontrar una tienda, no cargar 58 entradas para tocar una).
+- **Consequences:** el diseño de 3.10 **no se descarta, se recorta**. Sigue valiendo por los diffs y por el tamaño, pero hay que quitar de su enunciado la promesa de cero conflictos y sustituirla por «conflictos raros y triviales». El `.gitattributes` que proponía sigue haciendo falta, pero **solo por `text eol=lf`**: sin eso, el test de formato canónico que el diseño añade falla al 100% en Windows, que es la máquina del usuario (`core.autocrlf=true`, y el árbol de trabajo tiene CRLF mientras git guarda LF).
+- **Y una lección del propio experimento:** la primera versión falló por CRLF. El script que preparaba las ramas hacía `replace("  vigo,\n", …)` y no casaba contra `\r\n`, así que una rama se publicó **sin la línea que debía añadir** y el resultado parecía demostrar que `union` corrompía el fichero. No lo corrompía: mi montaje estaba roto. La misma trampa que el crítico había señalado, mordiendo dentro del experimento montado para comprobar otra cosa.
+- **Files affected:** ninguno todavía — decide el enunciado de la tarea 3.10 antes de implementarla.
