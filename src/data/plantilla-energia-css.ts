@@ -306,7 +306,6 @@ html[data-plantilla="energia"] .pizarra-lista li::after {
   margin-left: 1.1rem;
 }
 html[data-plantilla="energia"] .pizarra-lista li:last-child::after { content: ''; }
-html[data-plantilla="energia"] .pizarra-lista li:nth-child(3n) { color: rgba(255, 255, 255, 0.55); }
 
 /* ── Marcas: marquesina sobre blanco ───────────────────────────────────── */
 html[data-plantilla="energia"] .brands { background: #fff; --e-marquesina-s: 34s; }
@@ -369,6 +368,9 @@ html[data-plantilla="energia"] .footer {
 }
 
 /* ── Barra de contacto fija en móvil ───────────────────────────────────── */
+html[data-plantilla="energia"]:has(#uf-cookie-banner:not([hidden])) .barra-contacto {
+  display: none !important;
+}
 html[data-plantilla="energia"] .barra-contacto {
   position: fixed;
   inset: auto 0 0 0;
