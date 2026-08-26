@@ -49,7 +49,11 @@ const { reviews } = Astro.props;
             )}
             <div>
               <p class="review-name">{review.author}</p>
-              <p class="stars">{'★'.repeat(review.stars)}{'☆'.repeat(5 - review.stars)}</p>
+              {/* role="img" + aria-label: los cinco caracteres pasan a ser un
+                  solo objeto con un nombre, y el lector de pantalla anuncia
+                  "4 de 5 estrellas" en vez de deletrear "estrella negra"
+                  cuatro veces (NVDA) o saltárselo entero (VoiceOver). */}
+              <p class="stars" role="img" aria-label={`${review.stars} de 5 estrellas`}>{'★'.repeat(review.stars)}{'☆'.repeat(5 - review.stars)}</p>
             </div>
           </div>
         </div>

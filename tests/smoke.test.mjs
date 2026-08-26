@@ -274,6 +274,42 @@ describe('Accesibilidad: landmarks y las reglas que no puede haber borrado nadie
     assert.ok(reglaWhatsApp, 'existe la regla que oculta la burbuja mientras el aviso pide decisión');
     assert.match(reglaWhatsApp[1], /display:\s*none/, 'y la oculta de verdad — display:none la saca también del orden de tabulación');
   });
+
+  for (const s of stores.filter((s) => s.reviews?.length)) {
+    test(`${s.slug} — la puntuación de cada reseña se puede oír`, async () => {
+      const html = (await get('/', s.domain)).text();
+      const puntuaciones = [...html.matchAll(/<p class="stars"([^>]*)>([^<]*)</g)];
+
+      assert.equal(
+        puntuaciones.length,
+        s.reviews.length,
+        `${s.reviews.length} reseñas en los datos, ${puntuaciones.length} puntuaciones en el HTML`,
+      );
+
+      for (const [, atributos, visible] of puntuaciones) {
+        // Sin nombre accesible, «★★★★☆» es lo que el lector de pantalla tiene
+        // que resolver solo, y cada uno hace algo distinto: NVDA deletrea
+        // "estrella negra estrella negra…", VoiceOver a menudo lo salta entero.
+        // Ninguna de las dos cosas dice "4 de 5", que es el dato.
+        const nombre = atributos.match(/aria-label="([^"]+)"/)?.[1];
+        assert.ok(nombre, `las estrellas "${visible}" salen sin aria-label`);
+
+        // Que exista el atributo no basta: tiene que decir la MISMA puntuación
+        // que dibujan las estrellas. Un aria-label fijo pasaría el test de
+        // arriba y mentiría en cuatro de cada cinco reseñas.
+        const llenas = (visible.match(/★/g) ?? []).length;
+        assert.equal(
+          nombre,
+          `${llenas} de 5 estrellas`,
+          `dibuja ${llenas} estrellas llenas pero anuncia "${nombre}"`,
+        );
+
+        // role="img" es lo que agrupa los cinco caracteres en un solo objeto;
+        // sin él, el aria-label de un <p> lo ignoran varios lectores.
+        assert.match(atributos, /role="img"/, 'falta role="img" en las estrellas');
+      }
+    });
+  }
 });
 
 describe('Una tienda sin datos legales identifica al menos su establecimiento', () => {
