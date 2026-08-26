@@ -40,3 +40,11 @@ Central entity; one object per store. Fields (full table in README):
 - No user accounts, no DB, no stored visitor PII.
 - PII as *content*: store legal-owner data (razón social, NIF, email, phone) in `company` — public by legal obligation. Review author names/avatars — README recommends self-hosting avatars (Google URLs expire).
 - Visitor analytics: GA4 only after opt-in consent (Consent Mode v2); no first-party visitor storage.
+
+## Ofertas y precios — decisiones del dueño, 2026-08-27 (implementar en F1)
+
+**(a) OFERTAS, dos niveles.** Entidad `oferta-central` en dato compartido (shared) — la central las produce y el operador tiene acceso a su canal — más campo opcional `ofertaPropia` por tienda que la pisa. **Precedencia: propia > central > nada.** Ambas con `fechaFin` OBLIGATORIA en el esquema y despublicación automática (extiende la regla «caduca sola» de memory/15 Nivel 3). Campo de **procedencia**: quién autorizó el texto y cuándo — la oferta central se publica bajo el CIF de cada franquiciado, así que su texto se archiva POR ESCRITO (lección Fase 0.2, el «Hasta 20% dto.» sin fuente). El evento `ver_oferta` lleva parámetro `origen` (central/propia).
+
+**(b) PRECIO.** Campo opcional a nivel producto/oferta, **OCULTO por defecto**, con flag de visibilidad por tienda («por si algún franquiciado sí los quiere»). Si una tienda lo activa, se reabre la pregunta de restricciones de la central (metodo §10.4).
+
+**(c) Pendiente de tarificar en memory/15:** si el override de oferta propia consume los 2 cambios/mes de la Base o entra en «campaña del mes gestionada».

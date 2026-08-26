@@ -1,6 +1,6 @@
 # Investigación de conversión — agosto 2026
 
-**Método:** 4 hilos paralelos con fuentes obligatorias; cada afirmación marcada `[V]` verificada contra la fuente primaria, `[P]` probable (fuente secundaria o autoreportada), `[S]` sin verificar. **61 hallazgos, 41 verificados.** El JSON íntegro con los 61 está en el histórico de la sesión del 2026-08-27; aquí, lo que decide diseño y negocio.
+**Método:** 4 hilos paralelos con fuentes obligatorias. `[V]` = verificada contra la fuente primaria (la fuente lo dice; no implica verdad conductual). Las encuestas autoreportadas (BrightLocal 4%/88%; el 80% de NAP) son `[V-encuesta]`, y quien las cite hereda la marca. `[P]` probable · `[S]` sin verificar. **61 hallazgos, 41 verificados** — el volcado íntegro, commiteado: [`investigacion-conversion-2026-08.json`](investigacion-conversion-2026-08.json). Aquí, lo que decide diseño y negocio.
 
 ---
 
@@ -10,7 +10,7 @@
 - `[V]` **52 marcas**; las 8 de nuestras landings están todas. **Quamtrax (~428 productos) y Amix (~228) concentran ~40% del catálogo** → los bloques de marca deben priorizarlas. Marcas fuertes que NO usamos: BSN, Weider, BiotechUSA.
 - `[V]` **Ficha de producto sin login:** nombre, precio con IVA, stock, descripciones, sabores. Sin SKU visible → el matching landing↔ecommerce va por slug de URL.
 - `[V]` **Fotos descargables en 5 tamaños** (`/{id}-{size}/{slug}.jpg`). ⚠️ `large_default` = 800×800, **437 KB** — una sola se come el 48% del presupuesto móvil. Partir de `home_default` (55 KB) y recomprimir a ≤40 KB.
-- `[V]` **La central NO publica ofertas online** (prices-drop vacío, best-sales vacío, `/ofertas` 404) → **hueco: las landings pueden ser EL canal de promociones por tienda sin canibalizar nada.**
+- `[V]` **La central NO publica ofertas online** (prices-drop vacío, best-sales vacío, `/ofertas` 404) → **hueco: las landings pueden ser EL canal de promociones por tienda sin canibalizar nada.** Dato 27-ago del dueño: la central SÍ las produce (canal interno; el operador tiene acceso) — el hueco es aún mejor: contenido ya producido, publicable a coste ~0.
 - `[V]` **El programa de socio NO existe publicado** en usafitness.es (cero menciones a socio/VIP/cumpleaños/funcionario) → **nuestra sección de socio será contenido único en el ecosistema.**
 - `[V]` **Directorio de 58 tiendas** en páginas CMS (`/contentido/-usafitness-{slug}`): nombre del CC, dirección, horario, fijo, iframe de Maps. **Sin WhatsApp, sin fotos, sin reseñas** → listón bajísimo a batir + **seed data gratis para las ~50 altas** + pedir a la central backlink por tienda.
 - `[V]` **Titular del ecommerce: GRUPO CORELAM, S.L. (B88404306)** → la cesión de fotos/textos se pide a ellos vía el operador.
@@ -19,8 +19,8 @@
 
 - `[P]` Al llegar a la web de una tienda física en móvil buscan: **horario 54% · cómo llegar 53% · dirección 50%** (Google/Ipsos). → R1/R3 del método.
 - `[P]` **50%** de búsquedas locales en móvil → visita en 24 h; **76%** de búsquedas "cerca de mí" → visita; ~28% acaba en compra (Think with Google). → La landing es el último paso antes de una visita inminente, no un catálogo.
-- `[V]` **Solo el 4% no lee reseñas**; 88% las consulta en Google (BrightLocal). → Las 5 tiendas sin reseñas son **el mayor agujero de conversión del proyecto**; toda landing lleva enlace «déjanos tu reseña» a su ficha.
-- `[V]` **80% pierde confianza con datos de contacto inconsistentes** (NAP). → Coherencia landing ↔ Google ↔ usafitness.es obligatoria (los teléfonos ya cuadran con el directorio central — verificado en muestra).
+- `[V-encuesta]` **Solo el 4% no lee reseñas**; 88% las consulta en Google (BrightLocal). → Las 5 tiendas sin reseñas son **el mayor agujero de conversión del proyecto**; toda landing lleva enlace «déjanos tu reseña» a su ficha.
+- `[V-encuesta]` **80% pierde confianza con datos de contacto inconsistentes** (NAP). → Coherencia landing ↔ Google ↔ usafitness.es obligatoria (los teléfonos ya cuadran con el directorio central — verificado en muestra).
 - `[V]` **53% abandona si tarda >3 s en móvil** (Google/SOASTA). → El presupuesto de 900 KB es decisión de conversión y entra en el pitch.
 - `[V]` España: tráfico ~49% móvil general, pero la intención LOCAL se concentra en móvil. → Mobile-first en el flujo «ir a tienda»; desktop no despreciable para el flujo «investigar».
 
@@ -42,7 +42,7 @@
 
 - `[V]` **El patrón a copiar existe:** la página por-club de **Anytime Fitness España** (oferta del mes con fecha fin arriba + fotos reales + staff + formulario) y la página por-tienda de **GNC** (teléfono + horario + cómo llegar impecables; localizador con «promociones activas» por tienda).
 - `[V]` **Basic-Fit** valida nuestro modelo exacto: plantilla única + datos por club, calidad por uniformidad.
-- `[P]` **MASmusculo** (14 tiendas, la cadena española comparable) tiene fichas de tienda pobres. `[V]` **HSN no tiene tiendas propias**; Prozis vende por córners. → **Nadie en España hace bien la landing por tienda de suplementos. Podemos ser los primeros.**
+- `[P]` **MASmusculo** (14 tiendas, la cadena española comparable) tiene fichas de tienda pobres. `[V]` **HSN no tiene tiendas propias**; Prozis vende por córners. → **Ninguno de los comparables revisados (MASmusculo [P], HSN, Prozis) hace bien la landing por tienda de suplementos: el hueco está abierto en todo lo revisado.**
 - **Productos vendibles al franquiciado** (se integran en `memory/15-catalogo-servicios.md`):
   1. **Campaña del mes gestionada** — la central/operador diseña una vez, cada tienda opta; banner con fecha fin (modelo Anytime/GNC).
   2. **Página de oferta flash con cupón de tienda** — «enséñalo en caja», medible por evento.

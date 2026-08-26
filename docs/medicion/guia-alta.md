@@ -541,7 +541,24 @@ Ahora el flujo de datos:
 
 **No instales ningún tag.** La pantalla te ofrecerá «Instalar con un creador de sitios web / Instalar manualmente». **Ignórala.** El código de medición de este proyecto ya está escrito y ya sabe qué hacer con el ID.
 
-## 3.4 Los tres eventos clave
+## 3.4 Los tres eventos clave — y el REGISTRO ÚNICO de eventos del sistema
+
+> Esta tabla es el registro canónico. Un nombre de evento que no esté aquí no
+> existe: la hoja de objetivos (metodología §1) solo usa eventos de este
+> registro, o los propone aquí en el mismo PR. El primer typo
+> ver_oferta/oferta_vista parte la medición en dos y nadie lo ve hasta el
+> informe — por eso hay UNA lista.
+
+| Evento (nombre exacto) | Parámetros | Sección emisora | Estado |
+|---|---|---|---|
+| `contacto_llamada` | `seccion` (origen) | cualquier `tel:` | ✅ vivo |
+| `contacto_whatsapp` | `seccion` | cualquier `wa.me` | ✅ vivo |
+| `contacto_maps` | `seccion` | enlaces a Maps | ✅ vivo |
+| `interes_socio` | `seccion` | Hazte socio | pendiente de instrumentar (F2) |
+| `ver_oferta` | `seccion`, `origen` (central/propia) | Oferta del mes | pendiente (F2) |
+| `ver_horario` | `seccion` | Hoy en tienda | pendiente (F2) — en informes se llama «intención de visita» |
+| `ver_productos` | `seccion` | Productos y marcas | pendiente (F2) |
+
 
 Los eventos de este proyecto se llaman **exactamente**:
 

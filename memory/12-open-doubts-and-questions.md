@@ -180,11 +180,13 @@ No son preguntas de estrategia: cada una es una llamada de teléfono y desbloque
 
 ## 2026-08-27 — Abiertas para el dueño (F0 del plan de método)
 
-1. **Beneficios completos del programa de socio** — dijo «te los puedo dar mañana» (26-ago). Bloquea la sección estrella.
-2. **¿Precios visibles en las landings?** Fotos/categorías de usafitness.es parecen seguras (misma marca; titular Grupo Corelam S.L. — pedir cesión vía operador); publicar precios compromete a la tienda si difieren.
-3. **¿Quién decide la «oferta del mes»?** ¿Central para todos u opt-in por franquiciado? Cambia modelo de datos y producto vendible.
-4. **¿Restricciones de la central** sobre qué puede publicar cada tienda (campañas/descuentos propios)? La pregunta del contrato de franquicia, ahora práctica.
-5. **¿Aprueba la tesis y jerarquías?** `docs/product/norte.md` §3 y `docs/metodologia/creacion-de-webs.md` §2.
+1. **Beneficios completos del programa de socio** — «cuando me los den te los paso» (27-ago). Sigue siendo EL bloqueante de la sección estrella.
+2. **¿Restricciones de la central** sobre qué puede publicar cada tienda? Sigue abierta (la pregunta del contrato de franquicia).
+
+### Respondidas el 27-ago (tanda 2 — no re-preguntar)
+- **Precios:** NO visibles por ahora, pero el sistema los soporta como campo opcional oculto «por si alguien sí los quiere». ✓
+- **Ofertas: DOS NIVELES.** La central manda ofertas y el operador TIENE ACCESO a ellas (→ gestionable de serie); el franquiciado puede querer las suyas (→ override por tienda). Modelo: oferta-central compartida + oferta-propia opcional que la pisa. ✓
+- **Norte y jerarquías:** pidió re-análisis profundo mío («mira si le falta o sobra algo») y después revisarlos él sobre el resultado abierto. En curso. ✓
 
 ### Respondidas el 27-ago (no re-preguntar)
 - Programa socio: SIN doc escrito; alta EN TIENDA, rápida. ✓

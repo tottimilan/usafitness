@@ -45,22 +45,24 @@ Las que había que hacerse ANTES de la primera plantilla. Cada una con su respue
 
 ### Sobre el visitante (la web se diseña para él)
 
-- **P1. ¿Quién entra en la web de una tienda USA Fitness y desde dónde?** Hipótesis: mayoría móvil, llegando desde Google (búsqueda de marca o «suplementos + ciudad/centro comercial»), desde el perfil de Instagram de la tienda, y desde la ficha de Google Maps. → *Se contrasta con datos en cuanto GSC/GA4 estén vivos (guía ya entregada); mientras, con estudios de intención local con fuente.*
-- **P2. ¿Qué viene a resolver?** Hipótesis ordenada: (1) ¿qué tienen y cuánto cuesta? (2) ¿qué gano yo — el programa de socio? (3) ¿está abierto ahora y dónde está exactamente dentro del centro? (4) ¿es de fiar? (5) ¿me pueden asesorar? → *Cada pregunta debe tener UNA sección que la responda, visible sin esfuerzo.*
-- **P3. ¿Qué le haría volver o entrar a la tienda hoy?** Una oferta con fecha, el beneficio de cumpleaños, la inmediatez («lo tienes hoy, sin esperar el paquete»), el asesoramiento gratis.
-- **P4. ¿Qué le hace irse?** Lentitud, no encontrar el horario, texto genérico que no dice nada, y —en móvil— cualquier cosa que tape el contenido.
+> Nota de precedencia: estas Q1-Q10 son las preguntas del ANÁLISIS (26-ago). El orden canónico de preguntas del VISITANTE es P1-P5 en metodología §2 — no confundir las dos numeraciones.
+
+- **Q1. ¿Quién entra en la web de una tienda USA Fitness y desde dónde?** Hipótesis: mayoría móvil, llegando desde Google (búsqueda de marca o «suplementos + ciudad/centro comercial»), desde el perfil de Instagram de la tienda, y desde la ficha de Google Maps. → *Se contrasta con datos en cuanto GSC/GA4 estén vivos (guía ya entregada); mientras, con estudios de intención local con fuente.*
+- **Q2. ¿Qué viene a resolver?** Hipótesis ordenada: (1) ¿qué tienen y cuánto cuesta? (2) ¿qué gano yo — el programa de socio? (3) ¿está abierto ahora y dónde está exactamente dentro del centro? (4) ¿es de fiar? (5) ¿me pueden asesorar? → *Cada pregunta debe tener UNA sección que la responda, visible sin esfuerzo.*
+- **Q3. ¿Qué le haría volver o entrar a la tienda hoy?** Una oferta con fecha, el beneficio de cumpleaños, la inmediatez («lo tienes hoy, sin esperar el paquete»), el asesoramiento gratis.
+- **Q4. ¿Qué le hace irse?** Lentitud, no encontrar el horario, texto genérico que no dice nada, y —en móvil— cualquier cosa que tape el contenido.
 
 ### Sobre el franquiciado (él paga la web)
 
-- **P5. ¿Qué le demuestra que la web trabaja para él?** Llamadas, WhatsApps y rutas de Maps **contadas** (ya instrumentado), y a futuro: altas de socio atribuibles y canjes de oferta. La web debe generar eventos que se le puedan enseñar en un informe simple.
-- **P6. ¿Qué puede mantener él y qué no?** Nada que exija tocar código. Todo lo gestionable (oferta del mes, banner de campaña) debe ser un dato en su ficha, cambiable por el operador en minutos. A escala 50, cada minuto por tienda son horas.
-- **P7. ¿Qué se le puede VENDER encima de la web?** El catálogo de servicios (memory/15) crece con mecanismos de conversión de §5: campaña mensual gestionada, página de oferta flash, informe de conversiones. La plantilla es la puerta; el recurrente es el negocio.
+- **Q5. ¿Qué le demuestra que la web trabaja para él?** Llamadas, WhatsApps y rutas de Maps **contadas** (ya instrumentado), y a futuro: altas de socio atribuibles y canjes de oferta. La web debe generar eventos que se le puedan enseñar en un informe simple.
+- **Q6. ¿Qué puede mantener él y qué no?** Nada que exija tocar código. Todo lo gestionable (oferta del mes, banner de campaña) debe ser un dato en su ficha, cambiable por el operador en minutos. A escala 50, cada minuto por tienda son horas.
+- **Q7. ¿Qué se le puede VENDER encima de la web?** El catálogo de servicios (memory/15) crece con mecanismos de conversión de §5: campaña mensual gestionada, página de oferta flash, informe de conversiones. La plantilla es la puerta; el recurrente es el negocio.
 
 ### Sobre el negocio (la tesis de la web)
 
-- **P8. ¿Cuál es LA tesis de estas landings?** Propongo esta, corrígela: **«La web de la tienda convierte la intención que ya existe (alguien buscando suplementos cerca) en visita física, y da al franquiciado razones medibles para pagarla.»** No competimos con el ecommerce de la central ni con Amazon: convertimos cercanía + inmediatez + asesoramiento + programa de socio presencial.
-- **P9. ¿Qué diferencia a la tienda física del online?** Lo tienes HOY sin envío ni mínimos; te asesora una persona; el programa de socio se activa en el momento; puedes ver/tocar el producto. **Ninguna de estas cuatro cosas estaba dicha en ninguna plantilla.** Son el corazón del copy nuevo.
-- **P10. ¿Qué NO debe hacer la web?** Vender online (canal de la central), prometer precios que la tienda no controla, publicar promesas legales sin datos del responsable (5 de 8 tiendas siguen sin `company`).
+- **Q8. ¿Cuál es LA tesis de estas landings?** Propongo esta, corrígela: **«La web de la tienda convierte la intención que ya existe (alguien buscando suplementos cerca) en visita física, y da al franquiciado razones medibles para pagarla.»** No competimos con el ecommerce de la central ni con Amazon: convertimos cercanía + inmediatez + asesoramiento + programa de socio presencial.
+- **Q9. ¿Qué diferencia a la tienda física del online?** Lo tienes HOY sin envío ni mínimos; te asesora una persona; el programa de socio se activa en el momento; puedes ver/tocar el producto. **Ninguna de estas cuatro cosas estaba dicha en ninguna plantilla.** Son el corazón del copy nuevo.
+- **Q10. ¿Qué NO debe hacer la web?** Vender online (canal de la central), prometer precios que la tienda no controla, publicar promesas legales sin datos del responsable (5 de 8 tiendas siguen sin `company`).
 
 ---
 
@@ -137,6 +139,8 @@ mecanismo/sección en producción → eventos GA4 acumulando
 
 ---
 
+> **Snapshot histórico (26-ago), el registro razonado.** La versión OPERATIVA es: reglas y loops → metodología §4-§5 (R1-R9, no R1-R6) · veredictos de mecanismos → investigación §3 · jerarquías del visitante → metodología §2 (P1-P5). Si divergen, mandan aquellas; este cuerpo no se edita, se anota.
+
 ## 5. Mecanismos de conversión, analizados
 
 *(La evidencia con fuentes y los veredictos por mecanismo están en `docs/product/investigacion-conversion-2026-08.md` §3. Aquí queda el marco que los condiciona:)*
@@ -153,13 +157,13 @@ Con ese marco, el catálogo a analizar (veredicto por pieza cuando lleguen las f
 
 *(El catálogo real está medido: 1.683 productos, 133 categorías, fotos descargables — `investigacion-conversion-2026-08.md` §1. Candidatas, cada una con su R5:)*
 
-| Sección nueva | Pregunta (P2) | Conversión | Evento |
+| Sección nueva | Pregunta (metodología §2) | Conversión | Evento |
 |---|---|---|---|
 | **Hazte socio** (estrella) | «¿qué gano yo?» | 3 → 1 | `interes_socio` |
-| **Productos y marcas reales** (con fotos/categorías de usafitness.es) | «¿qué tienen?» | 1 | `ver_productos` |
-| **Oferta del mes** (dato gestionable por tienda) | «¿por qué hoy?» | 4 → 1 | `ver_oferta` |
+| **Productos y marcas reales** — sobre CATEGORÍAS + MARCAS (refresco anual), **nunca** espejo de las 1.683 fichas (sería snapshot que se pudre o scrape permanente del ecommerce de la central). Fotos condicionadas a la cesión de Corelam (riesgo en memory/08); catálogo vivo solo como feed pactado, jamás scrape | «¿qué tienen?» | 1 | `ver_productos` |
+| **Oferta del mes** (DOS NIVELES: oferta-central compartida de serie — la central las manda y el operador tiene acceso — + oferta propia opcional por tienda; precedencia propia > central > nada; ambas con fecha-fin obligatoria y despublicación automática; procedencia por escrito de quien la autoriza — lección Fase 0.2; modelo en memory/04) | «¿por qué hoy?» | 4 → 1 | `ver_oferta` con parámetro `origen` |
 | **Hoy en tienda** (horario con estado + cómo llegar + dónde exactamente en el centro) | «¿está abierto? ¿dónde?» | 1 | `ver_horario`, `contacto_maps` |
-| **Por qué en tienda** (asesoramiento, inmediatez, tocar producto — P9) | «¿y no en Amazon?» | 2 | — |
+| **Por qué en tienda** (asesoramiento, inmediatez, tocar producto — P9) | «¿y no en Amazon?» | 2 | exenta declarada (sección informativa; la exención se escribe en su hoja de objetivos) |
 
 ## 7. Referencias visuales con trazabilidad
 
@@ -171,24 +175,27 @@ Sin prisa, con definición de hecho por fase. Ninguna fase se cierra sin su crit
 
 | Fase | Entregable | Hecho cuando… |
 |---|---|---|
-| **F0 Fundamentos** | Este documento corregido por ti + beneficios de socio reales (los pasas mañana) + catálogo de usafitness.es extraído | Tú apruebas §3 (objetivos) y las preguntas de §10 tienen respuesta |
+| **F0 Fundamentos** | Norte y jerarquías corregidos por ti + catálogo de usafitness.es extraído | Tú apruebas el norte y las jerarquías. Los beneficios de socio (pendientes de que la central te los dé — SIN fecha, 27-ago) **dejan de ser criterio de F0**: bloquean solo la sección «Hazte socio» dentro de F1, que queda «lista-salvo-dato»; las otras cuatro secciones de F1 avanzan sin esperar |
 | **F1 Contenido y datos** | Secciones nuevas de §6 con datos reales; campos nuevos en el esquema; copy que responde P2 (fuera el mad-lib) | Cada sección pasa Loop A con captura; render digno con datos de lagoh |
 | **F2 Mecanismos** | Los aprobados de §5, con sus eventos | Cada mecanismo emite su evento y pasa la letra pequeña (SEO/RGPD/consent) |
 | **F3 Plantilla 1 rediseñada** | Con método completo: objetivos → referencias capturadas → Loop B con las dos tiendas | Tu veredicto es «otra web», no «otra piel». Si no, vuelta con defectos nombrados |
-| **F4 Catálogo de plantillas** | 3-4 plantillas distintas de verdad (incl. una oscura — dijiste «está bien tener ambas») + página muestrario para vender | Un franquiciado distingue y elige entre ellas sin ayuda |
+| **F3b Muestrario** | `/muestrario` noindex con la(s) plantilla(s) del método sobre datos ficticios | Usado en una conversación de venta real; un franquiciado distingue y elige sin ayuda |
+| **F4 Catálogo de plantillas** | 3-4 plantillas distintas de verdad (incl. una oscura — dijiste «está bien tener ambas») | Cada nueva plantilla pasa por F3b al nacer |
 | **F5 Medición e iteración** | Loop C activo con GA4 real | Primera revisión mensual con datos, primera decisión tomada por datos |
+
+**Pista PARALELA desde F0** (no secuenciada en F5): altas GA4/GSC/monitor — viven en memory/02 §Bloqueado con fecha. Loop C empieza a acumular datos durante F1-F3, no después de F4.
 
 ## 9. La pauta de memoria (tu queja 14)
 
-Fija desde ya, sin depender de que me acuerde: **toda sesión sustantiva cierra actualizando `memory/` antes del mensaje final** — `11-session-summary` (append), `12-open-doubts` (preguntas vivas), y `06/07/08` cuando toque. Este documento queda referenciado desde `memory/06`. La sensación de divagación se combate con esto y con los loops: cada tramo de trabajo declara al empezar contra qué fase del plan va.
+**Pauta canónica de cierre: `memory/16` §4.** Cada tramo de trabajo declara al empezar contra qué fase del plan va.
 
 ## 10. Preguntas para ti — solo las nuevas
 
 Las que la investigación no puede responder (las ya respondidas no se repiten: socio sin doc y alta en tienda ✓, productos en usafitness.es ✓, oscura sí como opción ✓):
 
-1. **Beneficios de socio completos** — dijiste que me los pasas mañana. Con eso se escribe la sección estrella.
-2. **¿La central permite mostrar PRECIOS en las landings de tienda?** Reutilizar fotos y categorías de usafitness.es parece seguro (misma marca); publicar precios compromete a la tienda si difieren. ¿Enseñamos producto+marca sin precio, o con precio?
-3. **La «oferta del mes»: ¿quién la decide?** ¿La central para todos, o cada franquiciado la suya? Cambia el modelo de datos y el servicio vendible.
+1. **Beneficios de socio completos** — «cuando me los den te los paso» (27-ago): pendiente de la central, sin fecha. Deja de ser pregunta: es la **dependencia de dato** de la sección socio (F1, «lista-salvo-dato»).
+2. → **RESPONDIDA 27-ago** (memory/12): precios **NO visibles por ahora**; el esquema los soporta como campo opcional OCULTO, activable por tienda «por si alguien sí los quiere». Si un franquiciado lo activa, se reabre la pregunta 4 (restricciones de la central).
+3. → **RESPONDIDA 27-ago**: **DOS NIVELES** — la central manda ofertas (el operador tiene acceso al canal) + el franquiciado puede querer las suyas. Oferta-central compartida + override por tienda que la pisa. Modelo de datos: memory/04.
 4. **¿Existe alguna restricción de la central sobre qué puede publicar cada tienda** (campañas, descuentos propios)? Es la pregunta del contrato de franquicia que sigue abierta en memoria y aquí se vuelve práctica.
 5. **Tesis de §P8 y jerarquía de §3:** ¿las corriges o las apruebas tal cual?
 

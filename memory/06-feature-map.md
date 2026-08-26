@@ -43,7 +43,8 @@ Estos hechos reordenan todo lo demás. No son opiniones de diseño.
 > **2026-08-27 — LEER PRIMERO:** toda creación visual/de conversión pasa por el
 > sistema nuevo: `docs/product/norte.md` (qué manda) y
 > `docs/metodologia/creacion-de-webs.md` (cómo se crea). Plantillas `angular`
-> y `energia` RECHAZADAS por el dueño — PR #17 no se mezcla; se rehace bajo
+> y `energia` RECHAZADAS por el dueño — **PR #17 acabó mezclado en main (c1596f2)**:
+> `energia` existe en producción sin adoptantes (nadie la ve); se rehace bajo
 > método (fase F3), empezando por el artefacto de referencias con su
 > confirmación. La evidencia de conversión: `docs/product/investigacion-conversion-2026-08.md`.
 

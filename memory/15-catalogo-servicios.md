@@ -1,10 +1,18 @@
-# Catálogo comercial de servicios — 2026-08-26
+# Catálogo comercial de servicios — 2026-08-26 · **revisado tras el giro de método, 2026-08-27**
 
 > **CORRECCIÓN DE PREMISA, aplicada al recibirlo (2026-08-26).**
 >
 > Este catálogo se produjo con la hipótesis de que **el comprador sería la
 > central**, y su Nivel 4 («Pack Red») descansaba entera en eso. El usuario
-> decidió lo contrario ese mismo día, y decide él:
+> decidió lo contrario ese mismo día, y decide él. La nota alcanza a §1 (tesis)
+> y a §7.2(b): ambos quedan anotados «escrito bajo la hipótesis descartada —
+> el modelo elegido es (b): tienda a tienda».
+>
+> **Revisión post-giro (27-ago):** el muestrario queda condicionado a F3b (las
+> 2 plantillas que ofrecía están rechazadas), se integran los 4 productos de la
+> investigación de conversión, y el informe mensual incorpora los eventos
+> nuevos. El ciclo de VENTA lo gobierna `docs/product/proceso-comercial.md`;
+> este catálogo gobierna QUÉ se vende y a qué precio.
 >
 > **Modelo elegido: (b). Vende a cada franquiciado, uno a uno. La central solo
 > avisa** — bendice el servicio y abre la puerta, no lo contrata ni lo paga.
@@ -54,7 +62,7 @@ Corolario que ordena el resto del documento: **el pago único es trabajo que pro
 |---|---|---|---|---|---|
 | **Sesión de alta de 45 min** | UNA llamada con guion cerrado donde se hace de golpe todo lo que exige su presencia: razón social/NIF/domicilio/email legal **dictados por teléfono** y tecleados en directo; firma electrónica de contrato marco + art. 28 RGPD + **mandato SEPA**; verificación del móvil real de WhatsApp con llamada; invitación de gestor a la ficha de Google; las 6 fotos o el guion para que las haga el dependiente hoy | Incluida en el Alta | **0** recurrente · 0,75 h mías, una vez | Guion + checklist verificable · plantilla de firma con los 3 documentos precargados por sociedad | El método actual (email pidiendo el NIF) tiene **57% de no-respuesta medida**. Una no-respuesta indefinida es una tarea que reaparece cada semana sin producir un euro. La llamada la convierte en sí o no el mismo día |
 | **Alta Express — web en su dominio** | Web con plantilla elegida, foto de hero propia, NAP coherente, 4 páginas legales publicadas, GA4 + Search Console **a nombre de su sociedad**, sitemap, 404, los 3 eventos de conversión | **490 €** · 690 € con migración real desde WordPress | **0** recurrente · 4-6 h hoy, objetivo **≤3 h** en la tienda 20 | `scripts/nueva-tienda.mjs` (12 campos → entrada validada) + conversión y nombrado automático de fotos a AVIF/WebP | Hoy quien busca "usafitness <su centro>" aterriza en el directorio del centro o en usafitness.es: el clic se lo lleva otro. Y sin web propia no tiene dónde corregir su teléfono cuando su ficha se lo cambia |
-| **Muestrario y elección de plantilla** | Sesión de 20 min sobre `/muestrario` (noindex) con las 2 plantillas y las 9 secciones sobre datos ficticios. Elige y se aplica el mismo día | Incluido en el Alta · **149 €** suelto para las 7 ya publicadas | **0** | Ruta `/muestrario` con datos de mentira. **1 día** | Su web es hoy byte-idéntica a la de otras seis tiendas de la misma marca y él lo ve. Además estrena un sistema construido, pagado y con **0 de 7 adoptantes** |
+| **Muestrario y elección de plantilla** | Sesión de 20 min sobre `/muestrario` (noindex) con **la(s) plantilla(s) del método** sobre datos ficticios — **disponible desde F3b; hasta entonces este servicio NO se ofrece** (angular y energia, rechazadas 26-27/08, no se enseñan). Elige y se aplica el mismo día | Incluido en el Alta · **149 €** suelto para las 7 ya publicadas | **0** | Ruta `/muestrario` con datos de mentira. **1 día** | Su web es hoy byte-idéntica a la de otras seis tiendas de la misma marca y él lo ve. Además estrena un sistema construido, pagado y con **0 de 7 adoptantes** |
 | **Alta de ficha de Google** | Reclamar/verificar, categoría principal y secundarias, pin dentro del centro (no en el parking), horario real + **festivos del centro cargados como horarios especiales**, atributos, 10 fotos, Productos, 5 Q&A sembradas | Incluido en el Alta · **290 €** suelto | **0** recurrente · 3-4 h una vez | Checklist de 22 puntos + `holidays/<centro>.json` que alimenta a la vez ficha y web | Los 4 factores que más pesan en el local pack son de ficha y se ponen bien una sola vez. **La verificación por postal/vídeo/llamada queda fuera del alcance por escrito**: la decide Google, sin plazo ni endpoint |
 | **QR de captación de reseñas** | Enlace corto verificado + expositor de mostrador + tarjeta de bolsa + bloque en la web (HTML puro) + guion de 8 palabras para el dependiente que cumple la política de Google | Incluido en el Alta | **0 exactamente** | Generador de QR en build desde el CID → SVG para imprenta | El 47% no usa un negocio con menos de 20 reseñas. Sin flujo de entrada no hay nada que gestionar. **Es el único servicio del catálogo que sigue funcionando igual si me muero** |
 | **Entidad para IA** (opcional) | Alta en Bing Places, Apple Business Connect, Facebook y Foursquare con NAP idéntico + reapuntar la ficha del directorio del centro al dominio propio | **149 €** una vez | **0** | Nada de código: procedimiento de 5 pasos + plantilla NAP derivada de `stores.json` | Cobertura barata frente a una incertidumbre real (unas fuentes dicen que ChatGPT tira solo de Bing, otras de Foursquare). **Se vende el alta, nunca el resultado**: todos los datos de adopción son de EE. UU. Y añade un coste oculto: a partir de aquí cada cambio de teléfono se propaga a 5 sitios, no a 2 |
@@ -243,3 +251,19 @@ Pedir a las 7 tiendas actuales la invitación de gestor a su ficha de Google y *
 **Next recommended command:** `/mm-plan` sobre el Paso 1 (Semáforo NAP v1 contra snapshot manual).
 **Why:** es medio día de trabajo, es lo primero vendible del plan y es lo único que no depende de una aprobación de Google ni de que un franquiciado conteste.
 **Skip if:** prefieres mandar antes los 7 emails de invitación de gestor — ese experimento no requiere ningún código y decide si el Nivel 2 existe.
+---
+
+## 9. Productos añadidos por la investigación de conversión (27-ago)
+
+De `docs/product/investigacion-conversion-2026-08.md` §4, bajo el filtro «desatendible 10 días laborables». **Precios: pendiente del dueño.**
+
+| Producto | Nivel | Qué es | Recurrente estimado |
+|---|---|---|---|
+| **Campaña del mes gestionada** | 2 | La central/operador diseña una vez (el operador TIENE acceso al canal de ofertas de la central — dato 27-ago); cada tienda opta; banner con fecha-fin y despublicación automática. Modelo Anytime/GNC | bajo (1 diseño/mes ÷ N tiendas) |
+| **Página de oferta flash con cupón** | 3 | Landing `/oferta` con cupón visual «enséñalo en caja», fecha-fin obligatoria, medible por `ver_oferta`. Casi idéntica a la «Landing de promoción» ya catalogada — se fusionan | por pieza |
+| **Pre-alta de socio → WhatsApp** | 3 | Formulario mínimo cuyo lead llega AL WhatsApp del franquiciado (sin base de datos nuestra). **Condicionado a `company` completo + móvil real** (R8) | por pieza |
+| **Ficha de Google + máquina de reseñas** | 2 | Gestión mensual del perfil + enlace «déjanos tu reseña» — ataca el mayor agujero medido (5/8 tiendas sin reseñas; solo el 4% de consumidores no las lee) | refuerza módulos N2 existentes |
+
+**Informe mensual de 1 página** (amplía la especificación existente): añade `ver_oferta` (con `origen` central/propia), `interes_socio` y `ver_horario` («intención de visita»). Regla de redacción: «mínimos medidos», nunca totales (riesgo de sesgo de consentimiento, memory/08).
+
+**Decisión de tarificación pendiente (dueño):** ¿el override de oferta propia consume los 2 cambios/mes de la Base, o entra como «campaña del mes gestionada»?

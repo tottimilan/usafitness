@@ -23,7 +23,7 @@ Dos plantillas (`angular`, `energia`) **rechazadas por el dueño** por el mismo 
 - `docs/product/investigacion-conversion-2026-08.md` — 61 hallazgos con fuentes (41 verificados) que sostienen las decisiones.
 - `memory/16-protocolo-agente.md` — cómo decide y se autoevalúa el agente. **Sesión nueva: leerlo.**
 
-**PR #17 (plantilla energía) NO se mezcla** — la plantilla se rehace bajo el método. Su infraestructura (hoja CSS por plantilla, tipografía autoalojada, periferia) sí es válida y queda.
+**PR #17 SÍ está mezclado en main** (c1596f2, 26-ago 23:40 — verificado contra origin/main; este fichero decía lo contrario y la revisión lo cazó). `energia` vive en la producción compartida de los 8 dominios **sin adoptantes** (`template` ausente en las 8: nadie la ve). Decisión pendiente de registrar con el dueño: revertir, o dejar constancia de que existe en main, no se ofrece a nadie, y se rehará bajo método en F3. Su infraestructura (hoja CSS por plantilla, tipografía autoalojada, periferia) es válida y queda.
 
 ## Las 8 tiendas — verificado en vivo con `npm run flota` (2026-08-26)
 
@@ -50,7 +50,17 @@ Dos plantillas (`angular`, `energia`) **rechazadas por el dueño** por el mismo 
 
 ## Bloqueado en el dueño 🔒
 
-1. DNS de Las Rosas y Lagoh (hoy, dijo). 2. Beneficios completos del programa de socio (dijo «mañana» el 26). 3. Altas de GSC/monitor/GA4 con la guía. 4. Datos legales de 5 tiendas. 5. Respuestas a `memory/12` (precios sí/no, quién decide la oferta del mes, restricciones de la central).
+1. DNS de Las Rosas y Lagoh (bloqueado 26-ago; dueño: arreglo previsto 27-ago). 2. Beneficios del programa de socio («cuando me los den», 27-ago, SIN fecha — bloquea SOLO la sección socio de F1). 3. Altas de GSC/monitor/GA4 con la guía (bloqueado desde 26-ago). 4. Datos legales de 5 tiendas (desde 24-ago). 5. Restricciones de la central sobre lo que puede publicar cada tienda (desde 26-ago). — Precios y oferta-del-mes: respondidas 27-ago, ver memory/12.
+
+## Plan de método — estado
+
+| Fase | Criterio de cierre | Cumplido | Qué falta | Fecha |
+|---|---|---|---|---|
+| F0 | Norte+jerarquías aprobados por el dueño; catálogo usafitness.es extraído | **ABIERTA** | aprobación del dueño (re-análisis entregado 27-ago); extracción del catálogo | 27-ago |
+| F1-F5 | ver metodo §8 | sin abrir | — | — |
+
+Beneficios de socio: reclasificados como dato de F1 (sección socio «lista-salvo-dato»), NO bloquean F0.
+**Arbitraje:** mientras F0 espere al dueño, el trabajo por defecto es el backlog A de memory/06 §0-bis en su orden; las F-fases prevalecen en cuanto su bloqueo se levante. El trabajo de esquema derivado de las respuestas del dueño (ofertas dos niveles, precio oculto) pertenece a F1.
 
 ## Siguiente trabajo del agente (por el plan F0-F5 del método)
 

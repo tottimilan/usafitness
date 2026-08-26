@@ -13,13 +13,15 @@ No es «hacer webs». Es un producto comercial con dos clientes encadenados:
 
 | Cliente | Qué compra | Qué le demuestra que funciona |
 |---|---|---|
-| **El franquiciado** (paga) | Presencia digital profesional + más gente entrando por la puerta | Informe simple: llamadas, WhatsApps, rutas a tienda, ofertas vistas — eventos que ya instrumentamos |
+| **El franquiciado** (paga) | Presencia digital profesional + más gente entrando por la puerta | Informe simple: llamadas, WhatsApps y rutas a tienda (ya instrumentados); ofertas vistas e interés de socio se añaden en F2. El informe existe cuando GA4 esté de alta, y se activa por tienda solo con art. 28 firmado y `company` completo |
 | **El visitante** (convierte) | Respuesta rápida: qué hay, qué gano, si está abierto, cómo llegar | Que la web se lo dé en segundos, en móvil |
+
+**Escala, fijada una vez:** 58 tiendas en el directorio de la central (56 operativas verificadas), 8 ya servidas → ~50 por captar; techo comercial vendiendo una a una: ~30 tiendas en dos años (memory/15 §4).
 
 ## 2. Lo más importante, ordenado
 
 1. **Vender a más tiendas.** Todo lo demás es instrumento de esto. Una mejora técnica que no ayuda a vender o a retener a un franquiciado es secundaria por definición.
-2. **Producto defendible.** Cada pieza tiene un porqué que se puede explicar a un franquiciado en una frase («este bloque existe porque el 54% de la gente que llega busca tu horario» — con fuente). Sin porqué, no hay pieza.
+2. **Producto defendible.** Cada pieza tiene un porqué que se puede explicar a un franquiciado en una frase («este bloque existe porque ~la mitad de quien llega busca tu horario» — Google/Ipsos, direccional). Sin porqué, no hay pieza.
 3. **Producto moderno.** El listón no es «mejor que WordPress»: es que un franquiciado vea su landing junto a la de su competencia y quiera la nuestra. Dos plantillas rechazadas nos enseñaron que esto no sale de reestilizar; sale del método (`docs/metodologia/creacion-de-webs.md`).
 4. **Producto medible.** El pitch es «sé cuánta gente te trajo la web este mes». Sin GA4 vivo no hay pitch — por eso la medición no es tarea técnica pendiente, es requisito comercial.
 
@@ -35,7 +37,11 @@ No es «hacer webs». Es un producto comercial con dos clientes encadenados:
 
 1. **La central no publica ofertas online** (su sección de ofertas está vacía — verificado). Nuestras landings pueden ser EL canal de promociones de cada tienda sin canibalizar nada. Argumento de venta directo.
 2. **El programa de socio no está publicado en ningún sitio** del ecosistema USA Fitness (verificado: cero menciones en usafitness.es). Nuestra sección de socio será contenido único — pieza central del pitch.
-3. **La página oficial de cada tienda en usafitness.es es pobrísima** (dirección + fijo + iframe; sin WhatsApp, sin fotos, sin reseñas — verificado sobre las 58). El listón a batir es bajísimo y además son **seed data gratis** para las ~50 altas. Pedir a la central un backlink desde cada una a su landing.
+3. **La página oficial de cada tienda en usafitness.es es pobrísima** (dirección + fijo + iframe; sin WhatsApp, sin fotos, sin reseñas — verificado sobre las 58). El listón a batir es bajísimo y además son **seed data gratis** para las ~50 altas. Pedir a la central un backlink desde cada una a su landing. **Y no es solo acelerador de alta: con `nueva-tienda.mjs` es la DEMO pre-construida** — la landing del prospecto generada con sus datos reales, en URL de preview noindex, ANTES de la sesión de venta (`proceso-comercial.md` §2).
+
+**Los huecos 1-2 son fosos por INACCIÓN de la central:** pueden cerrarse mañana si publica sus ofertas o su programa. El argumento se formula para sobrevivir a eso — «el canal de promociones DE TU TIENDA», «TU programa de socio explicado en TU web» — y se re-verifica trimestralmente (2 URLs: `prices-drop` y búsqueda de «socio» en usafitness.es). Riesgo registrado en memory/08. Dato del 27-ago: la central SÍ produce ofertas (canal interno al que el operador tiene acceso) — simplemente no las publica online: hay contenido ya producido, publicable a coste ~0.
+
+**Disciplina de cifras:** las [P] (50%, 76%, 54%) son direccionales — encuestas Google/Ipsos de 2016-2018. Ordenan el diseño; **no entran en el pitch con decimales ni sin año** (investigación §5): en promesa comercial se dice «la mitad», «3 de 4».
 
 ## 4. Qué significa «defendible» — el estándar de cada entrega
 
@@ -61,7 +67,12 @@ Nace de dos plantillas rechazadas. Una pieza es defendible cuando:
 | ¿Cómo se construye una web/sección/plantilla? | `docs/metodologia/creacion-de-webs.md` |
 | ¿Por qué existe el método? (los dos rechazos, desgranados) | `docs/product/metodo-plantillas-y-conversion.md` |
 | ¿Qué evidencia sostiene las decisiones de conversión? | `docs/product/investigacion-conversion-2026-08.md` |
-| ¿Qué se le vende al franquiciado? | `memory/15-catalogo-servicios.md` (+ productos nuevos de la investigación) |
+| ¿Qué se le vende al franquiciado? | `memory/15-catalogo-servicios.md` — leer con la corrección de cabecera aplicada |
+| **¿Cómo se vende?** (pitch, demo, cierre, alta, informe, renovación, los 8 actuales) | `docs/product/proceso-comercial.md` |
+| ¿Cuál es el plan por fases y en qué fase estamos? | `metodo-plantillas-y-conversion.md` §8 + `memory/02` (tabla de estado F0-F5) |
+| ¿Cómo se mide y se dan de alta GA4/GSC/monitor? | `docs/medicion/guia-alta.md` — registro canónico de eventos: §3.4 |
 | ¿Dónde está el proyecto AHORA y qué queda? | `memory/02-current-state.md` + backlog en `memory/06` §0-bis |
 | ¿Cómo trabaja y se autoevalúa el agente? | `memory/16-protocolo-agente.md` |
 | Escala real y modelo de negocio | `docs/product/escala-real.md` + `memory/00` |
+
+**Precedencia operativa:** en jerarquías, reglas R y loops manda `creacion-de-webs.md`; `metodo-plantillas-y-conversion.md` es el registro del porqué y el plan. Si divergen, manda la metodología.

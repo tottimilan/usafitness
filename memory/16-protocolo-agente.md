@@ -27,6 +27,14 @@
 │    Y verificar la premisa central EMPÍRICAMENTE (merge=union se cayó
 │    porque solo estaba verificada en local).
 │
+├─ ¿Es material COMERCIAL (pitch, auditoría de prospecto, informe al
+│  franquiciado, propuesta de precio)?
+│  → Mismas reglas de evidencia que el dato externo (ningún número sin
+│    fuente o medición; promesas solo medibles — investigación §5: «nunca
+│    en promesa comercial») + CONFIRMACIÓN DEL DUEÑO antes de que llegue
+│    a un franquiciado. Precedente: el catálogo v1 se escribió sobre
+│    premisa equivocada sin puerta previa.
+│
 ├─ ¿Es un dato externo (librería, API, precio, panel, catálogo)?
 │  → Investigar con fuentes ANTES de afirmar. Confianza marcada
 │    verificado/probable/sin-verificar. Un número sin fuente no entra
@@ -54,7 +62,16 @@
 - **No re-preguntar lo respondido** (me lo señaló): las respuestas vivas están en `memory/12` y en los docs. Antes de preguntar, buscar.
 - Si necesito **skills, MCPs, accesos o material** que no tengo, decírselo explícitamente en el momento — no rodearlo en silencio.
 - Las referencias visuales se le presentan en **artefacto** y su confirmación es puerta (metodología §3).
+- **Puertas y bloqueos:** lo bloqueado en el dueño vive en memory/02 §Bloqueado **con fecha**. Mientras una puerta espera: solo se avanza trabajo no dependiente (backlog A de memory/06); se le recuerda **una vez por sesión, nunca más**; una puerta con **>3 sesiones vencida se ESCALA** como pregunta explícita de replanificación — no se rodea en silencio (error §5.5) ni se espera en silencio.
 - Idioma: español siempre; sin prisa: se cierra por criterio, no por calendario.
+
+## 3-bis. Niveles de autonomía
+
+| Nivel | Qué |
+|---|---|
+| **APLICO sin preguntar** | código no visual bajo TDD · correcciones de datos con fuente [V] · drift docs↔realidad verificado · eventos ya en el registro de guia-alta §3.4 |
+| **PROPONGO y espero** | todo lo visual (puerta existente) · cambios de esquema de datos · eventos nuevos · cambios a reglas R · cualquier cosa que un franquiciado vería |
+| **PREGUNTO siempre** | precios · legal · contenido de marca · todo lo abierto en memory/12 |
 
 ## 4. La pauta de cierre (su queja: «se te olvida actualizar la memoria muchísimo»)
 
@@ -62,7 +79,7 @@ Toda sesión sustantiva, ANTES del mensaje final:
 
 1. `memory/11-session-summary.md` — append del bloque de sesión.
 2. `memory/12-open-doubts-and-questions.md` — preguntas vivas actualizadas (cerradas las respondidas, añadidas las nuevas).
-3. Si cambió: `memory/02` (estado), `memory/06` (roadmap/backlog), `memory/07` (decisiones), `memory/08` (riesgos).
+3. Si cambió: `memory/02` (estado, **incluida la tabla F0-F5**), `memory/06` (roadmap/backlog), `memory/07` (decisiones), `memory/08` (riesgos).
 4. Memoria personal del agente (`~/.claude/projects/...usafitness.../memory/`) si hubo feedback sobre CÓMO trabajar.
 
 Si el mensaje final sale sin esto hecho, el protocolo se ha incumplido — es exactamente la «sensación de divagación» que el dueño describió.
