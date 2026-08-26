@@ -1,10 +1,16 @@
 # Testing Status — USAFitness Landing Pages
 
-**Last updated:** 2026-08-25 · **Commit:** `7252c54`
+**Last updated:** 2026-08-26 · **Commit:** `6c3631f`
 
 > Este fichero llegó a existir como copia byte-idéntica del homónimo de la plantilla MASTERMIND (describía Pester y skill-quality-evaluator, no este proyecto). Reescrito con el estado real; a partir de aquí describe lo que hay.
 
-## Estado: 72 tests en dos suites + CI (70 pass · 2 skipped declarados)
+## Estado: 171 tests en dos suites + CI (168 pass · 3 skipped declarados · **0 skipped con `test:armado`**)
+
+> **La cifra que importa no es 171, es el 0 de `skipped` en armado.** Los tests que
+> protegen la puerta de consentimiento y el acotado del token de Search Console
+> duermen mientras ninguna tienda tenga `ga4Id`, y dormidos no vigilan nada.
+> `npm run test:armado` inyecta un fixture, recompila, los despierta y restaura.
+> Un marcador de "171 verdes" sin ese paso reclama una cobertura que no existe.
 
 ```bash
 npm run build && npm test
