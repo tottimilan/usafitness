@@ -126,11 +126,20 @@ https://usafitness<tienda>.com/
 **Enlazado interno:**
 - `Products` deja de ser 13 strings muertos y pasa a ser **enlaces** al hub y a las categorías. Es la victoria SEO más barata del repo — pero **después** de que las páginas existan: enlaces a 404 son peor que texto plano.
 - Breadcrumbs + `BreadcrumbList` en toda página interior. Es lo único de esta lista que **sigue produciendo rich result** tras la retirada de las FAQ.
-- Entre dominios: **hub-and-spoke, nunca anillo.** Cada landing enlaza hacia arriba al hub de marca una sola vez desde el footer; el hub enlaza hacia abajo. Un anillo recíproco de 7 dominios con misma IP, misma plantilla y mismos textos es una huella delatora, no una estrategia.
+- Entre dominios: **hub-and-spoke, nunca anillo.** ~~Cada landing enlaza hacia arriba al hub de marca una sola vez desde el footer~~ → **DESCARTADO POR EL USUARIO (2026-08-26): no se enlaza la cuenta ni el hub de marca desde ninguna landing.** El motivo comercial es suyo; el técnico lo respalda: `social.*` alimenta el `sameAs` de Schema.org, que declara de quién ES la cuenta, y la corporativa es de otra entidad. Hay una guarda en `src/data/stores.ts` que rechaza en build cualquier URL que contenga `usafitnessoficial` o `comunidadusafitness`. El resto del párrafo sigue vigente: un anillo recíproco de 7 dominios con misma IP, misma plantilla y mismos textos es una huella delatora, no una estrategia.
 
 ---
 
 ## 3. CATÁLOGO COMERCIAL DE SERVICIOS
+
+> ⚠️ **SUSTITUIDO el 2026-08-26 por `memory/15-catalogo-servicios.md`**, que se
+> hizo con la escala real (58 tiendas, no 7) y con el modelo de venta decidido:
+> a cada franquiciado, no a la central. El catálogo nuevo mide horas/mes por
+> tienda de cada servicio y descarta explícitamente lo que no aguanta a 20
+> tiendas llevadas por una persona sola — el de abajo costaba 2,20 h/tienda/mes,
+> que a 58 son 128 h y no cabe en un mes de trabajo.
+>
+> Lo de abajo se conserva como registro de lo que se pensó en agosto.
 
 > **La regla que protege el negocio:** *solo se cobra mensualidad por lo que se pudre o se acumula.* Una web se construye una vez → pago único. Una reseña entra cada semana, una publicación de Google caduca a los 7 días, un festivo cambia el horario, una promo rota → mensualidad. Cobrar mensual por trabajo puntual se detecta al tercer mes y se cancela.
 

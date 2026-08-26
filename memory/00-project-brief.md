@@ -46,3 +46,65 @@
 ---
 
 **Correction note (2026-08-24):** an earlier version of this file wrongly described USAFitness as a chain of **gyms**. That was an unverified inference from the brand name; the repo never said it. `src/data/stores.json` states plainly in every store that these are **tiendas de suplementación / nutrición deportiva** (supplement retail). Corrected after user pushback. Root cause: fields were extracted with `grep` instead of reading the file.
+
+---
+
+## Posición del proveedor frente a la marca (2026-08-26)
+
+Dato que faltaba y que cambia el análisis de riesgo entero:
+
+- **El desarrollador fue el empleado responsable de la parte digital de USAFitness.**
+  Se fue, pero sigue colaborando.
+- **Conoce personalmente a los dueños de la marca. Son amigos.**
+- Las 8 tiendas hechas **vinieron a él**, no las captó: llegaron por su papel
+  anterior dentro de la empresa.
+- **Va a proponer el servicio a la central** y a pedir permiso para dirigirse a
+  las 58 tiendas.
+
+### Qué corrige esto
+
+El riesgo que se había escrito era *«si la central decide centralizar el
+servicio digital, te quedas sin negocio»*, tratando a la central como
+competidor potencial. **Es el marco equivocado.** La central no es un rival: es
+el canal, y hay acceso directo a quien decide.
+
+### Cuál es el riesgo REAL, que no es menor sino distinto
+
+1. **Una sola relación abre —o cierra— el acceso a las 58.** La concentración
+   sigue ahí; cambia el mecanismo. No es que la central compita: es que si esa
+   relación se enfría, se pierde el canal entero de golpe. Y encima está mezclada
+   con una amistad, así que romperla cuesta dos cosas a la vez.
+
+2. **El permiso de la central abre la PUERTA, no la venta.** Son 58 sociedades
+   independientes, cada una con su CIF y su decisión. Que la central bendiga el
+   servicio no hace que ninguna pague. Confundir «permiso» con «contrato» es el
+   error de planificación más caro posible aquí.
+
+3. **La reunión con la central es un punto único de fallo.** Una conversación
+   fija el techo del negocio para años. Merece prepararse como tal.
+
+4. **Hay una bifurcación que conviene decidir ANTES de esa reunión**, porque si
+   se decide dentro se decide mal:
+   - **(a) La central contrata el servicio** para su red. Un cliente, un precio,
+     mucho menos trabajo comercial y administrativo — y mucho menos ingreso.
+     Y toda la facturación depende de un solo cliente.
+   - **(b) La central bendice y cada franquiciado contrata.** 58 clientes
+     potenciales, ingreso muy superior, pero 58 ventas, 58 facturas, 58
+     interlocutores. Y el trabajo administrativo que nadie cuenta.
+   - Son negocios distintos, no dos precios del mismo negocio.
+
+5. **Zona a aclarar por escrito, sin suspicacia:** parte del trabajo digital
+   existente se hizo siendo empleado. Antes de escalar conviene que esté claro
+   qué es de quién — el sistema de plantillas, el código, los dominios, las
+   cuentas. Entre amigos es más fácil dejarlo sin hablar, y por eso mismo es
+   donde luego duele.
+
+### Lo que hay a favor, y es mucho
+
+- **Ocho pruebas vivas**, no una propuesta en PowerPoint.
+- **Datos medidos sobre la propia red de la marca**, no argumentos genéricos:
+  una tienda 460 días sin publicar y otra con 80 publicaciones; 4 tiendas con
+  horarios distintos en la web y en Google, dos figurando cerradas los domingos;
+  GranCasa sin ficha de Google y marcada «PRÓXIMAMENTE» pese a estar abierta;
+  `geo` con hasta 1.871 m de error; un teléfono que no coincide con su ficha.
+- **Nadie más puede enseñar eso** de su red, porque nadie más la ha medido.

@@ -2,7 +2,7 @@
 
 **Phase:** MVP
 
-**Última actualización:** 2026-08-25 (52 commits) · fase corregida desde `Iteration` en el primer `/mm-gate` — ver [`docs/adr/0001`](../docs/adr/0001-phase-gate-iteration-launch.md) y la transición del 2026-08-25 en `memory/13`. No fue un retroceso del proyecto: la etiqueta llevaba dos meses siendo falsa.
+**Última actualización:** 2026-08-26 (113 commits) · fase corregida desde `Iteration` en el primer `/mm-gate` — ver [`docs/adr/0001`](../docs/adr/0001-phase-gate-iteration-launch.md) y la transición del 2026-08-25 en `memory/13`. No fue un retroceso del proyecto: la etiqueta llevaba dos meses siendo falsa.
 
 > `**Phase:**` arriba, en inglés y en su propia línea, no es un descuido de idioma:
 > `scripts/phase-gate-check` lo lee con `^\*\*Phase:\*\*`. Al reescribir este
@@ -15,7 +15,17 @@
 
 ## Qué es esto en una frase
 
-Sistema de plantillas y secciones que genera una landing por **tienda física de suplementación deportiva USAFitness**, cada una en su dominio. Es la **migración de las webs anteriores en WordPress** a sistema propio, y está a medias.
+Sistema de plantillas y secciones que genera una landing por **tienda física de suplementación deportiva USAFitness**, cada una en su dominio.
+
+**Y la escala no es la que decía esta memoria hasta el 2026-08-26.** La marca
+tiene **58 tiendas** (47 en centro comercial, 11 a pie de calle); el repo cubre
+8. Ver `docs/product/escala-real.md`. Lo que a 8 tiendas es «trabajo», a 58 es
+«producto»: el alta de tienda tiene que dejar de ser manual.
+
+**Modelo de negocio decidido (2026-08-26):** se vende a **cada franquiciado**;
+la central bendice y avisa, no contrata. El techo del negocio es **comercial, no
+operativo** — operar 58 tiendas cabe en 43,5 h/mes, pero 51 altas manuales son
+25 meses. Catálogo completo en `memory/15-catalogo-servicios.md`.
 
 ---
 

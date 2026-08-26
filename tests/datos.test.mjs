@@ -385,3 +385,89 @@ describe('Los mapas apuntan a la ficha de la tienda, no a una búsqueda', () => 
     }
   });
 });
+
+
+describe('Las redes sociales que se publican son de ESA tienda', () => {
+  // `social.instagram` no solo pinta un icono: alimenta el `sameAs` de
+  // Schema.org en Landing.astro, o sea que le DECLARA A GOOGLE que ese negocio
+  // es dueño de esa cuenta. Publicar el handle equivocado es una afirmación
+  // falsa sobre una empresa real y manda los clientes de un franquiciado a la
+  // cuenta de otro.
+  //
+  // Cada handle se verificó leyendo el og:title real de Instagram, no
+  // deduciéndolo del patrón. Es la misma disciplina que se instauró tras el bug
+  // de los mapas: no se publica un identificador que no se haya comprobado.
+
+  const conIg = stores.filter((s) => s.social?.instagram);
+
+  test('el formato es una URL de perfil, no una búsqueda ni un enlace suelto', () => {
+    for (const s of conIg) {
+      assert.match(s.social.instagram, /^https:\/\/www\.instagram\.com\/[A-Za-z0-9._]+\/$/,
+        `${s.slug}: debe ser https://www.instagram.com/<handle>/`);
+    }
+  });
+
+  test('dos tiendas no comparten cuenta', () => {
+    // Sociedades distintas no pueden declararle a Google que son dueñas del
+    // mismo perfil. Un duplicado aquí es copy-paste.
+    const urls = conIg.map((s) => s.social.instagram.toLowerCase());
+    assert.equal(new Set(urls).size, urls.length, 'hay una cuenta de Instagram repetida entre tiendas');
+  });
+
+  test('el handle no es el de otra tienda de la lista', () => {
+    // Guarda contra el error más fácil: pegar el de Vigo en Marineda. Se
+    // comprueba que el handle de cada una no aparezca en el `social` de otra.
+    for (const a of conIg) {
+      const handleA = a.social.instagram.split('/').filter(Boolean).pop();
+      for (const b of conIg) {
+        if (b.slug === a.slug) continue;
+        const handleB = b.social.instagram.split('/').filter(Boolean).pop();
+        assert.notEqual(handleA, handleB, `${a.slug} y ${b.slug} comparten el handle ${handleA}`);
+      }
+    }
+  });
+
+  test('una tienda sin cuenta no publica sameAs ni sección', () => {
+    // Es lo correcto: mejor sin sección que enlazando la cuenta que más se
+    // parezca. Las Rosas y El Arcángel están así a propósito.
+    for (const s of stores) {
+      if (s.social?.instagram) continue;
+      assert.ok(!s.social || Object.values(s.social).every((v) => !v),
+        `${s.slug} tiene un objeto social sin contenido útil`);
+    }
+  });
+});
+
+describe('No se enlaza la cuenta de marca desde ninguna tienda', () => {
+  // Regla del usuario (2026-08-26). Tiene además fundamento técnico:
+  // `social.*` alimenta el `sameAs` de Schema.org, que declara de QUIÉN ES la
+  // cuenta. Poner la corporativa en la ficha de una tienda le diría a Google
+  // que esa sociedad es dueña del perfil de la cadena — son entidades
+  // distintas — y mandaría el tráfico que paga cada franquiciado a una cuenta
+  // que no es suya.
+  //
+  // Es fácil heredar la confusión: los directorios de varios centros
+  // comerciales enlazan @usafitnessoficial en vez de la cuenta de la tienda.
+  const MARCA = ['usafitnessoficial', 'comunidadusafitness'];
+
+  test('ninguna tienda enlaza una cuenta corporativa', () => {
+    for (const s of stores) {
+      for (const [red, url] of Object.entries(s.social ?? {})) {
+        if (!url) continue;
+        for (const m of MARCA) {
+          assert.ok(!url.toLowerCase().includes(m),
+            `${s.slug}.social.${red} enlaza ${m}, que es de la marca y no de esta tienda`);
+        }
+      }
+    }
+  });
+
+  test('las 7 tiendas tienen su propia cuenta de Instagram', () => {
+    // Se llegó aquí en dos tandas: 5 el 2026-08-26 y las 2 últimas cuando se
+    // descubrió que el patrón de la cadena usa PUNTOS (usafitness_c.c.<sitio>),
+    // que no se había probado. Si alguna desaparece, que se note.
+    for (const s of stores) {
+      assert.ok(s.social?.instagram, `${s.slug} se ha quedado sin Instagram`);
+    }
+  });
+});
