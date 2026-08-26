@@ -24,7 +24,11 @@ const { plan, name, location = '', variant } = Astro.props;
 // expresada de dos formas; cualquiera de las dos destaca la primera foto.
 // El número de columnas NO depende de esto —lo decide la orientación de las
 // fotos— así que se puede resolver aquí sin recalcular el plan.
-const destacar = plan.destacarPrimera || (variant === 'destacada' && plan.fotos.length > 1);
+// La misma guarda física que en `planDeGaleria`: una vertical destacada a
+// 900px de ancho mediría 1600px de alto. La variante no puede saltársela.
+const destacar =
+  plan.destacarPrimera ||
+  (variant === 'destacada' && plan.fotos.length > 1 && plan.fotos[0]?.orientacion === 'horizontal');
 const altSuffix = location ? ` en ${location}` : '';
 ---
 

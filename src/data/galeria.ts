@@ -116,7 +116,12 @@ export function columnasPara(fotos: Foto[]): number {
 
 export function planDeGaleria(fotos: Foto[], opciones: Opciones = {}): PlanDeGaleria {
   const columnas = columnasPara(fotos);
-  const destacarPrimera = Boolean(opciones.destacadaForzada) && fotos.length > 1;
+  // El flag es una preferencia; la orientación es física. Una 9:16 destacada a
+  // 900px de ancho mediría 1600px de alto — más alta que la pantalla. Caso
+  // real: vigo, cuya primera foto pasa a ser vertical al filtrar el duplicado
+  // del hero.
+  const destacarPrimera =
+    Boolean(opciones.destacadaForzada) && fotos.length > 1 && orientacionDe(fotos[0]) === 'horizontal';
 
   const colocadas: FotoColocada[] = fotos.map((f) => ({
     ...f,

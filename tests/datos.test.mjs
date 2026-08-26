@@ -869,3 +869,22 @@ describe('Cada pantalla se lleva el tamaño de foto que necesita', () => {
     assert.equal(sizesDe(3, true), '(max-width: 932px) 100vw, 900px');
   });
 });
+
+describe('Una vertical nunca se destaca a todo el ancho', () => {
+  // El caso real que fija la regla: vigo tiene `galleryFeatured` y, al filtrar
+  // el duplicado del hero, su primera foto pasa a ser una 9:16 de 574×1020.
+  // Destacarla = pintarla a 900px de ancho → 1600px de alto, más alta que la
+  // pantalla. El flag es una preferencia; la orientación es física.
+  const h = { src: 'h.webp', ancho: 1400, alto: 1050 };
+  const v = { src: 'v.webp', ancho: 574, alto: 1020 };
+
+  test('con la primera horizontal, el flag manda', () => {
+    const p = planDeGaleria([h, v, v], { destacadaForzada: true });
+    assert.equal(p.destacarPrimera, true);
+  });
+
+  test('con la primera vertical, el flag se ignora', () => {
+    const p = planDeGaleria([v, v, v], { destacadaForzada: true });
+    assert.equal(p.destacarPrimera, false, 'una 9:16 a 900px de ancho mediría 1600px de alto');
+  });
+});
