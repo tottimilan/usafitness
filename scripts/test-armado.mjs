@@ -60,11 +60,15 @@ try {
 
 // Cinturón y tirantes: el restaurado de arriba escribe el contenido original
 // byte a byte, pero si algo se torciera (otro proceso tocando el fichero, un
-// crash a medias), git es el árbitro.
-try {
-  execSync('git diff --quiet -- src/data/stores.json', { cwd: new URL('..', import.meta.url) });
-} catch {
-  console.error('\n[test-armado] ✖ stores.json quedó distinto de git tras restaurar. NO despliegues hasta mirar esto.\n');
+// crash a medias) hay que enterarse.
+//
+// Se compara contra lo que ESTE script leyó al empezar, no contra git. La
+// primera versión usaba `git diff --quiet` y daba un falso positivo cada vez
+// que se ejecutaba con cambios sin commitear en stores.json — o sea justo
+// mientras se está trabajando, que es cuando más se ejecuta. Un guard que grita
+// cuando no pasa nada se acaba ignorando, y entonces deja de guardar.
+if (readFileSync(FICHERO, 'utf8') !== original) {
+  console.error('\n[test-armado] ✖ stores.json no volvió a su contenido original. NO despliegues hasta mirar esto.\n');
   codigo = 1;
 }
 
