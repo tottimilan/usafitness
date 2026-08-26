@@ -619,3 +619,44 @@ describe('El endpoint de salud sirve para diagnosticar, no solo para hacer ping'
     assert.match(res.headers['x-robots-tag'], /noindex/);
   });
 });
+
+describe('La galería no recorta ninguna foto', () => {
+  // Lo que se puede afirmar por HTTP es que cada celda declara la proporción
+  // REAL de su foto. Que eso se traduzca en píxeles sin recorte se comprobó en
+  // navegador y está en el commit: Lagoh pasó de 442×332 con el 44% del alto
+  // cortado y ampliada 1,16x, a 289×386 con escala 0,76 y cero recorte.
+  //
+  // Este test protege la parte que sí es estructural: si alguien vuelve a poner
+  // un `aspect-ratio` fijo, las proporciones dejan de coincidir con las
+  // dimensiones de la imagen y esto se pone rojo.
+
+  for (const s of stores.filter((s) => s.galleryImages.length)) {
+    test(`${s.slug} — cada celda lleva la proporción de SU foto`, async () => {
+      const html = (await get('/', s.domain)).text();
+      const celdas = [...html.matchAll(/<figure class="[^"]*gallery-item[^"]*"[^>]*style="[^"]*--proporcion:\s*([\d]+)\s*\/\s*([\d]+)[^"]*"[\s\S]*?<img[^>]*width="(\d+)"[^>]*height="(\d+)"/g)];
+
+      assert.equal(celdas.length, s.galleryImages.length, 'una celda por foto');
+
+      for (const [, pw, ph, w, h] of celdas) {
+        assert.equal(pw, w, 'el ancho de la proporción tiene que ser el de la imagen');
+        assert.equal(ph, h, 'y el alto también: si no, hay recorte');
+      }
+
+      // Las dimensiones son las reales, no un 400x300 escrito a mano como antes
+      // —que además provocaba salto de maquetación en TODAS las fotos.
+      const genericas = celdas.filter(([, , , w, h]) => w === '400' && h === '300');
+      assert.equal(genericas.length, 0, 'ninguna foto puede llevar el 400x300 genérico');
+    });
+  }
+
+  test('basta una foto vertical para que la galería pase a 3 columnas', async () => {
+    // A 2 columnas la celda mide 442px: una 9:16 saldría de 786px de alto.
+    const conVertical = stores.find((s) => s.slug === 'vigo');
+    const html = (await get('/', conVertical.domain)).text();
+    assert.match(html, /--columnas:3/, 'vigo tiene fotos 9:16 y necesita 3 columnas');
+
+    const soloHorizontales = stores.find((s) => s.slug === 'arcangel');
+    const html2 = (await get('/', soloHorizontales.domain)).text();
+    assert.match(html2, /--columnas:2/, 'arcangel es todo 4:3: 2 columnas y celdas grandes');
+  });
+});

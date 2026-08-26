@@ -32,9 +32,29 @@ function validarDatosDeTienda() {
           );
         }
 
+        // Se miden las imágenes ANTES de compilar y el resultado se escribe en
+        // `src/data/dimensiones.json`, que la galería importa. No se puede
+        // medir al renderizar: en SSR sería leer disco en cada petición, y al
+        // cargar el módulo tampoco vale porque en producción `public/` ya no
+        // existe con ese nombre — el adaptador la copia a `dist/client/`.
+        const { escribirDimensiones } = await import('./src/build/medir-imagenes.ts');
+        const { total, cambios } = escribirDimensiones(
+          fileURLToPath(config.publicDir),
+          fileURLToPath(new URL('./src/data/dimensiones.json', import.meta.url))
+        );
+        logger.info(
+          `${total} imágenes medidas${cambios ? ` — dimensiones.json ACTUALIZADO (commitéalo)` : ''}`
+        );
+
         // Los avisos no rompen nada: son carencias que dependen de datos que
         // tiene que dar el franquiciado. Se listan para que se vean.
         for (const aviso of avisosDeDatos()) logger.warn(aviso);
+
+        // Fotos que se verán ampliadas. Mismo trato que los avisos de datos: no
+        // rompen el build, pero sin decirlo nadie descubre que hace falta pedir
+        // fotos mejores — desde la pantalla eso no se deduce.
+        const { avisosDeGaleria } = await import('./src/data/galeria-de-tiendas.ts');
+        for (const aviso of avisosDeGaleria(stores)) logger.warn(aviso);
       },
     },
   };
