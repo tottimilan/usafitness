@@ -122,7 +122,7 @@ Full rule including when the agent should auto-downgrade HIGH → MEDIUM lives a
 
 ## Memory Architecture (the brain — full map in `OPERATING-GUIDE.md`)
 
-- `CLAUDE.md` (this file) → **kernel**. `memory/` → long-term project intelligence (15 files `00`–`14`; `11` append-mode, `13` phase history). `docs/` → source of truth (product, architecture, flows, testing, security, ADRs).
+- `CLAUDE.md` (this file) → **kernel**. `memory/` → long-term project intelligence (17 files `00`–`16`; `11` append-mode, `13` phase history, `15` catálogo comercial, `16` protocolo del agente — de lectura obligada al inicio de sesión para trabajo visual/de conversión/estrategia). `docs/` → source of truth (product, architecture, flows, testing, security, ADRs).
 - `.cursor/rules/*.mdc` → instructions. Always-on: `00`, `01`, `04` (safety), `06` (modes). The rest (`02`, `03`, `05`, `07`, `08`) load on demand via `globs`/`description`.
 - `.cursor/skills/*/SKILL.md` → **canonical** reusable playbooks (26: 17 System 1 + 9 System 2), loaded on demand. `.claude/skills/` is a generated mirror — never edit directly; run `scripts/sync-skills` after editing source.
 - `.claude/workflows/*.md` (7 recipes) · `.claude/commands/mm-*.md` (17 slash commands) → ergonomics. See their `README.md`.

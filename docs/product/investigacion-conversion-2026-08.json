@@ -1,0 +1,473 @@
+{
+ "catalogo": {
+  "hallazgos": [
+   {
+    "afirmacion": "El arbol de categorias completo esta publicado en la pagina 'Mapa del sitio': raiz /categorias, ramas principales Proteinas (/proteinas: concentrado-de-suero, aislado-de-suero, proteina-de-carne, caseina, proteina-secuencial, proteina-hidrolizada-de-suero, vegetal), Aminoacidos (/aminoacidos: bcaas-ramificados, glutamina, aminoacidos-esenciales, bcaa-glutamina, otros-aminoacidos), Control de Peso, Creatina, Salud y Bienestar, Oxido Nitrico/Pre-Entrenos, Complementos (cinturones, mezcladores, ropa...), Dietetica, Alimentacion, Mujer, Herbolario y ~133 URLs de categoria en total. Son friendly URLs sin ID numerico (https://usafitness.es/{slug}), no el patron /NN-categoria",
+    "fuente": "https://usafitness.es/mapa%20del%20sitio (renderiza el arbol entero con anchors); menu superior en https://usafitness.es/",
+    "confianza": "verificado",
+    "aplicacion": "Nuestras landings pueden enlazar categorias canonicas del ecommerce (ej. /creatina, /pre-entrenos, /proteinas) como CTA 'ver catalogo completo', y reutilizar esta taxonomia para los bloques de producto y el SEO local ('creatina en C.C. Xanadu')."
+   },
+   {
+    "afirmacion": "El catalogo tiene 1.683 productos activos: la categoria raiz /categorias muestra 'Hay 1683 productos' y pagina de 12 en 12 con ?page=N (verificado 'Mostrando 13-24 de 1683' en page=2, ~141 paginas). Subconjuntos: /nutricion 1.309, /complementos 225, /proteinas 199, /mujer 557, /aminoacidos 156, /pre-entrenos 80, /creatina 62",
+    "fuente": "https://usafitness.es/categorias y https://usafitness.es/categorias?page=2 (contador visible); contadores 'Hay N productos' en cada categoria",
+    "confianza": "verificado",
+    "aplicacion": "Un script puede extraer el catalogo entero iterando https://usafitness.es/categorias?page=1..141 sin API ni login; dimensiona el esfuerzo de sincronizar producto destacado por landing (no hace falta scrapear 10.000 fichas, son ~1.700)."
+   },
+   {
+    "afirmacion": "Hay 52 marcas listadas en /marcas y las 8 de nuestras landings estan TODAS: Quamtrax (~428 productos, 36 paginas), Amix (~228, mas sublineas Amix Black Line/Performance/Pro), Applied Nutrition (~106), Optimum Nutrition (~61), Zoomad Labs (~45), MuscleTech (~25), Nutrex (~20), Cellucor (~17). Conteo por paginacion real (12 tiles/pagina en /marcas/{slug}?page=N). Ademas hay marcas fuertes que NO usamos: BSN, Weider, BiotechUSA, Universal Nutrition, Barebells, NOCCO",
+    "fuente": "https://usafitness.es/marcas ; https://usafitness.es/marcas/quamtrax?page=36 (ultima pagina con 8 productos); mismo metodo en las 8 marcas",
+    "confianza": "verificado",
+    "aplicacion": "Confirma que las 8 marcas de las landings tienen respaldo real de catalogo; Quamtrax y Amix concentran ~40% del catalogo, asi que los bloques de marca de las landings deberian priorizar esas dos; valorar añadir BSN/Weider si el dueño confirma que se venden en tienda."
+   },
+   {
+    "afirmacion": "La ficha de producto (ej. QUAMTRAX ISO WHEY 1KG CHOCO KING) expone sin login: nombre, precio final con IVA (43,90 EUR en itemprop price), disponibilidad schema.org/InStock, stock numerico en data-stock (196), descripcion corta (itemprop description, ~220 chars), descripcion larga (~1.700 chars), enlace a marca, variantes por atributo 'sabor' (anclas tipo #/26,sabor,cookiescream). NO hay JSON-LD Product (solo Organization, WebPage, BreadcrumbList) ni referencia/SKU visible",
+    "fuente": "https://usafitness.es/quamtrax-iso-whey-1kg-choco-king (HTML parseado)",
+    "confianza": "verificado",
+    "aplicacion": "Podemos poblar bloques de producto en las landings (nombre, precio, foto, sabor) scrapeando fichas; al no haber SKU visible, la clave de matching entre landing y ecommerce debe ser el slug de la URL."
+   },
+   {
+    "afirmacion": "Las fotos de producto son descargables sin autenticacion en 5 tamaños con patron fijo https://usafitness.es/{id_imagen}-{size}/{slug}.jpg: small_default 11,6KB, cart_default 17KB, home_default 55KB, medium_default 151KB, large_default 800x800px 437KB (JPEG)",
+    "fuente": "https://usafitness.es/6177-large_default/quamtrax-iso-whey-1kg-choco-king.jpg (Content-Length 437418, dimensiones 800x800 verificadas con PIL); HEAD a los 5 sufijos",
+    "confianza": "verificado",
+    "aplicacion": "Para el presupuesto de 900KB/pagina movil NUNCA usar large_default (una sola foto se come el 48%); partir de home_default (55KB) o medium y recomprimir a AVIF/WebP <=40KB por foto de producto en las landings."
+   },
+   {
+    "afirmacion": "NO existe seccion de ofertas activa en el ecommerce: el controlador de ofertas devuelve 'No hay productos' (prices-drop), best-sales y new-products tambien vacios, /ofertas y /promociones dan 404. Los sellos 'NEW/Nuevo' de la home son flags manuales. Los precios si son visibles sin login en todo el catalogo",
+    "fuente": "https://usafitness.es/index.php?controller=prices-drop ('No hay productos'); https://usafitness.es/index.php?controller=best-sales ; https://usafitness.es/ (precios en tiles)",
+    "confianza": "verificado",
+    "aplicacion": "Hueco estrategico: las landings pueden ser EL canal de promociones (pop-up cumpleaños -20%, banner funcionario -15%) sin canibalizar nada, porque la central no publica ofertas online; es un argumento de venta directo al franquiciado."
+   },
+   {
+    "afirmacion": "NO hay nada publicado del programa de socio/VIP en usafitness.es: cero menciones a 'socio', 'VIP', 'funcionario', 'cumpleaños' o 'fidelidad' en home, condiciones generales, sobre-nosotros y aviso legal; el modulo de recompensas (allinone_rewards) no esta instalado (404); /descuento redirige a login y es solo el listado de cupones del cliente",
+    "fuente": "grep sobre https://usafitness.es/ , /contentido/condiciones-general , /contentido/sobre-nosotros , /contentido/aviso-legal ; https://usafitness.es/index.php?controller=module-allinone_rewards-rewards (404); https://usafitness.es/descuento -> /login?back=discount",
+    "confianza": "verificado",
+    "aplicacion": "La pagina/bloque del programa de socio en nuestras landings sera contenido UNICO en todo el ecosistema USAFitness (ni la central lo tiene): pieza central del pitch al franquiciado y del pop-up de captacion de alta en tienda."
+   },
+   {
+    "afirmacion": "El directorio de tiendas existe como categoria CMS /content/category/tiendas-usafitness con 58 paginas /contentido/-usafitness-{slug}, de las cuales 2 marcadas PROXIMAMENTE (C.C. As Termas, C.C. Gran Casa) => 56 operativas listadas. Cada pagina da: nombre del centro comercial, direccion postal, horario, telefono fijo y un iframe de Google Maps embed. NO hay WhatsApp, NO hay fotos de la tienda, NO hay reseñas ni enlace a ficha de Google. El controlador nativo /tiendas esta vacio (solo el titulo 'Nuestras tiendas')",
+    "fuente": "https://usafitness.es/content/category/tiendas-usafitness (58 enlaces contados); ejemplo con datos: https://usafitness.es/contentido/-usafitness-cc-xanadu-madrid (direccion Autovia A-5 km 22 local 423A, horario L-D 10-22h, tel 91 668 89 52, maps embed); https://usafitness.es/tiendas (vacio)",
+    "confianza": "verificado",
+    "aplicacion": "Seed data gratis para las ~50 landings (nombre, direccion, horario, telefono de cada tienda, verificables contra Google Maps); y el liston de calidad a batir es bajisimo: cualquier landing con WhatsApp, fotos y reseñas ya supera la pagina oficial de esa tienda. Pedir ademas a la central un backlink desde cada pagina CMS a su landing."
+   },
+   {
+    "afirmacion": "El titular legal del ecommerce es GRUPO CORELAM, S.L., CIF/NIF B88404306, domicilio C/ Princesa 49 1ºD, 28008 Madrid, inscrita en el Registro Mercantil de Madrid; contacto: tel 661410890, info@usafitness.es (soporte L-V 9:30-17:00)",
+    "fuente": "https://usafitness.es/contentido/aviso-legal (Art. 10 LSSI citado literalmente en la pagina)",
+    "confianza": "verificado",
+    "aplicacion": "Cualquier reutilizacion de fotos/descripciones del ecommerce en las landings necesita permiso de Grupo Corelam S.L. (nuestro contacto via el operador); y define con quien se firma la cesion de contenidos."
+   },
+   {
+    "afirmacion": "usafitness.es es un reskin de vivaelmusculo.com sobre el mismo PrestaShop: el theme se llama 'VivaElMusculo' (/themes/VivaElMusculo/), los <title> de producto terminan en '| Vivaelmusculo', los assets CMS llevan sufijo 'viva' (paypal-min-viva.png, bizum-min-1-viva-webp.jpg), y el robots.txt declara como Sitemap https://vivaelmusculo.com/1_index_sitemap.xml. vivaelmusculo.com sigue online como tienda separada y activa",
+    "fuente": "https://usafitness.es/robots.txt (linea Sitemap); https://usafitness.es/quamtrax-iso-whey-1kg-choco-king (title '| Vivaelmusculo'); https://vivaelmusculo.com/ (HTTP 200, tienda viva)",
+    "confianza": "verificado",
+    "aplicacion": "Las fotos y copys del ecommerce pueden ser activos compartidos con otra marca (o de los fabricantes): antes de copiarlos a las landings hay que aclarar su titularidad real; y de paso explica errores de branding que nuestras landings no deben heredar."
+   },
+   {
+    "afirmacion": "El sitemap XML esta roto/obsoleto para usafitness: 1_index_sitemap.xml apunta a un unico sitemap con lastmod 2023-06-04 cuyas 3.109 URLs son todas del dominio vivaelmusculo.com y de su catalogo antiguo (Black Extreme, Beverly, BiotechUSA). NO sirve para extraer el catalogo actual de usafitness.es",
+    "fuente": "https://usafitness.es/1_index_sitemap.xml y https://usafitness.es/1_es_0_sitemap.xml (3.109 <loc> contados, todos vivaelmusculo.com)",
+    "confianza": "verificado",
+    "aplicacion": "El script de extraccion debe ignorar el sitemap y usar paginacion HTML (/categorias?page=N y /marcas/{slug}?page=N); tambien es munición de venta: el SEO tecnico de la central esta descuidado y nuestras landings no dependen de el."
+   },
+   {
+    "afirmacion": "La calidad del contenido de la central tiene agujeros graves reutilizables como argumento: 'Sobre nosotros' es Lorem ipsum literal integro; el aviso legal es una plantilla a medio rellenar ('El Titular de este dominio posee la titulacion de expedido u homologado por .' con campos vacios); y hay copys cruzados entre productos (la ficha de ISO WHEY CHOCO KING contiene la descripcion de 'Isopro 1kg Maxy Classic')",
+    "fuente": "https://usafitness.es/contentido/sobre-nosotros (Lorem ipsum); https://usafitness.es/contentido/aviso-legal ; https://usafitness.es/quamtrax-iso-whey-1kg-choco-king (descripcion larga menciona otro producto)",
+    "confianza": "verificado",
+    "aplicacion": "No reutilizar descripciones del ecommerce a ciegas (revisar producto a producto); y en el pitch al operador: nuestras landings entregan contenido cuidado donde la central no llega."
+   },
+   {
+    "afirmacion": "La central carga Google Tag Manager (GTM-T72MLL48) con script inline en el <head> del HTML que llama a googletagmanager.com, con banner de cookies propio (Acepto/Rechazar todo/Personalizar); el datalayer incluye pageCategory, ecommerce.currency y userId de invitado",
+    "fuente": "https://usafitness.es/ (script cdc_googletagmanager en el head del HTML descargado)",
+    "confianza": "probable",
+    "aplicacion": "Nuestras landings NO deben imitar este patron (nuestra regla es cero peticiones a terceros pre-consentimiento); es ademas un diferencial tecnico vendible: cumplimos Consent Mode v2 mejor que la propia central. Falta confirmar con browser si el tag dispara antes del clic en Acepto."
+   },
+   {
+    "afirmacion": "Metodos de pago del ecommerce: transferencia bancaria, tarjeta credito/debito, PayPal, contrarreembolso y Bizum (logos en footer); el responsable de la pasarela es Grupo Corelam S.L. La home muestra productos con precio y CTA de compra: el ecommerce esta operativo y vende online con envio",
+    "fuente": "https://usafitness.es/contentido/condiciones-general (texto de pagos); logos en https://usafitness.es/img/cms/bizum-min-1-viva-webp.jpg etc.; https://usafitness.es/contentido/entrega",
+    "confianza": "verificado",
+    "aplicacion": "Las landings no compiten con el ecommerce en venta online: su conversion es visita/llamada/WhatsApp a la tienda fisica + alta de socio; el CTA 'comprar online' puede derivar a usafitness.es sin conflicto."
+   }
+  ],
+  "recomendaciones": [
+   "Script de extraccion del catalogo: iterar https://usafitness.es/categorias?page=1..141 (12 productos/pagina, 1.683 total) y https://usafitness.es/marcas/{slug}?page=N para el corte por marca; parsear tiles (titulo, precio, URL slug, id de imagen). NO usar el sitemap XML (apunta a vivaelmusculo.com y es de 2023).",
+   "Imagenes para las landings: descargar home_default (55KB) o medium_default (151KB) del patron https://usafitness.es/{id}-{size}/{slug}.jpg y recomprimir a AVIF/WebP <=40KB; prohibido usar large_default (437KB) con el presupuesto de 900KB movil.",
+   "Antes de reutilizar cualquier foto o descripcion: autorizacion escrita de GRUPO CORELAM, S.L. (B88404306) via el operador, y aclarar si las fotos son suyas o de los fabricantes/de vivaelmusculo.com. Alternativa mas limpia: pedir los originales a la central o kits de prensa de las marcas.",
+   "Publicar el programa de socio en las landings como contenido exclusivo (nadie del ecosistema lo tiene online): bloque de beneficios (-10% VIP, -15% funcionario, -20% cumpleaños, cupon 5EUR desde 49,90EUR) + pop-up 'hazte socio en tienda en 1 minuto'; es la pieza que mejor justifica la venta de la web al franquiciado.",
+   "Posicionar la landing como canal de promos LOCAL: la central no tiene seccion de ofertas online activa (prices-drop vacio), asi que banners/pop-ups promocionales en la landing no canibalizan nada y son inmediatamente diferenciales.",
+   "Sembrar las ~50 landings con los datos ya publicados en /contentido/-usafitness-{slug} (58 paginas: nombre del CC, direccion, horario, telefono) y validarlos contra Google Business Profile antes de publicar; ojo con las 2 marcadas PROXIMAMENTE (As Termas, Gran Casa).",
+   "Negociar con la central un backlink desde cada pagina CMS de tienda de usafitness.es hacia la landing del franquiciado correspondiente: 58 enlaces internos de un dominio con historico, coste cero.",
+   "En los bloques de producto de las landings, priorizar Quamtrax (~428 refs) y Amix (~228) que concentran el catalogo real; revisar cada copy antes de copiarlo (hay descripciones cruzadas entre productos).",
+   "Usar el vacio de la central como argumento comercial ante el operador: sobre-nosotros en Lorem ipsum, aviso legal sin rellenar, sitemap roto, tiendas sin WhatsApp/fotos/reseñas — la landing del franquiciado sera mejor que la pagina oficial de su propia tienda desde el dia uno."
+  ],
+  "sinVerificar": [
+   "Relacion societaria exacta entre Grupo Corelam S.L. y vivaelmusculo.com (mismo dueño, licencia de plataforma o proveedor comun) — requiere consulta al Registro Mercantil o al dueño del proyecto.",
+   "Titularidad real de las fotos de producto: pueden ser de los fabricantes (Quamtrax, Amix...) y no de Grupo Corelam; la web no declara creditos de imagen.",
+   "Si GTM-T72MLL48 dispara tags hacia Google ANTES del clic en 'Acepto' (el script esta inline en el head, pero verificar el gating real requiere inspeccion con browser).",
+   "Si el contador de 1.683 productos incluye todo el catalogo activo o excluye productos desactivados/fuera de la categoria raiz; los conteos por marca son estimacion por paginacion (+-1 pagina).",
+   "Si los precios online (ej. 43,90EUR ISO WHEY 1KG) coinciden con los precios de tienda fisica de los franquiciados — critico antes de mostrar precios en las landings.",
+   "Los beneficios adicionales del programa de socio que el dueño detallara: nada online los confirma ni los desmiente (el programa no existe en la web).",
+   "Si el data-stock de las fichas (ej. 196 unidades) refleja stock real del almacen central o un valor por defecto."
+  ]
+ },
+ "visitante": {
+  "hallazgos": [
+   {
+    "afirmacion": "Lo que mas busca quien llega a la presencia web de una tienda fisica (en smartphone): horario de apertura (54%), como llegar (53%), direccion de la tienda (50%), y disponibilidad de producto en tienda cercana. Estudio Google/Ipsos MediaCT 'Understanding Consumers' Local Search Behavior', mayo 2014, n=4.500.",
+    "fuente": "https://searchenginewatch.com/2014/05/07/google-local-searches-lead-50-of-mobile-users-to-visit-stores-study/ (cobertura contemporanea; el PDF original de think.storage.googleapis.com ya da 404)",
+    "confianza": "probable",
+    "aplicacion": "El above-the-fold de cada landing debe responder las 3 preguntas top sin scroll: estado abierto/cerrado calculado en cliente ('Abierto - cierra a las 21:30'), planta y local dentro del centro comercial, y botones llamar / como llegar (ya instrumentados como contacto_llamada y contacto_maps)."
+   },
+   {
+    "afirmacion": "El 50% de los consumidores que hacen una busqueda local en smartphone visitan una tienda en las siguientes 24h (34% si buscan en ordenador/tablet), y el 18% de esas busquedas locales en movil acaba en compra en 24h. Mismo estudio Google/Ipsos 2014.",
+    "fuente": "https://searchenginewatch.com/2014/05/07/google-local-searches-lead-50-of-mobile-users-to-visit-stores-study/",
+    "confianza": "probable",
+    "aplicacion": "La landing no es un catalogo: es el ultimo paso antes de una visita fisica que ocurre en horas. Todo el diseño debe optimizar 'ir hoy' (horario+ubicacion+contacto), no navegacion de productos, que ya la cubre usafitness.es."
+   },
+   {
+    "afirmacion": "El 76% de quienes buscan algo cercano desde el smartphone visitan un negocio relacionado en 24h, y ~28% de esas busquedas termina en compra. Dato de Google (Think with Google, 2016).",
+    "fuente": "https://backlinko.com/local-seo-stats (la pagina primaria de Think with Google fue retirada; thinkwithgoogle.com redirige hoy a business.google.com)",
+    "confianza": "probable",
+    "aplicacion": "Refuerza el argumento de venta al franquiciado: el trafico local movil es trafico de compra inminente. Los KPI de la landing deben ser los 3 eventos de contacto + visitas a tienda, no paginas vistas."
+   },
+   {
+    "afirmacion": "Solo el 4% de los consumidores no lee nunca reseñas online; el 88% usa Google para consultar reseñas de negocios locales; el 74% consulta 2 o mas sitios de reseñas antes de decidir; el 71% valora reseñas con fotos/videos y el 73% prefiere reseñas largas y detalladas. BrightLocal Local Consumer Review Survey 2025, n=1.026 (EEUU).",
+    "fuente": "https://www.brightlocal.com/research/local-consumer-review-survey-2025/ (verificado por lectura directa)",
+    "confianza": "verificado",
+    "aplicacion": "Las 5 de 8 tiendas SIN reseñas son el mayor agujero de conversion del proyecto. Cada landing debe: (a) mostrar las reseñas de Google existentes, (b) incluir enlace directo 'dejanos tu reseña' al perfil de Google de ESA tienda, (c) complementarse con QR en mostrador. Servicio vendible: 'motor de reseñas'."
+   },
+   {
+    "afirmacion": "El 80% de los consumidores pierde confianza en un negocio local si ve datos de contacto incorrectos o inconsistentes; el 68% dejaria de usarlo por informacion incorrecta en directorios; el 40% abandona la busqueda si la direccion esta mal; el 22% ha llegado a una ubicacion equivocada; el 24% llama antes de visitar. BrightLocal Local Citations Trust Report 2018, n=1.025.",
+    "fuente": "https://www.brightlocal.com/research/local-citations-trust-report/ (verificado por lectura directa)",
+    "confianza": "verificado",
+    "aplicacion": "Consistencia NAP (nombre-direccion-telefono-horario) identica entre landing, Google Business Profile y usafitness.es. El 24% que llama antes de ir justifica telefono clicable prominente; para las 3 tiendas sin WhatsApp, el telefono es el canal critico. Auditoria NAP trimestral = servicio recurrente vendible por el operador."
+   },
+   {
+    "afirmacion": "El 53% de las visitas moviles abandona una pagina que tarda mas de 3 segundos en cargar. Investigacion Google/SOASTA 'The Need for Mobile Speed', 2016.",
+    "fuente": "https://www.marketingdive.com/news/google-53-of-mobile-users-abandon-sites-that-take-over-3-seconds-to-load/426070/",
+    "confianza": "verificado",
+    "aplicacion": "Valida el presupuesto de 900KB/pagina movil como decision de conversion, no solo tecnica. Incluirlo en el pitch al franquiciado: 'tu web carga en menos de 3 segundos; la mitad de tus clientes se va si no'."
+   },
+   {
+    "afirmacion": "En España el trafico web general es 49,21% movil, 49,43% desktop y 1,36% tablet (julio 2026). El trafico de intencion LOCAL, en cambio, se concentra en movil segun todos los estudios de Google (las cifras concretas '76-88% de near me en movil' solo sobreviven en agregadores).",
+    "fuente": "https://gs.statcounter.com/platform-market-share/desktop-mobile-tablet/spain (verificado por lectura directa)",
+    "confianza": "verificado",
+    "aplicacion": "Diseño mobile-first para el flujo 'ir a tienda' (llamar/WhatsApp/maps solo tienen sentido en movil), pero el ~49% desktop no es despreciable: en escritorio los CTA deben mutar (mostrar numero en texto, mapa embebido, QR a WhatsApp)."
+   },
+   {
+    "afirmacion": "Google penaliza en ranking movil los interstitials intrusivos (overlays que tapan el contenido al llegar desde la busqueda) desde enero 2017. Exentos: avisos legales (cookies/consentimiento), verificacion de edad, y banners de tamaño razonable. Documentacion vigente de Google Search Central.",
+    "fuente": "https://developers.google.com/search/docs/appearance/avoid-intrusive-interstitials (verificado por lectura directa)",
+    "confianza": "verificado",
+    "aplicacion": "Restriccion de diseño para los pop-ups promocionales que pide el dueño: NUNCA overlay a pantalla completa en la entrada en movil. Alternativas seguras: banner promocional superior/inferior, y popup diferido (tras 50% de scroll o intencion de salida), siempre cerrable. El banner de cookies actual esta exento."
+   },
+   {
+    "afirmacion": "La conversion media de un popup de captacion es 3,09%; el 10% mejor alcanza 9,28% de media (los que convierten mas usan oferta concreta, timing diferido y contexto). Estudio Sumo sobre ~1.750 millones de impresiones de popups.",
+    "fuente": "https://bdow.com/stories/pop-up-statistics/ (estudio original de Sumo, hoy BDOW; ampliamente citado, datos de 2016-2019)",
+    "confianza": "probable",
+    "aplicacion": "El popup diferido con oferta tangible ('Cupon 5 EUR en compras desde 49,90 EUR' o '-20% el mes de tu cumpleaños si eres socio') es la pieza de captacion realista: esperar 2-4% de conversion a email/pre-alta, no milagros. Instrumentar como evento GA4 propio para demostrar ROI."
+   },
+   {
+    "afirmacion": "Razones por las que el consumidor sigue yendo a tienda fisica: 57% quiere ver/tocar el producto antes de comprar; 68% busca consejo experto en compras importantes; 61% iria a una tienda por una promocion exclusiva de tienda no disponible online; 32% busca el trato personal. EY Future Consumer Index, 14a edicion, 2024, n=23.016 en 30 paises.",
+    "fuente": "https://www.ey.com/en_gl/newsroom/2024/07/ey-future-consumer-index-consumers-return-to-physical-stores-for-personal-service-even-as-ai-and-tech-revolutionize-online-shopping (verificado por lectura directa)",
+    "confianza": "verificado",
+    "aplicacion": "LA respuesta a 'que ofrece la tienda vs Amazon/MyProtein': el dato del 61% (promo exclusiva de tienda) es exactamente el programa de socio con alta EN TIENDA. La landing debe venderlo asi: 'estos descuentos solo existen en tu tienda'. Y el 68% (consejo experto) justifica una seccion 'quien te asesora' con el dependiente."
+   },
+   {
+    "afirmacion": "Los miembros de programas de fidelidad de pago son un 60% mas propensos a gastar mas en la marca tras suscribirse; en programas gratuitos la cifra es 30%. Encuesta McKinsey 2020 sobre programas de fidelizacion.",
+    "fuente": "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/coping-with-the-big-switch-how-paid-loyalty-programs-can-help-bring-consumers-back-to-your-brand (la pagina no respondio al fetch directo; cifra consistente en multiples fuentes secundarias)",
+    "confianza": "probable",
+    "aplicacion": "Incluso un programa gratuito mueve +30% de propension de gasto: el programa socio es la palanca de recurrencia. La landing lo convierte en motivo de VISITA: 'hazte socio VIP en 2 minutos en caja' — el alta presencial es feature (trafico a tienda), no limitacion."
+   },
+   {
+    "afirmacion": "Un perfil de Google Business completo hace al negocio 2,7 veces mas propenso a ser considerado reputado, 70% mas propenso a recibir visitas fisicas y 50% mas propenso a generar compra. Google/Ipsos Connect, 'Benefits of a complete listing'.",
+    "fuente": "https://uberall.com/en-us/resources/blog/how-to-complete-your-google-business-profile-to-boost-local-seo-traffic (cifra de Google citada tambien en materiales oficiales de Google; primaria retirada)",
+    "confianza": "probable",
+    "aplicacion": "La landing no vive sola: el paquete vendible al franquiciado debe incluir completar el GBP (fotos, horario, atributos, productos destacados) enlazado bidireccional con la landing. Ataca de paso el problema de 'fotos de calidad variable'."
+   },
+   {
+    "afirmacion": "WhatsApp es la plataforma lider absoluta en España: ~91% de uso mensual entre internautas de 12-74 años y primera en uso diario y preferencia. IAB Spain, Estudio de Redes Sociales 2025.",
+    "fuente": "https://iabspain.es/iab-spain-presenta-el-estudio-de-redes-sociales-2025/",
+    "confianza": "probable",
+    "aplicacion": "Activar WhatsApp Business en las 3 tiendas que no lo tienen es prioridad 1 del paquete de servicios. CTA con mensaje precargado que ataca la intencion 'disponibilidad de producto': 'Hola, queria saber si teneis [producto] en stock' — ya instrumentado como contacto_whatsapp."
+   },
+   {
+    "afirmacion": "Entre el 60% y el 70% de usuarios de smartphone ha contactado un negocio directamente desde los resultados de busqueda (click-to-call). Datos de Google (2013 y posteriores).",
+    "fuente": "https://searchenginewatch.com/2013/09/24/google-70-of-mobile-searchers-call-a-business-directly-from-search-results-study/",
+    "confianza": "probable",
+    "aplicacion": "Boton de llamada persistente (sticky) en la version movil de la landing, con el evento contacto_llamada ya existente. En las tiendas sin WhatsApp es el CTA primario."
+   }
+  ],
+  "recomendaciones": [
+   "Bloque 'PARA IR HOY' above-the-fold en cada landing: estado abierto/cerrado calculado en cliente (sin terceros, compatible con el presupuesto de peso), planta y numero de local dentro del centro comercial, y los 3 CTA ya instrumentados (llamar / WhatsApp / como llegar). Responde a las 3 intenciones dominantes del visitante local (horario 54%, direcciones 53%, direccion 50%).",
+   "Pop-ups conforme a Google: prohibido el overlay de entrada en movil (penalizacion de ranking); usar banner promocional fino arriba (exento segun Google) + popup diferido por scroll 50% o exit-intent, cerrable en un toque, renderizado sin peticiones a terceros. Oferta siempre tangible: cupon 5 EUR desde 49,90 EUR o beneficios socio.",
+   "El programa socio como conversion puente online->tienda: seccion propia con los beneficios cuantificados (-10% VIP, -15% funcionario, -20% cumpleaños, cupon 5 EUR) y el alta presencial vendida como ventaja ('2 minutos en caja, sin formularios'). Opcional: formulario de pre-alta (nombre + email, first-party) que el dependiente confirma en tienda — nuevo evento GA4 pre_alta_socio. Base: EY 2024 (61% va a tienda por promos exclusivas de tienda) y McKinsey (programas gratuitos +30% propension de gasto).",
+   "Motor de reseñas para las 5 tiendas sin ninguna: enlace directo 'dejanos tu reseña' al perfil de Google de cada tienda en la landing + QR en mostrador + guion para el dependiente al cerrar venta. Objetivo: primeras 10-20 reseñas con menos de 1 mes de antiguedad (BrightLocal 2025: los consumidores ya deciden con 0-49 reseñas y priorizan frescura). Pedir foto en la reseña (71% las valora).",
+   "Auditoria NAP trimestral como servicio recurrente del operador: nombre, direccion, telefono y horario identicos en landing, Google Business Profile y directorios (80% pierde confianza ante inconsistencias, 68% abandonaria el negocio). Incluir completar el GBP con fotos buenas — ataca el problema de fotos de calidad variable.",
+   "Segmentacion propuesta de visitantes (propuesta propia anclada en los datos, no un estudio): (1) EL DECIDIDO — busco la tienda, voy hoy: necesita horario/planta/telefono; CTA maps y llamada. (2) EL COMPARADOR — lo he visto mas barato online: necesita razones de la fisica; bloque 'llevatelo hoy' (inmediatez), asesoramiento experto y promos solo-tienda. (3) EL PASEANTE — estoy en el centro comercial: promo del mes y cupon 5 EUR visibles, localizacion por planta. (4) EL HABITUAL/FAN — ya compra suplementos: programa socio, -20% cumpleaños, novedades y reposicion via WhatsApp. Cada arquetipo mapea a eventos GA4: los 3 existentes + clic_promo, pre_alta_socio, clic_reseña.",
+   "Contra Amazon/MyProtein, no competir en precio ni catalogo: la landing debe destacar (a) inmediatez — 'sales con ello hoy, sin esperar envio'; (b) asesoramiento — seccion 'quien te asesora' con nombre/foto/especialidad del dependiente (EY: 68% busca consejo experto; imposible de replicar online); (c) promos exclusivas de tienda — el programa socio (EY: 61%); (d) tocar/ver el producto (EY: 57%). Evidencia de que destacar esto convierte: indirecta (encuestas de motivos de visita), no experimental — venderlo como hipotesis a medir, no como garantia.",
+   "Velocidad como argumento comercial: el presupuesto de 900KB y cero terceros pre-consentimiento ya cumplen lo que Google exige; documentar en el pitch al franquiciado el dato del 53% de abandono a los 3s y ofrecer un informe de velocidad por tienda.",
+   "Activar el ga4Id cuanto antes: sin medicion no hay demostracion de ROI al franquiciado, y todas las piezas nuevas (banner, popup, pre-alta, reseñas) necesitan su evento desde el dia 1."
+  ],
+  "sinVerificar": [
+   "'El 46% de las busquedas de Google tienen intencion local': cifra famosa atribuida a una charla de Google (2018) que nunca se publico oficialmente; no localice fuente primaria. No usarla en materiales de venta.",
+   "'El 88% de las busquedas near me se hacen en movil': solo aparece en agregadores SEO (biziq, seoprofy...) sin estudio primario localizable; la direccion (movil domina la intencion local) es solida, el numero exacto no.",
+   "'El 28% de las busquedas locales acaba en compra': mezcla dos estudios distintos (18% en 24h del Google/Ipsos 2014 y 28% del dato de 2016 cuya pagina Google retiro); citar siempre con año y matiz.",
+   "Think with Google ha retirado sus paginas de consumer insights (redirigen a business.google.com), asi que varios datos 'de Google' de 2014-2016 solo sobreviven en fuentes secundarias — por eso los marco probable y no verificado, aunque la cobertura contemporanea es consistente.",
+   "No existe (no encontre) ningun estudio de conversion web especifico para tiendas fisicas de suplementacion deportiva; la segmentacion de 4 arquetipos es propuesta propia anclada en datos generales de retail local y debe validarse con los datos GA4 propios cuando el ga4Id este activo.",
+   "No hay evidencia experimental (tests A/B publicados) de que destacar 'asesoramiento + inmediatez + socio presencial' convierta mas en landings locales; la evidencia es de encuestas de motivos de visita a tienda (EY, Retail Dive). Tratarlo como hipotesis medible.",
+   "Los beneficios adicionales del programa socio que el dueño detallara no estan documentados; nada de esta investigacion los sustituye — pedirlos antes de redactar la seccion socio de las landings."
+  ]
+ },
+ "mecanismos": {
+  "hallazgos": [
+   {
+    "afirmacion": "Google penaliza desde el 10/01/2017 el ranking movil de paginas cuyo contenido queda tapado por un interstitial/popup al llegar desde la busqueda; su documentacion vigente ordena 'no oscurecer la pagina entera con interstitials' y recomienda como formato seguro los banners que ocupan una fraccion pequeña de la pantalla. Excepciones: dialogos por obligacion legal (cookies, verificacion de edad) y login.",
+    "fuente": "https://developers.google.com/search/docs/appearance/avoid-intrusive-interstitials (vigente, verificada por fetch) y anuncio original https://developers.google.com/search/blog/2016/08/helping-users-easily-access-content-on",
+    "confianza": "verificado",
+    "aplicacion": "En nuestras landings (100% trafico organico/local, sin paid) el popup de bienvenida a pantalla completa en movil es riesgo SEO directo. Todo lo promocional se hace como banner inline o barra pegajosa de altura contenida (<15% viewport). El banner de cookies que ya tenemos esta explicitamente exento."
+   },
+   {
+    "afirmacion": "El texto oficial de Google lista como problematico el popup que cubre el contenido 'inmediatamente al navegar desde resultados O mientras el usuario recorre la pagina' — es decir, un exit-intent que cubra el contenido tambien esta tecnicamente dentro del formato penalizable, aunque la aplicacion practica documentada se ha centrado en interstitials de carga.",
+    "fuente": "https://developers.google.com/search/blog/2016/08/helping-users-easily-access-content-on y https://searchengineland.com/google-confirms-rolling-mobile-intrusive-interstitials-penalty-yesterday-267408",
+    "confianza": "verificado",
+    "aplicacion": "Si se implementa exit-intent, solo en desktop, con dialog que no ocupe el 100% y cierre accesible. En movil ni siquiera existe cursor: los triggers son back-button, scroll-up rapido o inactividad, y secuestrar el boton atras es mala UX y manipulacion de history — descartado en movil."
+   },
+   {
+    "afirmacion": "Exit-intent en movil se simula con 4 señales proxy (boton atras, scroll ascendente rapido, inactividad, cambio de pestaña) porque no hay cursor; los propios vendors documentan la fragilidad del ajuste de sensibilidad.",
+    "fuente": "https://support.optimonk.com/en/articles/11874627-exit-intent-trigger-on-mobile-devices y https://wisepops.com/blog/mobile-exit-intent",
+    "confianza": "verificado",
+    "aplicacion": "Nuestro trafico sera mayoritariamente movil (busqueda local en centro comercial). Un mecanismo que en movil depende de hacks descarta al exit-intent como pieza central del catalogo; se ofrece solo como extra desktop."
+   },
+   {
+    "afirmacion": "Benchmark de conversion de popups: 4,82% de media sobre 1.000 millones de impresiones (informe Wisepops, autoreportado por vendor); el estudio historico de Sumo sobre 2.000 millones daba 3,09% de media y 9,28% el top 10%. Con targeting (URL, scroll, comportamiento) suben a 5,5-10%.",
+    "fuente": "https://wisepops.com/blog/popup-stats (informe propio del vendor); Sumo citado via https://bdow.com/stories/pop-up-statistics/",
+    "confianza": "probable",
+    "aplicacion": "Rango honesto para vender al franquiciado: 'de cada 100 visitas, 3-5 dejaran su dato si la oferta es buena'. Nunca prometer los casos top (9-57%) que son colas del benchmark. Y en nuestra arquitectura el 'popup' se implementa como banner/slide-in propio en CSS+JS vanilla, no como SaaS de popups."
+   },
+   {
+    "afirmacion": "Estudio Google/Ipsos sobre 3.000 compradores moviles: 70% de los buscadores moviles usan click-to-call y 94% de usuarios de smartphone ha necesitado llamar a un negocio directamente durante una busqueda.",
+    "fuente": "https://www.google.com/think/research-studies/click-to-call.html (estudio original de Google) via https://searchenginewatch.com/2013/09/24/google-70-of-mobile-searchers-call-a-business-directly-from-search-results-study/ — estudio de 2013, antiguo pero de fuente primaria Google",
+    "confianza": "probable",
+    "aplicacion": "El boton de llamada pegajoso en movil es la conversion primaria de un negocio local y YA esta instrumentado (contacto_llamada). Es la mejora de menor coste: barra inferior fija con Llamar / WhatsApp / Como llegar, cero terceros, cero KB de libreria."
+   },
+   {
+    "afirmacion": "76% de quienes buscan algo cercano en el smartphone visitan un negocio en 24 horas y 28% de esas busquedas acaban en compra (Think with Google, citado de forma consistente en la literatura de SEO local; la pagina original de Google ya no es accesible directamente).",
+    "fuente": "https://backlinko.com/local-seo-stats y https://biziq.com/blog/local-search-statistics/ (citas secundarias de Think with Google 2016)",
+    "confianza": "probable",
+    "aplicacion": "El objetivo de la landing NO es vender online (el ecommerce es de la central en usafitness.es): es convertir busqueda local en visita a tienda. Todo el catalogo se ordena por esa metrica: llamada, WhatsApp, como llegar, cupon canjeable en tienda."
+   },
+   {
+    "afirmacion": "WhatsApp es la plataforma lider en España: 91% de uso mensual y la mejor valorada (8,3/10) segun el Estudio de Redes Sociales 2025 de IAB Spain.",
+    "fuente": "https://iabspain.es/iab-spain-presenta-el-estudio-de-redes-sociales-2025/",
+    "confianza": "verificado",
+    "aplicacion": "El canal WhatsApp no es opcional en España. Se implementa con enlace oficial wa.me (click-to-chat) propio — un <a href>, cero scripts de terceros, compatible con nuestra regla de cero peticiones pre-consentimiento — nunca con widget SaaS de chat. Ya esta instrumentado (contacto_whatsapp). Que 3 de 8 tiendas no tengan WhatsApp pasa a ser item de onboarding del franquiciado, no de la web."
+   },
+   {
+    "afirmacion": "El click-to-chat oficial de WhatsApp funciona con URL wa.me/<numero> con texto prellenado, sin ninguna libreria: es una funcionalidad documentada por WhatsApp.",
+    "fuente": "https://faq.whatsapp.com/5913398998672934",
+    "confianza": "verificado",
+    "aplicacion": "Boton WhatsApp con mensaje prellenado por tienda ('Hola, vengo de la web de USAFitness <CC>...') — el mensaje prellenado ademas identifica el origen web de la conversacion, dando al franquiciado atribucion sin necesidad de analytics."
+   },
+   {
+    "afirmacion": "Un formulario de captacion convierte al que decide fines y medios en responsable del tratamiento (RGPD); la AEPD exige informar en el propio formulario mediante primera capa (identidad del responsable, finalidad, base juridica, destinatarios, derechos) con enlace a segunda capa completa.",
+    "fuente": "https://www.aepd.es/preguntas-frecuentes/2-tus-obligaciones-como-responsable-del-tratamiento/6-el-deber-de-informacion y https://www.aepd.es/guias/guia-modelo-clausula-informativa.pdf",
+    "confianza": "verificado",
+    "aplicacion": "Cada franquiciado (sociedad independiente) sera responsable del tratamiento de los leads de SU landing. Antes de vender formularios hay que resolver: (1) quien recibe el dato y donde se almacena — hoy las landings son estaticas, sin backend; (2) clausula primera capa bajo cada formulario con los datos de ESA sociedad; (3) politica de privacidad por tienda. Sin eso, el formulario es una bomba legal, no un producto."
+   },
+   {
+    "afirmacion": "La LSSI (Ley 34/2002, art. 10) obliga a toda web de un prestador de servicios a publicar de forma permanente y accesible su identidad: denominacion social, NIF, domicilio, contacto y datos registrales — el 'aviso legal'. Es de las normas mas incumplidas y esta sancionada.",
+    "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2002-13758 (texto consolidado, art. 10) y https://lssi.digital.gob.es/lssi",
+    "confianza": "verificado",
+    "aplicacion": "5 de 8 tiendas sin datos legales publicados significa que 5 landings ya incumplen la LSSI ANTES de añadir ningun formulario. Primer producto vendible al operador: 'pack cumplimiento' (aviso legal + privacidad + cookies por sociedad franquiciada) como requisito previo y facturable de cualquier mecanismo de captacion."
+   },
+   {
+    "afirmacion": "Los contadores falsos de urgencia son practica comercial desleal prohibida en la UE: el Anexo I de la Directiva 2005/29/CE prohibe afirmar falsamente que un producto solo estara disponible por tiempo muy limitado, y la Guia de la Comision de 2021 (2021/C 526/01, seccion 4.2.7 sobre dark patterns) lo confirma expresamente para countdowns falsos.",
+    "fuente": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ%3AC%3A2021%3A526%3AFULL y https://commission.europa.eu/law/law-topic/consumer-protection-law/unfair-commercial-practices-and-price-indication/unfair-commercial-practices-directive_en",
+    "confianza": "verificado",
+    "aplicacion": "Contador de oferta SOLO con fecha de fin real y verificable (fin de mes de la promo, fin del mes de cumpleaños). Nada de contadores que se reinician por visitante. Se implementa en JS vanilla contra una fecha declarada en el JSON de la tienda — sin tercero, ~0KB — y el propio JSON es la prueba de que la fecha es real."
+   },
+   {
+    "afirmacion": "La evidencia 'espectacular' de los countdowns (ej. +332% de ventas, caso Marcus Taylor citado por CXL) es un caso unico no replicado, usado como argumento de venta por vendors de timers.",
+    "fuente": "https://cxl.com/blog/creating-urgency/ (articulo que origina la cifra); replicada sin verificacion en https://liquidboost.app/blog/countdown-timer-conversion-data entre otros",
+    "confianza": "sin-verificar",
+    "aplicacion": "No usar el 332% (ni similares) en el material de venta al franquiciado. La promesa honesta del contador es cualitativa: 'da razon para ir HOY a la tienda', y su efecto se mide con nuestro propio GA4, no con cifras de blogs."
+   },
+   {
+    "afirmacion": "Las barras pegajosas (hello bars) convierten menos que los popups modales porque son faciles de ignorar; el rango citado como 'bueno' es 2-3%, con casos de 6-8% — todo procedente de vendors, sin estudio neutral.",
+    "fuente": "https://bdow.com/stories/email-signup-benchmarks/ y https://optinmonster.com/creative-hello-bar-examples/",
+    "confianza": "probable",
+    "aplicacion": "La barra pegajosa es nuestro sustituto SEO-seguro del popup (Google acepta explicitamente banners de fraccion pequeña de pantalla). Vender expectativa 1-3%, no mas. Implementacion propia: <div> fijo con la promo del mes desde el JSON de tienda, boton de cierre, estado recordado en localStorage."
+   },
+   {
+    "afirmacion": "Los cupones digitales superan ya al papel en canje y las cifras de redencion de cupon movil citadas van del 7% al 10% (vs <1% papel); 29% de consumidores dice comprar mas en tiendas que aceptan cupon digital. Todas las cifras provienen de la industria promocional (Inmar/Valassis), no de fuente neutral, y son de mercado USA.",
+    "fuente": "https://www.supermarketnews.com/consumer-trends/for-first-time-digital-coupons-overtake-print-circulars-in-redemption y https://blog.accessdevelopment.com/ultimate-collection-coupon-statistics",
+    "confianza": "probable",
+    "aplicacion": "El cupon 5€ desde 49,90€ que YA existe se digitaliza: pagina /cupon con codigo corto POR TIENDA (ej. WEB-XANADU) mostrable en pantalla. El codigo por tienda es la joya oculta: cuando el franquiciado lo teclea en caja, tenemos atribucion web→tienda REAL sin ningun pixel — la metrica que ningun competidor local le esta dando."
+   },
+   {
+    "afirmacion": "WCAG exige que un dialogo modal mueva el foco dentro al abrir, lo retenga mientras este abierto, se cierre con Esc y devuelva el foco al disparador (patron Modal Dialog de ARIA APG); WCAG 2.1.2 prohibe trampas de teclado sin salida.",
+    "fuente": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/ y https://www.w3.org/WAI/WCAG21/Understanding/no-keyboard-trap.html",
+    "confianza": "verificado",
+    "aplicacion": "Cualquier popup nuestro se implementa con el elemento nativo <dialog> + showModal() (focus management y Esc gratis, 0KB) o siguiendo el patron APG a mano. Esto entra en nuestra bateria de tests AA existente. Un popup SaaS de terceros ni pasa el presupuesto de 900KB ni garantiza esto — otra razon para hacerlo en casa."
+   },
+   {
+    "afirmacion": "GA4 tiene eventos recomendados oficiales que cubren todo el catalogo: generate_lead (envio de formulario), view_promotion / select_promotion (impresion y clic de banner/popup promocional con promotion_id) y select_content.",
+    "fuente": "https://developers.google.com/analytics/devguides/collection/ga4/reference/events",
+    "confianza": "verificado",
+    "aplicacion": "Plan de medicion por mecanismo: banner/boton oferta del mes → view_promotion + select_promotion (promotion_id='oferta-2026-09', creative_slot='hero'|'sticky-bar'); formulario pre-alta socio → generate_lead; cupon → select_promotion (promotion_id='cupon-5e') + evento custom cupon_mostrado; contador → parametro en select_promotion; llamada/WhatsApp/maps → los contacto_* ya existentes. Todo respeta Consent Mode v2 ya montado; falta activar ga4Id o nada de esto medira."
+   },
+   {
+    "afirmacion": "Google documenta el marcado LocalBusiness con openingHoursSpecification para que horarios (y por tanto 'abierto ahora') se entiendan en busqueda local.",
+    "fuente": "https://developers.google.com/search/docs/appearance/structured-data/local-business",
+    "confianza": "verificado",
+    "aplicacion": "El aviso 'Abierto ahora · cierra a las 21:30' se calcula en cliente contra el horario del JSON de tienda (0 terceros, <1KB) y el MISMO dato alimenta el JSON-LD LocalBusiness. Doble uso: conversion en pagina + SEO local. Ojo: horarios de centro comercial cambian en festivos — el JSON necesita excepciones o el aviso mentira, y un 'abierto' falso destruye confianza."
+   },
+   {
+    "afirmacion": "El alta de socio se hace EN TIENDA y es rapida (dato interno del proyecto, verificado por el dueño). No existe documento escrito del programa.",
+    "fuente": "Brief interno del proyecto (dato duro declarado por el operador)",
+    "confianza": "verificado",
+    "aplicacion": "Esto invierte el formulario clasico: el mejor formulario NO es 'hazte socio online' (no se puede completar online) sino 'pre-alta': nombre + movil/email → genera pantalla/QR 'enseña esto en caja y sal con tu -10% VIP activado'. El franquiciado cierra el alta en tienda como ya hace, la web solo le trae al candidato — promesa vendible y cumplible. Requiere el pack RGPD previo (hallazgos AEPD/LSSI)."
+   },
+   {
+    "afirmacion": "El beneficio -20% en cumpleaños y el -15% funcionario ya existen en el programa de socio (dato interno verificado).",
+    "fuente": "Brief interno del proyecto",
+    "confianza": "verificado",
+    "aplicacion": "Son los dos ganchos perfectos para banner segmentado sin inventar nada: banner 'Tu cumpleaños vale un -20%' (con contador REAL a fin de mes → cumple UCPD) y landing-section funcionarios. Cero coste promocional nuevo para el franquiciado: la web solo hace visible lo que ya regala."
+   },
+   {
+    "afirmacion": "Los popups SaaS (OptinMonster, Wisepops, OptiMonk, Hello Bar...) cargan script de terceros en cada pagina, lo que viola nuestra regla de cero peticiones pre-consentimiento y consume presupuesto de peso; ademas colocan cookies/identificadores propios.",
+    "fuente": "Restriccion tecnica interna del proyecto + naturaleza documentada de estos productos (ej. https://www.hellobar.com/ requiere insertar su script)",
+    "confianza": "verificado",
+    "aplicacion": "Regla de catalogo: TODO mecanismo se implementa first-party (HTML/CSS/JS propio + JSON por tienda). Esto ademas es argumento de venta al operador: sin cuotas mensuales de SaaS de popups (Hello Bar/Wisepops cobran suscripcion), el margen del servicio queda integro para el."
+   },
+   {
+    "afirmacion": "5 de 8 tiendas no tienen reseñas y la calidad fotografica es variable (dato interno verificado).",
+    "fuente": "Brief interno del proyecto",
+    "confianza": "verificado",
+    "aplicacion": "Ningun popup compensa una landing sin prueba social. El catalogo debe incluir un mecanismo de GENERAR reseñas: QR/enlace corto de reseña Google entregado en caja junto al canje del cupon (el momento de maxima satisfaccion). Es un mecanismo de conversion diferido: mas reseñas → mas conversion organica futura."
+   }
+  ],
+  "recomendaciones": [
+   "VEREDICTOS POR MECANISMO — (1) Click-to-call pegajoso (barra fija movil Llamar/WhatsApp/Como llegar): RECOMENDADO. Maxima evidencia local, cero terceros, ya instrumentado (contacto_llamada, contacto_whatsapp, contacto_maps). Es la pieza 1 del catalogo.",
+   "(2) Widget WhatsApp via enlace oficial wa.me con mensaje prellenado por tienda: RECOMENDADO. First-party, 0KB, canal lider en España (91% uso mensual, IAB 2025). DESACONSEJADO en su variante SaaS de chat con script de terceros (rompe consent-mode y presupuesto de peso).",
+   "(3) Banner promocional / boton 'oferta del mes' inline: RECOMENDADO. Formato explicitamente seguro segun Google, alimentado por JSON por tienda, medido con view_promotion/select_promotion. Ganchos ya existentes: -20% cumpleaños, -15% funcionario, cupon 5€.",
+   "(4) Barra de oferta pegajosa (top/bottom, cerrable, <15% viewport, estado en localStorage): RECOMENDADO. Es el sustituto SEO-seguro del popup de bienvenida. Expectativa honesta de conversion 1-3%.",
+   "(5) Cupon descargable/mostrable con CODIGO POR TIENDA: RECOMENDADO. Digitaliza el cupon 5€ existente y crea la unica atribucion web→tienda real sin pixels (el codigo tecleado en caja). Version con email a cambio del cupon: solo tras el pack RGPD.",
+   "(6) Aviso 'Abierto ahora / cierra pronto' + JSON-LD LocalBusiness con openingHoursSpecification: RECOMENDADO. Doble efecto (conversion + SEO local), <1KB, pero exige gestionar excepciones de festivos del centro comercial en el JSON o mentira.",
+   "(7) Formulario de captacion como 'PRE-ALTA de socio' (la web trae el candidato, el alta se cierra en tienda como hoy): CON-CONDICIONES. Bloqueado hasta resolver: aviso legal LSSI por sociedad (5 de 8 tiendas incumplen hoy), clausula AEPD primera capa, politica de privacidad por franquiciado, y decidir backend/destino del dato (las landings hoy son estaticas). Evento GA4: generate_lead.",
+   "(8) Contador de oferta: CON-CONDICIONES. Solo contra fecha real declarada en el JSON de la tienda (fin de promo, fin de mes de cumpleaños); contadores falsos o que se reinician son practica desleal prohibida (UCPD Anexo I, guia 2021/C 526/01) — riesgo de sancion trasladable al franquiciado.",
+   "(9) Popup de bienvenida a pantalla completa en movil: DESACONSEJADO. Riesgo directo de perdida de ranking movil (intrusive interstitials) en un negocio 100% dependiente de busqueda local; su funcion la cumplen la barra pegajosa y el banner. Si algun franquiciado lo exige: solo desktop, retardado, <dialog> nativo con patron APG, y nunca al aterrizar.",
+   "(10) Exit-intent: CON-CONDICIONES (solo desktop, dialog accesible, oferta de cupon como contenido). DESACONSEJADO en movil: los triggers son hacks de back-button/scroll y el formato roza el criterio oficial de interstitial intrusivo.",
+   "SECUENCIA DE VENTA AL OPERADOR — Fase 0 (prerequisito facturable): pack cumplimiento legal por tienda (aviso legal + privacidad + cookies por sociedad). Fase 1: barra contacto pegajosa + banner oferta del mes + abierto-ahora (todo first-party, sin coste recurrente de SaaS). Fase 2: cupon con codigo por tienda + contador real. Fase 3: pre-alta de socio (cuando exista destino del dato) + QR de reseña en caja para las 5 tiendas sin reseñas.",
+   "PROMESAS HONESTAS AL FRANQUICIADO — prometer: 'sabras cuantos clientes te manda la web cada mes' (clics de llamada/WhatsApp/ruta + cupones canjeados con tu codigo), 'tus promos vigentes visibles el mismo dia' y '3-5 de cada 100 visitas dejaran su dato con una buena oferta'. NO prometer: cifras de facturacion, los porcentajes espectaculares de blogs de vendors (332%, top 10% de benchmarks), ni 'subir en Google' por poner popups.",
+   "ACCION TECNICA INMEDIATA — activar ga4Id: todo el catalogo se vende sobre 'lo medimos'; hoy los eventos estan instrumentados pero no llegan a ninguna propiedad, asi que no existe linea base para demostrar mejora.",
+   "REGLA DE ARQUITECTURA DEL CATALOGO — todos los mecanismos first-party (HTML/CSS/JS propio + JSON por tienda), <dialog> nativo para cualquier modal (AA gratis), cero scripts de terceros pre-consentimiento, y cada mecanismo con su promotion_id en GA4 para poder atribuir resultados por mecanismo y por tienda."
+  ],
+  "sinVerificar": [
+   "El 3,09% de Sumo: la pagina original del estudio ya no es accesible; la cifra solo sobrevive en citas secundarias de blogs de marketing.",
+   "El 4,82% de Wisepops es autoreportado por el propio vendor sobre su base de clientes (sesgo de seleccion: quien usa Wisepops optimiza popups); no existe auditoria independiente.",
+   "El '+332% de ventas' con countdown (Marcus Taylor/CXL) es un caso unico de 2013, no replicado — no usar en material de venta.",
+   "El '23,7% de aumento de conversion' de exit-intent movil citado por PushOwl es marketing de vendor sin metodologia publicada.",
+   "Las cifras de cupones (redencion 7-10%, '29% compra mas donde aceptan cupon digital') proceden de la industria promocional USA (Inmar/Valassis); no se encontro equivalente para España — el efecto del cupon aqui habra que demostrarlo con nuestros propios codigos por tienda.",
+   "El rango '2-3% es buena conversion para una hello bar' procede de vendors de barras (Hello Bar, Sumo/BDOW); sin estudio neutral.",
+   "El 76%/28% de Think with Google (visita en 24h / compra tras busqueda local) es de 2016 y la pagina primaria de Google ya no esta publicada; se cita via fuentes secundarias de SEO local.",
+   "El estudio Google/Ipsos de click-to-call (70%) es de 2013; el comportamiento base (llamar desde la busqueda a un negocio local) sigue vigente pero la cifra exacta esta envejecida.",
+   "Cuanto convierte un formulario de 'pre-alta de socio' en retail local español: no existe benchmark publico; sera el primer dato propio que genere el sistema.",
+   "Los beneficios adicionales del programa de socio que el dueño 'detallara': el catalogo asume solo los cuatro conocidos (VIP -10%, funcionario -15%, cumpleaños -20%, cupon 5€/49,90€); cualquier mecanismo nuevo debera revalidarse contra la lista completa."
+  ]
+ },
+ "competencia": {
+  "hallazgos": [
+   {
+    "afirmacion": "La página de UN club concreto de Anytime Fitness España (Rocafort, Barcelona) tiene esta estructura: hero con dirección + carrusel de 10 fotos reales del club; oferta destacada CON FECHAS ('EN AGOSTO TODO GRATIS: MATRÍCULA + LLAVE POR 0€', 10/08–31/08, 'plazas limitadas'); equipamiento/servicios (13 items); precio visible ('desde 49,99€/mes'); horarios de oficina; 8 perfiles reales del equipo con foto y nombre (incluido el propietario-franquiciado); CTAs: 'Prueba gratis' (x3), 'Reservar una visita', teléfono clicable, botón WhatsApp, email y visita virtual.",
+    "fuente": "https://www.anytimefitness.es/gimnasio/sp-0006/rocafort-barcelona-cataluña-08015/",
+    "confianza": "verificado",
+    "aplicacion": "Es el patrón exacto a copiar para la landing de cada tienda USAFitness: oferta del mes con fecha fin visible arriba, fotos reales, cara del franquiciado/equipo, precio-beneficio visible sin formulario previo, y triple CTA (llamar / WhatsApp / cómo llegar) que ya tenemos instrumentado como contacto_llamada, contacto_whatsapp, contacto_maps."
+   },
+   {
+    "afirmacion": "Basic-Fit España genera una página individual por club bajo URL propia (/clubs/basic-fit-madrid-calle-atocha-...) desde un listado por ciudad con 37 gimnasios en Madrid; cada club muestra dirección, horarios, servicios etiquetados (clases, entrenadores, accesibilidad) y 9-10 fotos; CTAs 'Ver más' y 'Apúntate'; el precio (24,99€/4 semanas) se muestra abiertamente y la prueba social es de cadena (Trustpilot 4/5, 1,1M seguidores).",
+    "fuente": "https://www.basic-fit.com/es-es/gimnasios/madrid y https://www.basic-fit.com/es-es/home",
+    "confianza": "verificado",
+    "aplicacion": "Valida el modelo plantilla-única + datos por tienda que ya usa este repo: la calidad viene de la uniformidad (mismas secciones, mismos labels de servicios) y de fotos por tienda con un mínimo de 9-10. Cuando una tienda no tenga reseñas propias (5 de 8), usar prueba social de cadena (nº tiendas, años, clientes) como hace Basic-Fit."
+   },
+   {
+    "afirmacion": "GNC (la mayor cadena mundial de tiendas de suplementos, con franquicias) tiene página local por tienda (ej. 753 Broadway, NY) con: dirección + nº de tienda, teléfono clicable, tabla de horarios, 'Get Directions' a Google Maps, categorías y marcas destacadas, un artículo educativo (elegir proteína), captación al programa de fidelización MyGNC Rewards, y lista de 4 tiendas cercanas. NO tiene popup de email/SMS ni reseñas incrustadas en la página local.",
+    "fuente": "https://stores.gnc.com/all-stores-new-york/new-york/753-broadway",
+    "confianza": "verificado",
+    "aplicacion": "El paralelo directo de sector: la página local de una tienda de suplementos convierte con teléfono + cómo llegar + horario impecables, empuja el programa de socios (nuestro club VIP es el equivalente de MyGNC Rewards) y añade UNA pieza de contenido educativo. También valida no meter popup de captura agresivo en la página local."
+   },
+   {
+    "afirmacion": "El localizador de GNC permite filtrar tiendas por 'promociones activas' y anuncia 'Discover sales, promos, and special events happening at your local GNC': la oferta y los eventos son POR TIENDA y visibles online, con campañas nacionales tipo 'BOGO 50%' que la tienda local hereda.",
+    "fuente": "https://stores.gnc.com/",
+    "confianza": "verificado",
+    "aplicacion": "Respuesta directa a '¿alguna usa oferta del mes por tienda?': sí, GNC. Nuestro equivalente vendible: campaña mensual central (diseñada una vez) que cada franquiciado activa o no en su landing, con posibilidad de evento en tienda (degustación, día del socio) anunciado en su página."
+   },
+   {
+    "afirmacion": "Las promociones de las cadenas de gimnasios españolas son siempre acotadas en fecha y con condiciones por club: VivaGym publicó 'matrícula + parte proporcional por 0€' del 22 al 28 de agosto excluyendo clubs concretos (Reus Centre, Diagonal, Meridiana...) y sus cuotas 'se adaptan a cada club'.",
+    "fuente": "https://www.vivagym.com/es-es/category/informacion/condiciones-de-promo/ y https://www.vivagym.com/es-es/cuotas/",
+    "confianza": "probable",
+    "aplicacion": "El mecanismo 'promo de cadena con opt-out por tienda' es exactamente lo que necesita un operador de 50 franquiciados: la central diseña, cada tienda decide participar, y la landing muestra fechas y condiciones legales por tienda."
+   },
+   {
+    "afirmacion": "HSN, el mayor ecommerce español de nutrición deportiva (Granada, +15.000 referencias), NO tiene cadena de tiendas propias: vende a través de revendedores (gimnasios y tiendas físicas) con un programa de resellers.",
+    "fuente": "https://www.hsnstore.com/resellers",
+    "confianza": "verificado",
+    "aplicacion": "No existe en España un referente online-first con landings por tienda propia de suplementos: USAFitness puede ser el primero en hacerlo bien, y el argumento de venta al franquiciado es que ni HSN ni Prozis compiten en 'tu centro comercial, hoy, en 10 minutos'."
+   },
+   {
+    "afirmacion": "Prozis opera esencialmente online; su presencia física en España es vía córners/distribución (El Corte Inglés, Decathlon, Carrefour, Arenal), no una red de tiendas con página local propia.",
+    "fuente": "https://www.elcorteingles.es/centroscomerciales/es/eci/marcas/prozis y https://www.prozis.com/es/es",
+    "confianza": "probable",
+    "aplicacion": "Refuerza el posicionamiento local: la landing de cada tienda debe atacar la búsqueda 'suplementos + [centro comercial/ciudad]' y la inmediatez (stock hoy, asesoramiento cara a cara), terreno donde los gigantes online no juegan."
+   },
+   {
+    "afirmacion": "MASmusculo es la cadena española más comparable: ecommerce que abrió 14 tiendas físicas (Madrid, Barcelona, Valencia, Sevilla, Granada, Murcia, Tenerife, Marbella, Málaga), alguna dentro de centro comercial (CC Neptuno, Granada, planta 1 local 77), con página corporativa de tiendas ('MASmusculo cerca de ti') que lista dirección y teléfono por tienda.",
+    "fuente": "https://ecommerce-news.es/la-tienda-online-masmusculo-ya-14-tiendas-fisicas/ y https://www.masmusculo.com/es/content/32-masmusculo-cerca-de-ti",
+    "confianza": "probable",
+    "aplicacion": "Su ficha por tienda es pobre (dirección + teléfono, sin oferta local ni reseñas): el nivel a superar es bajo. Una landing USAFitness con oferta del mes, WhatsApp y reseñas ya sería mejor que la del comparable directo español, y eso es un argumento de venta demostrable enseñando ambas pantallas al franquiciado."
+   },
+   {
+    "afirmacion": "Naturhouse, la mayor franquicia española de nutrición/dietética (~450-1.000 puntos de venta en España, +2.200 en el mundo), basa su modelo en asesoramiento personalizado gratuito EN TIENDA como gancho para vender producto, y su web central sirve de plataforma para todos los franquiciados.",
+    "fuente": "https://www.franquiciashoy.es/franquicias/franquicias-de-salud-y-cuidado-personal/nutricion-y-dietetica/naturhouse y https://b2b.naturhouse.es/",
+    "confianza": "probable",
+    "aplicacion": "El gancho 'servicio gratuito en tienda' (asesoramiento de suplementación, plan según objetivo) es el equivalente perfecto del alta de socio en tienda de USAFitness: la landing no vende producto, vende LA VISITA — y eso simplifica todo el funnel a contacto_* + tráfico a tienda."
+   },
+   {
+    "afirmacion": "Decathlon España tiene página individual por tienda física (ej. Sevilla Centro, Leganés) con horarios detallados y servicios locales (taller, mecánicos, encordado, personalización); las cadenas grandes de retail deportivo tratan la página de tienda como producto propio con URL indexable.",
+    "fuente": "https://www.decathlon.es/es/store-view/tienda-de-deportes-sevilla-centro-0070243902439 y https://www.decathlon.es/es/store-locator",
+    "confianza": "probable",
+    "aplicacion": "Confirma el estándar de retail España: URL propia por tienda, horario siempre actualizado y servicios diferenciales de ESA tienda (en nuestro caso: asesoramiento, club de socios, descuento funcionario, recogida de pedido de usafitness.es si la central lo permite)."
+   },
+   {
+    "afirmacion": "Anytime Fitness convierte con formulario mínimo de 'prueba gratis de 7 días' (el equivalente a nuestra pre-alta de socio): el activo que se regala es la experiencia en el club, no un descuento monetario.",
+    "fuente": "https://www.anytimefitness.es/ y https://www.anytimefitness.es/gimnasio/sp-0006/rocafort-barcelona-cataluña-08015/",
+    "confianza": "verificado",
+    "aplicacion": "Nuestro formulario estrella no es 'contacto' sino 'hazte socio antes de llegar': pre-alta VIP que promete el -10%/-20% cumpleaños/cupón 5€ y termina en WhatsApp o en visita a tienda, donde el alta real se completa en 2 minutos."
+   },
+   {
+    "afirmacion": "Antipatrón verificado por ausencia: ninguna de las páginas locales analizadas (Anytime Fitness club, Basic-Fit club, GNC store) usa popup de entrada, precio oculto tras formulario, chat de terceros, ni fotos de stock — todas usan oferta con fecha, datos NAP impecables y fotos reales.",
+    "fuente": "https://www.anytimefitness.es/gimnasio/sp-0006/rocafort-barcelona-cataluña-08015/ ; https://www.basic-fit.com/es-es/gimnasios/madrid ; https://stores.gnc.com/all-stores-new-york/new-york/753-broadway",
+    "confianza": "verificado",
+    "aplicacion": "Si vendemos 'pop-ups promocionales' al franquiciado, que sean banners/barras no bloqueantes o popup diferido con frequency-capping en localStorage — nunca popup de entrada; y jamás ocultar el precio o el beneficio de socio tras un formulario. Además encaja con nuestras restricciones (0 terceros pre-consent, 900KB, AA)."
+   }
+  ],
+  "recomendaciones": [
+   "PRODUCTO 1 — 'Campaña del mes gestionada' (modelo Anytime Fitness/GNC): banner-hero con oferta, fecha inicio/fin y condiciones, diseñado 1 vez al mes por la central y activable por tienda vía su fichero de datos (opt-in por franquiciado, como VivaGym excluye clubs). Promesa al franquiciado: 'tu escaparate digital cambia cada mes sin que hagas nada'. Coste a escala 50: 1 diseño + 50 flags en JSON, horas marginales ~0. Prueba de valor GA4: evento promo_view / promo_click por tienda + uplift de contacto_llamada/whatsapp/maps durante el rango de fechas de la campaña.",
+   "PRODUCTO 2 — 'Página de oferta flash con cupón de tienda': landing /oferta con cupón visual 'enséñalo en caja' y código corto único por tienda (VIP-GRANCASA-08). Promesa: atribución real web→caja sin tecnología en el TPV (la cajera apunta el código). Coste a escala: plantilla única + generación de códigos por tienda automatizada. GA4: cupon_view y cupon_mostrado (clic en 'ver mi cupón'); la redención se cuenta en tienda y se cruza a mano en el informe mensual.",
+   "PRODUCTO 3 — 'Pre-alta de socio VIP que llega a tu WhatsApp': formulario mínimo (nombre + objetivo + botón que abre wa.me del franquiciado con mensaje prellenado 'Quiero mi alta VIP'). Vende el club de socios existente (-10% VIP, -15% funcionario, -20% cumpleaños, cupón 5€) como en GNC venden MyGNC Rewards; el alta real se cierra en tienda como ya hacen. Cumple 0-terceros-pre-consent porque wa.me solo se abre al clic. Coste a escala: 1 componente + nº de WhatsApp por tienda (ojo: 3 tiendas aún sin WhatsApp — es el primer upsell). GA4: prealta_click + contacto_whatsapp con parámetro origen=prealta.",
+   "PRODUCTO 4 — 'Ficha de Google gestionada + máquina de reseñas': gestión mensual del perfil de Google Business (posts con la campaña del mes, fotos, horarios festivos) + cartel QR en mostrador que abre el enlace de reseña. Ataca el dato duro de 5/8 tiendas sin reseñas. Promesa: 'aparecer cuando alguien busca suplementos en tu centro comercial'. Coste a escala: ~30 min/tienda/mes con plantillas de post centralizadas. Prueba de valor: contacto_maps en GA4 + nº y nota de reseñas mes a mes (métrica externa que el franquiciado entiende sin explicaciones).",
+   "PRODUCTO 5 — 'Pregunta por stock / resérvalo por WhatsApp': sección de 10-20 productos estrella (catálogo central de usafitness.es, sin precios o con PVP orientativo) con CTA por producto que abre WhatsApp con el nombre del producto prellenado. Promesa: 'la web te trae la venta ya decidida'. Coste a escala: catálogo único mantenido por la central, mismas fotos para las 50. GA4: producto_whatsapp_click con item_name — da además al operador datos de qué producto tira en qué ciudad, información que hoy nadie tiene y que se puede revender a la central.",
+   "PRODUCTO 6 — 'Popup promocional educado': popup diferido (20-30s o intención de salida en desktop), frequency-capping en localStorage, cerrable con teclado (AA), 0 peticiones a terceros, contenido = beneficio de socio o campaña del mes. Se vende como extra de campaña, no siempre activo — las cadenas buenas no ponen popup de entrada (verificado en GNC/Basic-Fit/AF). GA4: popup_view / popup_cta_click / popup_close; si popup_close > 90% se desactiva y se le enseña el dato al franquiciado (eso también es servicio).",
+   "PRODUCTO 7 — 'Evento en tienda anunciado' (modelo GNC 'special events'): módulo de evento con fecha (degustación de proteína, día del socio, asesoramiento gratis tipo Naturhouse) + 'avísame por WhatsApp'. Promesa: llenar la tienda un sábado concreto. Coste a escala: mismo módulo que la campaña del mes con otro layout. GA4: evento_view + evento_whatsapp_click; asistencia contada en tienda.",
+   "PRODUCTO 8 — 'Informe mensual de tu tienda' (el que sostiene la cuota recurrente): 1 página automática por tienda con llamadas, WhatsApps, rutas a tienda, vistas de campaña y comparativa anónima con la media de la red ('estás en el top 10 de las 50'). Coste a escala: plantilla Looker Studio o script sobre GA4 export, 1 vez; requiere activar ga4Id YA — sin medición no hay producto que vender. Es la demostración de valor de los productos 1-7 y el candado anti-churn del operador.",
+   "ANTIPATRONES A EVITAR (lo que las cadenas buenas NO hacen): 1) popup de entrada o de email en la página local (GNC no lo tiene); 2) ocultar precio/beneficio tras formulario (AF y Basic-Fit muestran cuota abiertamente); 3) fotos de stock — AF muestra 10 fotos reales y 8 caras del equipo con nombre; 4) ofertas sin fecha fin ni condiciones; 5) ficha local pobre tipo MASmusculo (solo dirección y teléfono); 6) webs por tienda visualmente distintas — todas las cadenas usan plantilla uniforme con datos locales, y nuestro modelo de dominio-por-tienda debe compensarlo con plantilla única y branding idéntico; 7) chat/widgets de terceros que rompen el presupuesto de 900KB y el consent."
+  ],
+  "sinVerificar": [
+   "Estructura interna real de la ficha por tienda de MASmusculo (masmusculo.com/es/tiendas): el sitio devuelve bucle de redirecciones al fetch; la descripción 'dirección + teléfono' viene de resultados de búsqueda y notas de prensa, no de la página en vivo.",
+   "Detalle de la página de tienda de Decathlon España: devuelve 403 a fetch automatizado; los servicios por tienda (taller, mecánicos) proceden de snippets de búsqueda.",
+   "Contenido de las páginas individuales de tienda de Holland & Barrett: el store finder carga por JavaScript y solo se pudo verificar el título; se sabe que existen fichas con horario/dirección/teléfono pero no su estructura de conversión.",
+   "Ninguna cadena ESPAÑOLA de suplementos encontrada usa cupón online por tienda física; el único caso verificado de promos por tienda visibles online es GNC (EE.UU.). La afirmación 'nadie lo hace en España' es por ausencia de evidencia, no exhaustiva.",
+   "Existencia de tiendas físicas propias de Prozis en España: solo se encontró distribución vía El Corte Inglés/Decathlon/Carrefour; no se pudo confirmar ni descartar alguna tienda propia.",
+   "Estructura de la landing por centro de Naturhouse (si cada franquicia tiene URL/página individual con oferta propia): solo se verificó el modelo de negocio vía portales de franquicias y su web B2B.",
+   "Las condiciones exactas y vigencia de las promos de VivaGym citadas (fechas de agosto, clubs excluidos) proceden del resumen del buscador sobre vivagym.com, no de fetch directo de la página de condiciones.",
+   "Tasas de conversión o benchmarks numéricos de estos mecanismos (popup vs banner, formulario corto vs largo): no se incluye ningún número porque no se encontró fuente primaria verificable — cualquier cifra de benchmark de conversión que circule debería tratarse como sin-verificar."
+  ]
+ }
+}

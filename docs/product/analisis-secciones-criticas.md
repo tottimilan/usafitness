@@ -1,3 +1,5 @@
+> **Histórico 2026-08 — hallazgos absorbidos por memory/06 §0-§1. No usar como fuente de estado.**
+
 # CRÍTICO DE COMPLETITUD — lo que las 7 dimensiones han dejado fuera
 
 ## MÉTODO

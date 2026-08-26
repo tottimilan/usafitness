@@ -176,3 +176,20 @@ No son preguntas de estrategia: cada una es una llamada de teléfono y desbloque
 - This file must be reviewed at every **phase gate**.
 - The `doubt-surfacer` and `memory-updater` skills are responsible for keeping it accurate.
 - Never delete entries. Move them to *Recently Resolved* or *Deferred*.
+
+
+## 2026-08-27 — Abiertas para el dueño (F0 del plan de método)
+
+1. **Beneficios completos del programa de socio** — «cuando me los den te los paso» (27-ago). Sigue siendo EL bloqueante de la sección estrella.
+2. **¿Restricciones de la central** sobre qué puede publicar cada tienda? Sigue abierta (la pregunta del contrato de franquicia).
+
+### Respondidas el 27-ago (tanda 2 — no re-preguntar)
+- **Precios:** NO visibles por ahora, pero el sistema los soporta como campo opcional oculto «por si alguien sí los quiere». ✓
+- **Ofertas: DOS NIVELES.** La central manda ofertas y el operador TIENE ACCESO a ellas (→ gestionable de serie); el franquiciado puede querer las suyas (→ override por tienda). Modelo: oferta-central compartida + oferta-propia opcional que la pisa. ✓
+- **Norte y jerarquías:** pidió re-análisis profundo mío («mira si le falta o sobra algo») y después revisarlos él sobre el resultado abierto. En curso. ✓
+
+### Respondidas el 27-ago (no re-preguntar)
+- Programa socio: SIN doc escrito; alta EN TIENDA, rápida. ✓
+- Productos: todos en usafitness.es (verificado: 1.683, fotos descargables). ✓
+- Plantilla oscura: sí como opción, «está bien tener ambas». ✓
+- Referencias visuales: investigar Awwwards/CodePen/gits/tendencias, presentar ARTEFACTO anotado y esperar su confirmación antes de construir; avisar si necesito skills/herramientas extra. ✓
