@@ -36,6 +36,69 @@ Estos hechos reordenan todo lo demás. No son opiniones de diseño.
 
 ---
 
+---
+
+## 0-bis. BACKLOG VIVO — todo lo abierto a 2026-08-26
+
+> **Este apartado existe porque se estaban perdiendo cosas.** Hallazgos reales
+> de una sesión —el vídeo servido sin enlazar, el hero repetido en 7 tiendas,
+> dos dominios caídos— vivían solo en el chat. Aquí no se prioriza: aquí se
+> **inventaría**. La prioridad la ponen las fases de §4.
+>
+> Regla: nada entra sin evidencia comprobable, y nada sale sin que se pueda
+> señalar el commit o el panel donde se cerró. Todo lo de abajo está verificado
+> el 2026-08-26 contra el código, los ficheros o los dominios en vivo — no
+> contra la memoria de nadie.
+
+### A. Lo que puedo hacer yo (código)
+
+| # | Qué | Evidencia medida | Esf. |
+|---|---|---|---|
+| **A1** | **La galería impone 4:3 horizontal a fotos que no lo son.** Lagoh tiene 3 fotos verticales de 382×510 en celdas de 442×332 con `object-fit: cover`: **se pierde el 44% del alto** de cada una y encima se **amplían** 1,16×. Para retina harían falta 884 px; hay 382. La solución que sale de la propia aritmética: si esas 3 verticales van en **3 columnas** (~290 px de celda) con proporción natural, la foto se *reduce* y no se recorta nada — y 3 fotos llenan una fila exacta. El layout debe seguir a la orientación real, medida en build | `Gallery.astro:42-63` · dimensiones leídas de `public/photos/` | M |
+| **A2** | **7 de 8 tiendas enseñan la misma foto dos veces.** `hero.webp` y `tienda-1.webp` son **el mismo fichero byte a byte** en villanueva, marineda, lasrosas, grancasa, vigo, arcangel y lagoh. Solo Alcobendas se libra. No es «parecida»: es idéntica. Lagoh tiene por tanto **2 fotos únicas**, no 3 | md5 de los 8 pares | S |
+| **A3** | **Número impar de fotos deja una huérfana** en el grid de 2 columnas: lasrosas (5), arcangel (5), lagoh (3). Es lo que se ve a simple vista en `/lagoh` | `stores.json` | S — cae con A1 |
+| **A4** | **Las reglas de curación de fotos nunca se escribieron.** Cuáles entran, en qué orden, cómo se detectan las casi duplicadas, qué es el plano general. Existe `docs/fotos/inventario-2026-08-25.md` con el plano de cada tienda, pero es un inventario, no una regla — y Lagoh ni aparece, es posterior | — | S |
+| **A5** | **3.8 · Imágenes responsive.** 13 MB en `public/photos`, sin `srcset`, sin `sizes`, sin AVIF. **Alcobendas sigue en JPG**: 4 ficheros, 982 KB. **Va junto con A1**: las dos necesitan medir dimensiones en build, y hacerlas por separado es pagar dos veces el mismo andamiaje. ⚠️ **Trampa anotada en `middleware.ts:37`**: al usar `astro:assets` aparece el endpoint `/_image`, que sí pasa por el middleware; sin meterlo en `RAIZ_COMPARTIDA` se reescribe a `/<slug>/_image` y **todas** las imágenes optimizadas dan 404 en los 8 dominios a la vez | `du -sh public/photos` · `find ! -name "*.webp"` | M |
+| **A6** | **Hay un vídeo de 2,25 MB servido en público que no enlaza nadie.** `public/photos/grancasa/WhatsApp Video 2026-08-20 at 15.50.09.mp4`, commiteado, responde **200 en producción**, y el nombre del fichero va en la URL tal cual. O se usa —con clic para reproducir, no autoplay— o se saca. Hoy es peso muerto con una URL que no da buena imagen | `curl` a `usafitnessgrancasa.com` → 200, 2 249 635 bytes, `video/mp4` | S |
+| **A7** | **3.10 · Partir `stores.json`.** Sube de prioridad: con ~58 tiendas en un fichero, **cada alta es un conflicto de merge** — ya pasó al fusionar Lagoh. Diseño en marcha (3 propuestas + panel + refutación adversarial). **No implementar hasta que pase la refutación** | el conflicto real de la PR #6 | S–M |
+| **A8** | **3.3 · `locals.store` y una sola resolución de host.** ⏭ Aplazada **a propósito**, no olvidada: dos de sus tres motivos originales ya no existen. Queda `headers.get('host')?.split(':')[0]` repetido en 5 ficheros. Deuda real, barata, no bloquea nada | — | S |
+| **A9** | **Ejecutar el plan de alta automatizada** (`.cursor/plans/2026-08-26-alta-de-tienda-automatizada.md`, 6 tareas TDD). Es lo que convierte 58 altas de inviables en viables. **Le falta un paso que hoy no contempla**: comprobar que el dominio sirve lo nuestro después de cambiar el DNS — justo el hueco por el que se coló Lagoh. `npm run flota` ya lo cubre; hay que engancharlo al final del alta | el plan · `scripts/estado-flota.mjs` | L |
+| **A10** | **Solo 3 de 8 tiendas tienen reseñas** (villanueva, alcobendas, arcangel). Las otras 5 pintan la sección vacía. Y las 8 reseñas del sistema son **todas de 5 estrellas**, lo que dejó decorativo un test hasta que el fixture de `test-armado` bajó una a 4★. **Es un patrón, no un caso**: cuando los datos reales solo contienen un valor, la comprobación no comprueba nada. Aplica igual a `template` y a `variant`, ambos ausentes en las 8 | `stores.json` | — depende de A-franquiciado |
+
+### B. Lo que solo puedes hacer tú (paneles externos)
+
+| # | Qué | Estado medido | Urgencia |
+|---|---|---|---|
+| **B1** | **`usafitnesslasrosas.com` no resuelve.** SERVFAIL en `8.8.8.8` y en `1.1.1.1`. Dominio `active` en el registro hasta 2027-04-09, delegado a los mismos NS que Vigo. La zona no está activa en la cuenta de Cloudflare | verificado por DoH | 🔴 **ahora** |
+| **B2** | **`usafitnesslagoh.com` tampoco resuelve.** Mismo cuadro. **Se creyó que servía WordPress porque una caché local mentía** — internet no lo ve | verificado por DoH | 🔴 **ahora** |
+| **B3** | **`usafitnessvillanueva.com` ni siquiera está en Cloudflare.** Sus NS son `dns5716/dns5717.phdns22.es`. Es la única de las 8 que sigue entera en su hosting anterior | RDAP de Verisign | media |
+| **B4** | **Monitor externo de uptime.** Riesgo #10. Hoy no vigila nada nadie: los dos cortes de arriba se descubrieron mirando a mano. Requisito duro: **que viva fuera de Railway y fuera de Cloudflare**. Guía en `docs/medicion/guia-alta.md` §1. Bloqueante de la recomendación: comprobar si el plan gratuito de StatusCake incluye test DNS y API (5 min de panel, plan B definido) | `docs/medicion/guia-alta.md` | alta |
+| **B5** | **Search Console en los 8 dominios** + envío de sitemap. Guía §2. Es la única medición que funciona hoy en todas, porque es agnóstica del motor | `googleSiteVerification`: 0/8 | alta |
+| **B6** | **GA4, una propiedad por tienda.** Guía §3. ⚠️ En cuanto se rellena `ga4Id`, la web empieza a pedir consentimiento y a cargar Google tras la aceptación: **no es un cambio invisible** | `ga4Id`: 0/8 | media |
+| **B7** | **Cambiar el orden de migración** para no repetir B1/B2: crear la zona en Cloudflare **y elegir plan hasta el final** ANTES de tocar los NS en el registrador. Cloudflare **autoborra** una zona Free que lleve 28 días en «Finish setup»: un dominio dado de alta a medias en enero desaparece solo en marzo | guía §0.4 | alta |
+
+### C. Bloqueado en franquiciados (datos que no están en ninguna fuente pública)
+
+| # | Qué falta | A quién |
+|---|---|---|
+| **C1** | **Datos legales (`company`): faltan en 5 de 8** — villanueva, marineda, lasrosas, alcobendas, lagoh. Sin eso, sus 4 páginas legales no identifican al responsable del tratamiento | 5 franquiciados |
+| **C2** | **WhatsApp real: utilizable en 1 de 8.** Solo Vigo tiene móvil. Villanueva, Marineda, Las Rosas y Alcobendas llevan **el fijo copiado** en el campo `whatsapp` — y en un `wa.me` un fijo no abre conversación. GranCasa, Arcángel y Lagoh no tienen campo | 7 franquiciados |
+| **C3** | **GranCasa no tiene ficha de Google** (`googleMapsStatus: sin-ficha-gbp`). Es la única sin `googleMapsEmbed`. La ficha la crea su dueño en su Google Business Profile; nadie más puede | GranCasa |
+| **C4** | **Reseñas reales para las 5 tiendas que no tienen** | 5 franquiciados |
+| **C5** | **Fotos mejores para Lagoh.** 382 px es el techo de lo que guardaba su WordPress. Con A1 quedan dignas a 3 columnas, pero el hero sigue ampliado 1,75× | Lagoh |
+| **C6** | Las 10 preguntas de §6, que siguen todas abiertas — incluida la única que puede invalidar el proyecto entero: **si el contrato de franquicia permite dominio y web propios con la marca** | central / franquiciados |
+
+### Cómo se ataca (y por qué en ese orden)
+
+1. **A1 + A2 + A3 + A5 en una sola tanda.** Son la misma obra: las cuatro necesitan medir las dimensiones de las imágenes en build. Hacerlas por separado es montar el mismo andamiaje dos veces. Y es lo único de la lista que **se ve a simple vista en las webs de los clientes**.
+2. **A7 (3.10)** en cuanto la refutación dé el visto bueno.
+3. **A6** cae de paso, es un `git rm` o una decisión de diseño de 20 minutos.
+4. **A9** después, porque se apoya en A7.
+5. **A8** al final: es la única de la lista que no molesta a nadie mientras espera.
+
+**B1 y B2 no están en esta cola porque no dependen de mí, pero son lo único de todo el documento que tiene a un cliente sin web ahora mismo.**
+
+---
 ## 1. CATÁLOGO DE SECCIONES
 
 **Escala de esfuerzo:** S < 1 día · M 2–5 días · L 1–3 semanas · XL > 1 mes.
