@@ -64,6 +64,10 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
 
   location: {
     component: Location,
+    // Sin ficha de Google Business no hay mapa que enseñar. La alternativa
+    // —incrustar el centro comercial— pondría la tarjeta de otro negocio en la
+    // web de este cliente. Mejor sin sección que con el mapa de otro.
+    visible: (s) => !!s.googleMapsEmbed,
     props: (s) => ({
       subtitle: s.subtitle,
       googleMapsEmbed: s.googleMapsEmbed,

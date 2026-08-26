@@ -74,10 +74,25 @@ const EsquemaSocial = z.strictObject({
   youtube: z.url().optional(),
 });
 
-/** Coordenadas dentro de la caja que contiene España peninsular, Baleares y Canarias. */
+/**
+ * Coordenadas dentro de la caja que contiene España peninsular, Baleares y Canarias.
+ *
+ * Y con AL MENOS 5 DECIMALES, que es la regla que de verdad sirve aquí. Un `geo`
+ * copiado del payload de una ficha de Google trae 6-7 decimales; uno estimado a
+ * ojo sobre un mapa se escribe con 3 o 4. Aplicada a los datos que había el
+ * 2026-08-25 cazaba los 4 malos —40.4483/-3.9942, 43.3292/-8.4184,
+ * 40.533/-3.642, 42.2272/-8.7106, entre 1.003 y 1.871 metros de error— sin un
+ * solo falso positivo sobre los 2 buenos. Cinco decimales son ~1 metro: nadie
+ * los escribe a mano.
+ */
+const conPrecisionDeFicha = (etiqueta: string) =>
+  z.number().refine((n) => (String(n).split('.')[1] ?? '').length >= 5, {
+    message: `${etiqueta} con menos de 5 decimales: eso es una estimación a ojo, no una coordenada copiada de la ficha de Google`,
+  });
+
 const EsquemaGeo = z.strictObject({
-  lat: z.number().min(27).max(44, 'la latitud cae fuera de España'),
-  lng: z.number().min(-19).max(5, 'la longitud cae fuera de España'),
+  lat: conPrecisionDeFicha('latitud').refine((n) => n >= 27 && n <= 44, 'la latitud cae fuera de España'),
+  lng: conPrecisionDeFicha('longitud').refine((n) => n >= -19 && n <= 5, 'la longitud cae fuera de España'),
 });
 
 /* ── La tienda ─────────────────────────────────────────────────────────── */
@@ -118,8 +133,46 @@ const EsquemaTienda = z.strictObject({
   phone: telefonoE164,
   phoneDisplay: texto('phoneDisplay'),
   whatsapp: telefonoE164.optional(),
-  googleMapsEmbed: z.url('el embed de Maps debe ser una URL completa'),
-  googleMapsLink: z.url('el enlace de Maps debe ser una URL completa'),
+  /**
+   * FORMA CANÓNICA OBLIGATORIA, y no una URL cualquiera.
+   *
+   * Las dos apuntan a la ficha por su CID, el identificador numérico del
+   * negocio en Google. El regex rechaza de un golpe todo lo que estaba roto el
+   * 2026-08-25:
+   *   · `?q=<dirección>&output=embed` → geocodifica un texto, así que el pin
+   *     caía sobre el centro comercial y no sobre el local (síntoma A).
+   *   · `pb=!1m18!...` largo escrito a mano → llevaba feature ids inventados;
+   *     el de marineda devolvía un mapa sin ningún pin.
+   *   · `/maps/search/<texto>` → una página de RESULTADOS. El botón abría
+   *     Google Maps pero no la tienda (síntoma B).
+   *   · `/maps/place/<nombre>/` sin identificador → búsqueda por texto: hoy
+   *     acierta, mañana depende del ranking de Google.
+   *   · `maps.app.goo.gl/...` → opaco. Nadie que lea este JSON sabe adónde
+   *     apunta, que es justo cómo se colaron los ids fabricados.
+   *
+   * Ausentes solo cuando la tienda no tiene ficha (ver `googleMapsStatus`).
+   */
+  googleMapsEmbed: z
+    .string()
+    .regex(/^https:\/\/www\.google\.com\/maps\/embed\?origin=mfe&pb=!1m3!3m2!1m1!4s\d{15,20}!3m1!1ses!5m1!1ses$/,
+      'el embed debe ser la forma canónica por CID. Se obtiene con: https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s<CID>!3m1!1ses!5m1!1ses')
+    .optional(),
+  googleMapsLink: z
+    .string()
+    .regex(/^https:\/\/maps\.google\.com\/\?cid=\d{15,20}$/,
+      'el enlace debe ser https://maps.google.com/?cid=<CID>. Una URL /maps/search/ abre resultados, no la ficha')
+    .optional(),
+
+  /**
+   * Declara, y solo para eso, que una tienda NO tiene ficha de Google Business.
+   *
+   * Existe para que el hueco se VEA. La alternativa tentadora —enlazar la ficha
+   * del centro comercial— publicaría la tarjeta de otro negocio, con su
+   * teléfono y sus reseñas, en la web de este cliente. Comprobado el 2026-08-25:
+   * el CID del centro GranCasa devuelve "Gran Casa" y cero menciones a USA
+   * Fitness.
+   */
+  googleMapsStatus: z.literal('sin-ficha-gbp').optional(),
 
   /* Horario: se valida con el MISMO parser que emite el marcado */
   schedule: z.string().refine((t) => parseHorario(t).length > 0, {
@@ -187,6 +240,78 @@ export const esquemaTiendas = z.array(EsquemaTienda).superRefine((tiendas, ctx) 
   };
   visto('slug');
   visto('domain');
+
+  /* ── Mapas: las reglas que habrían cazado el bug de agosto ──────────── */
+
+  const cidDe = (url?: string) => url?.match(/\d{15,20}/)?.[0] ?? null;
+
+  tiendas.forEach((t, i) => {
+    const sinFicha = t.googleMapsStatus === 'sin-ficha-gbp';
+
+    // Una tienda o tiene ficha (embed + enlace + geo) o declara que no la tiene.
+    // El estado intermedio —sin mapa y sin declararlo— es el que dejó a GranCasa
+    // meses publicando Schema.org sin coordenadas sin que nadie lo viera.
+    if (!sinFicha) {
+      for (const campo of ['googleMapsEmbed', 'googleMapsLink', 'geo'] as const) {
+        if (!t[campo]) {
+          ctx.addIssue({ code: 'custom', path: [i, campo],
+            message: `falta ${campo}. Si esta tienda no tiene ficha de Google Business, decláralo con googleMapsStatus: "sin-ficha-gbp" en vez de dejar el hueco mudo` });
+        }
+      }
+    } else if (t.googleMapsEmbed || t.googleMapsLink || t.geo) {
+      ctx.addIssue({ code: 'custom', path: [i, 'googleMapsStatus'],
+        message: 'declara no tener ficha pero trae embed, enlace o geo. Una de las dos cosas sobra' });
+    }
+
+    // EL EMBED Y EL ENLACE TIENEN QUE APUNTAR A LA MISMA FICHA.
+    // Esta sola regla habría cazado el fallo de lasrosas, cuyos dos campos se
+    // desmentían entre sí — y con el dato bueno ya presente en el repo, en el
+    // otro campo.
+    const a = cidDe(t.googleMapsEmbed), b = cidDe(t.googleMapsLink);
+    if (a && b && a !== b) {
+      ctx.addIssue({ code: 'custom', path: [i, 'googleMapsLink'],
+        message: `el embed apunta al CID ${a} y el enlace al ${b}: el mapa y el botón llevan a fichas distintas` });
+    }
+  });
+
+  /**
+   * Fichas que NO son de ninguna tienda y que alguien podría enlazar por
+   * parecer que arreglan el mapa.
+   *
+   * El esquema valida FORMA; esto valida IDENTIDAD, y hace falta porque la
+   * forma canónica de un CID del centro comercial es indistinguible de la de
+   * una tienda. Al diagnosticar el bug de agosto de 2026 apareció la tentación:
+   * GranCasa no tiene ficha, pero el centro comercial sí, y su embed se ve
+   * "bien". Comprobado: ese CID devuelve "Gran Casa", con su teléfono y sus
+   * 25.602 reseñas. Enlazarlo publicaría la tarjeta de otro negocio en la web
+   * de este cliente, y convertiría el síntoma en permanente.
+   */
+  const FICHAS_PROHIBIDAS = new Map([
+    ['13649349957894030431', 'el CENTRO COMERCIAL GranCasa, no la tienda'],
+  ]);
+  tiendas.forEach((t, i) => {
+    for (const campo of ['googleMapsEmbed', 'googleMapsLink'] as const) {
+      const c = cidDe(t[campo]);
+      if (c && FICHAS_PROHIBIDAS.has(c)) {
+        ctx.addIssue({ code: 'custom', path: [i, campo],
+          message: `el CID ${c} es ${FICHAS_PROHIBIDAS.get(c)}. Sin ficha propia, se declara googleMapsStatus: "sin-ficha-gbp"` });
+      }
+    }
+  });
+
+  // Dos tiendas con el mismo CID es copy-paste, y sociedades distintas
+  // compartiendo ficha de Google.
+  const porCid = new Map<string, string[]>();
+  tiendas.forEach((t) => {
+    const c = cidDe(t.googleMapsLink);
+    if (c) porCid.set(c, [...(porCid.get(c) ?? []), t.slug]);
+  });
+  for (const [cid, slugs] of porCid) {
+    if (slugs.length > 1) {
+      ctx.addIssue({ code: 'custom', path: ['googleMapsLink'],
+        message: `el CID ${cid} está en ${slugs.join(', ')}: dos tiendas no pueden compartir ficha de Google` });
+    }
+  }
 
   // Una reseña firmada por la misma persona en dos dominios de sociedades
   // distintas no es contenido duplicado: es publicidad con testimonios que
@@ -279,13 +404,12 @@ export function avisosDeDatos(): string[] {
     if (t.whatsapp && t.whatsapp === t.phone) {
       avisos.push(`${t.slug}: el WhatsApp es el mismo número que el fijo — sin verificar que esté dado de alta`);
     }
-    // Un embed `pb=` copiado de Google lleva en `!4v` la marca de tiempo real
-    // del momento en que se generó. Estos tres llevan `1700000000000`, un
-    // número redondo: se escribieron a mano, con lo que el identificador de
-    // ficha que los acompaña puede no resolver a la tienda de verdad.
-    const sello = t.googleMapsEmbed.match(/!4v(\d+)/)?.[1];
-    if (sello && /0{6,}$/.test(sello)) {
-      avisos.push(`${t.slug}: el embed de Maps está construido a mano (!4v${sello}) — puede no apuntar a su ficha real`);
+    // El aviso del `!4v` con ceros redondos que había aquí ya no hace falta: el
+    // esquema exige ahora la forma canónica por CID, así que un embed escrito a
+    // mano no llega a compilar. Lo que sí sigue siendo un aviso es no tener
+    // ficha, porque eso depende del franquiciado y no del código.
+    if (t.googleMapsStatus === 'sin-ficha-gbp') {
+      avisos.push(`${t.slug}: sin ficha de Google Business → sin mapa, sin botón de cómo llegar y sin "geo" en el marcado. Hay que darla de alta y verificarla`);
     }
   }
   return avisos;
