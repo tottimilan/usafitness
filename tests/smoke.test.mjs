@@ -725,3 +725,57 @@ describe('Cada pantalla se lleva el tamaño de foto que necesita', () => {
     assert.equal(primera, s.heroImage, 'la primera de galería apunta a la URL del hero, que es el mismo fichero');
   });
 });
+
+describe('Las plantillas se pintan como dicen que se pintan', () => {
+  // NINGUNA tienda usa plantilla todavía, así que estas rutas de código no las
+  // recorre nada en el uso normal. Eso ya escondió un fallo: al reescribir
+  // `Gallery.astro` se perdió el soporte de `variant`, y la plantilla `angular`
+  // dejó de destacar su primera foto sin que saltara un solo test.
+  //
+  // Se prueba con una tienda REAL forzando la plantilla por la ruta interna, que
+  // es la que existe. No hace falta tocar `stores.json`.
+
+  test('la plantilla `angular` reordena las secciones y destaca la primera foto', async () => {
+    const { TEMPLATES, resolveSections, normalizeRef } = await import('../src/data/templates.ts');
+    const ang = TEMPLATES.angular;
+    assert.ok(ang, 'la plantilla angular sigue existiendo');
+
+    const orden = resolveSections(ang).map(normalizeRef);
+    const pos = (id) => orden.findIndex((s) => s.id === id);
+
+    // Lo que la plantilla promete: la prueba social por delante del surtido.
+    assert.ok(pos('reviews') < pos('products'), 'en angular, reviews va antes que products');
+    assert.ok(pos('reviews') > -1 && pos('products') > -1);
+
+    // Y la galería con su variante.
+    const gal = orden.find((s) => s.id === 'gallery');
+    assert.equal(gal?.variant, 'destacada', 'angular pide la galería destacada');
+
+    const hero = orden.find((s) => s.id === 'hero');
+    assert.equal(hero?.variant, 'compacto');
+  });
+
+  test('la variante `destacada` llega hasta el HTML, no se pierde por el camino', async () => {
+    // Este es el que habría cazado la regresión. `Gallery.astro` recibía
+    // `variant` y lo ignoraba: el marcado salía sin `gallery-item--destacada`.
+    const { galeriaDe } = await import('../src/data/galeria-de-tiendas.ts');
+    const s = stores.find((x) => x.slug === 'arcangel');
+    const plan = galeriaDe(s);
+
+    assert.equal(plan.destacarPrimera, false, 'arcangel no lleva el flag por tienda…');
+
+    // …así que si la clase aparece, solo puede venir de la variante.
+    const componente = readFileSync(new URL('../src/components/Gallery.astro', import.meta.url), 'utf8');
+    assert.match(componente, /variant\?: string/, 'Gallery tiene que aceptar `variant`');
+    assert.match(
+      componente,
+      /variant === 'destacada'/,
+      'y usarla: recibirla y no mirarla es peor que no recibirla'
+    );
+    assert.match(
+      componente,
+      /'gallery-item--destacada': destacar && i === 0/,
+      'la clase sale de la decisión combinada, no solo del flag por tienda'
+    );
+  });
+});

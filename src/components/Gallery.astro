@@ -7,8 +7,24 @@ interface Props {
   plan: PlanDeGaleria;
   name: string;
   location?: string;
+  /**
+   * Variante que pide la plantilla. `'destacada'` sube la primera foto a todo
+   * el ancho, igual que el flag `galleryFeatured` de la tienda.
+   *
+   * Se perdió al reescribir este componente y no lo notó nadie: **ninguna
+   * tienda usa plantilla todavía**, así que la única forma de llegar aquí era
+   * mirar la plantilla `angular` a propósito. Es exactamente el fallo que una
+   * funcionalidad sin adoptantes esconde durante meses.
+   */
+  variant?: string;
 }
-const { plan, name, location = '' } = Astro.props;
+const { plan, name, location = '', variant } = Astro.props;
+
+// La variante de la plantilla y el flag por tienda son la misma decisión
+// expresada de dos formas; cualquiera de las dos destaca la primera foto.
+// El número de columnas NO depende de esto —lo decide la orientación de las
+// fotos— así que se puede resolver aquí sin recalcular el plan.
+const destacar = plan.destacarPrimera || (variant === 'destacada' && plan.fotos.length > 1);
 const altSuffix = location ? ` en ${location}` : '';
 ---
 
@@ -47,13 +63,13 @@ const altSuffix = location ? ` en ${location}` : '';
     >
       {plan.fotos.map((foto, i) => (
         <figure
-          class:list={['gallery-item', { 'gallery-item--destacada': plan.destacarPrimera && i === 0 }]}
+          class:list={['gallery-item', { 'gallery-item--destacada': destacar && i === 0 }]}
           style={`--proporcion:${foto.proporcion}`}
         >
           <img
             src={foto.src}
             srcset={srcsetDe(foto)}
-            sizes={sizesDe(plan.columnas, plan.destacarPrimera && i === 0)}
+            sizes={sizesDe(plan.columnas, destacar && i === 0)}
             alt={`${name} - tienda de nutrición deportiva y suplementos${altSuffix} (foto ${i + 1})`}
             loading="lazy"
             decoding="async"
