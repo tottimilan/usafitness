@@ -47,6 +47,17 @@ try {
   // La primera tienda basta: los tests con `skip` buscan «alguna tienda con el
   // campo», y el bloque de terceros recorre las 7 igualmente.
   Object.assign(datos.stores[0], FIXTURE);
+
+  // Las 8 reseñas reales son de 5 estrellas, así que el test que comprueba que
+  // el aria-label dice la MISMA puntuación que dibujan las estrellas no podía
+  // fallar: un `aria-label="5 de 5 estrellas"` fijo pasaba en verde. Se
+  // comprobó mutando el componente — la mutación sobrevivió.
+  //
+  // Bajar una reseña a 4 estrellas hace que esa rama exista. No se toca el
+  // esquema (1–5) ni ninguna otra afirmación; solo aparece el único caso que
+  // los datos de producción no contienen.
+  const conResenas = datos.stores.find((s) => s.reviews?.length);
+  if (conResenas) conResenas.reviews[0].stars = 4;
   writeFileSync(FICHERO, JSON.stringify(datos, null, 2) + '\n');
   console.log(`\n[test-armado] fixture inyectado en "${datos.stores[0].slug}" — compilando y corriendo la suite armada\n`);
 
