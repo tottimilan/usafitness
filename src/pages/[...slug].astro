@@ -38,20 +38,31 @@ const orden = resolveSections(template, store.sections);
 const plan = buildPlan(store, orden);
 ---
 
-<Landing store={store} plantilla={template.id} plantillaCss={tokensToCss(template)}>
+<Landing
+  store={store}
+  plantilla={template.id}
+  plantillaCss={tokensToCss(template) + (template.css ?? '')}
+  plantillaFonts={template.fonts ?? []}
+>
   {/* Enlace de salto: primer elemento focusable de la página. Sin esto había
       que atravesar la cabecera entera con el tabulador en cada visita. Solo se
       ve al recibir el foco (ver .salto-contenido en global.css). */}
   <a href="#contenido" class="salto-contenido">Saltar al contenido</a>
 
-  <Header phone={store.phone} instagram={store.social?.instagram} />
+  <Header phone={store.phone} instagram={store.social?.instagram} variant={template.periferia?.header} />
 
   <main id="contenido">
     {plan.map(({ component: Section, props }) => <Section {...props} />)}
   </main>
 
-  <Footer name={store.name} slug={store.slug} legalBase={legalBase} />
-  <WhatsAppFloat whatsapp={store.whatsapp} name={store.name} />
+  <Footer name={store.name} slug={store.slug} legalBase={legalBase} variant={template.periferia?.footer} />
+  <WhatsAppFloat
+    whatsapp={store.whatsapp}
+    name={store.name}
+    variant={template.periferia?.contacto}
+    phone={store.phone}
+    googleMapsLink={store.googleMapsLink}
+  />
   {/* ga4Id solo en el dominio propio (más localhost, para poder probar el
       banner en desarrollo): en el host de preview mediría sesiones ajenas
       dentro de la propiedad GA4 del franquiciado. Mismo acotado que ya

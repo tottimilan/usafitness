@@ -1,8 +1,23 @@
 ---
 interface Props {
   phone: string;
+  /** 'marquesina' (plantilla Energía): las promos desfilan en una banda roja. */
+  variant?: string;
 }
-const { phone } = Astro.props;
+const { phone, variant } = Astro.props;
+
+/**
+ * Para la marquesina, EL VALOR va separado del texto: en una banda en
+ * movimiento se lee el número, no la frase. Son las mismas cuatro promos de
+ * las tarjetas — «hasta», condiciones y letra pequeña viven en el aviso fijo
+ * bajo la banda, no dentro de ella.
+ */
+const promosMarquesina = [
+  { valor: '-10%', etiqueta: 'Tarifa VIP por hacerte socio' },
+  { valor: '-15%', etiqueta: 'Descuento funcionario' },
+  { valor: '-20%', etiqueta: 'En tu cumpleaños' },
+  { valor: '5 €', etiqueta: 'Cupón desde 49,90 € de compra' },
+];
 
 const promos = [
   {
@@ -28,6 +43,36 @@ const promos = [
 ];
 ---
 
+{variant === 'marquesina' ? (
+  <section class="promotions promos-marquesina" id="promociones" aria-label="Promociones">
+    {/* Dos pistas idénticas, la segunda oculta al lector de pantalla: es lo
+        que hace el bucle continuo sin salto. El movimiento entero vive bajo
+        prefers-reduced-motion: no-preference en la hoja de la plantilla, y el
+        botón de pausa global está en la cinta del header. */}
+    <div class="fx-marquesina">
+      <ul class="fx-marquesina__track promo-track">
+        {promosMarquesina.map((p) => (
+          <li class="promo-item">
+            <strong>{p.valor}</strong>
+            <span>{p.etiqueta}</span>
+          </li>
+        ))}
+      </ul>
+      <ul class="fx-marquesina__track promo-track" aria-hidden="true">
+        {promosMarquesina.map((p) => (
+          <li class="promo-item">
+            <strong>{p.valor}</strong>
+            <span>{p.etiqueta}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <p class="promos-aviso">
+      Descuentos «hasta» según condiciones en tienda ·{' '}
+      <a href={`tel:${phone}`}>llámanos y te contamos</a>
+    </p>
+  </section>
+) : (
 <section class="promotions section" id="promociones">
   <div class="container">
     <h2 class="section-title">¡Aprovecha nuestras promociones!</h2>
@@ -48,6 +93,7 @@ const promos = [
     </div>
   </div>
 </section>
+)}
 
 <style>
   .promotions {

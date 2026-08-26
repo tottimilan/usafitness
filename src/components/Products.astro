@@ -1,4 +1,10 @@
 ---
+interface Props {
+  /** 'pizarra' (plantilla Energía): una sola lista tipográfica sobre azul noche. */
+  variant?: string;
+}
+const { variant } = Astro.props;
+
 const nutrition = [
   'Proteínas',
   'Creatinas',
@@ -19,6 +25,21 @@ const supplements = [
 ];
 ---
 
+{variant === 'pizarra' ? (
+  <section class="products pizarra section">
+    <div class="container">
+      <h2 class="section-title">¿Qué encontrarás en la tienda?</h2>
+      {/* La pizarra de la sala: las dos listas fusionadas en una sola pieza
+          tipográfica. Mismo contenido de marca que las tarjetas — cambia la
+          forma, no pide datos nuevos. */}
+      <ul class="pizarra-lista">
+        {[...nutrition, ...supplements].map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    </div>
+  </section>
+) : (
 <section class="products section">
   <div class="container">
     <h2 class="section-title">¿Qué encontrarás en la tienda?</h2>
@@ -48,6 +69,7 @@ const supplements = [
     </div>
   </div>
 </section>
+)}
 
 <style>
   .products {

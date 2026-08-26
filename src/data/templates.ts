@@ -13,6 +13,8 @@
  * su campo `sections` en stores.json — la plantilla propone, la tienda ajusta.
  */
 
+import { CSS_ENERGIA } from './plantilla-energia-css.ts';
+
 /** Las secciones que existen. Es un array y no solo un tipo porque el esquema
  *  de `stores.json` necesita la lista EN TIEMPO DE EJECUCIÓN para rechazar un
  *  id inventado; si fueran dos listas separadas acabarían desincronizadas. */
@@ -42,6 +44,24 @@ export interface Template {
   tokens: Record<string, string>;
   /** Orden por defecto de las secciones componibles, con su variante. */
   sections: SectionRef[];
+  /**
+   * Hoja CSS propia de la plantilla, ya prefijada con `html[data-plantilla]`.
+   * Viaja inline en el <head> SOLO en las páginas que usan la plantilla: en
+   * `global.css` pesaría para las 50 tiendas. Es la extensión que separa una
+   * plantilla de verdad de un cambio de pintura — los tokens solos no pueden
+   * cambiar composición, tipografía ni movimiento, y eso es exactamente lo
+   * que el ojo usa para decidir si dos webs son distintas.
+   */
+  css?: string;
+  /** Ficheros de fuente propios, para el <link rel="preload"> de Base.astro. */
+  fonts?: string[];
+  /**
+   * Variantes para las piezas FIJAS de la página (header, footer, contacto).
+   * Siguen fijas —un error de configuración no puede dejar una landing sin
+   * aviso de cookies ni enlaces legales—, pero una plantilla puede pedirles
+   * otra cara. Sin declarar nada, la cara de siempre: ninguna web viva cambia.
+   */
+  periferia?: { header?: string; footer?: string; contacto?: string };
 }
 
 /** Normaliza el atajo string a la forma canónica. Un solo punto de entrada
@@ -102,6 +122,50 @@ export const TEMPLATES: Record<string, Template> = {
       'brands',
       'schedule',
       'social',
+    ],
+  },
+
+  energia: {
+    id: 'energia',
+    label: 'Energía',
+    // La web como cartel de sala de entrenamiento. Ganadora del panel de
+    // diseño del 2026-08-26 (9/8/7 sobre 10 en venta/obra/marca): la ciudad en
+    // condensada gigante, promos desfilando en banda roja, el horario como
+    // marcador. Es la plantilla que no depende de que las fotos sean buenas.
+    tokens: {
+      '--radius': '0px',
+      '--radius-sm': '0px',
+      '--radius-xs': '0px',
+      '--radius-btn': '0px',
+      '--shadow-card': 'none',
+      '--shadow-card-hover': 'none',
+      '--shadow-media': 'none',
+      '--font-weight-heading': '800',
+    },
+    css: CSS_ENERGIA,
+    fonts: ['/fonts/barlow-condensed-700-latin.woff2', '/fonts/barlow-condensed-800-latin.woff2'],
+    periferia: {
+      header: 'cinta-de-marca',
+      footer: 'megafooter-diagonal',
+      contacto: 'barra-accion-movil',
+    },
+    // La narrativa del cartel: identidad → oferta → prueba visual → surtido →
+    // marcas → prueba social → dónde → cuándo → síguenos. La superficie
+    // alterna azul/rojo/blanco/noche para que el scroll tenga ritmo; la
+    // asignación va POR SECCIÓN en la hoja, así que una sección ausente no
+    // rompe la alternancia.
+    sections: [
+      { id: 'hero', variant: 'cartel' },
+      { id: 'promotions', variant: 'marquesina' },
+      { id: 'gallery', variant: 'tira' },
+      { id: 'products', variant: 'pizarra' },
+      // Brands YA es una marquesina con pista duplicada: la hoja solo la
+      // reestiliza (logos en gris, sobre blanco). No hace falta variante.
+      'brands',
+      'reviews',
+      'location',
+      { id: 'schedule', variant: 'billboard' },
+      { id: 'social', variant: 'compacta' },
     ],
   },
 };
