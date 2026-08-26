@@ -27,6 +27,7 @@ import {
   fuenteInline,
 } from '../src/data/consentimiento.ts';
 import { parseHorario } from '../src/data/horario.ts';
+import { clasificar, resumirFlota, esProblema } from '../src/data/flota.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -469,5 +470,244 @@ describe('No se enlaza la cuenta de marca desde ninguna tienda', () => {
     for (const s of stores) {
       assert.ok(s.social?.instagram, `${s.slug} se ha quedado sin Instagram`);
     }
+  });
+});
+
+describe('Estado de la flota: qué sirve de verdad cada dominio', () => {
+  // Los dos primeros tests son los dos fallos REALES del 2026-08-26, congelados
+  // como casos. Se descubrieron a mano con `curl`; existen aquí para que la
+  // próxima vez los descubra una máquina.
+
+  const sonda = (extra) => ({
+    slug: 'vigo',
+    dominio: 'usafitnessvigo.com',
+    resuelveDns: true,
+    codigo: 200,
+    cuerpo: null,
+    ...extra,
+  });
+
+  const salud = (extra) =>
+    JSON.stringify({
+      ok: true,
+      tienda: 'vigo',
+      tiendas: 8,
+      dominios: 16,
+      midiendo: false,
+      midiendoFlota: 0,
+      sha: '36dcae879b246bb07c0fc8262b578691e95beb1d',
+      uptime: 392,
+      ...extra,
+    });
+
+  test('caso real: Las Rosas — el nombre no resuelve', () => {
+    const d = clasificar(sonda({ slug: 'lasrosas', dominio: 'usafitnesslasrosas.com', resuelveDns: false, codigo: null }));
+    assert.equal(d.estado, 'sin-dns');
+    assert.match(d.detalle, /Cloudflare/, 'el detalle debe decir dónde mirar, no solo que falla');
+  });
+
+  test('caso real: Lagoh — 200 impecable sirviendo el WordPress anterior', () => {
+    // Este es el que importa. El código HTTP es 200 y el dominio "funciona":
+    // cualquier monitor que mire solo el status da esta tienda por buena.
+    const d = clasificar(
+      sonda({
+        slug: 'lagoh',
+        dominio: 'usafitnesslagoh.com',
+        codigo: 200,
+        cuerpo: '<body class="home wp-singular page-template-default wp-theme-hello-elementor">',
+      })
+    );
+    assert.equal(d.estado, 'otro-sistema');
+    assert.match(d.detalle, /WordPress/, 'debe nombrar QUÉ hay ahí: "desconocido" no es accionable');
+    assert.match(d.detalle, /DNS/, 'y decir que el arreglo está en el DNS');
+  });
+
+  test('el peor caso de todos: nuestro código sirviendo la tienda equivocada', () => {
+    // 200, contenido nuestro, y una sociedad publicando el NIF de otra. Ningún
+    // ping lo detecta y la portada parece perfecta.
+    const d = clasificar(sonda({ slug: 'vigo', cuerpo: salud({ tienda: 'grancasa' }) }));
+    assert.equal(d.estado, 'enrutado-roto');
+    assert.match(d.detalle, /grancasa/);
+    assert.match(d.detalle, /vigo/);
+  });
+
+  test('un host que no reconoce la tienda tampoco pasa por bueno', () => {
+    const d = clasificar(sonda({ cuerpo: salud({ tienda: null }) }));
+    assert.equal(d.estado, 'enrutado-roto');
+    assert.match(d.detalle, /ninguna tienda/);
+  });
+
+  test('ok:false se distingue de todo lo demás', () => {
+    const d = clasificar(sonda({ codigo: 503, cuerpo: salud({ ok: false }) }));
+    assert.equal(d.estado, 'degradada');
+    assert.equal(d.sha, '36dcae879b246bb07c0fc8262b578691e95beb1d', 'el SHA sigue siendo útil en una respuesta degradada');
+  });
+
+  test('una tienda sana es «servida» y trae su SHA', () => {
+    const d = clasificar(sonda({ cuerpo: salud() }));
+    assert.equal(d.estado, 'servida');
+    assert.equal(d.sha, '36dcae879b246bb07c0fc8262b578691e95beb1d');
+    assert.equal(esProblema('servida'), false);
+  });
+
+  test('un JSON ajeno no se confunde con el nuestro', () => {
+    // Muchos paneles de hosting devuelven JSON en /health. Si bastara con que
+    // parsee, cualquiera de ellos pasaría por nuestro sistema.
+    for (const impostor of [
+      '{"status":"ok"}',
+      '{"ok":true}',
+      '{"ok":true,"tiendas":8}',
+      '{"ok":"true","tiendas":8,"dominios":16}',
+      'no soy JSON',
+      '<html><body>404</body></html>',
+    ]) {
+      const d = clasificar(sonda({ cuerpo: impostor }));
+      assert.notEqual(d.estado, 'servida', `"${impostor.slice(0, 30)}" no puede pasar por nuestro /health`);
+    }
+  });
+
+  test('el resumen separa lo servido de lo que exige actuar', () => {
+    const diags = [
+      clasificar(sonda({ slug: 'vigo', cuerpo: salud() })),
+      clasificar(sonda({ slug: 'grancasa', cuerpo: salud({ tienda: 'grancasa' }) })),
+      clasificar(sonda({ slug: 'lasrosas', resuelveDns: false, codigo: null })),
+      clasificar(sonda({ slug: 'lagoh', cuerpo: '<body class="wp-singular">' })),
+    ];
+    const r = resumirFlota(diags);
+
+    assert.equal(r.total, 4);
+    assert.equal(r.servidas, 2);
+    assert.deepEqual(
+      r.problemas.map((p) => p.slug).sort(),
+      ['lagoh', 'lasrosas'],
+      'los problemas son exactamente los dos que exigen actuar'
+    );
+    assert.equal(r.shas.length, 1, 'un solo servicio sirve todo: un solo SHA');
+  });
+
+  test('dos SHAs distintos entre dominios servidos es una señal, no ruido', () => {
+    const diags = [
+      clasificar(sonda({ slug: 'vigo', cuerpo: salud() })),
+      clasificar(sonda({ slug: 'grancasa', cuerpo: salud({ tienda: 'grancasa', sha: 'otro-sha-distinto-000000' }) })),
+    ];
+    assert.equal(resumirFlota(diags).shas.length, 2, 'un solo servicio no puede servir dos builds a la vez');
+  });
+});
+
+describe('Identificar QUÉ hay al otro lado cuando no es lo nuestro', () => {
+  // El caso real: /health devuelve 404 en un WordPress, y ese 404 NO lleva las
+  // huellas de WordPress (comprobado contra usafitnesslagoh.com y
+  // usafitnessvillanueva.com el 2026-08-26). La huella está en la portada.
+  //
+  // Importa porque "responde 404 y no es nuestro" no dice qué hacer, mientras
+  // que "lo sirve WordPress: el DNS apunta a otro sitio" sí.
+
+  const base = { slug: 'lagoh', dominio: 'usafitnesslagoh.com', resuelveDns: true, cuerpo: null, cuerpoPortada: null };
+
+  test('un 404 en /health con la portada en WordPress se identifica igual', () => {
+    const d = clasificar({
+      ...base,
+      codigo: 404,
+      cuerpo: '<html><head><title>Not Found</title></head><body>404</body></html>',
+      cuerpoPortada: '<body class="home wp-singular wp-theme-hello-elementor">',
+    });
+    assert.equal(d.estado, 'otro-sistema');
+    assert.match(d.detalle, /WordPress/, 'la huella está en la portada, no en el 404');
+    assert.match(d.detalle, /DNS/);
+  });
+
+  test('sin portada sondeada, no se inventa el sistema', () => {
+    const d = clasificar({ ...base, codigo: 404, cuerpo: '404' });
+    assert.equal(d.estado, 'otro-sistema');
+    assert.doesNotMatch(d.detalle, /WordPress|Next\.js|Shopify|Wix/, 'no puede nombrar un sistema que no ha visto');
+  });
+
+  test('la portada solo desempata: si /health ya es nuestro, manda /health', () => {
+    // Una portada con restos de WordPress (una imagen servida desde el dominio
+    // viejo, por ejemplo) no puede degradar una tienda que /health confirma.
+    const d = clasificar({
+      ...base,
+      slug: 'vigo',
+      codigo: 200,
+      cuerpo: JSON.stringify({ ok: true, tienda: 'vigo', tiendas: 8, dominios: 16, sha: 'abc123' }),
+      cuerpoPortada: '<body class="wp-singular">',
+    });
+    assert.equal(d.estado, 'servida');
+  });
+});
+
+describe('La huella de WordPress tiene que aparecer PRONTO', () => {
+  // El sondeo corta el cuerpo a 4000 caracteres para no descargar portadas
+  // enteras de webs de clientes. Medido el 2026-08-26 contra
+  // usafitnessvillanueva.com: su primer `wp-content` está en el byte 13036, o
+  // sea fuera del corte. En los primeros 4000 solo aparece `/wp-`, y aparece
+  // también en usafitnesslagoh.com. Por eso la huella es esa.
+  test('`/wp-json` en la cabecera basta para identificarlo', () => {
+    const d = clasificar({
+      slug: 'villanueva',
+      dominio: 'usafitnessvillanueva.com',
+      resuelveDns: true,
+      codigo: 404,
+      cuerpo: '404',
+      cuerpoPortada: '<link rel="https://api.w.org/" href="https://usafitnessvillanueva.com/wp-json/" />',
+    });
+    assert.equal(d.estado, 'otro-sistema');
+    assert.match(d.detalle, /WordPress/);
+  });
+});
+
+describe('El DNS hay que preguntárselo a internet, no a tu router', () => {
+  // ESTE BLOQUE EXISTE POR UN FALLO DE ESTA MISMA HERRAMIENTA.
+  //
+  // La primera versión de `estado-flota.mjs` resolvía con `dns.lookup()`, que
+  // usa el resolvedor del sistema. El 2026-08-26, `usafitnesslagoh.com` estaba
+  // caído para todo internet —SERVFAIL en 8.8.8.8 y en 1.1.1.1— y esta máquina
+  // lo seguía resolviendo a 185.45.73.103 desde una caché rancia. La
+  // herramienta informó "responde 404, lo sirve WordPress" cuando la verdad era
+  // "no existe para nadie". Diagnóstico equivocado, y encima tranquilizador.
+  //
+  // Preguntar al resolvedor local es justo lo que no sirve: durante una
+  // migración, tu máquina es la que peor informada está.
+
+  const base = { slug: 'lagoh', dominio: 'usafitnesslagoh.com', codigo: null, cuerpo: null };
+
+  test('si ningún resolvedor público lo ve, está caído aunque tu PC lo resuelva', () => {
+    const d = clasificar({ ...base, resuelveDns: false });
+    assert.equal(d.estado, 'sin-dns');
+  });
+
+  test('resolvedores públicos que no coinciden es propagación, no caída', () => {
+    // Estado REAL y esperable justo cuando se usa esto: en mitad de un cambio
+    // de nameservers unos resolvedores ya tienen el dato y otros no. Informar
+    // "caído" aquí sería alarmar por algo que se arregla solo en minutos.
+    const d = clasificar({ ...base, resuelveDns: true, dnsDiscrepante: true });
+    assert.equal(d.estado, 'dns-propagando');
+    assert.match(d.detalle, /propag/i);
+    assert.equal(esProblema('dns-propagando'), true, 'no es normal: hay que volver a mirarlo');
+  });
+
+  test('la discrepancia manda sobre lo que devuelva el HTTP', () => {
+    // Si media internet no te ve, que TU petición HTTP funcione no significa
+    // nada: la estás haciendo desde el lado que sí resuelve.
+    const d = clasificar({
+      ...base,
+      resuelveDns: true,
+      dnsDiscrepante: true,
+      codigo: 200,
+      cuerpo: JSON.stringify({ ok: true, tienda: 'lagoh', tiendas: 8, dominios: 16, sha: 'abc' }),
+    });
+    assert.equal(d.estado, 'dns-propagando');
+  });
+
+  test('sin discrepancia, todo sigue como antes', () => {
+    const d = clasificar({
+      ...base,
+      slug: 'vigo',
+      resuelveDns: true,
+      dnsDiscrepante: false,
+      codigo: 200,
+      cuerpo: JSON.stringify({ ok: true, tienda: 'vigo', tiendas: 8, dominios: 16, sha: 'abc' }),
+    });
+    assert.equal(d.estado, 'servida');
   });
 });
