@@ -126,7 +126,7 @@ https://usafitness<tienda>.com/
 **Enlazado interno:**
 - `Products` deja de ser 13 strings muertos y pasa a ser **enlaces** al hub y a las categorías. Es la victoria SEO más barata del repo — pero **después** de que las páginas existan: enlaces a 404 son peor que texto plano.
 - Breadcrumbs + `BreadcrumbList` en toda página interior. Es lo único de esta lista que **sigue produciendo rich result** tras la retirada de las FAQ.
-- Entre dominios: **hub-and-spoke, nunca anillo.** Cada landing enlaza hacia arriba al hub de marca una sola vez desde el footer; el hub enlaza hacia abajo. Un anillo recíproco de 7 dominios con misma IP, misma plantilla y mismos textos es una huella delatora, no una estrategia.
+- Entre dominios: **hub-and-spoke, nunca anillo.** ~~Cada landing enlaza hacia arriba al hub de marca una sola vez desde el footer~~ → **DESCARTADO POR EL USUARIO (2026-08-26): no se enlaza la cuenta ni el hub de marca desde ninguna landing.** El motivo comercial es suyo; el técnico lo respalda: `social.*` alimenta el `sameAs` de Schema.org, que declara de quién ES la cuenta, y la corporativa es de otra entidad. Hay una guarda en `src/data/stores.ts` que rechaza en build cualquier URL que contenga `usafitnessoficial` o `comunidadusafitness`. El resto del párrafo sigue vigente: un anillo recíproco de 7 dominios con misma IP, misma plantilla y mismos textos es una huella delatora, no una estrategia.
 
 ---
 

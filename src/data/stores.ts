@@ -67,11 +67,36 @@ const EsquemaResena = z.strictObject({
   stars: z.number().int().min(1).max(5),
 });
 
+/**
+ * Cuentas de la MARCA, no de una tienda. No se enlazan desde ninguna landing.
+ *
+ * Regla del usuario (2026-08-26), y tiene razón técnica además de comercial:
+ * `social.instagram` alimenta el `sameAs` de Schema.org, que declara de quién
+ * ES esa cuenta. Poner la corporativa en la ficha de una tienda le diría a
+ * Google que esa sociedad es dueña del perfil de la cadena — son entidades
+ * distintas. Y de paso mandaría el tráfico que paga cada franquiciado a una
+ * cuenta que no es suya.
+ *
+ * Los directorios de varios centros comerciales enlazan @usafitnessoficial en
+ * vez de la cuenta de la tienda, así que la confusión es fácil de heredar.
+ */
+const CUENTAS_DE_MARCA = ['usafitnessoficial', 'comunidadusafitness'];
+
+const perfilDeTienda = (red: string) =>
+  z
+    .url()
+    .refine((u) => !CUENTAS_DE_MARCA.some((c) => u.toLowerCase().includes(c)), {
+      message: `es una cuenta de la marca, no de esta tienda. El sameAs declararía que la sociedad es dueña del perfil de la cadena`,
+    })
+    .refine((u) => !/\/(explore|p|reel|tv)\//.test(u), {
+      message: `apunta a una publicación o a una búsqueda, no a un perfil de ${red}`,
+    });
+
 const EsquemaSocial = z.strictObject({
-  instagram: z.url().optional(),
-  facebook: z.url().optional(),
-  tiktok: z.url().optional(),
-  youtube: z.url().optional(),
+  instagram: perfilDeTienda('Instagram').optional(),
+  facebook: perfilDeTienda('Facebook').optional(),
+  tiktok: perfilDeTienda('TikTok').optional(),
+  youtube: perfilDeTienda('YouTube').optional(),
 });
 
 /**

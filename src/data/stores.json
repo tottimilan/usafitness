@@ -45,7 +45,10 @@
       ],
       "addressLocality": "Villanueva de la Cañada",
       "addressRegion": "Madrid",
-      "mall": "C.C. El Zoco"
+      "mall": "C.C. El Zoco",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_villanueva/"
+      }
     },
     {
       "slug": "marineda",
@@ -79,7 +82,10 @@
       ],
       "addressLocality": "A Coruña",
       "addressRegion": "A Coruña",
-      "mall": "C.C. Marineda City"
+      "mall": "C.C. Marineda City",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_marinedacity/"
+      }
     },
     {
       "slug": "lasrosas",
@@ -112,7 +118,10 @@
       ],
       "addressLocality": "Madrid",
       "addressRegion": "Madrid",
-      "mall": "C.C. Las Rosas"
+      "mall": "C.C. Las Rosas",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_c.c.lasrosas/"
+      }
     },
     {
       "slug": "alcobendas",
@@ -160,7 +169,10 @@
       ],
       "addressLocality": "Alcobendas",
       "addressRegion": "Madrid",
-      "mall": "C.C. Carrefour Alcobendas"
+      "mall": "C.C. Carrefour Alcobendas",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_alcobendas/"
+      }
     },
     {
       "slug": "grancasa",
@@ -196,7 +208,10 @@
       "addressLocality": "Zaragoza",
       "addressRegion": "Zaragoza",
       "mall": "C.C. GranCasa",
-      "googleMapsStatus": "sin-ficha-gbp"
+      "googleMapsStatus": "sin-ficha-gbp",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_grancasa/"
+      }
     },
     {
       "slug": "vigo",
@@ -296,7 +311,10 @@
       },
       "addressLocality": "Córdoba",
       "addressRegion": "Córdoba",
-      "mall": "C.C. El Arcángel"
+      "mall": "C.C. El Arcángel",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_cordoba/"
+      }
     }
   ]
 }
