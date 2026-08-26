@@ -3,12 +3,47 @@ interface Props {
   // Optional: a store may not have WhatsApp. When absent, the bubble is not rendered.
   whatsapp?: string;
   name: string;
+  /** 'barra-accion-movil' (plantilla Energía): en móvil, UNA barra fija con
+   *  todas las acciones de contacto en vez de una burbuja suelta. */
+  variant?: string;
+  phone?: string;
+  googleMapsLink?: string;
 }
-const { whatsapp, name } = Astro.props;
+const { whatsapp, name, variant, phone, googleMapsLink } = Astro.props;
 const waNumber = whatsapp?.replace('+', '').trim() ?? '';
 const waUrl = `https://wa.me/${waNumber}?text=Hola%2C%20me%20interesa%20informaci%C3%B3n%20sobre%20${encodeURIComponent(name)}`;
+
+/**
+ * Solo los botones cuyos datos EXISTEN: teléfono siempre (las 8 tiendas lo
+ * tienen), WhatsApp en 5 de 8, el mapa donde hay ficha. Prometer tres botones
+ * fijos fue el error que el panel de diseño cazó en los cinco conceptos.
+ */
+const acciones = [
+  phone ? { href: `tel:${phone}`, texto: 'Llamar', clase: '' } : null,
+  waNumber ? { href: waUrl, texto: 'WhatsApp', clase: 'es-whatsapp' } : null,
+  googleMapsLink ? { href: googleMapsLink, texto: 'Cómo llegar', clase: '' } : null,
+].filter((a) => a !== null);
 ---
 
+{/* La barra lleva TAMBIÉN la clase whatsapp-float a propósito: la regla que
+    oculta el contacto flotante mientras el aviso de cookies pide decisión
+    (`:root:has(#uf-cookie-banner:not([hidden])) .whatsapp-float`) está fijada
+    por test y debe aplicarle igual — el aviso no puede quedar tapado por la
+    barra como quedó una vez tapado por la burbuja. */}
+{variant === 'barra-accion-movil' && acciones.length > 0 && (
+  <nav class="barra-contacto whatsapp-float" aria-label="Contacto directo">
+    {acciones.map((a) => (
+      <a
+        href={a.href}
+        class={a.clase}
+        target={a.href.startsWith('tel:') ? undefined : '_blank'}
+        rel={a.href.startsWith('tel:') ? undefined : 'noopener noreferrer'}
+      >
+        {a.texto}
+      </a>
+    ))}
+  </nav>
+)}
 {waNumber && (
 <a
   href={waUrl}

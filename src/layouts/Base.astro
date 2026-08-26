@@ -37,6 +37,8 @@ interface Props {
   /** Valor de `data-plantilla` en `<html>` y CSS de tokens de la plantilla. */
   plantilla?: string;
   plantillaCss?: string;
+  /** Fuentes de la plantilla. Mismo trato que Inter: preload con crossorigin. */
+  plantillaFonts?: string[];
   og?: {
     type?: string;
     image?: string;
@@ -53,6 +55,7 @@ const {
   noindex = false,
   plantilla = '',
   plantillaCss = '',
+  plantillaFonts = [],
   og,
 } = Astro.props;
 
@@ -101,6 +104,9 @@ const robots = !noindex && enSuDominio ? 'index, follow, max-image-preview:large
 
     {/* La tipografía se autoaloja: cero peticiones a terceros antes del consentimiento. */}
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {plantillaFonts.map((f) => (
+      <link rel="preload" href={f} as="font" type="font/woff2" crossorigin />
+    ))}
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/favicon-96.png" />

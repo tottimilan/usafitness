@@ -55,6 +55,9 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       googleMapsLink: s.googleMapsLink,
       hero: fotoHero(s),
       heroText: s.heroText,
+      // Para la variante cartel: contacto en el primer viewport.
+      phone: s.phone,
+      whatsapp: s.whatsapp,
     }),
   },
 

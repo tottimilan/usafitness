@@ -2,10 +2,52 @@
 interface Props {
   phone: string;
   instagram?: string;
+  /** 'cinta-de-marca' (plantilla Energía): cinta de claims sobre el header. */
+  variant?: string;
 }
-const { phone, instagram } = Astro.props;
+const { phone, instagram, variant } = Astro.props;
+
+/** Claims de marca, comunes a las 50 tiendas: nada que un franquiciado tenga
+ *  que mantener. */
+const claims = ['Proteína', 'Creatina', 'Pre-entreno', 'Asesoramiento gratis', 'Las mejores marcas'];
 ---
 
+{variant === 'cinta-de-marca' && (
+  <div class="cinta-marca fx-marquesina" aria-label="Reclamos de la marca">
+    {/* WCAG 2.2.2: todo contenido en movimiento automático necesita un control
+        de pausa. Este botón es EL control global de la página — pausa también
+        la banda de promociones. Sin JavaScript el movimiento sigue, pero
+        prefers-reduced-motion lo apaga a nivel de CSS, que es la garantía que
+        no depende de nada. */}
+    <ul class="fx-marquesina__track">
+      {claims.map((c) => (
+        <li>{c} <span class="cinta-marca__sep" aria-hidden="true">·</span></li>
+      ))}
+    </ul>
+    <ul class="fx-marquesina__track" aria-hidden="true">
+      {claims.map((c) => (
+        <li>{c} <span class="cinta-marca__sep">·</span></li>
+      ))}
+    </ul>
+    <button type="button" class="cinta-marca__pausa" id="uf-pausa-marquesinas" aria-pressed="false" aria-label="Pausar el movimiento de la página">
+      ⏸
+    </button>
+  </div>
+)}
+{variant === 'cinta-de-marca' && (
+  <script is:inline>
+    (function () {
+      var b = document.getElementById('uf-pausa-marquesinas');
+      if (!b) return;
+      b.addEventListener('click', function () {
+        var pausado = document.documentElement.classList.toggle('marquesinas-pausadas');
+        b.setAttribute('aria-pressed', String(pausado));
+        b.textContent = pausado ? '▶' : '⏸';
+        b.setAttribute('aria-label', pausado ? 'Reanudar el movimiento de la página' : 'Pausar el movimiento de la página');
+      });
+    })();
+  </script>
+)}
 <header class="header" role="banner">
   <nav class="container header-inner" aria-label="Navegación principal">
     <a href="#inicio" class="logo-link" aria-label="USA Fitness - Inicio">

@@ -19,9 +19,11 @@ interface Props {
   /** Id de la plantilla activa y su CSS de tokens (ver `data/templates.ts`). */
   plantilla?: string;
   plantillaCss?: string;
+  /** Fuentes propias de la plantilla, para el preload de Base. */
+  plantillaFonts?: string[];
 }
 
-const { store, plantilla = '', plantillaCss = '' } = Astro.props;
+const { store, plantilla = '', plantillaCss = '', plantillaFonts = [] } = Astro.props;
 
 const pageTitle = `${store.name} | Nutrición Deportiva en ${store.location}`;
 const canonicalUrl = `https://${store.domain}/`;
@@ -88,6 +90,7 @@ if (store.geo) {
   store={store}
   plantilla={plantilla}
   plantillaCss={plantillaCss}
+  plantillaFonts={plantillaFonts}
   og={{
     type: 'business.business',
     image: ogImageUrl,

@@ -804,3 +804,82 @@ describe('Las plantillas se pintan como dicen que se pintan', () => {
     );
   });
 });
+
+describe('La plantilla Energía es OTRA web, no otra piel', () => {
+  // El listón lo puso el dueño del proyecto rechazando `angular`: «cambia el
+  // hero pero es prácticamente la misma web». Estos tests fijan lo que separa
+  // a Energía de un cambio de pintura: composición propia (cartel, marquesinas,
+  // pizarra), tipografía propia (Barlow Condensed autoalojada) y periferia
+  // propia (cinta, footer diagonal, barra de contacto móvil).
+
+  test('el preview la sirve entera: cartel, banda, pizarra, cinta y fuente', async () => {
+    const html = (await get('/arcangel?plantilla=energia')).text();
+
+    assert.match(html, /data-plantilla="energia"/);
+    for (const marca of [
+      'hero--cartel', // el primer viewport es un cartel, no una foto velada
+      'cartel-ciudad', // la ciudad gigante
+      'promos-marquesina', // la banda roja
+      'pizarra-lista', // el surtido como pizarra
+      'cinta-marca', // la periferia: cinta de claims…
+      'barra-contacto', // …y barra de contacto móvil
+      'barlow-condensed-700-latin.woff2', // tipografía propia, autoalojada
+    ]) {
+      assert.ok(html.includes(marca), `falta "${marca}": la plantilla está a medias`);
+    }
+  });
+
+  test('los CTAs degradan: sin WhatsApp no se inventa un botón roto', async () => {
+    // La promesa «dos botones que siempre existen» era mentira en 3 de 8
+    // tiendas y el panel de diseño la cazó en los CINCO conceptos a la vez.
+    // Por ENLACE, no por substring: el clasificador de eventos de
+    // ConversionTracking menciona «wa.me» dentro de su script y es legítimo —
+    // clasifica enlaces, no los crea. Lo prohibido es un href.
+    const sinWa = (await get('/arcangel?plantilla=energia')).text();
+    assert.ok(!/href="https:\/\/wa\.me/.test(sinWa), 'arcangel no tiene WhatsApp: ningún ENLACE puede apuntar ahí');
+    assert.match(sinWa, /Cómo llegar/, 'el hueco lo ocupa el mapa, no un botón muerto');
+
+    const conWa = (await get('/vigo?plantilla=energia')).text();
+    assert.ok(/href="https:\/\/wa\.me\/34/.test(conWa), 'vigo sí tiene móvil: el botón existe');
+  });
+
+  test('el movimiento tiene control de pausa y respeta reduced-motion', async () => {
+    // WCAG 2.2.2: contenido en movimiento automático → control para pararlo.
+    const html = (await get('/arcangel?plantilla=energia')).text();
+    assert.match(html, /id="uf-pausa-marquesinas"[^>]*aria-pressed="false"/);
+
+    // Y la garantía que no depende de JavaScript: la animación de las
+    // marquesinas SOLO se declara bajo `prefers-reduced-motion: no-preference`.
+    const { CSS_ENERGIA } = await import('../src/data/plantilla-energia-css.ts');
+    const idx = CSS_ENERGIA.indexOf('animation: e-desfile');
+    const guardia = CSS_ENERGIA.lastIndexOf('prefers-reduced-motion: no-preference', idx);
+    assert.ok(guardia > -1 && idx - guardia < 400, 'la marquesina se anima fuera de la guardia de reduced-motion');
+  });
+
+  test('la hoja no se fuga a las demás plantillas', async () => {
+    // Cada selector va prefijado con html[data-plantilla="energia"]. Un `body`
+    // o un `:root` a pelo aquí cambiaría las webs VIVAS de los clientes que
+    // usan la clásica — el fallo más caro posible.
+    const { CSS_ENERGIA } = await import('../src/data/plantilla-energia-css.ts');
+    assert.ok(!/^\s*:root\b/m.test(CSS_ENERGIA), ':root sin prefijo en la hoja de energía');
+    assert.ok(!/^\s*body\s*\{/m.test(CSS_ENERGIA), 'body sin prefijo en la hoja de energía');
+
+    // Y las páginas canónicas no la reciben: la clásica sigue intacta.
+    const clasica = (await get('/', stores.find((s) => s.slug === 'arcangel').domain)).text();
+    assert.ok(!clasica.includes('hero--cartel'), 'la clásica no puede llevar el cartel');
+    assert.ok(!clasica.includes('cinta-marca'), 'ni la cinta');
+    assert.ok(!clasica.includes('barlow-condensed'), 'ni pagar la fuente que no usa');
+  });
+
+  test('las fuentes que declara existen de verdad en public/', async () => {
+    const { TEMPLATES } = await import('../src/data/templates.ts');
+    const { existsSync } = await import('node:fs');
+    for (const f of TEMPLATES.energia.fonts ?? []) {
+      assert.ok(
+        existsSync(new URL('../public' + f, import.meta.url)),
+        `${f} declarada en la plantilla pero no está en public/: la fuente caería a Arial sin que lo note nadie`
+      );
+    }
+    assert.ok((TEMPLATES.energia.fonts ?? []).length >= 2, 'los dos pesos de Barlow');
+  });
+});

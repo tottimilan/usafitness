@@ -6,16 +6,71 @@ interface Props {
   title: string;
   location: string;
   googleMapsLink?: string;
+  /** El cartel lleva los CTAs de contacto. Teléfono siempre; WhatsApp si existe. */
+  phone?: string;
+  whatsapp?: string;
   /** Foto de cabecera con sus dimensiones reales, de `fotoHero(tienda)`. */
   hero: { src: string; ancho: number; alto: number };
   heroText?: string;
   /** Variante que pide la plantilla. 'compacto' = más bajo y alineado a la izquierda. */
   variant?: string;
 }
-const { name, title, location, googleMapsLink, hero, heroText, variant } = Astro.props;
+const { name, title, location, googleMapsLink, hero, heroText, variant, phone = '', whatsapp } = Astro.props;
 const introText = heroText || `En ${name} encontrarás asesoramiento personalizado y la mejor nutrición deportiva al mejor precio en ${location}. Nuestros productos están seleccionados para ayudarte a alcanzar tus objetivos de fitness y bienestar.`;
 ---
 
+{/* VARIANTE «cartel» (plantilla Energía): el primer viewport es un CARTEL
+    tipográfico sobre azul de marca, no una foto velada. La ciudad gigante en
+    condensada, el nombre en trazo hueco, y la foto en una ventana debajo con
+    duotono suave. Diseñada para NO depender de la calidad de la foto — que es
+    variable, la manda cada franquiciado.
+
+    Los CTAs degradan: teléfono SIEMPRE (las 8 tiendas lo tienen), WhatsApp
+    solo si existe — 3 de 8 no lo tienen, y prometer «dos botones siempre» fue
+    la mentira que el panel de diseño cazó en los cinco conceptos a la vez. */}
+{variant === 'cartel' ? (
+  <section class="hero hero--cartel" id="inicio">
+    <div class="cartel">
+      <p class="cartel-eyebrow">Nutrición deportiva · Suplementación</p>
+      <h1>
+        <span class="cartel-ciudad">{location}</span>
+        <span class="cartel-nombre">{name}</span>
+      </h1>
+      <p class="cartel-texto">{introText}</p>
+      <div class="cartel-ctas">
+        <a href={`tel:${phone}`} class="cartel-cta cartel-cta--llena">Llámanos</a>
+        {whatsapp && (
+          <a
+            href={`https://wa.me/${whatsapp.replace('+', '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cartel-cta cartel-cta--borde"
+          >
+            WhatsApp
+          </a>
+        )}
+        {!whatsapp && googleMapsLink && (
+          <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="cartel-cta cartel-cta--borde">
+            Cómo llegar
+          </a>
+        )}
+      </div>
+      <div class="cartel-foto">
+        <img
+          src={hero.src}
+          srcset={srcsetDe(hero)}
+          sizes="100vw"
+          alt=""
+          aria-hidden="true"
+          fetchpriority="high"
+          decoding="async"
+          width={hero.ancho}
+          height={hero.alto}
+        />
+      </div>
+    </div>
+  </section>
+) : (
 <section class={`hero${variant ? ` hero--${variant}` : ''}`} id="inicio">
   <img
     class="hero-bg"
@@ -44,6 +99,7 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
     )}
   </div>
 </section>
+)}
 
 <style>
   .hero {
