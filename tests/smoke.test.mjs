@@ -635,7 +635,12 @@ describe('La galería no recorta ninguna foto', () => {
       const html = (await get('/', s.domain)).text();
       const celdas = [...html.matchAll(/<figure class="[^"]*gallery-item[^"]*"[^>]*style="[^"]*--proporcion:\s*([\d]+)\s*\/\s*([\d]+)[^"]*"[\s\S]*?<img[^>]*width="(\d+)"[^>]*height="(\d+)"/g)];
 
-      assert.equal(celdas.length, s.galleryImages.length, 'una celda por foto');
+      // Menos las que son el mismo fichero que el hero, que desde el
+      // 2026-08-26 se filtran por decisión del dueño: el hero ya las enseña.
+      const { default: dim } = await import('../src/data/dimensiones.json', { with: { type: 'json' } });
+      const huellaHero = dim[s.heroImage]?.huella;
+      const esperadas = s.galleryImages.filter((g) => dim[g]?.huella !== huellaHero).length;
+      assert.equal(celdas.length, esperadas, 'una celda por foto no duplicada');
 
       for (const [, pw, ph, w, h] of celdas) {
         assert.equal(pw, w, 'el ancho de la proporción tiene que ser el de la imagen');
@@ -714,14 +719,88 @@ describe('Cada pantalla se lleva el tamaño de foto que necesita', () => {
     }
   });
 
-  test('una foto repetida se sirve desde UNA sola URL', async () => {
-    // `hero.webp` y `tienda-1.webp` son el mismo fichero byte a byte en 7 de las
-    // 8 tiendas. Con dos URLs, el navegador se lo descarga dos veces: entre 35 y
-    // 134 KB tirados por visita. Esto no decide si la foto debe repetirse —eso
-    // es editorial— solo deja de cobrarla dos veces.
-    const s = stores.find((x) => x.slug === 'arcangel');
+  test('la foto del hero NO vuelve a salir en la galería', async () => {
+    // Historia en tres actos. (1) `hero.webp` y `tienda-1.webp` son el mismo
+    // fichero byte a byte en 7 de las 8 tiendas: el visitante veía la misma
+    // foto dos veces y la descargaba dos veces. (2) Primero se arregló solo el
+    // coste: misma URL, una descarga. (3) El 2026-08-26 el dueño decidió la
+    // parte editorial: el hero ya la enseña (semitransparente bajo el overlay),
+    // así que en la galería sobra. Se filtra por HUELLA, no por ruta.
+    const { default: dim } = await import('../src/data/dimensiones.json', { with: { type: 'json' } });
+
+    for (const s of stores.filter((x) => x.galleryImages.length)) {
+      const html = (await get('/', s.domain)).text();
+      const srcs = [...html.matchAll(/<figure class="[^"]*gallery-item[\s\S]*?<img[^>]*src="([^"]+)"/g)].map((m) => m[1]);
+
+      const huellaHero = dim[s.heroImage]?.huella;
+      for (const src of srcs) {
+        assert.notEqual(src, s.heroImage, `${s.slug}: la galería sirve la URL del hero`);
+        assert.notEqual(dim[src]?.huella, huellaHero, `${s.slug}: ${src} es el mismo fichero que el hero con otro nombre`);
+      }
+    }
+  });
+
+  test('destacar una foto VERTICAL a todo el ancho está prohibido', async () => {
+    // Vigo tiene `galleryFeatured` y, tras quitar el duplicado del hero, su
+    // primera foto es una 9:16. Destacarla significaría pintarla a 900px de
+    // ancho → 1600px de alto: una foto más alta que la pantalla. El flag se
+    // respeta solo cuando la primera es horizontal.
+    const s = stores.find((x) => x.slug === 'vigo');
     const html = (await get('/', s.domain)).text();
-    const primera = html.match(/<figure class="[^"]*gallery-item[\s\S]*?<img[^>]*src="([^"]+)"/)?.[1];
-    assert.equal(primera, s.heroImage, 'la primera de galería apunta a la URL del hero, que es el mismo fichero');
+    assert.ok(!html.includes('gallery-item--destacada'), 'vigo no puede destacar una 9:16');
+  });
+});
+
+describe('Las plantillas se pintan como dicen que se pintan', () => {
+  // NINGUNA tienda usa plantilla todavía, así que estas rutas de código no las
+  // recorre nada en el uso normal. Eso ya escondió un fallo: al reescribir
+  // `Gallery.astro` se perdió el soporte de `variant`, y la plantilla `angular`
+  // dejó de destacar su primera foto sin que saltara un solo test.
+  //
+  // Se prueba con una tienda REAL forzando la plantilla por la ruta interna, que
+  // es la que existe. No hace falta tocar `stores.json`.
+
+  test('la plantilla `angular` reordena las secciones y destaca la primera foto', async () => {
+    const { TEMPLATES, resolveSections, normalizeRef } = await import('../src/data/templates.ts');
+    const ang = TEMPLATES.angular;
+    assert.ok(ang, 'la plantilla angular sigue existiendo');
+
+    const orden = resolveSections(ang).map(normalizeRef);
+    const pos = (id) => orden.findIndex((s) => s.id === id);
+
+    // Lo que la plantilla promete: la prueba social por delante del surtido.
+    assert.ok(pos('reviews') < pos('products'), 'en angular, reviews va antes que products');
+    assert.ok(pos('reviews') > -1 && pos('products') > -1);
+
+    // Y la galería con su variante.
+    const gal = orden.find((s) => s.id === 'gallery');
+    assert.equal(gal?.variant, 'destacada', 'angular pide la galería destacada');
+
+    const hero = orden.find((s) => s.id === 'hero');
+    assert.equal(hero?.variant, 'compacto');
+  });
+
+  test('la variante `destacada` llega hasta el HTML, no se pierde por el camino', async () => {
+    // Este es el que habría cazado la regresión. `Gallery.astro` recibía
+    // `variant` y lo ignoraba: el marcado salía sin `gallery-item--destacada`.
+    const { galeriaDe } = await import('../src/data/galeria-de-tiendas.ts');
+    const s = stores.find((x) => x.slug === 'arcangel');
+    const plan = galeriaDe(s);
+
+    assert.equal(plan.destacarPrimera, false, 'arcangel no lleva el flag por tienda…');
+
+    // …así que si la clase aparece, solo puede venir de la variante.
+    const componente = readFileSync(new URL('../src/components/Gallery.astro', import.meta.url), 'utf8');
+    assert.match(componente, /variant\?: string/, 'Gallery tiene que aceptar `variant`');
+    assert.match(
+      componente,
+      /variant === 'destacada'/,
+      'y usarla: recibirla y no mirarla es peor que no recibirla'
+    );
+    assert.match(
+      componente,
+      /'gallery-item--destacada': destacar && i === 0/,
+      'la clase sale de la decisión combinada, no solo del flag por tienda'
+    );
   });
 });

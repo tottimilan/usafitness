@@ -28,25 +28,16 @@ const POR_DEFECTO = { ancho: 1400, alto: 1050 };
 export function fotosDe(tienda: Tienda): Foto[] {
   const hero = MAPA[tienda.heroImage];
 
-  return tienda.galleryImages.map((src) => {
-    const m = MAPA[src] ?? POR_DEFECTO;
-
-    // Si esta foto de galería es EL MISMO FICHERO que el hero —pasa en 7 de las
-    // 8 tiendas: `hero.webp` y `tienda-1.webp` son idénticos byte a byte— se
-    // apunta a la URL del hero.
-    //
-    // La página se ve exactamente igual: es la misma imagen. Lo que cambia es
-    // que el navegador deja de descargarla DOS VECES por tener dos nombres.
-    // Medido: entre 35 KB (lagoh) y 134 KB (arcangel) por visita, tirados.
-    //
-    // Esto NO decide si la foto debe repetirse o no —eso es una decisión
-    // editorial y está anotada aparte en `repitenElHero`—; solo deja de
-    // cobrarla dos veces mientras se decide.
-    if (hero && m !== POR_DEFECTO && m.huella === hero.huella) {
-      return { src: tienda.heroImage, ...hero };
-    }
-    return { src, ...m };
-  });
+  return tienda.galleryImages
+    .map((src) => ({ src, ...(MAPA[src] ?? POR_DEFECTO) }))
+    // Fuera las que son EL MISMO FICHERO que el hero — pasa en 7 de las 8
+    // tiendas: `hero.webp` y `tienda-1.webp` idénticos byte a byte. La historia
+    // en tres actos: primero el visitante veía la foto dos veces Y la
+    // descargaba dos veces; después se arregló solo el coste (misma URL, una
+    // descarga); el 2026-08-26 el dueño decidió también la parte editorial —
+    // el hero ya la enseña, semitransparente bajo el overlay, así que en la
+    // galería sobra. Por HUELLA y no por ruta: las rutas sí difieren.
+    .filter((f) => !(hero && 'huella' in f && (f as { huella?: string }).huella === hero.huella));
 }
 
 export function galeriaDe(tienda: Tienda): PlanDeGaleria {
