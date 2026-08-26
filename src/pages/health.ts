@@ -11,7 +11,7 @@ export const prerender = false;
  *
  *  1. Puerta de despliegue. Railway lo sondea con `healthcheckPath` y no
  *     manda tráfico a un build que no responda 200. Hoy un build que arranca
- *     y no sabe servir entra en producción en los 7 dominios a la vez.
+ *     y no sabe servir entra en producción en todos los dominios a la vez.
  *     OJO: Railway deja de mirarlo en cuanto el deploy está vivo. Es puerta,
  *     no vigilancia. Lo que vigila es el monitor externo.
  *

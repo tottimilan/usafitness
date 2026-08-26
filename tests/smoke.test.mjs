@@ -1,7 +1,7 @@
 /**
  * TEST DE HUMO DE LOS 7 DOMINIOS
  *
- * Este proyecto sirve 7 empresas distintas desde UN SOLO servicio y UN SOLO
+ * Este proyecto sirve N empresas distintas desde UN SOLO servicio y UN SOLO
  * punto de entrada. Un fallo en `middleware.ts` o en `Landing.astro` no rompe
  * una web: rompe siete, cada una de un cliente que paga.
  *
@@ -511,7 +511,7 @@ describe('Los estáticos no pasan por el enrutado de tiendas', () => {
 
 // La integridad de `stores.json` (unicidad, horarios, reseñas cruzadas) vive
 // ahora en `tests/datos.test.mjs`, contra el esquema real. Este fichero se
-// queda solo con lo que los 7 dominios RESPONDEN por HTTP.
+// queda solo con lo que los dominios RESPONDEN por HTTP.
 
 describe('El endpoint de salud sirve para diagnosticar, no solo para hacer ping', () => {
   test('responde por dominio y dice qué tienda cree servir', async () => {

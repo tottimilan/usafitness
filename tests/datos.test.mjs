@@ -1,7 +1,7 @@
 /**
  * LA GUARDA DE stores.json
  *
- * `tests/smoke.test.mjs` comprueba lo que los 7 dominios RESPONDEN.
+ * `tests/smoke.test.mjs` comprueba lo que los dominios RESPONDEN.
  * Este fichero comprueba lo que el esquema RECHAZA, que no es lo mismo.
  *
  * Un esquema al que nunca se le ha visto tumbar un build no demuestra nada:
@@ -40,8 +40,18 @@ function rechaza(tiendas, pista) {
 }
 
 describe('Los datos reales pasan', () => {
-  test('las 7 tiendas validan', () => {
-    assert.equal(stores.length, 7);
+  test('todas las tiendas validan, y ninguna ha desaparecido', () => {
+    // Este test decía `assert.equal(stores.length, 7)` y se rompió al añadir la
+    // octava. Era una cifra escrita a mano en un proyecto que va camino de 58
+    // tiendas: se habría roto 50 veces más, y cada rotura enseña a cambiar el
+    // número sin mirar, que es como un test deja de servir.
+    //
+    // Lo que sí es invariante: el número puede SUBIR, nunca bajar. Una tienda
+    // que desaparece de stores.json no la detecta nada más — el esquema valida
+    // lo que hay, no lo que falta. Si el mínimo sube, se sube aquí a propósito.
+    const MINIMO = 8;
+    assert.ok(stores.length >= MINIMO,
+      `hay ${stores.length} tiendas y el mínimo conocido es ${MINIMO}: ¿se ha borrado alguna?`);
     assert.ok(esquemaTiendas.safeParse(stores).success);
   });
 
@@ -139,7 +149,7 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
 
   test('un ga4Id con prefijo GT- sí vale', () => {
     // Es lo que entrega la interfaz de Google hoy. Rechazarlo haría fallar el
-    // build de los 7 dominios el día que se pegue el ID recién creado.
+    // build de todos los dominios el día que se pegue el ID recién creado.
     const t = valida();
     t.ga4Id = 'GT-ABC1234';
     assert.ok(esquemaTiendas.safeParse([t]).success);
@@ -297,7 +307,7 @@ describe('Las decisiones del consentimiento (I-2 de la revisión del PR #1)', ()
     }
     // Y lo que viaja tiene que ser JS que un navegador entienda: el fichero es
     // TypeScript, así que si un tipo sobreviviera al toString() se rompería el
-    // script inline en los 7 dominios a la vez, sin que el build se queje.
+    // script inline en todos los dominios a la vez, sin que el build se queje.
     assert.doesNotThrow(() => new Function(fuente), 'la fuente inyectada parsea como JS');
   });
 });
