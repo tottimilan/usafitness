@@ -23,6 +23,7 @@ import Hero from '@/components/Hero.astro';
 import Promotions from '@/components/Promotions.astro';
 import Location from '@/components/Location.astro';
 import Gallery from '@/components/Gallery.astro';
+import { galeriaDe } from '@/data/galeria-de-tiendas';
 import Reviews from '@/components/Reviews.astro';
 import Products from '@/components/Products.astro';
 import Brands from '@/components/Brands.astro';
@@ -79,11 +80,14 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
     component: Gallery,
     // Sin fotos no hay galería: antes salía la sección con el título y nada debajo.
     visible: (s) => s.galleryImages.length > 0,
+    // El layout lo calcula `galeriaDe` a partir de las dimensiones REALES de
+    // cada foto (medidas en build, `src/data/dimensiones.json`). Antes se le
+    // pasaba la lista de rutas y el componente imponía 4:3 a todas, que es lo
+    // que recortaba el 44% del alto de las verticales de Lagoh.
     props: (s) => ({
-      images: s.galleryImages,
+      plan: galeriaDe(s),
       name: s.name,
       location: s.location,
-      featured: s.galleryFeatured ?? false,
     }),
   },
 

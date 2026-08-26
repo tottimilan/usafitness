@@ -27,6 +27,7 @@ import {
   fuenteInline,
 } from '../src/data/consentimiento.ts';
 import { parseHorario } from '../src/data/horario.ts';
+import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -469,5 +470,94 @@ describe('No se enlaza la cuenta de marca desde ninguna tienda', () => {
     for (const s of stores) {
       assert.ok(s.social?.instagram, `${s.slug} se ha quedado sin Instagram`);
     }
+  });
+});
+
+describe('La galería se coloca según la foto, no al revés', () => {
+  const h = (n = 1) => ({ src: `h${n}.webp`, ancho: 1400, alto: 1050 }); // 4:3
+  const v = (n = 1) => ({ src: `v${n}.webp`, ancho: 382, alto: 510 }); // 3:4, las de Lagoh
+  const movil = (n = 1) => ({ src: `m${n}.webp`, ancho: 576, alto: 1024 }); // 9:16, las de Vigo
+  const lote = (f, n) => Array.from({ length: n }, (_, i) => f(i + 1));
+
+  test('orientación: el margen no confunde una 4:3 con una cuadrada', () => {
+    assert.equal(orientacionDe(h()), 'horizontal');
+    assert.equal(orientacionDe(v()), 'vertical');
+    assert.equal(orientacionDe({ src: 'a', ancho: 500, alto: 500 }), 'cuadrada');
+    // 2%: es una cuadrada con el redondeo de la conversión a WebP.
+    assert.equal(orientacionDe({ src: 'a', ancho: 510, alto: 500 }), 'cuadrada');
+    // 10%: ya es una decisión, no un redondeo.
+    assert.equal(orientacionDe({ src: 'a', ancho: 550, alto: 500 }), 'horizontal');
+  });
+
+  test('NINGUNA foto se recorta: cada una lleva su propia proporción', () => {
+    // Es la razón de ser del módulo. Antes, `aspect-ratio: 4/3` fijo más
+    // `object-fit: cover` se comía el 44% del alto de las verticales de Lagoh.
+    const p = planDeGaleria([...lote(h, 2), ...lote(v, 2), movil()]);
+    assert.deepEqual(
+      p.fotos.map((f) => f.proporcion),
+      ['1400 / 1050', '1400 / 1050', '382 / 510', '382 / 510', '576 / 1024'],
+      'la proporción de cada celda tiene que ser la de SU foto'
+    );
+  });
+
+  test('basta UNA vertical para pasar a 3 columnas', () => {
+    // Y no que sean mayoría. A 2 columnas la celda mide 442px, así que una 3:4
+    // sale de 589px de alto y una 9:16 de 786: se comen la pantalla.
+    //
+    // Es el caso real de 4 de las 8 tiendas, que mezclan orientaciones —
+    // villanueva y marineda exactamente a la mitad, 3 y 3.
+    assert.equal(columnasPara(lote(h, 6)), 2, 'todas horizontales: 2 columnas');
+    assert.equal(columnasPara([...lote(h, 5), v()]), 3, 'una sola vertical ya obliga a 3');
+    assert.equal(columnasPara(lote(v, 3)), 3);
+    assert.equal(columnasPara([h(), ...lote(movil, 3)]), 3, 'las 9:16 de vigo, con más razón');
+  });
+
+  test('con pocas fotos no se inventan columnas vacías', () => {
+    assert.equal(columnasPara([v()]), 1);
+    assert.equal(columnasPara([v(1), v(2)]), 2);
+    assert.equal(columnasPara([]), 1, 'sin fotos no se divide por cero');
+  });
+
+  test('a 3 columnas, las fotos de Lagoh dejan de ampliarse', () => {
+    // El número que motivó todo esto: 382px de foto en una celda de 442px.
+    const p = planDeGaleria(lote(v, 3));
+    const anchoColumna = (p.anchoMaximo - (p.columnas - 1) * 16) / p.columnas;
+    assert.ok(anchoColumna <= 382, `la columna mide ${Math.round(anchoColumna)}px y la foto 382px`);
+    assert.deepEqual(p.avisos, [], 'y por tanto no debe avisar de nada');
+  });
+
+  test('el flag galleryFeatured se respeta: es una decisión editorial', () => {
+    assert.equal(planDeGaleria(lote(h, 4)).destacarPrimera, false);
+    assert.equal(planDeGaleria(lote(h, 4), { destacadaForzada: true }).destacarPrimera, true);
+  });
+
+  test('con una sola foto, destacarla no significa nada', () => {
+    // Cruzar «todas las columnas» cuando solo hay una es una operación vacía, y
+    // dejarla activa complica el CSS sin cambiar un píxel.
+    assert.equal(planDeGaleria([h()], { destacadaForzada: true }).destacarPrimera, false);
+  });
+
+  test('una foto demasiado pequeña para su columna AVISA', () => {
+    // Es lo único que separa "se ve regular" de "hay que pedir fotos mejores",
+    // y esa frase no se le ocurre a nadie mirando la pantalla.
+    const p = planDeGaleria([
+      { src: 'mini.webp', ancho: 120, alto: 160 },
+      { src: 'mini2.webp', ancho: 120, alto: 160 },
+      { src: 'mini3.webp', ancho: 120, alto: 160 },
+    ]);
+    assert.equal(p.avisos.length, 3);
+    assert.match(p.avisos[0], /120px/);
+    assert.match(p.avisos[0], /ampliada/);
+  });
+
+  test('a la destacada se le exige el ancho entero, no el de una columna', () => {
+    const p = planDeGaleria([{ src: 'porta.webp', ancho: 500, alto: 375 }, ...lote(h, 3)], {
+      destacadaForzada: true,
+    });
+    assert.ok(
+      p.avisos.some((a) => a.includes('porta.webp')),
+      'una foto de 500px cruzando una fila de 900px tiene que avisar'
+    );
+    assert.equal(p.avisos.length, 1, 'y las demás, que sí llenan su columna, no');
   });
 });

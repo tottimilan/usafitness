@@ -1,34 +1,63 @@
 ---
+import type { PlanDeGaleria } from '@/data/galeria';
+
 interface Props {
-  images: string[];
+  /** Plan ya calculado por `galeriaDe(tienda)`. */
+  plan: PlanDeGaleria;
   name: string;
   location?: string;
-  /** Flag histórico por tienda (`galleryFeatured` en stores.json). */
-  featured?: boolean;
-  /** Variante que pide la plantilla. 'destacada' equivale al flag anterior. */
-  variant?: string;
 }
-const { images, name, location = '', featured = false, variant } = Astro.props;
-// La variante de la plantilla y el flag por tienda son la misma decisión
-// expresada de dos formas; cualquiera de las dos activa el layout destacado.
-const esDestacada = variant === 'destacada' || featured;
+const { plan, name, location = '' } = Astro.props;
 const altSuffix = location ? ` en ${location}` : '';
 ---
 
+{/*
+  LA GALERÍA NO RECORTA NINGUNA FOTO.
+
+  Antes: grid de 2 columnas con `aspect-ratio: 4/3` y `object-fit: cover`. A las
+  tres fotos verticales de Lagoh (382×510) les comía el 44% del alto y encima
+  las ampliaba de 382 a 442 px. Y como eran 3 en un grid de 2, la tercera
+  quedaba huérfana.
+
+  El primer arreglo fue elegir UNA forma de celda por tienda según la
+  orientación mayoritaria. Al medir las 52 fotos reales resultó insuficiente:
+  4 de las 8 tiendas MEZCLAN orientaciones, y villanueva y marineda lo hacen
+  exactamente a la mitad (3 y 3). Con una sola forma de celda se recorta la
+  mitad de las fotos igual; solo cambia cuáles.
+
+  Por eso ahora cada foto lleva SU proporción y el flujo es multicolumna:
+
+    · nada se recorta, sea cual sea la mezcla
+    · los números impares dejan de dejar huecos por construcción — en un flujo
+      multicolumna no hay filas fijas donde pueda faltar algo
+    · `width`/`height` reales por foto, así que el navegador reserva el hueco
+      exacto y no hay saltos de maquetación (antes iban 400×300 a pelo en TODAS)
+
+  Lo único que decide `galeria.ts` es cuántas columnas, y basta una foto
+  vertical para pasar a 3: a 2 columnas la celda mide 442 px, así que una 9:16
+  —las de Vigo— saldría de 786 px de alto y se comería la pantalla.
+*/}
 <section class="gallery section">
   <div class="container">
     <h2 class="section-title">Conoce nuestra tienda y equipo</h2>
-    <div class={`gallery-grid${esDestacada ? ' gallery-grid--featured' : ''}`}>
-      {images.map((src, i) => (
-        <div class="gallery-item">
+    <div
+      class="gallery-grid"
+      style={`--columnas:${plan.columnas};--ancho-maximo:${plan.anchoMaximo}px`}
+    >
+      {plan.fotos.map((foto, i) => (
+        <figure
+          class:list={['gallery-item', { 'gallery-item--destacada': plan.destacarPrimera && i === 0 }]}
+          style={`--proporcion:${foto.proporcion}`}
+        >
           <img
-            src={src}
+            src={foto.src}
             alt={`${name} - tienda de nutrición deportiva y suplementos${altSuffix} (foto ${i + 1})`}
             loading="lazy"
-            width="400"
-            height="300"
+            decoding="async"
+            width={foto.ancho}
+            height={foto.alto}
           />
-        </div>
+        </figure>
       ))}
     </div>
   </div>
@@ -39,34 +68,42 @@ const altSuffix = location ? ` en ${location}` : '';
     background: var(--color-bg-alt);
   }
 
+  /* Multicolumna y no grid: es lo que deja que cada foto conserve su altura sin
+     dejar huecos ni exigir que se sepa de antemano cuánto medirá cada celda a
+     cada ancho de pantalla. Un grid con filas fijas obliga a recortar. */
   .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    max-width: 900px;
+    columns: var(--columnas, 2);
+    column-gap: 1rem;
+    max-width: var(--ancho-maximo, 900px);
     margin: 0 auto;
   }
 
-  .gallery-grid--featured {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .gallery-grid--featured .gallery-item:first-child {
-    grid-column: 1 / -1;
-    aspect-ratio: 16 / 9;
-  }
-
   .gallery-item {
+    /* Sin esto, una foto se parte por la mitad entre dos columnas. */
+    break-inside: avoid;
+    margin: 0 0 1rem;
     border-radius: var(--radius);
     overflow: hidden;
-    aspect-ratio: 4 / 3;
     box-shadow: var(--shadow-media);
+    /* La proporción real de ESTA foto. El navegador reserva el hueco antes de
+       descargarla, así que la página no da el salto al cargar. */
+    aspect-ratio: var(--proporcion, 4 / 3);
+  }
+
+  /* El plano general de la tienda, cuando la tienda lo marca. */
+  .gallery-item--destacada {
+    column-span: all;
+    margin-bottom: 1rem;
   }
 
   .gallery-item img {
     width: 100%;
     height: 100%;
+    /* `cover` sigue aquí como red de seguridad por si `dimensiones.json` se
+       quedara rancio: con la proporción correcta no recorta nada, porque la
+       caja YA tiene la forma de la foto. */
     object-fit: cover;
+    display: block;
     transition: transform 0.3s ease;
   }
 
@@ -74,10 +111,21 @@ const altSuffix = location ? ` en ${location}` : '';
     transform: scale(1.05);
   }
 
-  @media (max-width: 480px) {
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-item img {
+      transition: none;
+    }
+    .gallery-item:hover img {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 640px) {
     .gallery-grid {
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
+      columns: 1;
+    }
+    .gallery-item--destacada {
+      column-span: none;
     }
   }
 </style>

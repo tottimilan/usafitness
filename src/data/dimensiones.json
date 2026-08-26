@@ -1,0 +1,322 @@
+{
+  "/brands/amix.png": {
+    "ancho": 300,
+    "alto": 140,
+    "huella": "15444c49034b"
+  },
+  "/brands/applied.png": {
+    "ancho": 300,
+    "alto": 140,
+    "huella": "3cd248add9e7"
+  },
+  "/brands/cellucor.jpg": {
+    "alto": 140,
+    "ancho": 300,
+    "huella": "8e4924893dfe"
+  },
+  "/brands/muscletech.png": {
+    "ancho": 300,
+    "alto": 140,
+    "huella": "9f2edebfe2b1"
+  },
+  "/brands/nutrex.png": {
+    "ancho": 300,
+    "alto": 140,
+    "huella": "7e0a3a8d9a69"
+  },
+  "/brands/optimum.png": {
+    "ancho": 300,
+    "alto": 140,
+    "huella": "a5c4cd83ff5f"
+  },
+  "/brands/quamtrax.png": {
+    "ancho": 300,
+    "alto": 140,
+    "huella": "957670b86dee"
+  },
+  "/brands/zoomad.png": {
+    "ancho": 300,
+    "alto": 140,
+    "huella": "07b1add8b55d"
+  },
+  "/favicon-96.png": {
+    "ancho": 96,
+    "alto": 96,
+    "huella": "0b93ebb0c392"
+  },
+  "/favicon.png": {
+    "ancho": 32,
+    "alto": 32,
+    "huella": "358ed04c8b57"
+  },
+  "/hero-bg.jpg": {
+    "alto": 1050,
+    "ancho": 1400,
+    "huella": "f31cacfd4312"
+  },
+  "/hero-bg.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "649af7e69b03"
+  },
+  "/photos/alcobendas/hero.webp": {
+    "ancho": 1024,
+    "alto": 576,
+    "huella": "92701e215a13"
+  },
+  "/photos/alcobendas/tienda-1.jpg": {
+    "alto": 576,
+    "ancho": 1024,
+    "huella": "f8f0fba9a5b4"
+  },
+  "/photos/alcobendas/tienda-2.jpg": {
+    "alto": 576,
+    "ancho": 1024,
+    "huella": "173bbbac76d0"
+  },
+  "/photos/alcobendas/tienda-3.jpg": {
+    "alto": 576,
+    "ancho": 1024,
+    "huella": "53917b34a771"
+  },
+  "/photos/alcobendas/tienda-4.jpg": {
+    "alto": 576,
+    "ancho": 1024,
+    "huella": "b9b79f9fb488"
+  },
+  "/photos/arcangel/hero.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "97ac90ccea69"
+  },
+  "/photos/arcangel/tienda-1.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "97ac90ccea69"
+  },
+  "/photos/arcangel/tienda-2.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "54c7c63c0891"
+  },
+  "/photos/arcangel/tienda-3.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "a407a985580e"
+  },
+  "/photos/arcangel/tienda-4.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "6da6c7bf141d"
+  },
+  "/photos/arcangel/tienda-5.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "43c48a1c058f"
+  },
+  "/photos/grancasa/hero.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "c64b032abe3b"
+  },
+  "/photos/grancasa/tienda-1.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "c64b032abe3b"
+  },
+  "/photos/grancasa/tienda-2.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "ae5df0771b54"
+  },
+  "/photos/grancasa/tienda-3.webp": {
+    "ancho": 1050,
+    "alto": 1400,
+    "huella": "9fde3322ba17"
+  },
+  "/photos/grancasa/tienda-4.webp": {
+    "ancho": 1050,
+    "alto": 1400,
+    "huella": "03677216acae"
+  },
+  "/photos/grancasa/tienda-5.webp": {
+    "ancho": 1050,
+    "alto": 1400,
+    "huella": "d856bd0d7081"
+  },
+  "/photos/grancasa/tienda-6.webp": {
+    "ancho": 1050,
+    "alto": 1400,
+    "huella": "410aebc6fb61"
+  },
+  "/photos/lagoh/hero.webp": {
+    "ancho": 382,
+    "alto": 510,
+    "huella": "06b4e03cdde1"
+  },
+  "/photos/lagoh/tienda-1.webp": {
+    "ancho": 382,
+    "alto": 510,
+    "huella": "06b4e03cdde1"
+  },
+  "/photos/lagoh/tienda-2.webp": {
+    "ancho": 382,
+    "alto": 510,
+    "huella": "50c8fdd6b9b5"
+  },
+  "/photos/lagoh/tienda-3.webp": {
+    "ancho": 382,
+    "alto": 510,
+    "huella": "e47d872a6fb5"
+  },
+  "/photos/lasrosas/hero.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "af7f82804a4d"
+  },
+  "/photos/lasrosas/tienda-1.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "af7f82804a4d"
+  },
+  "/photos/lasrosas/tienda-2.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "37425ea8ebac"
+  },
+  "/photos/lasrosas/tienda-3.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "034487884c47"
+  },
+  "/photos/lasrosas/tienda-4.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "5961fadc3851"
+  },
+  "/photos/lasrosas/tienda-5.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "9d6edef35a08"
+  },
+  "/photos/marineda/hero.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "758613c50944"
+  },
+  "/photos/marineda/tienda-1.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "758613c50944"
+  },
+  "/photos/marineda/tienda-2.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "354a80f1c2d0"
+  },
+  "/photos/marineda/tienda-3.webp": {
+    "ancho": 1400,
+    "alto": 1050,
+    "huella": "6b9343cd83a9"
+  },
+  "/photos/marineda/tienda-4.webp": {
+    "ancho": 1400,
+    "alto": 1867,
+    "huella": "88e781ccdbdc"
+  },
+  "/photos/marineda/tienda-5.webp": {
+    "ancho": 1400,
+    "alto": 1867,
+    "huella": "631527176296"
+  },
+  "/photos/marineda/tienda-6.webp": {
+    "ancho": 1200,
+    "alto": 1600,
+    "huella": "d92474e77998"
+  },
+  "/photos/vigo/hero.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "58016337713a"
+  },
+  "/photos/vigo/reviews/amaya.jpg": {
+    "ancho": 96,
+    "alto": 96,
+    "huella": "091e80cce35d"
+  },
+  "/photos/vigo/reviews/andrea.jpg": {
+    "ancho": 96,
+    "alto": 96,
+    "huella": "f2f8e68e5c05"
+  },
+  "/photos/vigo/reviews/hiba.jpg": {
+    "ancho": 96,
+    "alto": 96,
+    "huella": "6baef10ce34c"
+  },
+  "/photos/vigo/tienda-1.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "58016337713a"
+  },
+  "/photos/vigo/tienda-2.webp": {
+    "ancho": 574,
+    "alto": 1020,
+    "huella": "4f691d382779"
+  },
+  "/photos/vigo/tienda-3.webp": {
+    "ancho": 574,
+    "alto": 1020,
+    "huella": "0a5fae59aab3"
+  },
+  "/photos/vigo/tienda-4.webp": {
+    "ancho": 574,
+    "alto": 1020,
+    "huella": "d28475bfc098"
+  },
+  "/photos/villanueva/hero.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "ecce490ee606"
+  },
+  "/photos/villanueva/reviews/dario.jpg": {
+    "ancho": 96,
+    "alto": 96,
+    "huella": "3a9746789d59"
+  },
+  "/photos/villanueva/reviews/nieves.jpg": {
+    "ancho": 96,
+    "alto": 96,
+    "huella": "115f22538c10"
+  },
+  "/photos/villanueva/tienda-1.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "ecce490ee606"
+  },
+  "/photos/villanueva/tienda-2.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "71258fe4152e"
+  },
+  "/photos/villanueva/tienda-3.webp": {
+    "ancho": 1360,
+    "alto": 1020,
+    "huella": "1935c35b0319"
+  },
+  "/photos/villanueva/tienda-4.webp": {
+    "ancho": 765,
+    "alto": 1020,
+    "huella": "058e1dbe90c0"
+  },
+  "/photos/villanueva/tienda-5.webp": {
+    "ancho": 765,
+    "alto": 1020,
+    "huella": "5921ae23db63"
+  },
+  "/photos/villanueva/tienda-6.webp": {
+    "ancho": 765,
+    "alto": 1020,
+    "huella": "57b0624309ab"
+  }
+}
