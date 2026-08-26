@@ -3,7 +3,7 @@ interface Props {
   name: string;
   title: string;
   location: string;
-  googleMapsLink: string;
+  googleMapsLink?: string;
   heroImage?: string;
   heroText?: string;
   /** Variante que pide la plantilla. 'compacto' = más bajo y alineado a la izquierda. */
@@ -29,9 +29,14 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
     <p class="hero-label">{name}</p>
     <h1 class="hero-title">{title}</h1>
     <p class="hero-text">{introText}</p>
-    <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="btn btn-primary hero-cta">
-      ¿Dónde Estamos?
-    </a>
+    {/* Sin ficha de Google Business no hay adónde enlazar. Antes de agosto de
+        2026 esto habría enlazado a una búsqueda —o peor, a la ficha del centro
+        comercial, que es de otro negocio— así que el botón desaparece. */}
+    {googleMapsLink && (
+      <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="btn btn-primary hero-cta">
+        ¿Dónde Estamos?
+      </a>
+    )}
   </div>
 </section>
 

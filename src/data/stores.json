@@ -7,8 +7,8 @@
       "streetAddress": "C.C. El Zoco, Villanueva de la Cañada",
       "postalCode": "28691",
       "geo": {
-        "lat": 40.4483,
-        "lng": -3.9942
+        "lat": 40.4396582,
+        "lng": -4.0043877
       },
       "title": "Tu tienda de suplementación en Villanueva de la Cañada",
       "subtitle": "Encuéntranos en el C.C. El Zoco de Villanueva de la Cañada",
@@ -17,8 +17,8 @@
       "phone": "+34913916557",
       "phoneDisplay": "913 916 557",
       "whatsapp": "+34913916557",
-      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3036.5!2d-3.9942!3d40.4483!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd419931c2a65351%3A0x108c44f5bc5aaa28!2sUSA%20Fitness%20-%20Villanueva%20de%20la%20Ca%C3%B1ada!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses",
-      "googleMapsLink": "https://www.google.com/maps/place//data=!4m2!3m1!1s0xd419931c2a65351:0x108c44f5bc5aaa28",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s1192403823564073512!3m1!1ses!5m1!1ses",
+      "googleMapsLink": "https://maps.google.com/?cid=1192403823564073512",
       "schedule": "De lunes a viernes: 10:00 a 21:30\nSábados: 10:00–21:00",
       "heroImage": "/photos/villanueva/hero.webp",
       "reviews": [
@@ -54,8 +54,8 @@
       "streetAddress": "C.C. Marineda City, A Coruña",
       "postalCode": "15008",
       "geo": {
-        "lat": 43.3292,
-        "lng": -8.4184
+        "lat": 43.3446186,
+        "lng": -8.4276754
       },
       "title": "Tu tienda de suplementación en A Coruña",
       "subtitle": "Encuéntranos en el corazón de A Coruña",
@@ -64,8 +64,8 @@
       "phone": "+34881169567",
       "phoneDisplay": "881 169 567",
       "whatsapp": "+34881169567",
-      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2890.5!2d-8.4184!3d43.3292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd2e7c84f6e1b9b1%3A0x5e5a3f8c1a2d4e6f!2sUSA%20Fitness%20Marineda!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses",
-      "googleMapsLink": "https://www.google.com/maps/place/USA+Fitness+Marineda/",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s4430128436891848382!3m1!1ses!5m1!1ses",
+      "googleMapsLink": "https://maps.google.com/?cid=4430128436891848382",
       "schedule": "De lunes a sábado: 10:00 a 22:00",
       "heroImage": "/photos/marineda/hero.webp",
       "reviews": [],
@@ -88,8 +88,8 @@
       "streetAddress": "C.C. Las Rosas, Madrid",
       "postalCode": "28051",
       "geo": {
-        "lat": 40.4182,
-        "lng": -3.6209
+        "lat": 40.4182001,
+        "lng": -3.6208953
       },
       "title": "Tu tienda de suplementación en Madrid",
       "subtitle": "Encuéntranos en el corazón de Madrid",
@@ -98,8 +98,8 @@
       "phone": "+34911464826",
       "phoneDisplay": "911 464 826",
       "whatsapp": "+34911464826",
-      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3036.5!2d-3.620895!3d40.4182!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd422f3be15fb3e7%3A0x43f0a42a5e5d3e0d!2sUSA%20Fitness%20Las%20Rosas!5e0!3m2!1ses!2ses!4v1700000000000!5m2!1ses!2ses",
-      "googleMapsLink": "https://maps.google.com/maps?ll=40.4182,-3.620895&z=14&t=m&hl=es-ES&gl=US&mapclient=embed&cid=4897929501669774605",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s4897929501669774605!3m1!1ses!5m1!1ses",
+      "googleMapsLink": "https://maps.google.com/?cid=4897929501669774605",
       "schedule": "De lunes a domingo: 10:00 a 22:00",
       "heroImage": "/photos/lasrosas/hero.webp",
       "reviews": [],
@@ -121,8 +121,8 @@
       "streetAddress": "C.C. Carrefour Alcobendas, Carr. de Madrid a Burgos, A1",
       "postalCode": "28108",
       "geo": {
-        "lat": 40.533,
-        "lng": -3.642
+        "lat": 40.5273226,
+        "lng": -3.6512236
       },
       "title": "Tu tienda de suplementación en Alcobendas",
       "subtitle": "Encuéntranos en Alcobendas, Madrid",
@@ -131,8 +131,8 @@
       "phone": "+34919360967",
       "phoneDisplay": "919 360 967",
       "whatsapp": "+34919360967",
-      "googleMapsEmbed": "https://www.google.com/maps?q=USA+FITNESS+ALCOBENDAS,+Carr.+de+Madrid+a+Burgos,+A1,+28108+Alcobendas,+Madrid&output=embed",
-      "googleMapsLink": "https://www.google.com/maps/search/USA+FITNESS+ALCOBENDAS,+Carr.+de+Madrid+a+Burgos,+A1,+28108+Alcobendas,+Madrid",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s14755787337726686931!3m1!1ses!5m1!1ses",
+      "googleMapsLink": "https://maps.google.com/?cid=14755787337726686931",
       "schedule": "De lunes a sábado: 10:00 a 22:00\nDomingos: 11:00 a 21:00",
       "heroImage": "/photos/alcobendas/hero.webp",
       "reviews": [
@@ -174,12 +174,17 @@
       "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. GranCasa, Zaragoza. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34876439039",
       "phoneDisplay": "876 439 039",
-      "googleMapsEmbed": "https://www.google.com/maps?q=C.C.+GranCasa,+Calle+de+Maria+Zambrano,+35,+50018+Zaragoza&output=embed",
-      "googleMapsLink": "https://www.google.com/maps/search/C.C.+GranCasa,+Calle+de+Maria+Zambrano,+35,+50018+Zaragoza",
       "schedule": "De lunes a sábado: 10:00 a 22:00",
-      "heroImage": "/hero-bg.jpg",
+      "heroImage": "/photos/grancasa/hero.webp",
       "reviews": [],
-      "galleryImages": [],
+      "galleryImages": [
+        "/photos/grancasa/tienda-1.webp",
+        "/photos/grancasa/tienda-2.webp",
+        "/photos/grancasa/tienda-3.webp",
+        "/photos/grancasa/tienda-4.webp",
+        "/photos/grancasa/tienda-5.webp",
+        "/photos/grancasa/tienda-6.webp"
+      ],
       "company": {
         "razonSocial": "USA GOVE S.L.",
         "nif": "B22465587",
@@ -190,7 +195,8 @@
       },
       "addressLocality": "Zaragoza",
       "addressRegion": "Zaragoza",
-      "mall": "C.C. GranCasa"
+      "mall": "C.C. GranCasa",
+      "googleMapsStatus": "sin-ficha-gbp"
     },
     {
       "slug": "vigo",
@@ -207,8 +213,8 @@
       "streetAddress": "C.C. Gran Vía de Vigo (Planta 0), Rúa do Miradoiro, 2, Freixeiro",
       "postalCode": "36204",
       "geo": {
-        "lat": 42.2272,
-        "lng": -8.7106
+        "lat": 42.220823,
+        "lng": -8.724406
       },
       "title": "Tu tienda de suplementación en Vigo",
       "subtitle": "Encuéntranos en el C.C. Gran Vía Vigo",
@@ -217,8 +223,8 @@
       "phone": "+34986916804",
       "phoneDisplay": "986 916 804",
       "whatsapp": "+34661490626",
-      "googleMapsEmbed": "https://maps.google.com/maps?q=USA%20Fitness%20C.C.%20Gran%20V%C3%ADa%20Vigo%20R%C3%BAa%20do%20Miradoiro%2C%202%2C%20Freixeiro%2C%2036204%20Vigo%2C%20Pontevedra%2C%20Espa%C3%B1a&t=m&z=14&output=embed&iwloc=near",
-      "googleMapsLink": "https://maps.app.goo.gl/HeNWftuC2w8yqZ9P8",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s13733725187430675717!3m1!1ses!5m1!1ses",
+      "googleMapsLink": "https://maps.google.com/?cid=13733725187430675717",
       "schedule": "De lunes a domingo: 10:00 a 22:00",
       "heroImage": "/photos/vigo/hero.webp",
       "galleryFeatured": true,
@@ -252,8 +258,8 @@
       "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. El Arcángel, Córdoba. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
       "phone": "+34957916862",
       "phoneDisplay": "957 916 862",
-      "googleMapsEmbed": "https://maps.google.com/maps?q=USA%20Fitness%20Av.%20del%20Arc%C3%A1ngel%2C%20S%2FN%2C%20Sureste%2C%2014010%20C%C3%B3rdoba%2C%20Espa%C3%B1a&t=m&z=14&output=embed&iwloc=near",
-      "googleMapsLink": "https://www.google.com/maps/place/USA+Fitness+%E2%80%93+C.C.+El+Arc%C3%A1ngel/@37.879133,-4.7683458,17z/data=!3m1!4b1!4m6!3m5!1s0xd6d21aeaf510109:0x51f4bad0537ee75c!8m2!3d37.879133!4d-4.7657655!16s%2Fg%2F11xty1ps35",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s5905550415306352476!3m1!1ses!5m1!1ses",
+      "googleMapsLink": "https://maps.google.com/?cid=5905550415306352476",
       "schedule": "De lunes a domingo: 10:00 a 22:00",
       "heroImage": "/photos/arcangel/hero.webp",
       "reviews": [

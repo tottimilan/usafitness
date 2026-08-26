@@ -301,3 +301,77 @@ describe('Las decisiones del consentimiento (I-2 de la revisión del PR #1)', ()
     assert.doesNotThrow(() => new Function(fuente), 'la fuente inyectada parsea como JS');
   });
 });
+
+describe('Los mapas apuntan a la ficha de la tienda, no a una búsqueda', () => {
+  // Agosto de 2026: el usuario reportó que el mapa no señalaba la tienda dentro
+  // del centro comercial y que el botón abría Google Maps pero no la tienda.
+  // Eran DOS fallos distintos, y la causa raíz de los dos era la misma: los
+  // campos admitían cualquier URL. Un `/maps/search/` abre resultados; un
+  // `?q=<dirección>` geocodifica un texto y pone el pin sobre el centro
+  // comercial. Estos tests fijan la forma que sí apunta a la ficha.
+
+  const conFicha = stores.filter((s) => s.googleMapsStatus !== 'sin-ficha-gbp');
+
+  test('las tiendas con ficha traen las dos URLs y coordenadas', () => {
+    assert.ok(conFicha.length > 0);
+    for (const s of conFicha) {
+      assert.ok(s.googleMapsEmbed, `${s.slug} sin embed`);
+      assert.ok(s.googleMapsLink, `${s.slug} sin enlace`);
+      assert.ok(s.geo, `${s.slug} sin geo`);
+    }
+  });
+
+  test('el embed y el botón apuntan al MISMO CID', () => {
+    // Es la regla que habría cazado el fallo de lasrosas sola: sus dos campos
+    // se desmentían entre sí, con el dato bueno ya presente en el repo.
+    for (const s of conFicha) {
+      const a = s.googleMapsEmbed.match(/\d{15,20}/)[0];
+      const b = s.googleMapsLink.match(/\d{15,20}/)[0];
+      assert.equal(a, b, `${s.slug}: el mapa y el botón llevan a fichas distintas`);
+    }
+  });
+
+  test('ninguna URL es una búsqueda ni un enlace opaco', () => {
+    for (const s of conFicha) {
+      for (const url of [s.googleMapsEmbed, s.googleMapsLink]) {
+        assert.ok(!url.includes('/maps/search/'), `${s.slug}: /maps/search/ abre resultados, no la ficha`);
+        assert.ok(!url.includes('maps.app.goo.gl'), `${s.slug}: un enlace corto es opaco — nadie que lea el JSON sabe adónde apunta`);
+        assert.ok(!/[?&]q=/.test(url), `${s.slug}: ?q= geocodifica un texto y el pin cae sobre el centro comercial`);
+      }
+    }
+  });
+
+  test('dos tiendas no comparten ficha', () => {
+    const cids = conFicha.map((s) => s.googleMapsLink.match(/\d{15,20}/)[0]);
+    assert.equal(new Set(cids).size, cids.length, 'un CID repetido es copy-paste entre sociedades distintas');
+  });
+
+  test('el geo tiene precisión de ficha, no de estimación a ojo', () => {
+    // Cuatro tiendas tenían el geo a más de 1 km (marineda 1.871 m, vigo
+    // 1.340 m, villanueva 1.291 m, alcobendas 1.003 m). Todas se escribieron
+    // con 3-4 decimales; las dos buenas traían 6-7. Cinco decimales son ~1 m.
+    for (const s of conFicha) {
+      for (const eje of ['lat', 'lng']) {
+        const dec = (String(s.geo[eje]).split('.')[1] ?? '').length;
+        assert.ok(dec >= 5, `${s.slug}.geo.${eje} tiene ${dec} decimales: eso no sale de una ficha de Google`);
+      }
+    }
+  });
+
+  test('una tienda sin ficha lo declara, y no enlaza la del centro comercial', () => {
+    // La tentación era usar el CID del centro comercial GranCasa. Comprobado el
+    // 2026-08-25: ese CID devuelve "Gran Casa", con su teléfono y sus 25.602
+    // reseñas, y cero menciones a USA Fitness. Sería publicar la tarjeta de
+    // otro negocio en la web de este cliente.
+    const CENTRO_GRANCASA = '13649349957894030431';
+    for (const s of stores) {
+      if (s.googleMapsStatus === 'sin-ficha-gbp') {
+        assert.ok(!s.googleMapsEmbed && !s.googleMapsLink && !s.geo,
+          `${s.slug} declara no tener ficha pero trae datos de mapa`);
+      }
+      const json = JSON.stringify(s);
+      assert.ok(!json.includes(CENTRO_GRANCASA),
+        `${s.slug} usa el CID del CENTRO COMERCIAL, no el de la tienda`);
+    }
+  });
+});
