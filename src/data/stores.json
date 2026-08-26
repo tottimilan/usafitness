@@ -177,9 +177,16 @@
       "googleMapsEmbed": "https://www.google.com/maps?q=C.C.+GranCasa,+Calle+de+Maria+Zambrano,+35,+50018+Zaragoza&output=embed",
       "googleMapsLink": "https://www.google.com/maps/search/C.C.+GranCasa,+Calle+de+Maria+Zambrano,+35,+50018+Zaragoza",
       "schedule": "De lunes a sábado: 10:00 a 22:00",
-      "heroImage": "/hero-bg.jpg",
+      "heroImage": "/photos/grancasa/hero.webp",
       "reviews": [],
-      "galleryImages": [],
+      "galleryImages": [
+        "/photos/grancasa/tienda-1.webp",
+        "/photos/grancasa/tienda-2.webp",
+        "/photos/grancasa/tienda-3.webp",
+        "/photos/grancasa/tienda-4.webp",
+        "/photos/grancasa/tienda-5.webp",
+        "/photos/grancasa/tienda-6.webp"
+      ],
       "company": {
         "razonSocial": "USA GOVE S.L.",
         "nif": "B22465587",
