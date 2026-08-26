@@ -3,9 +3,11 @@
 import alcobendas from './alcobendas.json' with { type: 'json' };
 import arcangel from './arcangel.json' with { type: 'json' };
 import vigo from './vigo.json' with { type: 'json' };
+import malaga from './malaga.json' with { type: 'json' };
 
 export const tiendasCrudas: unknown[] = [
   alcobendas,
   arcangel,
   vigo,
+  malaga,
 ];
