@@ -297,6 +297,39 @@
       "addressLocality": "Córdoba",
       "addressRegion": "Córdoba",
       "mall": "C.C. El Arcángel"
+    },
+    {
+      "slug": "lagoh",
+      "name": "USAFITNESS C.C LAGOH",
+      "domain": "usafitnesslagoh.com",
+      "streetAddress": "C.C. Lagoh, Av. de Palmas Altas, 1",
+      "postalCode": "41012",
+      "geo": {
+        "lat": 37.3429771,
+        "lng": -5.988432
+      },
+      "title": "Tu tienda de suplementación en Sevilla",
+      "subtitle": "Encuéntranos en el C.C. Lagoh",
+      "location": "Sevilla",
+      "metaDescription": "Tienda de nutrición deportiva y suplementos en el C.C. Lagoh de Sevilla. Proteínas, creatinas, aminoácidos y asesoramiento personalizado.",
+      "phone": "+34955344138",
+      "phoneDisplay": "955 344 138",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s12953955987222298776!3m1!1ses!5m1!1ses",
+      "googleMapsLink": "https://maps.google.com/?cid=12953955987222298776",
+      "schedule": "De lunes a domingo: 10:00 a 22:00",
+      "heroImage": "/photos/lagoh/hero.webp",
+      "social": {
+        "instagram": "https://www.instagram.com/usafitness_c.c.lagoh/"
+      },
+      "reviews": [],
+      "galleryImages": [
+        "/photos/lagoh/tienda-1.webp",
+        "/photos/lagoh/tienda-2.webp",
+        "/photos/lagoh/tienda-3.webp"
+      ],
+      "addressLocality": "Sevilla",
+      "addressRegion": "Sevilla",
+      "mall": "C.C. Lagoh"
     }
   ]
 }

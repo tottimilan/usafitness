@@ -1,5 +1,5 @@
 /**
- * ESQUEMA DE stores.json — la puerta por la que pasan los datos de 7 empresas
+ * ESQUEMA DE stores.json — la puerta por la que pasan los datos de N empresas
  *
  * `stores.json` se escribe a mano y no lo revisa nadie. Hasta ahora, un campo
  * mal escrito no daba error: daba una página rota, un dato legal falso o un
@@ -7,7 +7,7 @@
  *
  * Este fichero convierte esa clase entera de fallos en un error de build.
  * Si algo de aquí falla, no se despliega nada. Es deliberado: en un servicio
- * que sirve 7 dominios desde un solo punto de entrada, publicar a medias es
+ * que sirve todos los dominios desde un solo punto de entrada, publicar a medias es
  * peor que no publicar.
  *
  * DÓNDE ESTÁ LA LÍNEA (la decisión de diseño de este fichero)
@@ -19,7 +19,7 @@
  *   AVISO   → lo que solo DEGRADA. Sin fotos no hay galería, sin reseñas no
  *             hay reseñas, sin `company` las legales van a noindex.
  *             Son datos que dependen de terceros (el franquiciado, la ficha
- *             de Google) y bloquear el despliegue de 7 dominios vivos hasta
+ *             de Google) y bloquear el despliegue de todos los dominios vivos hasta
  *             que lleguen sería peor que la carencia.
  *
  * Lo que NO comprueba: que los ficheros de imagen existan de verdad en disco.
@@ -208,7 +208,7 @@ const EsquemaTienda = z.strictObject({
   /* Medición (Fase 1) — el código ya está, faltan los identificadores */
   // `GT-` además de `G-`: la interfaz de Google entrega hoy identificadores
   // `GT-` y `gtag('config')` acepta los dos. Con el regex anterior, pegar el
-  // ID que Google acaba de dar reventaba el build de los 7 dominios con un
+  // ID que Google acaba de dar reventaba el build de todos los dominios con un
   // mensaje que mandaba a buscar un ID que quizá no existe.
   ga4Id: z.string().regex(/^(G|GT)-[A-Z0-9]+$/, 'un ID de GA4 tiene la forma "G-XXXXXXXXXX" o "GT-XXXXXXXX"').optional(),
   googleSiteVerification: z.string().min(10).optional(),

@@ -4,8 +4,9 @@ import { porDominio } from './data/stores';
 /**
  * ENRUTADO POR DOMINIO
  *
- * Un solo servicio sirve 7 dominios. Internamente todo vive bajo `/<slug>/…`;
- * de puertas afuera cada tienda ve su contenido en la raíz de SU dominio.
+ * Un solo servicio sirve TODOS los dominios — 8 hoy, y la marca tiene 58
+ * tiendas. Internamente todo vive bajo `/<slug>/…`; de puertas afuera cada
+ * tienda ve su contenido en la raíz de SU dominio.
  * Este fichero es el único sitio donde se traduce lo uno en lo otro.
  *
  * QUÉ CAMBIÓ Y POR QUÉ (Fase 3.5)
@@ -37,7 +38,7 @@ import { porDominio } from './data/stores';
  * AVISO PARA LA TAREA 3.8 (imágenes responsive): en cuanto se use
  * `astro:assets`, Astro añade el endpoint `/_image`, y ese SÍ pasa por aquí.
  * Sin meterlo en esta lista se reescribiría a `/<slug>/_image` y todas las
- * imágenes optimizadas darían 404 en los 7 dominios a la vez.
+ * imágenes optimizadas darían 404 en todos los dominios a la vez.
  */
 const RAIZ_COMPARTIDA = new Set(['/sitemap.xml', '/robots.txt', '/404', '/health']);
 
