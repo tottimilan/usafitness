@@ -91,14 +91,83 @@ El usuario cortó las preguntas: *"lo que necesito que hagas es no hacerme caso 
 
 **Primer ADR del proyecto:** `docs/adr/0001-phase-gate-iteration-launch.md`. El directorio no existía, y su ausencia es a la vez uno de los huecos que el gate señala.
 
+### Sexta parte — mapas rotos, la escala real, y el modelo de negocio (2026-08-26)
+
+**Los mapas apuntaban a una dirección, no a la tienda (PR #4).** El usuario
+reportó dos síntomas como uno y eran fallos independientes: el embed
+geocodificaba un texto (`?q=<dirección>`), así que el pin caía sobre el centro
+comercial; y el botón era un `/maps/search/`, que abre resultados, no una ficha.
+Y un tercero que nadie buscaba: **cuatro `geo` con más de un kilómetro de
+error** (marineda 1.871 m, vigo 1.340 m, villanueva 1.291 m, alcobendas
+1.003 m), alimentando el Schema.org.
+
+Arreglado con la forma canónica por CID, **verificando cada uno yo**: round-trip
+del feature id hexadecimal a decimal (4/4), los 6 embeds devolviendo `spotlit` y
+el nombre de la tienda, y las coordenadas sacadas del propio payload de Google.
+GranCasa no tiene ficha y se declara así en vez de enlazar la del centro
+comercial — hay lista negra en el esquema con ese CID, porque era la tentación
+obvia y habría publicado la tarjeta de otro negocio.
+
+**Accesibilidad (PR #3).** La auditoría encontró algo que no estaba en el
+roadmap: **la burbuja de WhatsApp estaba tapada al 100% por el aviso de cookies
+en móvil** — 0 de 324 píxeles alcanzables, y 132 de ellos caían sobre el botón
+«Aceptar». Uno de los tres caminos de conversión, muerto en móvil, en la primera
+visita de cualquiera; y quien lo intentaba daba un consentimiento que no quería
+dar. Además `<main>` envolvía la página entera, header y footer incluidos.
+
+**El consentimiento bajo test (PR #3).** El obstáculo era estructural: un
+`<script is:inline>` no se puede importar, así que ningún test llegaba a la
+lógica. La solución fue sacarla a `src/data/consentimiento.ts` e inyectar su
+**código fuente** con `toString()`: una sola implementación, probada de verdad.
+Cinco mutaciones que antes pasaban en verde ahora se ponen rojas.
+
+**Instagram en las 8 tiendas (PR #5).** Cada handle verificado leyendo el
+`og:title` real. Dije que Las Rosas no tenía cuenta y **sí la tenía**: el patrón
+de la cadena lleva puntos (`usafitness_c.c.lasrosas`) y solo probé guiones
+bajos. Peor: **mi método de verificación se rompió a mitad** y devolvía 200 sin
+`og:title` tanto para perfiles reales como inexistentes. Se detectó porque el
+control positivo también falló.
+
+**Lagoh, la octava tienda (PR #6).** Existía con dominio y WordPress y no estaba
+en el repo. Montada con todo lo verificable; su hero se amplía 1,75× porque su
+WordPress solo guarda las fotos a 382px, y **no las he reescalado**: inventar
+píxeles no añade nitidez.
+
+**Y el hallazgo que reencuadra el proyecto entero: son 58 tiendas, no 7.**
+Leído del directorio de `usafitness.es`. 47 en centro comercial y **11 a pie de
+calle** — que el esquema no admite, porque exige `mall`. Y eso cierra la duda de
+Villanueva: aparece **sin `C.C.`**, cuarta fuente independiente diciendo que
+«C.C. El Zoco» está mal.
+
+**El modelo de negocio, decidido.** Se vende a cada franquiciado; la central
+avisa. El techo pasa a ser comercial: operar 58 tiendas cabe en 43,5 h/mes, pero
+51 altas manuales son 25 meses. Y el muestrario de plantillas —que el usuario
+pidió como material de venta— le da por fin un consumidor al sistema de
+plantillas, que llevaba desde el 24 de agosto construido y sin usar por nadie.
+
 ### Top 3 next priorities
-Las fija ahora el gate, no el roadmap interno. Las cuatro condiciones de salida de MVP hacia Iteration están en `memory/13`. Por orden de lo que desbloquea más:
 
-1. **Datos legales de las 4 sociedades.** Es una llamada por tienda y cierra la única exposición viva del proyecto. Marineda y Alcobendas están publicadas hoy sin identificar al titular; la identificación provisional reduce el daño, no lo cierra.
-2. **`ga4Id` + monitor de uptime.** Cierra dos criterios de un golpe (medición y observabilidad) y es prerrequisito de poder definir un SLO honesto después: hoy no existe una sola cifra de disponibilidad. El código de conversión ya está escrito y solo espera el ID.
-3. **Triaje de las 8 vulnerabilidades High.** Hoy no hay riesgo aceptado, hay riesgo ignorado. Ojo: `astro@7` es salto mayor, no `npm audit fix`.
+Reordenadas el 2026-08-26 por el modelo de negocio decidido. La restricción ya
+no es técnica, es **cuántas tiendas caben**:
 
-Fuera del gate pero sin dependencias: **3.9 accesibilidad** — no hay **ni una** regla de `:focus-visible` en el proyecto y `prefers-reduced-motion` está vacío.
+1. **`scripts/nueva-tienda.mjs` — automatizar el alta.** Es LA pieza: cada hora
+   que se recorte del alta es una tienda más al año. Montar Lagoh llevó una
+   sesión entera y solo una decisión necesitó criterio humano (elegir el plano
+   general mirando las fotos). Todo lo demás —sacar teléfono y dirección del
+   WordPress, resolver la ficha de Google, verificar el Instagram con controles,
+   convertir fotos, validar— es mecánico y está hecho ya a mano ocho veces.
+2. **El muestrario `/muestrario`.** Material de venta y, de paso, el primer
+   consumidor del sistema de plantillas. Un día de trabajo según el catálogo.
+3. **Los `ga4Id`.** Siguen a 0 de 8 y el código lleva escrito desde `2800b67`.
+   Sin medición no hay informe mensual, y sin informe mensual el catálogo
+   entero pierde su envase.
+
+Pendientes de datos del franquiciado, sin cambios: datos legales de 5 tiendas,
+el teléfono de Marineda que no coincide con su ficha, los horarios de 4 tiendas
+y la ficha de Google de GranCasa. Ver `docs/mapas/pendiente-franquiciados.md`.
+
+Técnicas sin dependencias: el rediseño de la galería (las verticales se ven al
+56%), 3.8 imágenes responsive, 3.3 `locals.store`, 3.10 partir `stores.json`.
 
 ### Lessons learned (candidates for cross-project Memory Graph)
 - **`grep` es para localizar, nunca para concluir.** Extraer campos sueltos de un fichero de datos y no leer su contenido llevó a inferir el sector equivocado del nombre de marca, y contaminó toda la memoria hasta que el usuario lo corrigió.

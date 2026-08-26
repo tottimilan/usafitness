@@ -132,6 +132,15 @@ https://usafitness<tienda>.com/
 
 ## 3. CATÁLOGO COMERCIAL DE SERVICIOS
 
+> ⚠️ **SUSTITUIDO el 2026-08-26 por `memory/15-catalogo-servicios.md`**, que se
+> hizo con la escala real (58 tiendas, no 7) y con el modelo de venta decidido:
+> a cada franquiciado, no a la central. El catálogo nuevo mide horas/mes por
+> tienda de cada servicio y descarta explícitamente lo que no aguanta a 20
+> tiendas llevadas por una persona sola — el de abajo costaba 2,20 h/tienda/mes,
+> que a 58 son 128 h y no cabe en un mes de trabajo.
+>
+> Lo de abajo se conserva como registro de lo que se pensó en agosto.
+
 > **La regla que protege el negocio:** *solo se cobra mensualidad por lo que se pudre o se acumula.* Una web se construye una vez → pago único. Una reseña entra cada semana, una publicación de Google caduca a los 7 días, un festivo cambia el horario, una promo rota → mensualidad. Cobrar mensual por trabajo puntual se detecta al tercer mes y se cancela.
 
 ### Nivel 0 — ALTA (pago único, obligatorio antes de cualquier mensualidad)
