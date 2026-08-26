@@ -23,7 +23,7 @@ import Hero from '@/components/Hero.astro';
 import Promotions from '@/components/Promotions.astro';
 import Location from '@/components/Location.astro';
 import Gallery from '@/components/Gallery.astro';
-import { galeriaDe } from '@/data/galeria-de-tiendas';
+import { galeriaDe, fotoHero } from '@/data/galeria-de-tiendas';
 import Reviews from '@/components/Reviews.astro';
 import Products from '@/components/Products.astro';
 import Brands from '@/components/Brands.astro';
@@ -53,7 +53,7 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       title: s.title,
       location: s.location,
       googleMapsLink: s.googleMapsLink,
-      heroImage: s.heroImage,
+      hero: fotoHero(s),
       heroText: s.heroText,
     }),
   },

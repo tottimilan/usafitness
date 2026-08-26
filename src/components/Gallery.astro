@@ -1,5 +1,6 @@
 ---
 import type { PlanDeGaleria } from '@/data/galeria';
+import { srcsetDe, sizesDe } from '@/data/imagen';
 
 interface Props {
   /** Plan ya calculado por `galeriaDe(tienda)`. */
@@ -51,6 +52,8 @@ const altSuffix = location ? ` en ${location}` : '';
         >
           <img
             src={foto.src}
+            srcset={srcsetDe(foto)}
+            sizes={sizesDe(plan.columnas, plan.destacarPrimera && i === 0)}
             alt={`${name} - tienda de nutrición deportiva y suplementos${altSuffix} (foto ${i + 1})`}
             loading="lazy"
             decoding="async"

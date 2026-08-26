@@ -660,3 +660,68 @@ describe('La galería no recorta ninguna foto', () => {
     assert.match(html2, /--columnas:2/, 'arcangel es todo 4:3: 2 columnas y celdas grandes');
   });
 });
+
+describe('Cada pantalla se lleva el tamaño de foto que necesita', () => {
+  // Antes, cada dominio servía el original a todo el mundo: 1541 KB de imágenes
+  // en GranCasa para llenar columnas de 289 px. Con variantes por tamaño la
+  // flota pasa de 8916 KB a 4436 KB, un 50% menos, y GranCasa de 1541 a 878.
+
+  for (const s of stores.filter((s) => s.galleryImages.length)) {
+    test(`${s.slug} — las fotos declaran srcset y sizes`, async () => {
+      const html = (await get('/', s.domain)).text();
+      const imgs = [...html.matchAll(/<img[^>]*class="hero-bg"[\s\S]*?>|<figure class="[^"]*gallery-item[\s\S]*?<img[^>]*>/g)].map(
+        (m) => m[0]
+      );
+      assert.ok(imgs.length >= s.galleryImages.length, 'se encuentran las imágenes de la página');
+
+      for (const img of imgs) {
+        assert.match(img, /srcset="/, 'sin srcset el navegador solo puede traerse el original');
+        assert.match(img, /sizes="/, 'sin sizes elige a ciegas, normalmente el más grande');
+      }
+    });
+  }
+
+  test('el srcset nunca ofrece una variante MAYOR que el original', async () => {
+    // Ampliar no añade un solo píxel de información y sí peso. Lagoh es el caso
+    // que lo prueba: sus fotos miden 382px, así que no debe tener variantes.
+    const lagoh = stores.find((x) => x.slug === 'lagoh');
+    const html = (await get('/', lagoh.domain)).text();
+
+    for (const [, set] of html.matchAll(/srcset="([^"]+)"/g)) {
+      const anchos = set.split(',').map((p) => parseInt(p.trim().split(/\s+/)[1]));
+      assert.ok(
+        Math.max(...anchos) <= 510,
+        `las fotos de lagoh no pasan de 510px de ancho y el srcset ofrece ${Math.max(...anchos)}w`
+      );
+    }
+  });
+
+  test('el hero declara sus dimensiones REALES, no unas escritas a mano', async () => {
+    // `Hero.astro` llevaba `width="1400" height="1050"` fijo y era falso en 5 de
+    // las 8 tiendas. La peor: lagoh declaraba 1400 midiendo 382, o sea 3,7 veces
+    // más ancho del que tiene.
+    const { default: dim } = await import('../src/data/dimensiones.json', { with: { type: 'json' } });
+
+    for (const s of stores) {
+      const html = (await get('/', s.domain)).text();
+      const hero = html.match(/<img[^>]*class="hero-bg"[^>]*>/)?.[0];
+      assert.ok(hero, `${s.slug}: no se encuentra el hero`);
+
+      const real = dim[s.heroImage];
+      assert.ok(real, `${s.slug}: el hero no está medido`);
+      assert.match(hero, new RegExp(`width="${real.ancho}"`), `${s.slug}: ancho declarado != real`);
+      assert.match(hero, new RegExp(`height="${real.alto}"`), `${s.slug}: alto declarado != real`);
+    }
+  });
+
+  test('una foto repetida se sirve desde UNA sola URL', async () => {
+    // `hero.webp` y `tienda-1.webp` son el mismo fichero byte a byte en 7 de las
+    // 8 tiendas. Con dos URLs, el navegador se lo descarga dos veces: entre 35 y
+    // 134 KB tirados por visita. Esto no decide si la foto debe repetirse —eso
+    // es editorial— solo deja de cobrarla dos veces.
+    const s = stores.find((x) => x.slug === 'arcangel');
+    const html = (await get('/', s.domain)).text();
+    const primera = html.match(/<figure class="[^"]*gallery-item[\s\S]*?<img[^>]*src="([^"]+)"/)?.[1];
+    assert.equal(primera, s.heroImage, 'la primera de galería apunta a la URL del hero, que es el mismo fichero');
+  });
+});

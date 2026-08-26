@@ -1,28 +1,33 @@
 ---
+import { srcsetDe } from '@/data/imagen';
+
 interface Props {
   name: string;
   title: string;
   location: string;
   googleMapsLink?: string;
-  heroImage?: string;
+  /** Foto de cabecera con sus dimensiones reales, de `fotoHero(tienda)`. */
+  hero: { src: string; ancho: number; alto: number };
   heroText?: string;
   /** Variante que pide la plantilla. 'compacto' = más bajo y alineado a la izquierda. */
   variant?: string;
 }
-const { name, title, location, googleMapsLink, heroImage = '/hero-bg.jpg', heroText, variant } = Astro.props;
+const { name, title, location, googleMapsLink, hero, heroText, variant } = Astro.props;
 const introText = heroText || `En ${name} encontrarás asesoramiento personalizado y la mejor nutrición deportiva al mejor precio en ${location}. Nuestros productos están seleccionados para ayudarte a alcanzar tus objetivos de fitness y bienestar.`;
 ---
 
 <section class={`hero${variant ? ` hero--${variant}` : ''}`} id="inicio">
   <img
     class="hero-bg"
-    src={heroImage}
+    src={hero.src}
+    srcset={srcsetDe(hero)}
+    sizes="100vw"
     alt=""
     aria-hidden="true"
     fetchpriority="high"
     decoding="async"
-    width="1400"
-    height="1050"
+    width={hero.ancho}
+    height={hero.alto}
   />
   <div class="hero-overlay"></div>
   <div class="hero-content">
