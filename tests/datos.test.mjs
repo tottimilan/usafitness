@@ -27,6 +27,21 @@ import {
   fuenteInline,
 } from '../src/data/consentimiento.ts';
 import { parseHorario } from '../src/data/horario.ts';
+import {
+  SECTION_IDS,
+  ORDEN_BASE,
+  TEMPLATES,
+  resolveSections,
+  seccionesInvalidas,
+  plantillasConSeccionesInvalidas,
+  tokensToCss,
+} from '../src/data/templates.ts';
+import {
+  FUENTE_BASE,
+  TOPE_PLANTILLA,
+  fuentesDeLaPagina,
+  pesoDePlantilla,
+} from '../src/data/presupuesto.ts';
 import { clasificar, resumirFlota, esProblema } from '../src/data/flota.ts';
 import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.ts';
 import { anchosDe, srcsetDe, rutaVariante, sizesDe } from '../src/data/imagen.ts';
@@ -886,5 +901,123 @@ describe('Una vertical nunca se destaca a todo el ancho', () => {
   test('con la primera vertical, el flag se ignora', () => {
     const p = planDeGaleria([v, v, v], { destacadaForzada: true });
     assert.equal(p.destacarPrimera, false, 'una 9:16 a 900px de ancho mediría 1600px de alto');
+  });
+});
+
+describe('Una sección nueva no puede caerse en silencio', () => {
+  // El fallo que esto impide es concreto y ya estaba en el código: el filtro
+  // de `resolveSections` validaba contra ORDEN_BASE —el orden histórico de
+  // nueve— en vez de contra el vocabulario. Mientras ambas listas coincidían
+  // no se notaba. En cuanto el vocabulario crece, una sección perfectamente
+  // válida desaparecía sin un solo error, y la plantilla salía publicada con
+  // las secciones de siempre y la pintura nueva.
+
+  test('el filtro mira el vocabulario, no el orden histórico', () => {
+    // Toda id declarada del vocabulario tiene que sobrevivir al filtro, esté
+    // o no en ORDEN_BASE. Se comprueba una a una para que el día que se añada
+    // «socio» u «hoy-en-tienda» este test lo cubra sin tocarlo.
+    for (const id of SECTION_IDS) {
+      const salida = resolveSections({ id: 'x', label: 'x', tokens: {}, sections: [id] });
+      assert.deepEqual(
+        salida,
+        [{ id }],
+        `la sección «${id}» se pierde al resolver, y no diría nada al publicarse`
+      );
+    }
+  });
+
+  test('el orden histórico es un subconjunto del vocabulario', () => {
+    const vocabulario = new Set(SECTION_IDS);
+    for (const ref of ORDEN_BASE) {
+      const id = typeof ref === 'string' ? ref : ref.id;
+      assert.ok(vocabulario.has(id), `ORDEN_BASE nombra «${id}», que no está en SECTION_IDS`);
+    }
+  });
+
+  test('un id inventado en la plantilla se denuncia, no se ignora', () => {
+    const rota = { id: 'rota', label: 'Rota', tokens: {}, sections: ['hero', 'seccion-que-no-existe'] };
+    assert.deepEqual(seccionesInvalidas(rota), ['seccion-que-no-existe']);
+    assert.equal(
+      plantillasConSeccionesInvalidas({ rota }).length,
+      1,
+      'el build tiene que poder detectarlo antes de publicar'
+    );
+  });
+
+  test('ninguna plantilla real nombra una sección que no existe', () => {
+    assert.deepEqual(plantillasConSeccionesInvalidas(), []);
+  });
+
+  test('un id inventado en stores.json sigue siendo tolerado', () => {
+    // La tolerancia es deliberada y NO se toca: una errata en el JSON de un
+    // cliente no puede tumbar su web. Lo que cambia es de quién se tolera.
+    const salida = resolveSections(
+      { id: 'x', label: 'x', tokens: {}, sections: ['hero', 'social'] },
+      ['hero', 'typo-del-cliente', 'social']
+    );
+    assert.deepEqual(salida, [{ id: 'hero' }, { id: 'social' }]);
+  });
+});
+
+describe('El presupuesto de peso cuenta lo que se descarga de verdad', () => {
+  const tamaños = { '/fonts/inter-latin.woff2': 47 * 1024, '/fonts/display.woff2': 22 * 1024 };
+  const tamañoDe = (r) => tamaños[r] ?? 0;
+  const comprimido = (t) => Math.round(t.length / 3); // gzip de mentira, determinista
+
+  test('la fuente base cuenta salvo que la plantilla declare que no la usa', () => {
+    assert.deepEqual(fuentesDeLaPagina({ id: 'a' }), [FUENTE_BASE]);
+    assert.deepEqual(fuentesDeLaPagina({ id: 'b', fonts: ['/fonts/display.woff2'] }), [
+      FUENTE_BASE,
+      '/fonts/display.woff2',
+    ]);
+    assert.deepEqual(
+      fuentesDeLaPagina({ id: 'c', fonts: ['/fonts/display.woff2'], usaFuenteBase: false }),
+      ['/fonts/display.woff2'],
+      'declarar que no se usa la base es lo único que quita su descarga'
+    );
+  });
+
+  test('tres pesos de una display propia caben; cinco ficheros no', () => {
+    const tres = Array(3).fill('/fonts/display.woff2');
+    const cabe = pesoDePlantilla({ id: 'justa', fonts: tres }, tamañoDe, comprimido, '', '');
+    assert.equal(cabe.fuentes, (47 + 22 * 3) * 1024);
+    assert.equal(cabe.exceso, 0, '113 KB de fuentes tienen que caber: es una dirección viable');
+
+    // Cinco ficheros es lo que pedía la propuesta de «Cartel» sin medir:
+    // una display a dos pesos, una de texto a dos pesos y una monoespaciada.
+    const cinco = Array(5).fill('/fonts/display.woff2');
+    const gorda = pesoDePlantilla({ id: 'gorda', fonts: cinco }, tamañoDe, comprimido, '', '');
+    assert.ok(gorda.exceso > 0, 'seis ficheros de fuente tienen que denunciarse');
+
+    // Y la salida: declarar que no se usa la base devuelve el margen justo.
+    const sinBase = pesoDePlantilla(
+      { id: 'gorda', fonts: cinco, usaFuenteBase: false },
+      tamañoDe,
+      comprimido,
+      '',
+      ''
+    );
+    assert.equal(sinBase.exceso, 0, 'renunciar a Inter es lo que hace viable una cara propia');
+  });
+
+  test('las plantillas vivas caben en el tope, medidas de verdad', async () => {
+    const fs = await import('node:fs');
+    const zlib = await import('node:zlib');
+    const cssGlobal = fs.readFileSync('src/styles/global.css', 'utf8');
+    for (const t of Object.values(TEMPLATES)) {
+      const peso = pesoDePlantilla(
+        t,
+        (r) => fs.statSync('public' + r).size,
+        (s) => zlib.gzipSync(Buffer.from(s), { level: 9 }).length,
+        tokensToCss(t) + (t.css ?? ''),
+        cssGlobal
+      );
+      assert.equal(
+        peso.exceso,
+        0,
+        `la plantilla «${t.id}» pesa ${Math.round(peso.total / 1024)} KB de fuentes y CSS, ` +
+          `por encima del tope de ${TOPE_PLANTILLA / 1024} KB`
+      );
+    }
   });
 });

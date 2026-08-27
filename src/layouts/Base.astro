@@ -22,6 +22,7 @@
  */
 
 import type { Tienda } from '@/data/stores';
+import { FUENTE_BASE } from '@/data/presupuesto';
 import '@/styles/global.css';
 
 interface Props {
@@ -37,7 +38,18 @@ interface Props {
   /** Valor de `data-plantilla` en `<html>` y CSS de tokens de la plantilla. */
   plantilla?: string;
   plantillaCss?: string;
-  /** Fuentes de la plantilla. Mismo trato que Inter: preload con crossorigin. */
+  /**
+   * TODAS las fuentes que precarga esta página, la base incluida.
+   *
+   * Antes Inter se precargaba aquí a pelo, siempre, y esta lista traía solo las
+   * de la plantilla. Con eso, una plantilla con su propia cara de texto pagaba
+   * las dos: 47 KB de una familia que no usa, compitiendo por el ancho de banda
+   * justo en el primer pintado, que es cuando se juzga la página.
+   *
+   * Ahora la lista la resuelve `fuentesDeLaPagina` en `presupuesto.ts`, que es
+   * también quien las cuenta para el tope del build. Una sola implementación:
+   * si se separaran, el peso medido dejaría de ser el peso servido.
+   */
   plantillaFonts?: string[];
   og?: {
     type?: string;
@@ -55,7 +67,9 @@ const {
   noindex = false,
   plantilla = '',
   plantillaCss = '',
-  plantillaFonts = [],
+  // Sin decir nada, la fuente base: es lo que necesitan el listado, el 404 y
+  // las páginas legales, que no llevan plantilla.
+  plantillaFonts = [FUENTE_BASE],
   og,
 } = Astro.props;
 
@@ -103,7 +117,6 @@ const robots = !noindex && enSuDominio ? 'index, follow, max-image-preview:large
     )}
 
     {/* La tipografía se autoaloja: cero peticiones a terceros antes del consentimiento. */}
-    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     {plantillaFonts.map((f) => (
       <link rel="preload" href={f} as="font" type="font/woff2" crossorigin />
     ))}
