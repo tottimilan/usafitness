@@ -44,10 +44,10 @@ FRASE: «la única página del ecosistema que explica qué gana tu socio,
 ## 2. Jerarquías canónicas (v1 — pendiente de corrección del dueño)
 
 **Preguntas del visitante**, por frecuencia medida (fuentes en la investigación):
-P1 ¿está abierto y cómo llego? (54%/53% de lo más buscado) · P2 ¿qué tienen y cuánto cuesta? · P3 ¿qué gano yo? (socio) · P4 ¿es de fiar? (reseñas: solo el 4% no las lee) · P5 ¿me asesoran?
+P1 ¿está abierto y cómo llego? (54%/53% de lo más buscado) · P2 ¿qué tienen y cuánto cuesta? · P3 ¿qué gano yo? (socio) · P4 ¿es de fiar? (reseñas: solo el 4% no las lee) · P5 ¿me asesoran? · **P6** no sé por dónde empezar —y me da vergüenza preguntar— (ronda 2) · **P7** ¿me vais a vender lo que no necesito? (ronda 2) · **P8** vengo a regalar (estacional nov-ene, ruta del asesor)
 
 **Conversiones**, por valor para el franquiciado:
-N1 visita a tienda (`contacto_maps`, `ver_horario`) · N2 contacto con intención (`contacto_whatsapp`, `contacto_llamada`) · N3 intención de socio (`interes_socio`) · N4 oferta vista (`ver_oferta`) · N5 seguir en Instagram.
+N1 visita a tienda (`contacto_maps`, `ver_horario`, `ver_productos`) · N2 contacto con intención (`contacto_whatsapp`, `contacto_llamada`) · N3 intención de socio (`interes_socio`) · N4 oferta vista (`ver_oferta`) · N5 seguir en Instagram · **N6 orientación** — visita con intención declarada (`vale_orientacion`, `pedir_cita`) · **N7 reserva** de producto (`pedir_reserva`) · **N8 retorno** anclado a caja (`cupon_vuelta`). Aprobados 27-ago con la ronda 2.
 
 **Evidencia por posición:** P1 [P, Google/Ipsos] · P2-P5 [hipótesis razonada — Loop C valida el orden con datos propios: eventos por sección y queries de GSC].
 **Regla de uso de v1:** mientras el dueño no las corrija, valen para HOJAS y ARTEFACTOS (trabajo reversible), **no** para construir (Loop A en adelante). Su corrección marca v2 con fecha.

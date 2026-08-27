@@ -558,6 +558,13 @@ Ahora el flujo de datos:
 | `ver_oferta` | `seccion`, `origen` (central/propia) | Oferta del mes | pendiente (F2) |
 | `ver_horario` | `seccion` | Hoy en tienda | pendiente (F2) — en informes se llama «intención de visita» |
 | `ver_productos` | `seccion` | Productos y marcas | pendiente (F2) |
+| `punto_de_partida` | `ruta` | Empieza aquí (asesor) | pendiente — aprobado 27-ago (ronda 2) |
+| `verdad_abierta` | `cual` | Las verdades del mostrador | pendiente — aprobado 27-ago |
+| `vale_orientacion` | `seccion` | /guia | pendiente — aprobado 27-ago |
+| `pedir_cita` | `origen` | /guia (capa con móvil verificado) | pendiente — aprobado 27-ago |
+| `pedir_reserva` | `seccion`, `producto` | Apártamelo | pendiente — aprobado 27-ago |
+| `cupon_vuelta` | `origen` | Tarjeta que vuelve | pendiente — aprobado 27-ago |
+| `unirse_canal` | `seccion` | Canal de WhatsApp | pendiente — aprobado 27-ago |
 
 
 Los eventos de este proyecto se llaman **exactamente**:

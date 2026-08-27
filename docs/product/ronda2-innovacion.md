@@ -1,7 +1,7 @@
 # Ronda 2 — el loop atrevido
 
 **Fecha:** 2026-08-27 · **Origen:** pedido del dueño tras aprobar el inventario: *«innova, sé bold, objetivos nuevos, algo interactivo — vamos más allá»* + su pista: *«aprovechar mucho lo de nuestro equipo, puede abrir nuevos caminos»*.
-**Método:** 5 exploradores con briefs opuestos (herramientas interactivas · equipo-como-plataforma · tienda viva · puentes físico-digital · el hereje que ataca el propio inventario) → 25 propuestas → filtro adversarial que deduplicó 3 clústers grandes y mató lo gimmick. **Estado: presentado en artefacto, esperando veredicto del dueño.**
+**Método:** 5 exploradores con briefs opuestos (herramientas interactivas · equipo-como-plataforma · tienda viva · puentes físico-digital · el hereje que ataca el propio inventario) → 25 propuestas → filtro adversarial que deduplicó 3 clústers grandes y mató lo gimmick. **Estado: ✅ APROBADA ÍNTEGRA por el dueño (27-ago)** — «me gusta, buen trabajo, lo apruebo, y me gustan los nuevos objetivos también». Las 3 estrellas + las 8 con su condición entran; P6-P8 y N6-N8 pasan al sistema; las muertas siguen muertas.
 
 ---
 
