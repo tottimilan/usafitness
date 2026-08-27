@@ -170,6 +170,31 @@ export const TEMPLATES: Record<string, Template> = {
   },
 };
 
+/**
+ * Los ids que una plantilla declara y que NO existen en el vocabulario.
+ *
+ * Existe porque el filtro de `resolveSections` es deliberadamente tolerante, y
+ * esa tolerancia solo tiene sentido para el JSON del cliente. Una plantilla la
+ * escribimos nosotros: si nombra una sección que no existe, no queremos que se
+ * publique con una sección menos y sin un solo error — queremos que reviente
+ * el build. TypeScript ya lo impide al compilar, pero el build lo comprueba
+ * igualmente porque `stores.json` y las previsualizaciones entran por caminos
+ * que no pasan por el compilador.
+ */
+export function seccionesInvalidas(t: Template): string[] {
+  const validas = new Set<string>(SECTION_IDS);
+  return t.sections.map((r) => normalizeRef(r).id).filter((id) => !validas.has(id));
+}
+
+/** Todas las plantillas con alguna sección inventada. Vacío = todo en orden. */
+export function plantillasConSeccionesInvalidas(
+  plantillas: Record<string, Template> = TEMPLATES
+): { plantilla: string; desconocidas: string[] }[] {
+  return Object.values(plantillas)
+    .map((t) => ({ plantilla: t.id, desconocidas: seccionesInvalidas(t) }))
+    .filter((x) => x.desconocidas.length > 0);
+}
+
 export const PLANTILLA_POR_DEFECTO = 'clasica';
 
 export function getTemplate(id?: string): Template {
@@ -195,14 +220,24 @@ export function tokensToCss(t: Template): string {
  * 2. Con `template` → el orden que propone esa plantilla.
  * 3. Con `sections` → manda ese array. Es la excepción por tienda.
  *
- * Un id desconocido se ignora en silencio: un error de tecleo en un JSON no
- * puede tumbar la web de un cliente que está en producción.
+ * Un id desconocido EN `override` se ignora en silencio: ese array viene de
+ * `stores.json`, y un error de tecleo en el fichero de un cliente no puede
+ * tumbar su web en producción. Lo que SÍ tumba el build es un id desconocido
+ * en la plantilla, porque eso lo escribimos nosotros — ver `seccionesInvalidas`.
+ *
+ * El filtro se hace contra SECTION_IDS, el vocabulario completo, y no contra
+ * ORDEN_BASE, que es solo el orden histórico de nueve secciones. Estuvo mal
+ * desde el principio y no se notaba porque ambas listas coincidían: en cuanto
+ * el vocabulario crece, una sección nueva y perfectamente válida se caía aquí
+ * SIN DECIR NADA, y la plantilla se publicaba con las secciones de siempre y
+ * la pintura nueva. Que es, literalmente, el fallo por el que se rechazaron
+ * dos plantillas.
  */
 export function resolveSections(
   template: Template,
   override?: SectionRef[] | null
 ): { id: SectionId; variant?: string }[] {
-  const validas = new Set<string>(ORDEN_BASE.map((r) => normalizeRef(r).id));
+  const validas = new Set<string>(SECTION_IDS);
   const limpiar = (refs: SectionRef[]) =>
     refs.map(normalizeRef).filter((r) => validas.has(r.id));
 
