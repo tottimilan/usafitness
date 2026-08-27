@@ -47,6 +47,18 @@ CÓMO SE VENDE AL FRANQUICIADO: «tu web enseña lo que hay en TU estantería
   hoy, con las marcas que la gente busca por nombre».
 ```
 
+### Ampliación tras la gira de referencias (27-ago) — la línea por categoría, corregida por los datos
+
+Alphalete no lista categorías: pone **una línea de 3-4 palabras debajo de cada una** («SHORTS — Built for full range.»). Una lista muerta se vuelve navegable con texto de marca que se escribe UNA vez y sirve a las 50 tiendas. Es el arreglo más barato y de más efecto de esta sección.
+
+**Pero al comprobarlo contra el catálogo real, la idea no se aplica como parecía.** Las 137 categorías de `catalogo-usafitness-2026-08.json` son una lista **plana, sin jerarquía**, y buena parte es cola larga («Aceite de Krill», «Amilopectina», «Anticelulíticos»). Escribir 137 líneas de marca no es un trabajo de una tarde: es un proyecto editorial que nadie mantendría, y la mayoría de esas entradas no le dice nada a quien entra en la web de una tienda de barrio.
+
+**El nivel correcto ya lo teníamos medido.** Los contadores extraídos dan las agrupaciones con volumen real: proteínas 199 · complementos 225 · aminoácidos 156 · pre-entrenos 80 · creatina 62 · **mujer 557** · nutrición 1.309. Ese es el nivel donde la línea de marca tiene sentido: **8-12 puertas, no 137**.
+
+Y ahí ganamos a la referencia: Alphalete pone nombre + línea; nosotros podemos poner **nombre + línea + la cifra real** («Proteínas — 199 referencias en la estantería»). Un dato verificable en vez de un adjetivo, que es justo lo que pide la Placa (P4). La cifra sale del catálogo ya extraído: cero trabajo del franquiciado, cero mantenimiento mensual.
+
+**Consecuencia para el texto de venta:** dejar de decir «137 categorías» en la web. Es cierto y suena a mucho, pero como navegación es peor que 8 puertas con volumen. Las 137 siguen siendo útiles como dato interno y para SEO de cola larga si algún día GSC lo pide (Loop C), no como interfaz.
+
 ## Hoja 3 — «Oferta del mes»
 
 ```
@@ -89,6 +101,20 @@ CÓMO SE VENDE AL FRANQUICIADO: «el que te busca desde el sofá sabe en
   10 segundos si le da tiempo a llegar — y le llevamos hasta tu puerta,
   no hasta el aparcamiento del centro».
 ```
+
+### Ampliación tras la gira de referencias (27-ago) — «cierra en X», la urgencia honesta
+
+Prozis muestra un contador en marcha con el texto «tu pedido aún se puede enviar hoy»: la urgencia no es inventada, es **la hora de corte real** del almacén. Nosotros tenemos el hecho equivalente y mejor — **la hora a la que cierra ESTA tienda, hoy** — y con él «Hoy en tienda» deja de ser un dato pasivo y se convierte en llamada a la acción («Abierto — cierra en 2 h 15 min»).
+
+**Viabilidad verificada en el código, no supuesta:**
+
+- `parseHorario` (src/data/horario.ts) ya devuelve `{dayOfWeek[], opens, closes}` estructurado: el cálculo sale de datos que ya existen, sin campo nuevo y sin trabajo del franquiciado.
+- El esquema de `stores.json` **exige** que el horario parsee (`refine(... .length > 0)`), así que el dato está garantizado en las 8 tiendas y en toda alta futura. Degrada solo, sin `visible()` extra.
+- Todas las páginas son SSR por petición (`prerender = false`, sin `Cache-Control` en el HTML): el valor se calcula fresco en cada carga. Nada que invalidar.
+
+**⚠️ Trampa encontrada y anotada antes de construir:** no hay zona horaria configurada en el proyecto ni en el despliegue, así que el servidor de Railway corre en **UTC**. Calcular la hora con `new Date().getHours()` haría que la web dijera «cerrado» con la tienda abierta durante las horas de desfase, **en las 8 tiendas a la vez y solo en producción**. La implementación usa obligatoriamente `Intl.DateTimeFormat` con `timeZone: 'Europe/Madrid'` (sin dependencias). Se añade prueba con hora fijada que falle si alguien vuelve a la hora del sistema.
+
+**Límite honesto:** esto dice cuándo cierra según el horario escrito, no si hoy es festivo del centro comercial. Se redacta como dato de horario («cierra a las 22:00 · quedan 2 h 15 min»), nunca como promesa de estado («abierto ahora») — es exactamente la R3 rebajada que ya estaba decidida, ahora con su forma visual.
 
 ## Hoja 5 — «Por qué en tienda»
 
