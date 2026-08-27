@@ -47,6 +47,18 @@ CÓMO SE VENDE AL FRANQUICIADO: «tu web enseña lo que hay en TU estantería
   hoy, con las marcas que la gente busca por nombre».
 ```
 
+### Ampliación tras la gira de referencias (27-ago) — la línea por categoría, corregida por los datos
+
+Alphalete no lista categorías: pone **una línea de 3-4 palabras debajo de cada una** («SHORTS — Built for full range.»). Una lista muerta se vuelve navegable con texto de marca que se escribe UNA vez y sirve a las 50 tiendas. Es el arreglo más barato y de más efecto de esta sección.
+
+**Pero al comprobarlo contra el catálogo real, la idea no se aplica como parecía.** Las 137 categorías de `catalogo-usafitness-2026-08.json` son una lista **plana, sin jerarquía**, y buena parte es cola larga («Aceite de Krill», «Amilopectina», «Anticelulíticos»). Escribir 137 líneas de marca no es un trabajo de una tarde: es un proyecto editorial que nadie mantendría, y la mayoría de esas entradas no le dice nada a quien entra en la web de una tienda de barrio.
+
+**El nivel correcto ya lo teníamos medido.** Los contadores extraídos dan las agrupaciones con volumen real: proteínas 199 · complementos 225 · aminoácidos 156 · pre-entrenos 80 · creatina 62 · **mujer 557** · nutrición 1.309. Ese es el nivel donde la línea de marca tiene sentido: **8-12 puertas, no 137**.
+
+Y ahí ganamos a la referencia: Alphalete pone nombre + línea; nosotros podemos poner **nombre + línea + la cifra real** («Proteínas — 199 referencias en la estantería»). Un dato verificable en vez de un adjetivo, que es justo lo que pide la Placa (P4). La cifra sale del catálogo ya extraído: cero trabajo del franquiciado, cero mantenimiento mensual.
+
+**Consecuencia para el texto de venta:** dejar de decir «137 categorías» en la web. Es cierto y suena a mucho, pero como navegación es peor que 8 puertas con volumen. Las 137 siguen siendo útiles como dato interno y para SEO de cola larga si algún día GSC lo pide (Loop C), no como interfaz.
+
 ## Hoja 3 — «Oferta del mes»
 
 ```
