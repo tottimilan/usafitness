@@ -1,7 +1,7 @@
 # Notas de la sesión de capturas — 27-ago-2026
 
 **Regla de la sesión (pool.md §Guías):** cada captura se anota contra una hoja concreta (P/N) — nada de «es bonito». Lo adoptado viajará a la ficha de cada plantilla con esta procedencia.
-**Estado:** 9 de 12 vistas en el panel (escritorio ~800px). Pendientes: myprotein.es, prozis.com, alphaleteathletics.com, listado Awwwards (D4) y la pasada móvil 375px de las campeonas.
+**Estado:** **12 de 12 recorridas.** 10 **vistas** en el panel (escritorio ~800px) y 2 **leídas** en estructura y texto (el panel dejó de componer imagen a mitad de gira; se marcan como `[LEÍDA]` — su aportación es de contenido y jerarquía, no de tratamiento visual). Pendiente solo la pasada móvil 375px de las campeonas.
 
 ---
 
@@ -30,6 +30,23 @@
 - **Qué se vio:** doble barra de anuncio (envío 24/48h + 5€ al registrarte); **eyebrow de confianza «✓ CERTIFICACIÓN INFORMED SPORT» ANTES del titular**; hero de foto real de deporte (no estudio); botones «Descubre las ofertas» + «Ver por deporte»; widget flotante «Recompensas».
 - **A qué hoja sirve:** **Placa de la tienda** (P4): la evidencia se pone DELANTE de la promesa, en pequeño y con check, no como párrafo. «Ver por deporte» = nuestras **rutas por objetivo** como puerta secundaria del hero. «Recompensas» flotante = recordatorio persistente del programa de socio (evaluar contra R7: nunca tapar contenido).
 
+### MyProtein (el estándar en España — la referencia de qué NO hacer)
+- **Qué se vio:** **tres ofertas simultáneas apiladas** antes de ver nada de producto: píldora de categoría «Nutrición» + barra «✓ +15% EXTRA para nuevos clientes» + banda verde a tres líneas «-20% EN NUEVAS COLECCIONES + 15% EXTRA Y ENVÍO A 1€ AL COMPRAR ROPA». Después, hero de foto de ropa. Y encima, el banner de cookies.
+- **A qué hoja sirve:** es la **prueba en contra**, y vale tanto como las de oro. Cuando todo grita, nada se lee: tres descuentos compitiendo se anulan y el visitante no sabe qué hacer. **Regla que se lleva a la hoja de Oferta del mes: UNA oferta visible a la vez, con su fecha.** Nuestro modelo de dos niveles (propia > central > nada) ya está construido así — esta captura es su justificación visual.
+- **Además:** la página se pintaba más ancha que la ventana (contenido cortado a la derecha en 800px). Un líder del sector con el escaparate mal encajado: nuestro presupuesto móvil y el diseño a 375px primero son ventaja real, no higiene.
+
+### Prozis `[LEÍDA]` — ⭐ el hallazgo inesperado
+- **Qué se leyó:** un **contador en marcha `01:39:24` con el texto «Tu pedido aún se puede enviar hoy»**. La urgencia no es inventada: es la hora de corte real del almacén. Debajo, «Envío gratuito en pedidos superiores a 24,99 €». Chat en línea de terceros y newsletter en el pie.
+- **A qué hoja sirve:** **«Hoy en tienda»** (P1, R3). Es la versión honesta del contador: en vez de una cuenta atrás falsa, **el tiempo real hasta que cierra la tienda**, calculado en SSR con `parseHorario` («Abierto — cierra en 2h 15min»). Prozis demuestra que el patrón convierte; nosotros ya teníamos el dato y la regla, nos faltaba ver que la urgencia anclada a un hecho operativo es legítima y potente. **Es la pieza que convierte el horario de dato pasivo en llamada a la acción.**
+- **Descartado de aquí:** el chat de terceros (R9) y el boletín por email (RGPD, R8 — hoy solo 3 de 8 tiendas tienen `company` completo).
+
+### Alphalete `[LEÍDA]` — ⭐ dos patrones que resuelven problemas abiertos
+- **Qué se leyó:** bloques editoriales titulados como **afirmaciones**, no como etiquetas («LIVE WITH INTENTION» · «ALL-DAY UNIFORM» · «REPEAT OFFENDERS»), cada uno con una frase y dos entradas segmentadas (SHOP WOMEN / SHOP MEN). **«POPULAR CATEGORIES» con una línea de 3-4 palabras bajo cada categoría** («BODYSUITS — One piece. Every angle.» · «SHORTS — Built for full range.» · «JACKETS — Your post-session layer.»). Un eje de navegación **«SHOP BY COLOR»** que no es la categoría. Y al final, **«VISIT ALPHALAND»**: una sección entera dedicada a su destino FÍSICO.
+- **A qué hoja sirve — tres cosas:**
+  1. **Productos y marcas** (P2): 137 categorías en crudo son cadenas muertas. Cada categoría con **una línea corta de marca** se vuelve navegable y humana — se escribe UNA vez a nivel de marca y sirve a las 50 tiendas. Es el arreglo más barato y de mayor efecto de toda la sección.
+  2. **Ruta Mujer / «Empieza aquí»** (P6, ruta Amanda): la doble entrada segmentada por público en el bloque editorial es exactamente el patrón — y el eje «por color» valida que **se puede navegar por algo que no sea la categoría**: nosotros navegamos **por objetivo**.
+  3. **«Por qué en tienda»** (P5): la marca que vende ropa deportiva online por millones **dedica un bloque de su portada a que vayas a su sitio físico**. El argumento de nuestra sección deja de ser defensivo: el mejor del sector hace lo mismo, porque el sitio físico es el activo, no el estorbo.
+
 ## D3 · «Portada» premium
 
 ### Momentous
@@ -50,19 +67,24 @@
 
 ---
 
-## Transversales (lo que enseñan las 9 juntas)
+## D4 · «Oscura»
 
-1. **9 de 9 llevan barra de anuncio superior.** No es opcional en el sector: es EL slot de la oferta/canal. Nuestra banda de Oferta tiene procedencia unánime.
-2. **4 de 9 capturas salieron tapadas por banners de consentimiento** (Barebells, Crown, Huel, AG1). Nuestro R9 (cero terceros = cero banner) no es solo velocidad: **se VE como limpieza frente al sector entero**. Argumento de venta literal para el pitch.
+El listado de Awwwards (categoría deportes) se leyó pero **devuelve nombres de estudios, no de sitios** — sin las miniaturas no aporta nada anotable, así que **no se usa**. La dirección oscura se apoya en lo ya visto que vive en negro con solvencia: **Momentous** (negro premium con barra de acento y eyebrow monoespaciada), **NOCCO** y **Gymshark** (negro + una tinta). No hace falta más material: D4 no es una dirección aparte sino **el modo nocturno de D1 y D3**, y así debería proponerse.
+
+---
+
+## Transversales (lo que enseñan las 12 juntas)
+
+1. **Todas llevan barra de anuncio superior.** No es opcional en el sector: es EL slot de la oferta/canal. Nuestra banda de Oferta tiene procedencia unánime.
+2. **4 de las 10 vistas salieron tapadas por banners de consentimiento** (Barebells, Crown, Huel, AG1) y Prozis suma el quinto. Nuestro R9 (cero terceros = cero banner) no es solo velocidad: **se VE como limpieza frente al sector entero**. Argumento de venta literal para el pitch.
 3. **La foto imperfecta se doma igual en todos:** o tipo que la pisa (NOCCO), u oscurecida como fondo (Bulk), o sustituida por color plano + producto (Barebells). Ninguno depende de fotografía de estudio de la tienda — exactamente nuestra restricción de flota.
 4. **La evidencia va delante y en pequeño** (Crown ✓-eyebrow, Huel cifras display): la Placa no es un párrafo de «calidad y confianza», es un dato con formato.
-5. **Nada de esto usa precio como gancho salvo el % de descuento** — compatible con nuestro «sin precios visibles».
+5. **Nada usa precio como gancho salvo el % de descuento** — compatible con nuestro «sin precios visibles».
+6. **La urgencia legítima existe y está anclada a un hecho operativo** (Prozis: la hora de corte del envío). Nosotros tenemos el hecho equivalente y mejor: **la hora a la que cierra tu tienda, hoy**.
+7. **El texto de marca es infraestructura barata:** una línea de 4 palabras por categoría (Alphalete) convierte una lista muerta en navegación. Se escribe una vez, sirve a 50 tiendas. El mismo principio vale para rutas, verdades del mostrador y equipo.
+8. **El sitio físico es activo, no estorbo** (Alphalete dedica un bloque de portada a visitar su local). «Por qué en tienda» deja de ser una sección defensiva.
 
 ## Qué falta para cerrar la sesión
 
-- [ ] myprotein.es (D2 — el estándar España; qué cansancio evitar) — navegada, captura pendiente de panel visible
-- [ ] prozis.com (D2 — dónde está la línea del exceso)
-- [ ] alphaleteathletics.com (D1 — hero de campaña con fecha)
-- [ ] Awwwards fitness (D4 — variante oscura; listado JS, solo en panel)
-- [ ] Pasada 375px de las campeonas (NOCCO, Bulk, Crown, Momentous)
+- [ ] Pasada 375px de las campeonas (NOCCO, Bulk, Crown, Momentous) — pendiente de panel visible
 - [ ] Artefacto anotado → puerta del dueño (metodología §3)
