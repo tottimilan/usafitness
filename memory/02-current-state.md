@@ -25,18 +25,20 @@ Dos plantillas (`angular`, `energia`) **rechazadas por el dueño** por el mismo 
 
 **PR #17 SÍ está mezclado en main** (c1596f2, 26-ago 23:40 — verificado contra origin/main; este fichero decía lo contrario y la revisión lo cazó). `energia` vive en la producción compartida de los 8 dominios **sin adoptantes** (`template` ausente en las 8: nadie la ve). **Decisión (27-ago, delegada por el dueño «lo que tú consideres»): SE QUEDA en main sin ofrecerse** — revertirla removería main sin beneficio, nadie la ve sin adoptantes, y su infraestructura la reutiliza F3. Registrada en memory/07. Su infraestructura (hoja CSS por plantilla, tipografía autoalojada, periferia) es válida y queda.
 
-## Las 8 tiendas — verificado en vivo con `npm run flota` (2026-08-26)
+## Las 8 tiendas — ✅ **FLOTA COMPLETA**, verificado en vivo con `npm run flota` (2026-08-27)
+
+**Las 8 sirven nuestra web. No queda ninguna en WordPress** (dueño, 27-ago, confirmado midiendo). Villanueva migrada; Las Rosas y Lagoh con el DNS ya resuelto. Es la primera vez que la flota está entera en nuestro sistema.
 
 | Tienda | Dominio | Sirve | Notas |
 |---|---|---|---|
-| Marineda | usafitnessmarineda.com | ✅ Astro | sin reseñas, sin legales |
-| Alcobendas | usafitnessalcobendas.com | ✅ Astro | sin legales |
-| GranCasa | usafitnessgrancasa.com | ✅ Astro | sin ficha Google (la crea el dueño), vídeo 2,25MB servido sin enlazar |
-| Vigo | usafitnessvigo.com | ✅ Astro | única con móvil WhatsApp real |
-| El Arcángel | usafitnesselarcangel.com | ✅ Astro | completa salvo WhatsApp |
-| Villanueva | usafitnessvillanueva.com | ⛔ WordPress | ni siquiera en Cloudflare (NS phdns22.es) |
-| Las Rosas | usafitnesslasrosas.com | 🔴 **DNS caído** | NS repuntados, zona sin activar; clientes avisados, **arreglo previsto hoy 27** |
-| Lagoh | usafitnesslagoh.com | 🔴 **DNS caído** | código desplegado y listo; mismo arreglo pendiente |
+| Marineda | usafitnessmarineda.com | ✅ | sin reseñas, sin legales |
+| Alcobendas | usafitnessalcobendas.com | ✅ | sin legales |
+| GranCasa | usafitnessgrancasa.com | ✅ | sin ficha Google (la crea el dueño), vídeo 2,25MB servido sin enlazar, **la página más pesada: 932 KB reales** |
+| Vigo | usafitnessvigo.com | ✅ | única con móvil WhatsApp real |
+| El Arcángel | usafitnesselarcangel.com | ✅ | completa salvo WhatsApp |
+| Villanueva | usafitnessvillanueva.com | ✅ | migrada desde WordPress |
+| Las Rosas | usafitnesslasrosas.com | ✅ | DNS resuelto |
+| Lagoh | usafitnesslagoh.com | ✅ | 3 fotos verticales de 382px (por debajo de nuestra variante menor: se amplían) |
 
 **Herramienta:** `npm run flota` pregunta a resolvedores públicos (nunca al local — su caché mintió una vez) y distingue sin-dns / otro-sistema / enrutado-roto / servida.
 
@@ -44,13 +46,13 @@ Dos plantillas (`angular`, `energia`) **rechazadas por el dueño** por el mismo 
 
 - **181 tests** en dos suites, **0 skipped** con `npm run test:armado`; CI en cada push; cada test nuevo validado por mutación.
 - **Fase 3 del roadmap:** cerradas 3.1, 3.2, 3.4-3.7, 3.9 y **3.8** (imágenes responsive: flota de 8.916→4.436 KB, −50% verificado en producción; presupuesto de 900 KB/página móvil que ROMPE el build). Quedan 3.3 (aplazada a propósito) y 3.10 (partir `stores.json` — diseño hecho y refutado: **`merge=union` NO funciona en GitHub**, verificado; la palanca real es índice ordenado; requisito previo `.gitattributes text eol=lf`).
-- **Galería:** cada foto con su proporción real (nada se recorta), foto del hero ya no se repite, verticales nunca destacadas.
+- **Galería:** cada foto con su proporción real (nada se recorta), foto del hero ya no se repite, verticales nunca destacadas. **Y desde el 27-ago, FILAS JUSTIFICADAS** (PR #24): el reparto multicolumna anterior dejaba huecos medidos de 402 px en villanueva y marineda y **972 px en grancasa** — el dueño lo vio en una captura. `galeria.ts` afirmaba que el multicolumna eliminaba los huecos «estructuralmente»: era falso, los mudaba al fondo de la columna corta. Ahora cada fila llena el ancho exacto con `flex-grow:ratio` + `flex-basis:0`, que da el mismo alto a todas las fotos de una fila mezclen lo que mezclen; el corte de filas se decide por programación dinámica, no por el equilibrado del navegador. Verificado renderizado en las 8: hueco 0, escalón 0, cero fotos deformadas.
 - **Medición:** código listo (Consent Mode v2, 3 eventos), `ga4Id` a **0 de 8**. Guía completa de altas en `docs/medicion/guia-alta.md` (monitor primero — hubo un día con dos dominios caídos que nadie detectó). **Sin GA4 no hay Loop C ni pitch comercial.**
 - **Escala:** ~58 tiendas reales (56 operativas listadas en usafitness.es, verificado). Plan de alta automatizada diseñado (`.cursor/plans/2026-08-26-alta-de-tienda-automatizada.md`), pendiente de ejecutar; el directorio CMS de la central es seed data gratis.
 
 ## Bloqueado en el dueño 🔒
 
-1. DNS de Las Rosas y Lagoh (bloqueado 26-ago; dueño: arreglo previsto 27-ago). 2. Beneficios del programa de socio («cuando me los den», 27-ago, SIN fecha — bloquea SOLO la sección socio de F1). 3. Altas de GSC/monitor/GA4 con la guía (desde 26-ago). 4. Datos legales de 5 tiendas (desde 24-ago). 5. Restricciones de la central (desde 26-ago). — Respondidas 27-ago (memory/12): precios ocultos · ofertas dos niveles · norte aprobado · los 8 son PILOTOS sin pago · precio del servicio aplazado a análisis completo.
+1. ~~DNS de Las Rosas y Lagoh~~ ✅ **RESUELTO 27-ago — flota completa, 8/8 en nuestro sistema.** 2. Beneficios del programa de socio («cuando me los den», 27-ago, SIN fecha — bloquea SOLO la sección socio de F1). 3. Altas de GSC/monitor/GA4 con la guía (desde 26-ago). 4. Datos legales de 5 tiendas (desde 24-ago). 5. Restricciones de la central (desde 26-ago). — Respondidas 27-ago (memory/12): precios ocultos · ofertas dos niveles · norte aprobado · los 8 son PILOTOS sin pago · precio del servicio aplazado a análisis completo.
 
 ## Plan de método — estado
 
