@@ -27,7 +27,7 @@ Como la define memory/15 §6.1 y sigue plenamente viva: una página con capturas
 
 ## 4. El cierre (sesión de 45 minutos, con fecha)
 
-Sin cambios sobre memory/15 §6.2-6.3: NIF y datos legales **dictados por teléfono** (el email tiene 57% de no-respuesta medida), firma electrónica de contrato marco + **art. 28 RGPD** + **mandato SEPA**, verificación del móvil de WhatsApp con llamada, invitación de gestor a la ficha de Google. Si no se firma el SEPA en esa llamada, la tienda no se da de alta. **Precio cerrado en una frase: 490 € de alta + 59 €/mes** (pendiente de la evidencia de §9 — hoy es ancla de mercado, no medición).
+Sin cambios sobre memory/15 §6.2-6.3: NIF y datos legales **dictados por teléfono** (el email tiene 57% de no-respuesta medida), firma electrónica de contrato marco + **art. 28 RGPD** + **mandato SEPA**, verificación del móvil de WhatsApp con llamada, invitación de gestor a la ficha de Google. Si no se firma el SEPA en esa llamada, la tienda no se da de alta. **El precio se cierra en una frase** — pero QUÉ frase está **aplazado por el dueño (27-ago)**: «lo decidiremos más adelante, cuando tengamos todo, con desglose y análisis completo». El 490 € + 59 €/mes de memory/15 es la propuesta-ancla que alimentará ese análisis (§9), no un precio vigente.
 
 ## 5. El alta (entrega)
 
@@ -37,12 +37,15 @@ Plan automatizado (`.cursor/plans/2026-08-26-alta-de-tienda-automatizada.md`) co
 
 El recurrente se sostiene sobre **prueba de valor mensual**: informe de una página con llamadas, WhatsApps, rutas a tienda — y desde F2, ofertas vistas (con origen central/propia) e interés de socio. Reglas: se activa por tienda **solo con art. 28 firmado y `company` completo**; reporta **«mínimos medidos», nunca totales** (GA4 solo cuenta a quien acepta cookies — riesgo de sesgo registrado en memory/08; GSC y Cloudflare Analytics son el suelo para estimar el infraconteo). Sin GA4 de alta no hay informe, y sin informe la cuota es una cuota sin prueba de vida: por eso la medición es requisito comercial, no tarea técnica.
 
-## 7. Los 8 actuales (retención — nadie era dueño de esto)
+## 7. Los 8 actuales — son PILOTOS, no clientes de pago (respondido 27-ago)
 
-1. **Confirmar con el dueño quién paga hoy y cuánto.** La memoria arrastra desde el 24-ago la suposición «some may be pilots/free» sin cerrar. Hasta cerrarla, todo cálculo de ingresos es ficción.
-2. **Plan de migración de los 8 a la plantilla del método** (cuando exista, F3) con decisión explícita: ¿gratis como inversión en retención, o cobrado?
-3. **Primer informe mensual a cada uno como hito de retención** en cuanto haya `ga4Id` — hoy ninguna renovación tiene prueba de valor.
-4. **Protocolo de incidente cliente-caído** — ya hizo falta dos veces (Las Rosas y Lagoh, 26-27 ago): quién avisa al franquiciado, en qué plazo, y si hay compensación. Un cliente que se entera por un cliente suyo de que su web no existe es un churn en curso.
+**Dato del dueño, literal:** *«los primeros 8 los he hecho yo para verificar la viabilidad de esto, solo les he realizado la web, no les ofrezco otros servicios por ahora»*. Cierra la suposición «some may be pilots» abierta desde el 24-ago. Consecuencias:
+
+1. **No hay ingresos recurrentes hoy.** Todo cálculo de ingresos parte de cero clientes de pago; los 8 son inversión en prueba de viabilidad.
+2. **Su función comercial es ser el ESCAPARATE**: 8 webs vivas, con datos reales y (cuando GA4 viva) resultados medibles — la prueba que se enseña a la tienda 9. La migración a la plantilla del método (F3) es inversión en ese escaparate, no una decisión gratis/cobrado.
+3. **El primer informe mensual a los 8** sigue siendo hito: no de retención, sino de EVIDENCIA — el primer «mira lo que la web trajo» real del pitch.
+4. **Protocolo de incidente cliente-caído** sigue haciendo falta igual (Las Rosas y Lagoh, 26-27 ago): un piloto con la web caída es un escaparate roto y un embajador perdido.
+5. **La conversión de pilotos a clientes de pago** se decidirá con el precio (§9) — decisión del dueño, aplazada: «cuando tengamos todo, ya decidiré precio».
 
 ## 8. El backlink de la central
 

@@ -14,6 +14,12 @@
 > nuevos. El ciclo de VENTA lo gobierna `docs/product/proceso-comercial.md`;
 > este catálogo gobierna QUÉ se vende y a qué precio.
 >
+> **PRECIOS: decisión APLAZADA por el dueño (27-ago)** — «el precio del servicio lo
+> decidiremos más adelante… haremos un desglose y un análisis completo». Todos los
+> importes de este documento (490€, 59€/mes, 149€…) son PROPUESTA con ancla de
+> mercado, no precio vigente. Y dato clave: **los 8 actuales son pilotos del dueño,
+> sin servicios contratados** — hoy no existe ningún cliente de pago.
+>
 > **Modelo elegido: (b). Vende a cada franquiciado, uno a uno. La central solo
 > avisa** — bendice el servicio y abre la puerta, no lo contrata ni lo paga.
 >

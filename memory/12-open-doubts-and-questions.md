@@ -193,3 +193,9 @@ No son preguntas de estrategia: cada una es una llamada de teléfono y desbloque
 - Productos: todos en usafitness.es (verificado: 1.683, fotos descargables). ✓
 - Plantilla oscura: sí como opción, «está bien tener ambas». ✓
 - Referencias visuales: investigar Awwwards/CodePen/gits/tendencias, presentar ARTEFACTO anotado y esperar su confirmación antes de construir; avisar si necesito skills/herramientas extra. ✓
+
+### Respondidas el 27-ago (tanda 3 — no re-preguntar)
+- **Norte y jerarquías: APROBADOS** («okey») con cláusula de revisión futura. F0 cerrada (el catálogo también está extraído). ✓
+- **¿Quién paga de los 8?: NADIE.** Son pilotos del dueño para verificar viabilidad; solo tienen la web, sin otros servicios. La suposición «some may be pilots» (24-ago) queda cerrada. ✓
+- **Precio del servicio: APLAZADO** a decisión del dueño «cuando tengamos todo», con desglose y análisis completo previos. Los importes de memory/15 son propuesta. ✓
+- **energía en main: se queda, sin ofrecerse** («lo que tú consideres») — decisión razonada en memory/07. ✓
