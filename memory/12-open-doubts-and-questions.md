@@ -209,3 +209,13 @@ No son preguntas de estrategia: cada una es una llamada de teléfono y desbloque
 - **Inventario completo: APROBADO en general.** A2 entran las tres (FAQ, Equipo, Novedades) — «dan además diferenciación entre una tienda y otra». ✓
 - **«Nuestro equipo» ELEVADA a apuesta estratégica:** «aprovechar mucho… puede además abrir nuevos caminos». Diseñarla como plataforma, no como sección decorativa. ✓
 - **Pedida RONDA 2 de innovación:** «haz otro loop… innova, sé bold… objetivos nuevos… algo interactivo… vamos más allá». En curso. ✓
+
+### Respondidas el 27-ago (tanda 6)
+- **Ronda 2: APROBADA ÍNTEGRA** («me gusta, buen trabajo, lo apruebo, y me gustan los nuevos objetivos también»). P6-P8 y N6-N8 son ya del sistema (metodología §2 + registro de eventos ampliado). ✓
+- **EL INVENTARIO GEN 2 QUEDA CERRADO** (base + ronda 2). Siguiente fase: DISEÑO. ✓
+
+### Abiertas (puertas externas para construir ronda 2)
+1. **OK escrito de la central**: distribuir la guía PDF + imagen/credenciales del equipo — un solo viaje.
+2. **Título de Amanda Gil documentado** (regulado; sin él, firma sin titulación específica).
+3. Beneficios completos del socio (sin fecha — sigue).
+4. Expertos en la web sí/no ya quedó implícitamente respondida con la aprobación de ronda 2 (equipo elevado y ruta Mujer aprobada) — PERO condicionada a la puerta 1-2.
