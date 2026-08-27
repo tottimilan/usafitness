@@ -77,7 +77,12 @@ El listado de Awwwards (categoría deportes) se leyó pero **devuelve nombres de
 ## Transversales (lo que enseñan las 12 juntas)
 
 1. **Todas llevan barra de anuncio superior.** No es opcional en el sector: es EL slot de la oferta/canal. Nuestra banda de Oferta tiene procedencia unánime.
-2. **4 de las 10 vistas salieron tapadas por banners de consentimiento** (Barebells, Crown, Huel, AG1) y Prozis suma el quinto. Nuestro R9 (cero terceros = cero banner) no es solo velocidad: **se VE como limpieza frente al sector entero**. Argumento de venta literal para el pitch.
+2. **4 de las 10 vistas salieron tapadas por banners de consentimiento** (Barebells, Crown, Huel, AG1) y Prozis suma el quinto. — **Corrección importante sobre lo que escribí primero:** apunté que nuestra ventaja era «cero banner», y **es falso**. Fui a comprobarlo al código: `CookieConsent.astro` fija `avisoCookies = true`, así que **nuestras webs muestran aviso siempre**, en las 8 tiendas. La ventaja real es otra y es mejor, porque sí resiste que la miren:
+   - **El nuestro no tapa nada.** Es una barra fija abajo (`bottom: 1rem`, 760px máximo, sin velo oscuro, sin modal). Las cinco capturas del sector son ventanas que caen **encima del hero**: lo primero que ve el visitante es un trámite. La comparación se puede enseñar con las capturas al lado.
+   - **Aceptar y rechazar pesan igual** (mismo tamaño, mismo borde, uno relleno y otro hueco). En varias de las suyas «Aceptar todas» es un botón y rechazar es un enlace pequeño.
+   - **Rechazar impide algo de verdad.** Las fuentes se sirven desde nuestro dominio y el mapa es una fachada que solo llama a Google si el visitante lo pide, así que no hay terceros recibiendo la IP por detrás. Sin eso, un aviso es teatro.
+   - **Y la página va ligera mientras no aceptes:** `gtag.js` son ~145 KB comprimidos de Google que **no se descargan** hasta que hay consentimiento. Con GA4 en el plan, esto es lo que mantiene el presupuesto de 900 KB en pie.
+   Lo anoto así porque estuve a punto de llevarle al dueño un argumento de venta que no era cierto, y el sitio donde se comprueba es el código, no la memoria.
 3. **La foto imperfecta se doma igual en todos:** o tipo que la pisa (NOCCO), u oscurecida como fondo (Bulk), o sustituida por color plano + producto (Barebells). Ninguno depende de fotografía de estudio de la tienda — exactamente nuestra restricción de flota.
 4. **La evidencia va delante y en pequeño** (Crown ✓-eyebrow, Huel cifras display): la Placa no es un párrafo de «calidad y confianza», es un dato con formato.
 5. **Nada usa precio como gancho salvo el % de descuento** — compatible con nuestro «sin precios visibles».
