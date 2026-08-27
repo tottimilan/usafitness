@@ -90,6 +90,20 @@ CÓMO SE VENDE AL FRANQUICIADO: «el que te busca desde el sofá sabe en
   no hasta el aparcamiento del centro».
 ```
 
+### Ampliación tras la gira de referencias (27-ago) — «cierra en X», la urgencia honesta
+
+Prozis muestra un contador en marcha con el texto «tu pedido aún se puede enviar hoy»: la urgencia no es inventada, es **la hora de corte real** del almacén. Nosotros tenemos el hecho equivalente y mejor — **la hora a la que cierra ESTA tienda, hoy** — y con él «Hoy en tienda» deja de ser un dato pasivo y se convierte en llamada a la acción («Abierto — cierra en 2 h 15 min»).
+
+**Viabilidad verificada en el código, no supuesta:**
+
+- `parseHorario` (src/data/horario.ts) ya devuelve `{dayOfWeek[], opens, closes}` estructurado: el cálculo sale de datos que ya existen, sin campo nuevo y sin trabajo del franquiciado.
+- El esquema de `stores.json` **exige** que el horario parsee (`refine(... .length > 0)`), así que el dato está garantizado en las 8 tiendas y en toda alta futura. Degrada solo, sin `visible()` extra.
+- Todas las páginas son SSR por petición (`prerender = false`, sin `Cache-Control` en el HTML): el valor se calcula fresco en cada carga. Nada que invalidar.
+
+**⚠️ Trampa encontrada y anotada antes de construir:** no hay zona horaria configurada en el proyecto ni en el despliegue, así que el servidor de Railway corre en **UTC**. Calcular la hora con `new Date().getHours()` haría que la web dijera «cerrado» con la tienda abierta durante las horas de desfase, **en las 8 tiendas a la vez y solo en producción**. La implementación usa obligatoriamente `Intl.DateTimeFormat` con `timeZone: 'Europe/Madrid'` (sin dependencias). Se añade prueba con hora fijada que falle si alguien vuelve a la hora del sistema.
+
+**Límite honesto:** esto dice cuándo cierra según el horario escrito, no si hoy es festivo del centro comercial. Se redacta como dato de horario («cierra a las 22:00 · quedan 2 h 15 min»), nunca como promesa de estado («abierto ahora») — es exactamente la R3 rebajada que ya estaba decidida, ahora con su forma visual.
+
 ## Hoja 5 — «Por qué en tienda»
 
 ```
