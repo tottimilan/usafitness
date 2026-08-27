@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
 import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
 /**
  * Valida `stores.json` y los ficheros que declara ANTES de compilar, y al
@@ -98,6 +99,93 @@ function validarDatosDeTienda() {
             `\n\n${gordas.length} tienda(s) pasan del presupuesto de imagen (${PRESUPUESTO / 1024} KB en móvil):\n\n${lista}\n\n` +
               `O se recortan fotos, o se sube el presupuesto en astro.config.mjs dejando dicho por qué.\n`
           );
+        }
+
+        // EL PESO DE LO NUESTRO: fuentes y CSS, que se bajan SIEMPRE y hasta
+        // hoy no contaban en ningún sitio. El tope es duro porque esto no
+        // depende de datos de nadie: lo escribimos nosotros. Ver la cabecera
+        // de `src/data/presupuesto.ts` para los números medidos y el porqué de
+        // que las fotos avisen y esto reviente.
+        const zlib = await import('node:zlib');
+        const { readFileSync, statSync } = await import('node:fs');
+        const { TEMPLATES, tokensToCss, plantillasConSeccionesInvalidas } = await import(
+          './src/data/templates.ts'
+        );
+        const { pesoDePlantilla, PRESUPUESTO_PAGINA, TOPE_PLANTILLA } = await import(
+          './src/data/presupuesto.ts'
+        );
+
+        // Una plantilla que nombra una sección inexistente NO se publica con
+        // una sección menos y sin decir nada: eso es exactamente el fallo por
+        // el que se rechazaron dos plantillas.
+        const inventadas = plantillasConSeccionesInvalidas(TEMPLATES);
+        if (inventadas.length > 0) {
+          throw new Error(
+            `\n\nPlantilla(s) que nombran secciones que no existen:\n\n` +
+              inventadas.map((x) => `  ✖ ${x.plantilla}: ${x.desconocidas.join(', ')}`).join('\n') +
+              `\n\nAñade la sección a SECTION_IDS y al registro, o corrige el nombre.\n`
+          );
+        }
+
+        const cssGlobal = readFileSync(
+          fileURLToPath(new URL('./src/styles/global.css', import.meta.url)),
+          'utf8'
+        );
+        const pesadas = Object.values(TEMPLATES)
+          .map((t) => ({
+            id: t.id,
+            peso: pesoDePlantilla(
+              t,
+              (r) => statSync(join(dirPublic, r)).size,
+              (s) => zlib.gzipSync(Buffer.from(s), { level: 9 }).length,
+              tokensToCss(t) + (t.css ?? ''),
+              cssGlobal
+            ),
+          }))
+          .filter((x) => x.peso.exceso > 0);
+
+        if (pesadas.length > 0) {
+          throw new Error(
+            `\n\n${pesadas.length} plantilla(s) pasan del tope de fuentes+CSS (${TOPE_PLANTILLA / 1024} KB):\n\n` +
+              pesadas
+                .map(
+                  (x) =>
+                    `  ✖ ${x.id}: ${(x.peso.total / 1024).toFixed(0)} KB ` +
+                    `(${(x.peso.fuentes / 1024).toFixed(0)} de fuentes, ${(x.peso.css / 1024).toFixed(0)} de CSS)`
+                )
+                .join('\n') +
+              `\n\nQuita un peso de fuente, declara usaFuenteBase:false, o sube el tope\n` +
+              `en src/data/presupuesto.ts dejando dicho por qué.\n`
+          );
+        }
+
+        // Y el peso COMPLETO de cada página, que es lo que la cifra de 900 KB
+        // prometía y nunca midió. Avisa, no rompe: las fotos son dato del
+        // franquiciado y recortarlas se ve en pantalla — lo decide una persona,
+        // igual que el resto de avisos de datos.
+        const plantillaDe = (s) => TEMPLATES[s.template ?? ''] ?? TEMPLATES['clasica'];
+        for (const s of stores) {
+          const t = plantillaDe(s);
+          const nuestro = pesoDePlantilla(
+            t,
+            (r) => statSync(join(dirPublic, r)).size,
+            (x) => zlib.gzipSync(Buffer.from(x), { level: 9 }).length,
+            tokensToCss(t) + (t.css ?? ''),
+            cssGlobal
+          ).total;
+          const fotos = pesoDeUnaPagina(
+            [...new Map(fotosDePagina(s).map((f) => [f.src, f])).values()],
+            dirPublic
+          );
+          const total = fotos + nuestro;
+          if (total > PRESUPUESTO_PAGINA) {
+            logger.warn(
+              `${s.slug}: ${(total / 1024).toFixed(0)} KB con scroll hasta el final ` +
+                `(${(fotos / 1024).toFixed(0)} de fotos + ${(nuestro / 1024).toFixed(0)} de fuentes y CSS) — ` +
+                `${((total - PRESUPUESTO_PAGINA) / 1024).toFixed(0)} KB por encima del presupuesto. ` +
+                `Hay que recortar o recomprimir fotos, y eso se ve en pantalla: lo decide el dueño`
+            );
+          }
         }
 
         // Los avisos no rompen nada: son carencias que dependen de datos que
