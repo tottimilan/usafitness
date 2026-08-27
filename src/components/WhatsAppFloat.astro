@@ -25,11 +25,12 @@ const acciones = [
 ].filter((a) => a !== null);
 ---
 
-{/* La barra lleva TAMBIÉN la clase whatsapp-float a propósito: la regla que
-    oculta el contacto flotante mientras el aviso de cookies pide decisión
-    (`:root:has(#uf-cookie-banner:not([hidden])) .whatsapp-float`) está fijada
-    por test y debe aplicarle igual — el aviso no puede quedar tapado por la
-    barra como quedó una vez tapado por la burbuja. */}
+{/* La barra NO lleva la clase whatsapp-float. La llevó un día, para heredar
+    la regla que oculta el contacto mientras el aviso de cookies pide decisión
+    — y heredó también la forma de BURBUJA de global.css: 60px, círculo, texto
+    recortado. Lo vio el dueño en la página; la verificación por estilos
+    computados no lo vio. La ocultación durante el aviso la da ahora una regla
+    :has propia en la hoja de la plantilla. */}
 {variant === 'barra-accion-movil' && acciones.length > 0 && (
   <nav class="barra-contacto" aria-label="Contacto directo">
     {acciones.map((a) => (
