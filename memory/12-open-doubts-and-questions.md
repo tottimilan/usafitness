@@ -199,3 +199,13 @@ No son preguntas de estrategia: cada una es una llamada de teléfono y desbloque
 - **¿Quién paga de los 8?: NADIE.** Son pilotos del dueño para verificar viabilidad; solo tienen la web, sin otros servicios. La suposición «some may be pilots» (24-ago) queda cerrada. ✓
 - **Precio del servicio: APLAZADO** a decisión del dueño «cuando tengamos todo», con desglose y análisis completo previos. Los importes de memory/15 son propuesta. ✓
 - **energía en main: se queda, sin ofrecerse** («lo que tú consideres») — decisión razonada en memory/07. ✓
+
+### Respondidas el 27-ago (tanda 4)
+- **Las 5 secciones F1: APROBADAS** en el artefacto de referencias («me gusta el análisis y estas secciones»). ✓
+- **Nueva puerta pedida:** inventario COMPLETO (todas las secciones, todas las landings, + estrategias de otros servicios como «suscripciones para novedades») presentado en artefacto y confirmado ANTES de meterse en diseño. ✓
+- Pendiente sin responder: expertos E-E-A-T (Gouveia/Gil) en la web — sí/no. (No urge.)
+
+### Respondidas el 27-ago (tanda 5)
+- **Inventario completo: APROBADO en general.** A2 entran las tres (FAQ, Equipo, Novedades) — «dan además diferenciación entre una tienda y otra». ✓
+- **«Nuestro equipo» ELEVADA a apuesta estratégica:** «aprovechar mucho… puede además abrir nuevos caminos». Diseñarla como plataforma, no como sección decorativa. ✓
+- **Pedida RONDA 2 de innovación:** «haz otro loop… innova, sé bold… objetivos nuevos… algo interactivo… vamos más allá». En curso. ✓
