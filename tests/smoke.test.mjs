@@ -654,15 +654,30 @@ describe('La galería no recorta ninguna foto', () => {
     });
   }
 
-  test('basta una foto vertical para que la galería pase a 3 columnas', async () => {
-    // A 2 columnas la celda mide 442px: una 9:16 saldría de 786px de alto.
-    const conVertical = stores.find((s) => s.slug === 'vigo');
-    const html = (await get('/', conVertical.domain)).text();
-    assert.match(html, /--columnas:3/, 'vigo tiene fotos 9:16 y necesita 3 columnas');
+  test('una vertical se sirve estrecha y una apaisada, ancha', async () => {
+    // Antes esto miraba `--columnas`, que era el único mando que había. Con
+    // filas justificadas no hay columnas: cada foto ocupa la parte de su fila
+    // que le toca por su forma. Lo que se protege sigue siendo lo mismo — que
+    // una 9:16 no se pinte enorme y se coma la pantalla — pero ahora se
+    // comprueba sobre el ancho que la página DECLARA para cada foto, que es lo
+    // que decide qué se descarga y cómo se ve.
+    const anchos = (html) =>
+      [...html.matchAll(/sizes="[^"]*?, (\d+)px"/g)].map((m) => +m[1]);
 
-    const soloHorizontales = stores.find((s) => s.slug === 'arcangel');
-    const html2 = (await get('/', soloHorizontales.domain)).text();
-    assert.match(html2, /--columnas:2/, 'arcangel es todo 4:3: 2 columnas y celdas grandes');
+    const vigo = stores.find((s) => s.slug === 'vigo');
+    const deVigo = anchos((await get('/', vigo.domain)).text());
+    assert.ok(deVigo.length > 0, 'la galería de vigo declara anchos por foto');
+    assert.ok(
+      Math.max(...deVigo) <= 320,
+      `las 9:16 de vigo se declaran a ${Math.max(...deVigo)}px: a ese ancho miden más de 500 de alto`
+    );
+
+    const arcangel = stores.find((s) => s.slug === 'arcangel');
+    const deArcangel = anchos((await get('/', arcangel.domain)).text());
+    assert.ok(
+      Math.min(...deArcangel) >= 400,
+      `arcangel es todo 4:3 y sus fotos deberían ir anchas, no a ${Math.min(...deArcangel)}px`
+    );
   });
 });
 
@@ -747,7 +762,12 @@ describe('Cada pantalla se lleva el tamaño de foto que necesita', () => {
     // respeta solo cuando la primera es horizontal.
     const s = stores.find((x) => x.slug === 'vigo');
     const html = (await get('/', s.domain)).text();
-    assert.ok(!html.includes('gallery-item--destacada'), 'vigo no puede destacar una 9:16');
+    // Destacar es «ir sola en su fila». Antes esto buscaba una clase que ya no
+    // existe, así que el test pasaba sin comprobar nada: se afirma sobre el
+    // reparto real, que es lo único que decide cómo se ve.
+    const primeraFila = html.split('class="gallery-fila').slice(1)[0] ?? '';
+    const fotos = (primeraFila.match(/class="gallery-item"/g) ?? []).length;
+    assert.ok(fotos !== 1, `vigo no puede destacar una 9:16 y su primera fila lleva ${fotos} foto(s)`);
   });
 });
 
@@ -788,19 +808,25 @@ describe('Las plantillas se pintan como dicen que se pintan', () => {
     const plan = galeriaDe(s);
 
     assert.equal(plan.destacarPrimera, false, 'arcangel no lleva el flag por tienda…');
+    assert.ok(plan.filas[0].fotos.length > 1, '…así que su primera fila lleva varias fotos');
 
-    // …así que si la clase aparece, solo puede venir de la variante.
-    const componente = readFileSync(new URL('../src/components/Gallery.astro', import.meta.url), 'utf8');
-    assert.match(componente, /variant\?: string/, 'Gallery tiene que aceptar `variant`');
-    assert.match(
-      componente,
-      /variant === 'destacada'/,
-      'y usarla: recibirla y no mirarla es peor que no recibirla'
-    );
-    assert.match(
-      componente,
-      /'gallery-item--destacada': destacar && i === 0/,
-      'la clase sale de la decisión combinada, no solo del flag por tienda'
+    // …y si con la plantilla la primera queda SOLA en su fila, solo puede venir
+    // de la variante. Se comprueba sobre el HTML servido y no sobre el texto
+    // del componente: la versión anterior de este test buscaba el nombre de una
+    // clase en el fuente, así que al cambiar el mecanismo de maquetación se
+    // puso roja sin que nada estuviera roto, y habría seguido verde si la clase
+    // se hubiera quedado escrita sin pintar nada.
+    // Por la ruta interna y SIN el dominio de la tienda: `?plantilla=` está
+    // deshabilitado a propósito en el dominio canónico, para que nadie pueda
+    // enseñarle al cliente su web con otra plantilla desde su propia URL.
+    const html = (await get(`/${s.slug}?plantilla=angular`)).text();
+    const filas = html.split('class="gallery-fila').slice(1);
+    assert.ok(filas.length > 1, 'la galería sale repartida en filas');
+    const fotosDeLaPrimera = (filas[0].match(/class="gallery-item"/g) ?? []).length;
+    assert.equal(
+      fotosDeLaPrimera,
+      1,
+      'con `angular`, la primera foto va sola en su fila: eso es destacarla'
     );
   });
 });

@@ -32,15 +32,47 @@
  * recortan igual — solo cambia cuáles. No hay forma de celda buena para un
  * conjunto mezclado.
  *
- * LO QUE SE HACE
+ * EL SEGUNDO INTENTO TAMBIÉN FALLÓ, Y ESO ESTUVO PUBLICADO
  *
- * Cada foto conserva SU proporción y el grid es multicolumna. Consecuencias:
- * no se recorta ninguna foto nunca, la mezcla deja de ser un problema, y los
- * números impares dejan de dejar huecos **estructuralmente** en vez de por
- * aritmética — en un flujo multicolumna no hay filas fijas donde falte algo.
+ * Se pasó a flujo multicolumna con la proporción real de cada foto, y aquí
+ * quedó escrito que así «los números impares dejan de dejar huecos
+ * ESTRUCTURALMENTE, porque en un flujo multicolumna no hay filas fijas donde
+ * falte algo». **Es falso.** El hueco no desaparece: se muda al fondo de la
+ * columna más corta, donde encima parece un error de carga.
  *
- * Lo único que queda por decidir es CUÁNTAS columnas, y eso sí depende de las
- * fotos: una vertical en una columna ancha sale enorme y se come la página.
+ * Medido en producción el 2026-08-27, a 900 px de ancho:
+ *
+ *   villanueva   402 px de hueco   (2 + 2 + 1 fotos por columna)
+ *   marineda     402 px
+ *   grancasa     972 px            (3 + 1 + 1)  ← más alto que dos fotos
+ *
+ * Justo las tres tiendas que MEZCLAN orientaciones, que es el caso difícil que
+ * este mismo fichero decía haber resuelto. El error no fue el mecanismo —no se
+ * recorta ninguna foto, eso sí se cumplió— sino dar por bueno el resultado sin
+ * mirarlo: se verificó la propiedad y no el aspecto.
+ *
+ * LO QUE SE HACE AHORA: FILAS JUSTIFICADAS
+ *
+ * Las fotos se reparten en filas, y cada fila se escala para llenar EXACTAMENTE
+ * el ancho disponible. Es el reparto de las galerías de fotos de toda la vida, y
+ * resuelve las tres cosas a la vez: no recorta —cada foto mantiene su
+ * proporción—, no deja huecos —toda fila llena el ancho— y la mezcla de
+ * orientaciones deja de importar, porque una fila puede llevar una apaisada y
+ * una vertical y las dos salen con el MISMO alto.
+ *
+ * La aritmética que lo hace funcionar: en una fila de ancho útil A, si a cada
+ * foto se le da un ancho proporcional a su ratio r, entonces
+ *
+ *     ancho_i = A · r_i / Σr        alto_i = ancho_i / r_i = A / Σr
+ *
+ * o sea que **todas las fotos de la fila salen a la misma altura**, sea cual
+ * sea su forma. Y el CSS lo hace solo con `flex-grow: r` y `flex-basis: 0`, sin
+ * una sola altura en píxeles y sin JavaScript: la fila sigue llenando el ancho
+ * exacto a cualquier tamaño de pantalla.
+ *
+ * Lo único que hay que decidir aquí es DÓNDE se corta cada fila, y eso se elige
+ * con la proporción real de cada foto para que ninguna fila salga ni aplastada
+ * ni gigante.
  *
  * Este módulo es PURO: recibe las dimensiones ya medidas y devuelve el plan.
  * Medir ficheros es trabajo de `src/build/medir-imagenes.ts`, que corre en el
@@ -59,15 +91,38 @@ export interface Foto {
 export interface FotoColocada extends Foto {
   /** Valor literal para `aspect-ratio`, con la proporción real de la foto. */
   proporcion: string;
+  /** El mismo dato en número: es el `flex-grow` que reparte el ancho de la fila. */
+  ratio: number;
   orientacion: Orientacion;
+  /** Parte del ancho de la fila que ocupa, de 0 a 1. Sirve para el `sizes`. */
+  parte: number;
+}
+
+export interface Fila {
+  fotos: FotoColocada[];
+  /**
+   * Alto que tendrá la fila al ancho de referencia. No se emite como píxeles
+   * —el CSS lo saca solo de las proporciones— pero se calcula aquí porque es lo
+   * que decide dónde se corta cada fila, y porque sin él no hay nada que probar.
+   */
+  alto: number;
+  /**
+   * La fila llenaría el ancho a costa de salir más alta que el tope, así que se
+   * queda en el tope y se centra. Pasa cuando quedan una o dos verticales
+   * sueltas: estirarlas a 900 px las dejaría de 1200 px de alto.
+   */
+  centrada: boolean;
+  /** El alto al que se queda si va centrada. Viaja al CSS: no siempre es el mismo. */
+  tope: number;
 }
 
 export interface PlanDeGaleria {
-  columnas: number;
-  /** La primera cruza todas las columnas. Es el plano general de la tienda. */
+  filas: Fila[];
+  /** La primera cruza todo el ancho. Es el plano general de la tienda. */
   destacarPrimera: boolean;
   /** Ancho máximo del grid en px. */
   anchoMaximo: number;
+  /** Todas las fotos en orden, para lo que necesite recorrerlas planas. */
   fotos: FotoColocada[];
   /** Carencias que un humano tiene que resolver. No rompen el build. */
   avisos: string[];
@@ -88,6 +143,31 @@ export function orientacionDe(foto: Foto): Orientacion {
 
 const ANCHO_MAXIMO = 900;
 const HUECO = 16;
+
+/**
+ * El alto al que se aspira para cada fila, y el que no se pasa.
+ *
+ * El objetivo sale de lo que ya se veía bien: las tiendas con fotos de una sola
+ * orientación daban filas de ~332 px y nadie se quejó de ellas. El tope existe
+ * por el caso contrario: dos verticales solas estiradas a 900 px de ancho salen
+ * de 590 px de alto, y tres a una sola, de 1.200. Antes que eso, la fila se
+ * queda en el tope y se centra — un margen simétrico se lee como decisión; un
+ * hueco a un lado, como un fallo.
+ */
+const ALTO_OBJETIVO = 340;
+const ALTO_MAXIMO = 520;
+
+/**
+ * La destacada tiene su propio tope, y más alto.
+ *
+ * El de 520 está pensado para que dos verticales sueltas no ocupen la pantalla.
+ * Aplicárselo a la destacada la dejaba en 693 px de ancho centrados en 900, o
+ * sea con margen a los lados: exactamente lo contrario de «plano general de la
+ * tienda», que es para lo que existe. Una 4:3 a 900 de ancho mide 675 de alto y
+ * eso es lo que se quiere; el tope sigue existiendo para que una foto casi
+ * cuadrada no se vaya a 850.
+ */
+const ALTO_MAXIMO_DESTACADA = 680;
 
 export interface Opciones {
   /**
@@ -114,8 +194,63 @@ export function columnasPara(fotos: Foto[]): number {
   return fotos.some((f) => orientacionDe(f) === 'vertical') ? 3 : 2;
 }
 
+/** Alto de una fila que llena `ancho` con estas proporciones. Ver la cabecera. */
+export function altoDeFila(ratios: number[], ancho = ANCHO_MAXIMO, hueco = HUECO): number {
+  const suma = ratios.reduce((a, r) => a + r, 0);
+  if (suma <= 0) return 0;
+  return (ancho - (ratios.length - 1) * hueco) / suma;
+}
+
+/**
+ * Dónde se corta cada fila.
+ *
+ * Se prueban TODOS los repartos posibles y se elige el que menos se aleja del
+ * alto objetivo, con las filas que se pasarían del tope penalizadas fuerte.
+ * Es programación dinámica sobre el número de fotos ya colocadas: con menos de
+ * una docena de fotos por tienda, es instantáneo y —lo que importa— **es
+ * determinista**. La versión anterior dejaba el reparto en manos del algoritmo
+ * de equilibrado del navegador, que es justo lo que produjo los huecos.
+ *
+ * El coste es cuadrático a propósito: dos filas regulares valen más que una
+ * perfecta y otra horrible, que era exactamente el defecto a evitar.
+ */
+export function repartirEnFilas(
+  ratios: number[],
+  ancho = ANCHO_MAXIMO,
+  hueco = HUECO,
+  objetivo = ALTO_OBJETIVO,
+  maximo = ALTO_MAXIMO
+): number[][] {
+  const n = ratios.length;
+  if (n === 0) return [];
+
+  const PENALIZACION = 1e7;
+  const coste = (h: number) => (h - objetivo) ** 2 + (h > maximo ? PENALIZACION : 0);
+
+  // mejor[i] = coste mínimo de colocar las primeras i fotos en filas completas.
+  const mejor = new Array<number>(n + 1).fill(Infinity);
+  const corte = new Array<number>(n + 1).fill(0);
+  mejor[0] = 0;
+
+  for (let i = 1; i <= n; i++) {
+    for (let j = 0; j < i; j++) {
+      if (mejor[j] === Infinity) continue;
+      const total = mejor[j] + coste(altoDeFila(ratios.slice(j, i), ancho, hueco));
+      if (total < mejor[i]) {
+        mejor[i] = total;
+        corte[i] = j;
+      }
+    }
+  }
+
+  const filas: number[][] = [];
+  for (let i = n; i > 0; i = corte[i]) {
+    filas.unshift(Array.from({ length: i - corte[i] }, (_, k) => corte[i] + k));
+  }
+  return filas;
+}
+
 export function planDeGaleria(fotos: Foto[], opciones: Opciones = {}): PlanDeGaleria {
-  const columnas = columnasPara(fotos);
   // El flag es una preferencia; la orientación es física. Una 9:16 destacada a
   // 900px de ancho mediría 1600px de alto — más alta que la pantalla. Caso
   // real: vigo, cuya primera foto pasa a ser vertical al filtrar el duplicado
@@ -123,18 +258,38 @@ export function planDeGaleria(fotos: Foto[], opciones: Opciones = {}): PlanDeGal
   const destacarPrimera =
     Boolean(opciones.destacadaForzada) && fotos.length > 1 && orientacionDe(fotos[0]) === 'horizontal';
 
-  const colocadas: FotoColocada[] = fotos.map((f) => ({
-    ...f,
-    proporcion: `${f.ancho} / ${f.alto}`,
-    orientacion: orientacionDe(f),
-  }));
+  const ratios = fotos.map((f) => f.ancho / f.alto);
+
+  // La destacada es simplemente una fila de una sola foto: el resto se reparte
+  // aparte. Así no hay dos mecanismos de maquetación conviviendo, que es de
+  // donde salió el `column-span` que había que apagar a mano en móvil.
+  const grupos = destacarPrimera
+    ? [[0], ...repartirEnFilas(ratios.slice(1)).map((f) => f.map((i) => i + 1))]
+    : repartirEnFilas(ratios);
+
+  const colocadas: FotoColocada[][] = grupos.map((indices) => {
+    const suma = indices.reduce((a, i) => a + ratios[i], 0);
+    return indices.map((i) => ({
+      ...fotos[i],
+      proporcion: `${fotos[i].ancho} / ${fotos[i].alto}`,
+      ratio: ratios[i],
+      orientacion: orientacionDe(fotos[i]),
+      parte: ratios[i] / suma,
+    }));
+  });
+
+  const filas: Fila[] = colocadas.map((f, i) => {
+    const alto = altoDeFila(f.map((x) => x.ratio));
+    const tope = destacarPrimera && i === 0 ? ALTO_MAXIMO_DESTACADA : ALTO_MAXIMO;
+    return { fotos: f, alto, centrada: alto > tope, tope };
+  });
 
   return {
-    columnas,
+    filas,
     destacarPrimera,
     anchoMaximo: ANCHO_MAXIMO,
-    fotos: colocadas,
-    avisos: avisosDeCalidad(fotos, columnas, destacarPrimera),
+    fotos: filas.flatMap((f) => f.fotos),
+    avisos: avisosDeCalidad(filas),
   };
 }
 
@@ -144,19 +299,23 @@ export function planDeGaleria(fotos: Foto[], opciones: Opciones = {}): PlanDeGal
  * de «hay que pedirle fotos mejores al franquiciado», y esa segunda frase no
  * se le ocurre a nadie mirando la pantalla.
  */
-function avisosDeCalidad(fotos: Foto[], columnas: number, destacarPrimera: boolean): string[] {
-  const anchoColumna = (ANCHO_MAXIMO - (columnas - 1) * HUECO) / columnas;
+function avisosDeCalidad(filas: Fila[]): string[] {
   const avisos: string[] = [];
 
-  for (const [i, f] of fotos.entries()) {
-    // La destacada cruza todas las columnas, así que se le exige el ancho entero.
-    const necesario = destacarPrimera && i === 0 ? ANCHO_MAXIMO : anchoColumna;
-    if (f.ancho < necesario) {
-      avisos.push(
-        `${f.src}: ${f.ancho}px de ancho para una columna de ${Math.round(necesario)}px — se verá ampliada ${(
-          necesario / f.ancho
-        ).toFixed(2)}x`
-      );
+  for (const fila of filas) {
+    // Cada foto se ve exactamente al ancho que le toca en SU fila, que ahora se
+    // conoce con precisión. Antes se comparaba contra un ancho de columna
+    // teórico igual para todas, que en las filas mixtas no era el de ninguna.
+    const alto = Math.min(fila.alto, fila.tope);
+    for (const f of fila.fotos) {
+      const necesario = alto * f.ratio;
+      if (f.ancho < necesario) {
+        avisos.push(
+          `${f.src}: ${f.ancho}px de ancho para un hueco de ${Math.round(necesario)}px — se verá ampliada ${(
+            necesario / f.ancho
+          ).toFixed(2)}x`
+        );
+      }
     }
   }
   return avisos;
