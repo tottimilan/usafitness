@@ -1,7 +1,7 @@
 # Inventario completo — secciones, landings y estrategias de servicio
 
 **Fecha:** 2026-08-27 · **Por qué existe:** puerta pedida por el dueño tras aprobar las 5 secciones F1: *«primero ver qué secciones nos faltaban, y qué landings… quizás metería aquí también estrategias de otros servicios, como suscripciones para novedades. Una vez confirmadas todas, ya nos meteremos en diseño.»*
-**Estado:** presentado en artefacto → esperando confirmación del dueño. Con su OK, este inventario es EL catálogo cerrado de la generación 2, y empieza el diseño (Loop A).
+**Estado:** ✅ **APROBADO por el dueño (27-ago)** — A2 entran las tres («dan diferenciación entre tiendas»); «Nuestro equipo» ELEVADA: «aprovechar mucho… puede abrir nuevos caminos». Pedida una RONDA 2 de innovación (bold, interactiva, objetivos nuevos) antes de cerrar del todo. Con su OK, este inventario es EL catálogo cerrado de la generación 2, y empieza el diseño (Loop A).
 
 ---
 
