@@ -1,7 +1,7 @@
 # El Norte — qué es este proyecto y qué es lo más importante
 
 **Fecha:** 2026-08-27 · **Fuente:** el dueño del proyecto, literal: *«lo más importante es vender esto a más tiendas, y tenemos que hacer un producto bueno, moderno, defendible, bien explicado, que se vea que sabemos qué hacemos y por qué y cómo vamos a mejorar su tienda.»*
-**Este documento manda sobre los demás.** Si un plan, una plantilla o una sesión contradicen el norte, lo que se corrige no es el norte.
+**APROBADO por el dueño el 2026-08-27** («okey al norte y jerarquías») con cláusula de revisión: se pueden modificar más adelante si el trabajo lo pide — cada cambio marca versión y fecha. **Este documento manda sobre los demás.** Si un plan, una plantilla o una sesión contradicen el norte, lo que se corrige no es el norte.
 
 ---
 

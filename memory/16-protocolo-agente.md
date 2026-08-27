@@ -95,3 +95,4 @@ Si el mensaje final sale sin esto hecho, el protocolo se ha incumplido — es ex
 7. **Confiar en el resolvedor local** — diagnóstico falso de Lagoh por caché DNS.
 8. **CRLF** — mordió 5+ veces (ediciones fallidas en silencio, un experimento casi inválido). En Windows, todo replace multilínea va por líneas o con Edit.
 9. **Memoria por impulso y no por pauta** — resuelto con §4.
+10. **Afirmar el estado de un PR sin `gh pr view`** — DOS veces en dos días: «PR #17 no se mezcla» (estaba mezclado) y «PR #18 listo para mezclar» (mezclado hacía horas; el commit siguiente quedó huérfano en la rama y las decisiones del dueño estuvieron un rato fuera de main). El estado de un PR es estado del mundo (§1, última rama): se mide en el momento de afirmarlo, no se recuerda. Regla concreta: antes de escribir «PR #N …» en cualquier mensaje o memoria → `gh pr view N --json state`.
