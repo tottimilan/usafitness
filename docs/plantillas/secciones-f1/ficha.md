@@ -119,6 +119,9 @@ CÓMO SE VENDE AL FRANQUICIADO: «le damos al que compara contigo online
 
 | Puerta | Estado |
 |---|---|
-| Hojas de objetivos | ✅ escritas (este documento) |
-| Artefacto de referencias | **→ presentado al dueño, esperando su confirmación** |
-| Construcción (Loop A) | bloqueada hasta la puerta anterior |
+| Hojas de objetivos | ✅ escritas |
+| Artefacto de referencias | ✅ **CONFIRMADO por el dueño (27-ago):** «me gusta el análisis y estas secciones» — las 5 entran |
+| Inventario COMPLETO (secciones + landings + estrategias de servicio) | **→ nueva puerta pedida por el dueño ANTES del diseño**: «primero ver qué secciones nos faltaban, y qué landings… ya nos meteremos en diseño» |
+| Construcción (Loop A) | bloqueada hasta confirmar el inventario completo |
+
+**Pendiente del artefacto que el dueño NO respondió:** ¿pueden aparecer los expertos del brand book (Julián Andre Gouveia, Amanda Gil) en «Por qué en tienda»? — no urge (la v1 no los necesita).

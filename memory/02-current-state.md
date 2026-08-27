@@ -57,7 +57,7 @@ Dos plantillas (`angular`, `energia`) **rechazadas por el dueño** por el mismo 
 | Fase | Criterio de cierre | Cumplido | Qué falta | Fecha |
 |---|---|---|---|---|
 | F0 | Norte+jerarquías aprobados; catálogo extraído | ✅ **CERRADA** | — («okey al norte y jerarquías», con cláusula de revisión; catálogo en docs/product/catalogo-usafitness-2026-08.json: 137 categorías, 52 marcas, 8/8 nuestras) | 27-ago |
-| **F1** | 5 secciones nuevas pasan Loop A (socio «lista-salvo-dato») | **ABIERTA** | ✅ hojas escritas (docs/plantillas/secciones-f1/ficha.md) → artefacto de referencias CON CAPTURAS (necesita el panel del navegador abierto) → puerta del dueño → construcción | 27-ago |
+| **F1** | 5 secciones nuevas pasan Loop A (socio «lista-salvo-dato») | **ABIERTA** | ✅ hojas · ✅ referencias confirmadas por el dueño («las 5 entran») · → **inventario COMPLETO** (secciones+landings+estrategias de servicio) en artefacto, nueva puerta pedida por el dueño ANTES del diseño · después Loop A | 27-ago |
 | F2-F5 | ver metodo §8 | sin abrir | — | — |
 
 Beneficios de socio: reclasificados como dato de F1 (sección socio «lista-salvo-dato»), NO bloquean F0.
