@@ -94,3 +94,15 @@ El listado de Awwwards (categoría deportes) se leyó pero **devuelve nombres de
 
 - [ ] Pasada 375px de las campeonas (NOCCO, Bulk, Crown, Momentous) — pendiente de panel visible
 - [ ] Artefacto anotado → puerta del dueño (metodología §3)
+
+---
+
+## Verificaciones de la tarde del 27-ago (sobre la investigación de ocho frentes)
+
+Tres afirmaciones de la investigación, comprobadas por mí antes de apoyar en ellas las cinco plantillas:
+
+- **Basic-Fit, página por club** (`basic-fit.com/es-es/clubs/…madariaga…`) — **VISTA en el panel.** Cuña naranja clara en la esquina superior izquierda, detrás del carrusel de la fachada (primera foto: el rótulo del local). Eyebrow «Gimnasio» + título en negrita mayúsculas + dirección como enlace a Maps + icono de reloj con el horario agrupado en dos líneas (Lu–Vi / Sá–Do–Festivos) + **un solo CTA** morado. Debajo, fila «Bajar hacia →» con anclas a Sobre · Clases · Fitness Support · Encuéntranos. Barra superior con 4 argumentos de cadena. **Es el análogo más cercano a nuestra página por tienda, y usa nuestro mismo recurso de marca (la cuña de esquina).** Sirve a: hero (R1), «Hoy en tienda» (P1), navegación por anclas.
+- **Apple Store Puerta del Sol** (`apple.com/es/retail/puertadelsol`) — verificada por estructura. Bajo el nombre, la línea **«Abre a las 10:00»**; tabla de **7 días con «Hoy» marcado y la fecha en cada fila**; orden: galería → dirección y teléfono → horario → «Estamos para ayudarte» (cita, Genius) → «Ven a ver lo mejor». Sirve a: «Hoy en tienda» — la línea de estado redactada como hecho («abre a las», no «abierto ahora») es exactamente la R3 rebajada.
+- **Kronborg Slot** (`kronborg.dk`, SiteInspire) — verificada por estructura. **Barra de utilidad bajo el logo: «Åbent i dag 10:00–17:00» + «Comprar entrada».** El horario de hoy como pieza de cabecera, no de sección. Sirve a: R1 y R3 en el primer viewport.
+
+**Calidad global de la investigación (medida, no supuesta):** 8 frentes, 110 patrones, ~350 ejemplos, **292 marcados [V]** (abiertos con WebFetch: confirma marcado y texto, no píxeles) y 61 [P]. Límites declarados por los propios agentes: CodePen devolvió 403, X/Twitter no se pudo leer sin sesión (solo agregadores), Godly/Land-book/FWA bloquearon. El frente de sector usó el panel a 375 px para varias capturas reales.
