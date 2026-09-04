@@ -95,3 +95,20 @@ export function sizesDe(columnas: number, cruzaTodo = false): string {
   const fija = Math.round((900 - (columnas - 1) * 16) / columnas);
   return `(max-width: 640px) 100vw, (max-width: 932px) calc(100vw / ${columnas}), ${fija}px`;
 }
+
+/**
+ * `sizes` de una foto dentro de una fila justificada.
+ *
+ * Con el reparto por columnas, todas las fotos de la galería declaraban el
+ * mismo ancho porque todas ocupaban una columna igual. En filas justificadas ya
+ * no: en una fila con una apaisada y una vertical, la apaisada ocupa casi el
+ * doble. `parte` es su fracción del ancho de la fila, y con ella el navegador
+ * elige la variante que de verdad necesita en vez de una talla media.
+ *
+ * Por debajo de 640px la fila se apila y cada foto ocupa el ancho entero.
+ */
+export function sizesDeFoto(parte: number): string {
+  const porcentaje = Math.round(parte * 100);
+  const fijo = Math.round(parte * 900);
+  return `(max-width: 640px) 100vw, (max-width: 932px) ${porcentaje}vw, ${fijo}px`;
+}

@@ -257,6 +257,11 @@ html[data-plantilla="energia"] .gallery-grid {
   columns: auto;
   column-gap: 0;
   display: flex;
+  /* La galería base apila sus filas en columna. Esta plantilla las pone en UNA
+     línea que se desliza, así que tiene que decir la dirección: sin esto los
+     hijos se estiraban al ancho del contenedor y la tira dejaba de existir. */
+  flex-direction: row;
+  align-items: flex-start;
   gap: 1rem;
   overflow-x: auto;
   scroll-snap-type: x proximity;
@@ -273,7 +278,24 @@ html[data-plantilla="energia"] .gallery-item {
   margin: 0;
   break-inside: auto;
 }
-html[data-plantilla="energia"] .gallery-item--destacada { column-span: none; }
+/* La galería base reparte las fotos en filas justificadas; aquí la tira es UNA
+   sola línea que se desliza, así que las filas se disuelven y sus fotos pasan a
+   ser hijas directas de la tira. Eso es lo que hace display:contents, y evita
+   duplicar el marcado solo para esta plantilla. */
+html[data-plantilla="energia"] .gallery-fila { display: contents; }
+
+/* Y hay que devolverle a la foto su tamaño de tira. Disolver la fila no anula
+   la regla base que reparte el ancho por proporciones —el selector sigue
+   casando— y esa regla lleva la clase de ámbito de Astro, así que gana por
+   especificidad: la foto salía de 1.104px de ancho y 0 de alto, o sea la tira
+   entera rota. Se recupera nombrando también el contenedor, que sube esta regla
+   por encima. Medido, no supuesto. */
+html[data-plantilla="energia"] .gallery-grid .gallery-fila > .gallery-item,
+html[data-plantilla="energia"] .gallery-grid .gallery-fila--centrada > .gallery-item {
+  flex: 0 0 auto;
+  height: clamp(240px, 40vw, 360px);
+  width: auto;
+}
 
 /* ── Productos: la pizarra ─────────────────────────────────────────────── */
 html[data-plantilla="energia"] .pizarra {

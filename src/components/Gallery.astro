@@ -1,6 +1,6 @@
 ---
-import type { PlanDeGaleria } from '@/data/galeria';
-import { srcsetDe, sizesDe } from '@/data/imagen';
+import { planDeGaleria, type PlanDeGaleria } from '@/data/galeria';
+import { srcsetDe, sizesDeFoto } from '@/data/imagen';
 
 interface Props {
   /** Plan ya calculado por `galeriaDe(tienda)`. */
@@ -18,17 +18,29 @@ interface Props {
    */
   variant?: string;
 }
-const { plan, name, location = '', variant } = Astro.props;
+const { plan: planRecibido, name, location = '', variant } = Astro.props;
 
 // La variante de la plantilla y el flag por tienda son la misma decisión
 // expresada de dos formas; cualquiera de las dos destaca la primera foto.
-// El número de columnas NO depende de esto —lo decide la orientación de las
-// fotos— así que se puede resolver aquí sin recalcular el plan.
-// La misma guarda física que en `planDeGaleria`: una vertical destacada a
-// 900px de ancho mediría 1600px de alto. La variante no puede saltársela.
-const destacar =
-  plan.destacarPrimera ||
-  (variant === 'destacada' && plan.fotos.length > 1 && plan.fotos[0]?.orientacion === 'horizontal');
+//
+// Antes esto se resolvía aquí con un `column-span: all` sobre la primera foto,
+// porque la variante llega al componente y el plan se calcula antes, en el
+// registro. Con filas justificadas ya no vale: destacar es *estar en una fila
+// propia*, y eso es una decisión de reparto, no un estilo que se pueda poner
+// encima. Así que si la variante lo pide y el plan no lo trae, se recalcula.
+// Es barato —aritmética sobre cinco números— y deja UN solo mecanismo de
+// maquetación en vez de dos conviviendo.
+//
+// `planDeGaleria` mantiene la guarda física: una vertical a 900px de ancho
+// mediría 1200px de alto, así que solo se destaca una apaisada.
+const plan: PlanDeGaleria =
+  variant === 'destacada' && !planRecibido.destacarPrimera
+    ? planDeGaleria(planRecibido.fotos, { destacadaForzada: true })
+    : planRecibido;
+
+// El número de foto del texto alternativo cuenta sobre la galería entera, no
+// sobre su fila: para quien lo escucha, «foto 4 de 5» es una sola secuencia.
+const numeroDe = new Map(plan.fotos.map((f, i) => [f.src, i + 1]));
 const altSuffix = location ? ` en ${location}` : '';
 ---
 
@@ -61,62 +73,90 @@ const altSuffix = location ? ` en ${location}` : '';
 <section class="gallery section">
   <div class="container">
     <h2 class="section-title">Conoce nuestra tienda y equipo</h2>
-    <div
-      class="gallery-grid"
-      style={`--columnas:${plan.columnas};--ancho-maximo:${plan.anchoMaximo}px`}
-    >
-      {plan.fotos.map((foto, i) => (
-        <figure
-          class:list={['gallery-item', { 'gallery-item--destacada': destacar && i === 0 }]}
-          style={`--proporcion:${foto.proporcion}`}
+    <div class="gallery-grid" style={`--ancho-maximo:${plan.anchoMaximo}px`}>
+      {plan.filas.map((fila) => (
+        <div
+          class:list={['gallery-fila', { 'gallery-fila--centrada': fila.centrada }]}
+          style={`--tope:${fila.tope}px`}
         >
-          <img
-            src={foto.src}
-            srcset={srcsetDe(foto)}
-            sizes={sizesDe(plan.columnas, destacar && i === 0)}
-            alt={`${name} - tienda de nutrición deportiva y suplementos${altSuffix} (foto ${i + 1})`}
-            loading="lazy"
-            decoding="async"
-            width={foto.ancho}
-            height={foto.alto}
-          />
-        </figure>
+          {fila.fotos.map((foto) => (
+            <figure
+              class="gallery-item"
+              style={`--proporcion:${foto.proporcion};--ratio:${foto.ratio.toFixed(4)}`}
+            >
+              <img
+                src={foto.src}
+                srcset={srcsetDe(foto)}
+                sizes={sizesDeFoto(foto.parte)}
+                alt={`${name} - tienda de nutrición deportiva y suplementos${altSuffix} (foto ${numeroDe.get(foto.src)})`}
+                loading="lazy"
+                decoding="async"
+                width={foto.ancho}
+                height={foto.alto}
+              />
+            </figure>
+          ))}
+        </div>
       ))}
     </div>
   </div>
 </section>
+
 
 <style>
   .gallery {
     background: var(--color-bg-alt);
   }
 
-  /* Multicolumna y no grid: es lo que deja que cada foto conserve su altura sin
-     dejar huecos ni exigir que se sepa de antemano cuánto medirá cada celda a
-     cada ancho de pantalla. Un grid con filas fijas obliga a recortar. */
   .gallery-grid {
-    columns: var(--columnas, 2);
-    column-gap: 1rem;
     max-width: var(--ancho-maximo, 900px);
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* AQUÍ ESTÁ TODA LA MAQUETACIÓN, Y SON TRES LÍNEAS.
+     Cada foto crece en proporción a su ratio sobre una base de 0, así que su
+     ancho es (ancho útil · ratio / Σratios) y su alto, por la proporción, sale
+     (ancho útil / Σratios): IGUAL para todas las de la fila, sea cual sea su
+     forma. La fila llena el ancho exacto a cualquier tamaño de pantalla, sin una
+     sola altura en píxeles y sin JavaScript. */
+  .gallery-fila {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .gallery-fila > .gallery-item {
+    flex: var(--ratio, 1) 1 0;
+    min-width: 0;
+  }
+
+  /* La fila que llenaría el ancho a costa de salir demasiado alta se queda a la
+     altura del tope y se centra. Un margen simétrico se lee como decisión; el
+     mismo espacio a un lado, como un fallo de carga — que es lo que pasaba. */
+  .gallery-fila--centrada {
+    justify-content: center;
+  }
+  .gallery-fila--centrada > .gallery-item {
+    flex-grow: 0;
+    flex-basis: auto;
+    height: var(--tope, 520px);
+    width: auto;
+  }
+  .gallery-fila--centrada > .gallery-item img {
+    width: auto;
+    height: 100%;
   }
 
   .gallery-item {
-    /* Sin esto, una foto se parte por la mitad entre dos columnas. */
-    break-inside: avoid;
-    margin: 0 0 1rem;
+    margin: 0;
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: var(--shadow-media);
     /* La proporción real de ESTA foto. El navegador reserva el hueco antes de
        descargarla, así que la página no da el salto al cargar. */
     aspect-ratio: var(--proporcion, 4 / 3);
-  }
-
-  /* El plano general de la tienda, cuando la tienda lo marca. */
-  .gallery-item--destacada {
-    column-span: all;
-    margin-bottom: 1rem;
   }
 
   .gallery-item img {
@@ -143,12 +183,23 @@ const altSuffix = location ? ` en ${location}` : '';
     }
   }
 
+  /* En un móvil, una fila de tres verticales deja cada foto en 110px: se apilan.
+     Cada una conserva su proporción, así que sigue sin recortarse nada. */
   @media (max-width: 640px) {
-    .gallery-grid {
-      columns: 1;
+    .gallery-fila,
+    .gallery-fila--centrada {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
-    .gallery-item--destacada {
-      column-span: none;
+    .gallery-fila > .gallery-item,
+    .gallery-fila--centrada > .gallery-item {
+      flex: none;
+      width: 100%;
+      height: auto;
+    }
+    .gallery-fila--centrada > .gallery-item img {
+      width: 100%;
     }
   }
 </style>

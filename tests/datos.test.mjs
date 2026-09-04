@@ -44,7 +44,8 @@ import {
 } from '../src/data/presupuesto.ts';
 import { clasificar, resumirFlota, esProblema } from '../src/data/flota.ts';
 import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.ts';
-import { anchosDe, srcsetDe, rutaVariante, sizesDe } from '../src/data/imagen.ts';
+import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/data/imagen.ts';
+import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -774,11 +775,13 @@ describe('La galería se coloca según la foto, no al revés', () => {
     assert.equal(columnasPara([]), 1, 'sin fotos no se divide por cero');
   });
 
-  test('a 3 columnas, las fotos de Lagoh dejan de ampliarse', () => {
+  test('las tres verticales de Lagoh caben en su fila sin ampliarse', () => {
     // El número que motivó todo esto: 382px de foto en una celda de 442px.
     const p = planDeGaleria(lote(v, 3));
-    const anchoColumna = (p.anchoMaximo - (p.columnas - 1) * 16) / p.columnas;
-    assert.ok(anchoColumna <= 382, `la columna mide ${Math.round(anchoColumna)}px y la foto 382px`);
+    for (const foto of p.filas[0].fotos) {
+      const ancho = Math.min(p.filas[0].alto, p.filas[0].tope) * foto.ratio;
+      assert.ok(ancho <= 382, `el hueco mide ${Math.round(ancho)}px y la foto 382px`);
+    }
     assert.deepEqual(p.avisos, [], 'y por tanto no debe avisar de nada');
   });
 
@@ -1019,5 +1022,124 @@ describe('El presupuesto de peso cuenta lo que se descarga de verdad', () => {
           `por encima del tope de ${TOPE_PLANTILLA / 1024} KB`
       );
     }
+  });
+});
+
+describe('Ninguna galería deja un hueco al final de una columna', () => {
+  // ESTE ES EL TEST QUE FALTABA. El reparto anterior era multicolumna, y en
+  // `galeria.ts` quedó escrito que así los huecos desaparecían
+  // «estructuralmente». Era falso: el hueco se mudaba al fondo de la columna
+  // más corta. Medido en producción el 27-ago, a 900px de ancho:
+  //
+  //     villanueva 402px · marineda 402px · grancasa 972px
+  //
+  // Justo las tres tiendas que mezclan orientaciones. Se verificó que no se
+  // recortaba ninguna foto —y era cierto— pero no que el resultado se viera
+  // bien, que es lo que el dueño vio en diez segundos.
+
+  const ANCHO = 900;
+  const HUECO = 16;
+
+  const h = (n = 1) => ({ src: `h${n}.webp`, ancho: 1400, alto: 1050 }); // 4:3
+  const v = (n = 1) => ({ src: `v${n}.webp`, ancho: 382, alto: 510 }); // 3:4, las de Lagoh
+  const movil = (n = 1) => ({ src: `m${n}.webp`, ancho: 576, alto: 1024 }); // 9:16, las de Vigo
+  const lote = (f, n) => Array.from({ length: n }, (_, i) => f(i + 1));
+
+  const anchoOcupado = (fila) => {
+    const alto = Math.min(fila.alto, fila.tope);
+    return (
+      fila.fotos.reduce((a, f) => a + alto * f.ratio, 0) + (fila.fotos.length - 1) * HUECO
+    );
+  };
+
+  test('toda fila llena el ancho exacto, salvo la que se centra a propósito', () => {
+    const casos = [
+      ['dos apaisadas y tres verticales (villanueva)', [h(1), h(2), v(3), v(4), v(5)]],
+      ['una apaisada y cuatro verticales (grancasa)', [h(1), v(2), v(3), v(4), v(5)]],
+      ['todas apaisadas (arcángel)', lote(h, 4)],
+      ['todas verticales de móvil (vigo)', lote(movil, 3)],
+      ['siete mezcladas', [h(1), v(2), h(3), v(4), v(5), h(6), v(7)]],
+    ];
+    for (const [nombre, fotos] of casos) {
+      for (const fila of planDeGaleria(fotos).filas) {
+        if (fila.centrada) continue;
+        const ocupado = anchoOcupado(fila);
+        assert.ok(
+          Math.abs(ocupado - ANCHO) < 1,
+          `${nombre}: una fila ocupa ${Math.round(ocupado)}px de los ${ANCHO} — eso es el hueco`
+        );
+      }
+    }
+  });
+
+  test('todas las fotos de una fila salen al mismo alto, mezclen lo que mezclen', () => {
+    // Es la aritmética que hace que la mezcla de orientaciones deje de importar:
+    // ancho ∝ ratio y alto = ancho / ratio, o sea el mismo alto para todas.
+    for (const fila of planDeGaleria([h(1), v(2), movil(3)]).filas) {
+      const alto = Math.min(fila.alto, fila.tope);
+      const altos = fila.fotos.map((f) => (alto * f.ratio) / f.ratio);
+      assert.ok(
+        Math.max(...altos) - Math.min(...altos) < 0.01,
+        'dos fotos de la misma fila con alturas distintas dejarían un escalón'
+      );
+    }
+  });
+
+  test('ninguna fila sale más alta que su tope', () => {
+    for (const fotos of [[v(1)], [v(1), v(2)], lote(movil, 2), [h(1)], lote(v, 5)]) {
+      for (const fila of planDeGaleria(fotos).filas) {
+        const real = fila.centrada ? fila.tope : fila.alto;
+        assert.ok(real <= fila.tope + 0.01, `una fila de ${Math.round(real)}px se come la pantalla`);
+      }
+    }
+  });
+
+  test('el reparto usa todas las fotos, una vez y en orden', () => {
+    for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 11]) {
+      const fotos = Array.from({ length: n }, (_, i) => (i % 2 ? v(i) : h(i)));
+      const planas = planDeGaleria(fotos).filas.flatMap((f) => f.fotos.map((x) => x.src));
+      assert.deepEqual(
+        planas,
+        fotos.map((f) => f.src),
+        `con ${n} fotos el reparto pierde, repite o desordena alguna`
+      );
+    }
+  });
+
+  test('la flota real, tienda por tienda: cero huecos', () => {
+    // La prueba que de verdad importa, contra los datos de producción.
+    for (const s of stores) {
+      const fotos = fotosDe(s);
+      if (!fotos.length) continue;
+      for (const fila of planDeGaleria(fotos).filas) {
+        if (fila.centrada) continue;
+        const hueco = ANCHO - anchoOcupado(fila);
+        assert.ok(Math.abs(hueco) < 1, `${s.slug}: una fila deja ${Math.round(hueco)}px sin llenar`);
+      }
+    }
+  });
+
+  test('destacar la primera la pone en su propia fila, y a todo el ancho', () => {
+    const p = planDeGaleria([h(1), h(2), v(3), v(4)], { destacadaForzada: true });
+    assert.equal(p.destacarPrimera, true);
+    assert.equal(p.filas[0].fotos.length, 1, 'la destacada va sola en su fila');
+    assert.equal(p.filas[0].fotos[0].src, 'h1.webp');
+    assert.equal(
+      p.filas[0].centrada,
+      false,
+      'y llena el ancho: con el tope normal se quedaba en 693px centrados, que es lo contrario de un plano general'
+    );
+    assert.ok(p.filas.length > 1, 'las demás se reparten aparte');
+  });
+
+  test('cada foto declara el ancho que de verdad ocupa en su fila', () => {
+    // Con columnas todas declaraban lo mismo porque todas medían igual. En una
+    // fila mixta, la apaisada ocupa casi el doble que la vertical: si el `sizes`
+    // no lo dice, el navegador se baja una talla media que no le sirve a ninguna.
+    const fila = planDeGaleria([h(1), v(2)]).filas[0];
+    const [apaisada, vertical] = fila.fotos;
+    assert.ok(apaisada.parte > vertical.parte * 1.5, 'la apaisada ocupa bastante más');
+    assert.ok(Math.abs(apaisada.parte + vertical.parte - 1) < 0.001, 'y entre las dos, la fila entera');
+    assert.match(sizesDeFoto(apaisada.parte), /\d+px$/);
   });
 });

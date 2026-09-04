@@ -87,7 +87,7 @@ Si el mensaje final sale sin esto hecho, el protocolo se ha incumplido — es ex
 ## 5. Errores propios catalogados (para no repetirlos)
 
 1. **Reestilizar el esqueleto original** en vez de diseñar desde objetivos — 2 veces (angular, energia).
-2. **Entregar visual sin verlo** — energia entera; el dueño encontró en 10 s lo que mis estilos computados no podían ver.
+2. **Entregar visual sin verlo** — energia entera; el dueño encontró en 10 s lo que mis estilos computados no podían ver. **REINCIDENCIA 27-ago, una capa más abajo:** la galería multicolumna. Verifiqué el MECANISMO (ninguna foto se recorta: cierto) y di por bueno el RESULTADO sin mirarlo, y encima lo dejé escrito en `galeria.ts` como resuelto «estructuralmente». Dejaba 402 px de hueco en villanueva y 972 en grancasa; el dueño lo vio en una captura. **La forma útil de la regla: verificar que se cumple la propiedad que buscabas no es verificar que el resultado se ve bien — son dos comprobaciones distintas y la segunda solo se hace mirando o midiendo el DOM renderizado.** Corolario del arreglo: al medirlo aparecieron otros dos fallos (la tira de Energía rota por un `flex-direction` heredado, y la destacada de `angular` encogida por un tope de altura) que ninguna prueba veía.
 3. **Restricciones confundidas con objetivos** — accesibilidad/peso/consent no dicen qué conseguir.
 4. **Información en movimiento** — los beneficios de socio en marquesina, ilegibles.
 5. **No ir a la fuente señalada** — usafitness.es, dicho dos veces antes de que fuera.
