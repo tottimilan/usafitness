@@ -65,6 +65,14 @@ Dos plantillas (`angular`, `energia`) **rechazadas por el dueño** por el mismo 
 Beneficios de socio: reclasificados como dato de F1 (sección socio «lista-salvo-dato»), NO bloquean F0.
 **Arbitraje:** mientras F0 espere al dueño, el trabajo por defecto es el backlog A de memory/06 §0-bis en su orden; las F-fases prevalecen en cuanto su bloqueo se levante. El trabajo de esquema derivado de las respuestas del dueño (ofertas dos niveles, precio oculto) pertenece a F1.
 
+## Sesión 27-ago (tarde) — el loop grande pedido por el dueño
+
+**Encargo literal:** re-analizar TODAS las secciones («me gusta hacer loops»); investigar webs bonitas que gusten (premios, tendencias, efectos, scroll infinito, GitHub, X); **5 plantillas totalmente distintas** con identidad USA Fitness; fijarse en el **brand book: patrón claro de formas/triángulos**; reseñas: son de Google y SE PUEDE enlazar a Google; **no todas las tiendas siguen el mismo orden/prioridades**; **dos artefactos**: uno GUÍA que junte todos los anteriores, otro con las 5 plantillas; y el mapa de **servicios + automatización**. Autonomía concedida, sin prisa.
+
+**Hecho ya:**  (cuña diagonal cian, chevrón cian/metal, rayado 45°, círculos punteados, pin, script + mayúsculas, base blanca — VISTO en brand book, banners y render de tienda; ninguna plantilla previa lo usaba). Hallazgos previos al loop:  no enlaza a Google y el esquema no guarda ; el ANEXO de la central obliga a un vídeo-tour por tienda (activo para la galería); la GUÍA confirma Amanda Gil ≠ nutricionista.
+
+**En curso:** workflow  (8 frentes de investigación + loop de secciones + servicios/automatización + síntesis de patrones) → después workflow de 5 plantillas → docs + 2 artefactos + memoria.
+
 ## Siguiente trabajo del agente (por el plan F0-F5 del método)
 
 **F0:** dueño corrige norte/jerarquías + entrega beneficios socio. **F1:** secciones nuevas con contenido real (socio, productos desde usafitness.es —1.683 productos, fotos descargables—, oferta del mes, «hoy en tienda», «por qué en tienda»). **F2:** mecanismos aprobados (§3 de la investigación). **F3:** plantilla 1 rehecha con método completo, empezando por el **artefacto de referencias** para su confirmación. Backlog vivo completo: `memory/06` §0-bis.
