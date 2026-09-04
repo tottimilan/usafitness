@@ -77,6 +77,8 @@ Beneficios de socio: reclasificados como dato de F1 (sección socio «lista-salv
 - El ANEXO de la central obliga a un **vídeo-tour** por tienda (activo para la galería, puerta: OK central). La GUÍA confirma **Amanda Gil = CAFAD/TAFAD/entrenadora, NO nutricionista**.
 - Lección de sesión: **bash expande las comillas invertidas dentro de `node -e "…"`** — esta misma nota salió corrupta por eso. Contenido con backticks va por heredoc con delimitador entrecomillado o por Python, nunca inline.
 
+**Loop de secciones TERMINADO** → `docs/product/loop-secciones-2026-08-27.md`: la estructura aguanta (26/26), 4 hojas cambian (Reseñas→máquina con `placeId`; vídeo→vídeo-tour del ANEXO; FAQ/Equipo→fuente GUÍA; /guia→promesa de la central), falta la pieza `prioridad` por tienda, sobran Social-como-sección y Novedades-en-v1, 6 campos nuevos, D3 resuelta en NO por la marca (rojo no es tinta de rótulo). 6 preguntas nuevas en memory/12.
+
 **En curso:** workflow `investigacion-diseno-secciones-servicios` (8 frentes de investigación + loop de secciones + servicios/automatización + síntesis de patrones) → después workflow de 5 plantillas → docs + 2 artefactos + memoria.
 
 ## Siguiente trabajo del agente (por el plan F0-F5 del método)

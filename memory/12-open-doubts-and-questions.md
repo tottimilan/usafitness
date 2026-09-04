@@ -219,3 +219,11 @@ No son preguntas de estrategia: cada una es una llamada de teléfono y desbloque
 2. **Título de Amanda Gil documentado** (regulado; sin él, firma sin titulación específica).
 3. Beneficios completos del socio (sin fecha — sigue).
 4. Expertos en la web sí/no ya quedó implícitamente respondida con la aprobación de ronda 2 (equipo elevado y ruta Mujer aprobada) — PERO condicionada a la puerta 1-2.
+
+### Abiertas tras el loop de secciones (27-ago, tarde) — detalle en docs/product/loop-secciones-2026-08-27.md
+1. El vídeo-tour del ANEXO: ¿la central te entrega el fichero editado o solo el enlace a su cuenta oficial? Decide si va autoalojado con tope de peso o como fachada de tercero declarada en cookies, y si cabe pedirlo en el mismo viaje que el PDF de la guía y las imágenes del equipo.
+2. ¿Aceptas que el franquiciado elija UNA prioridad en el alta (visita / oferta / socio / asesoramiento) que mueve un solo bloque, en vez de un orden libre de secciones por tienda? Es la diferencia entre 50 altas con regla y 50 arrays a mano.
+3. Para el enlace «escribe tu reseña»: ¿lo sacas tú del perfil de Google de cada tienda en la sesión de alta (Read Reviews → Get more reviews, requiere el acceso de gestor que ya pides) o prefieres que use el Place ID con la herramienta pública? La primera es la vía oficial documentada; la segunda es la habitual pero no la he encontrado en ninguna página oficial de Google.
+4. El vale de orientación gratuita lo promete la propia GUÍA de la central en nombre de la marca: ¿lo publicamos por defecto en todas las tiendas con opción de quitarlo (opt-out), en vez de esperar a que cada franquiciado lo firme (opt-in)?
+5. ¿Se puede citar la GUÍA TIENDAS literalmente en la web (sus FAQ respondidas por dependientes, el capítulo de expertos) o solo sirve como fuente interna? Es distinto del permiso de alojar el PDF que ya está pedido, y decide quién escribe la FAQ y las verdades.
+6. Social: ¿aceptas que deje de ser una sección del cuerpo y baje al pie (periferia), y que Novedades pase a ser pieza del servicio mensual y no de la v1? Libera dos huecos de orden en las cinco plantillas sin perder ningún evento.
