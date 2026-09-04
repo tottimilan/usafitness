@@ -69,9 +69,15 @@ Beneficios de socio: reclasificados como dato de F1 (sección socio «lista-salv
 
 **Encargo literal:** re-analizar TODAS las secciones («me gusta hacer loops»); investigar webs bonitas que gusten (premios, tendencias, efectos, scroll infinito, GitHub, X); **5 plantillas totalmente distintas** con identidad USA Fitness; fijarse en el **brand book: patrón claro de formas/triángulos**; reseñas: son de Google y SE PUEDE enlazar a Google; **no todas las tiendas siguen el mismo orden/prioridades**; **dos artefactos**: uno GUÍA que junte todos los anteriores, otro con las 5 plantillas; y el mapa de **servicios + automatización**. Autonomía concedida, sin prisa.
 
-**Hecho ya:**  (cuña diagonal cian, chevrón cian/metal, rayado 45°, círculos punteados, pin, script + mayúsculas, base blanca — VISTO en brand book, banners y render de tienda; ninguna plantilla previa lo usaba). Hallazgos previos al loop:  no enlaza a Google y el esquema no guarda ; el ANEXO de la central obliga a un vídeo-tour por tienda (activo para la galería); la GUÍA confirma Amanda Gil ≠ nutricionista.
+**Hecho ya:** `docs/brand/gramatica-de-formas.md` (cuña diagonal cian, chevrón cian/metal, rayado 45°, círculos punteados, pin, script + mayúsculas, base blanca — VISTO en brand book, banners y render de tienda; ninguna plantilla previa lo usaba).
 
-**En curso:** workflow  (8 frentes de investigación + loop de secciones + servicios/automatización + síntesis de patrones) → después workflow de 5 plantillas → docs + 2 artefactos + memoria.
+**Verificado antes del loop (no de memoria):**
+- `Reviews.astro` no enlaza a Google y el esquema no guarda `placeId`. Las 7 tiendas con ficha SÍ tienen **CID** (en `googleMapsLink` y `googleMapsEmbed`); Grancasa ninguno. El formulario «escribe tu reseña» (`search.google.com/local/writereview?placeid=`) **exige Place ID `ChIJ…`, no CID** → campo nuevo `placeId`, una vez por tienda en el alta (Place ID Finder, ~1 min).
+- Animaciones ligadas al scroll en CSS (`animation-timeline: scroll()/view()`): **Safari iOS 26.0+** (sept-2025; hilo aparte en 26.4; arreglos en 26.5), Firefox 158, Chrome 115; ~85 % global; **no Baseline → siempre con fallback**. Fuentes: caniuse, webkit.org.
+- El ANEXO de la central obliga a un **vídeo-tour** por tienda (activo para la galería, puerta: OK central). La GUÍA confirma **Amanda Gil = CAFAD/TAFAD/entrenadora, NO nutricionista**.
+- Lección de sesión: **bash expande las comillas invertidas dentro de `node -e "…"`** — esta misma nota salió corrupta por eso. Contenido con backticks va por heredoc con delimitador entrecomillado o por Python, nunca inline.
+
+**En curso:** workflow `investigacion-diseno-secciones-servicios` (8 frentes de investigación + loop de secciones + servicios/automatización + síntesis de patrones) → después workflow de 5 plantillas → docs + 2 artefactos + memoria.
 
 ## Siguiente trabajo del agente (por el plan F0-F5 del método)
 
