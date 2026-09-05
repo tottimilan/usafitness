@@ -79,7 +79,9 @@ Beneficios de socio: reclasificados como dato de F1 (sección socio «lista-salv
 
 **Loop de secciones TERMINADO** → `docs/product/loop-secciones-2026-08-27.md`: la estructura aguanta (26/26), 4 hojas cambian (Reseñas→máquina con `placeId`; vídeo→vídeo-tour del ANEXO; FAQ/Equipo→fuente GUÍA; /guia→promesa de la central), falta la pieza `prioridad` por tienda, sobran Social-como-sección y Novedades-en-v1, 6 campos nuevos, D3 resuelta en NO por la marca (rojo no es tinta de rótulo). 6 preguntas nuevas en memory/12.
 
-**En curso:** workflow `investigacion-diseno-secciones-servicios` (8 frentes de investigación + loop de secciones + servicios/automatización + síntesis de patrones) → después workflow de 5 plantillas → docs + 2 artefactos + memoria.
+**Investigación TERMINADA** (11 agentes, 0 caídos) → `docs/plantillas/referencias-diseno/catalogo-patrones-2026.md` (37 patrones, 7 familias, 14 invariantes; hipótesis de 5 combinaciones: Cartel · Diagonal · Panel · Lámina · Franja — la última avisada como la más cercana a la rechazada Energía) y `docs/product/servicios-y-automatizacion-2026-08-27.md` (35 servicios en 5 capas, 15 nuevos, 22 descartes confirmados, 12 pasos de construcción, 6 preguntas). **En curso:** workflow `cinco-plantillas-usafitness` (espacio → 5 diseñadores → 10 críticos → prueba de la miniatura → síntesis).
+
+~~**En curso:** workflow `investigacion-diseno-secciones-servicios`~~ (8 frentes de investigación + loop de secciones + servicios/automatización + síntesis de patrones) → después workflow de 5 plantillas → docs + 2 artefactos + memoria.
 
 ## Siguiente trabajo del agente (por el plan F0-F5 del método)
 
