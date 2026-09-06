@@ -265,3 +265,23 @@ Puertas externas que bloquean piezas:
 - Confirmación de los números de WhatsApp fijos (Q13f) y de la dirección de Villanueva (El Zoco vs La Pasada, Q13e): afectan al segundo botón del hero y al rótulo curado.
 - Fotos de producto de Corelam (cerrada): no bloquea nada porque las cinco usan la foto del lineal de cada tienda, pero conviene dejarlo escrito para que nadie vuelva a proponer un catálogo con fotos.
 - Calendario de festivos: nacionales y autonómicos son datos públicos (tarea del operador, no puerta); los festivos y cierres de cada centro comercial sí son puerta externa (gerencia del centro o franquiciado) y bloquean el minutero en las cinco.
+
+### Respondidas el 6-sep por delegación del dueño («analízalas tú y respóndete tú») — NO re-preguntar
+
+Detalle y evidencia: `docs/product/decisiones-2026-09-06-ocho-preguntas.md`.
+
+1. **Demo por defecto** → Rótulo en los 58; Esquina como segunda demo solo con foto de fachada de ≥900 px, pedida al final de la primera llamada. La foto nunca es precondición del alta.
+2. **Rótulos curados** → los escribe el operador con una regla determinista sobre el nombre del directorio; el dueño confirma una tabla de 58 en `docs/plantillas/rotulo/rotulos-58.md`. Los ocho de casa: VILLANUEVA · MARINEDA · LAS ROSAS · ALCOBENDAS · GRANCASA · GRAN VÍA · EL ARCÁNGEL · LAGOH.
+3. **Una prioridad** → sí, basta una; intercambia un bloque en un hueco fijo; `prioridad` y `sections` a la vez es error de build. Cierra también la pregunta 8 del 27-ago: socio NO es especial, es el mismo intercambio.
+4. **Festivos** → por centro comercial. La ley de horarios comerciales no aplica a locales de menos de 300 m², así que manda el centro y no la comunidad. El minutero vuelve, acotado a los días no marcados.
+5. **Place ID** → un solo campo `placeId`, derivado del embed que ya tenemos y verificado en build contra el CID. Los siete valores están medidos. Sin `reviewLink`.
+6. **Texto de marca** → banco cerrado en `docs/brand/textos-de-marca.md`, redacta y revisa el operador, la central firma una vez. Cursiva en español en los titulares propios; inglés solo en los claims literales de la pared.
+7. **Vídeo-tour** → fichero propio autoalojado, nunca YouTube. Tope de 30 s y 4 MiB, sin audio por defecto.
+8. **Tipografía** → fuente del sistema, no se compra nada; pila corregida a `'Helvetica Neue', Roboto, 'Segoe UI', Arial`; pesos 300/400/700 y ningún 600.
+
+### Lo que sigue abierto DEL DUEÑO tras esas ocho (poco y concreto)
+
+- Confirmar la tabla de los 58 rótulos —un vistazo, no escribirlos— y si Villanueva es El Zoco o La Pasada (el directorio y otras tres fuentes dicen La Pasada; `stores.json` dice El Zoco).
+- Aceptar en la captura el corte del rótulo por el borde derecho (2-3 caracteres en 12 de 58 tiendas) y la cara de Segoe UI en la pantalla de Windows.
+- Qué es el clip de vídeo de GranCasa que ya servimos sin enlazar, y si lleva música de biblioteca de redes.
+- Las puertas externas de siempre, ninguna nueva: firma de la central sobre qué puede publicar cada tienda, ficha de Google de GranCasa, beneficios de socio por escrito, y una foto de un cartel real para fijar los claims en inglés.
