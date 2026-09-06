@@ -134,6 +134,23 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
   },
 };
 
+/**
+ * ¿Esta sección tiene con qué pintarse en esta tienda?
+ *
+ * Es la MISMA regla que aplica `buildPlan`, exportada para que la zona móvil de
+ * una plantilla (`ordenDeSecciones` en templates.ts) no invente la suya: si se
+ * separaran, una tienda podría pedir que subiera un bloque que luego no se
+ * pinta, y el hueco quedaría ocupado por nada.
+ *
+ * `templates.ts` no puede importar este fichero —arrastraría los `.astro` a
+ * `node --test` y a `astro:config:setup`—, así que la función se le pasa.
+ */
+export function tieneDato(id: SectionId, store: Store): boolean {
+  const def = SECTIONS[id];
+  if (!def) return false;
+  return def.visible ? def.visible(store) : true;
+}
+
 /** Devuelve el plan de renderizado: solo las secciones con datos, en orden,
  *  con la variante que pida la plantilla inyectada como prop. */
 export function buildPlan(

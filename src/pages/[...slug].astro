@@ -8,9 +8,9 @@ import CookieConsent from '@/components/CookieConsent.astro';
 import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
 import ConversionTracking from '@/components/ConversionTracking.astro';
 import { porSlug } from '@/data/stores';
-import { getTemplate, resolveSections, tokensToCss } from '@/data/templates';
+import { getTemplate, ordenDeSecciones, tokensToCss } from '@/data/templates';
 import { fuentesDeLaPagina } from '@/data/presupuesto';
-import { buildPlan } from '@/sections/registry';
+import { buildPlan, tieneDato } from '@/sections/registry';
 
 const slug = Astro.params.slug;
 const store = slug ? porSlug.get(slug) : undefined;
@@ -34,8 +34,11 @@ const preview = !onOwnDomain
   : '';
 const template = getTemplate(preview || store.template);
 
-// La plantilla propone el orden; la tienda puede ajustarlo con su campo `sections`.
-const orden = resolveSections(template, store.sections);
+// La plantilla propone el orden; la tienda lo ajusta de dos formas, y solo dos:
+// `sections` (la válvula del operador, que lo reemplaza entero) y `prioridad`
+// (la elección del franquiciado, que mueve UN bloque en el hueco que la
+// plantilla reserva). Sin ninguna de las dos, el orden de la plantilla tal cual.
+const orden = ordenDeSecciones(template, store, (id) => tieneDato(id, store));
 const plan = buildPlan(store, orden);
 ---
 

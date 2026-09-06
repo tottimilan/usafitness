@@ -29,7 +29,7 @@
 import { z } from 'astro/zod';
 import bruto from './stores.json' with { type: 'json' };
 import { parseHorario } from './horario.ts';
-import { SECTION_IDS } from './templates.ts';
+import { SECTION_IDS, PRIORIDADES } from './templates.ts';
 import { cidDePlaceId } from './resenas.ts';
 
 /* ── Piezas reutilizadas ───────────────────────────────────────────────── */
@@ -280,6 +280,20 @@ const EsquemaTienda = z.strictObject({
     )
     .optional(),
 
+  /**
+   * Lo que ESTA tienda quiere que se vea primero, después del horario.
+   *
+   * UNA elección, tecleada por el operador en la sesión de alta. Mueve un solo
+   * bloque en el hueco que la plantilla reserva (`zonaMovil` en templates.ts);
+   * no toca el primer viewport ni la periferia, así que ninguna tienda puede
+   * romper R1-R3 eligiendo mal.
+   *
+   * Es la respuesta a «no todas las tiendas tienen que seguir las mismas normas
+   * de orden» sin abrir un editor de órdenes: con `sections` habría cientos de
+   * miles de combinaciones por plantilla y ninguna forma de probarlas.
+   */
+  prioridad: z.enum(PRIORIDADES).optional(),
+
   /* Medición (Fase 1) — el código ya está, faltan los identificadores */
   // `GT-` además de `G-`: la interfaz de Google entrega hoy identificadores
   // `GT-` y `gtag('config')` acepta los dos. Con el regex anterior, pegar el
@@ -346,6 +360,16 @@ export const esquemaTiendas = z.array(EsquemaTienda).superRefine((tiendas, ctx) 
     if (a && b && a !== b) {
       ctx.addIssue({ code: 'custom', path: [i, 'googleMapsLink'],
         message: `el embed apunta al CID ${a} y el enlace al ${b}: el mapa y el botón llevan a fichas distintas` });
+    }
+
+    // Dos fuentes de orden es una de más: `sections` reemplaza el orden ENTERO
+    // de la plantilla y `prioridad` mueve un bloque dentro de él. Juntas, nadie
+    // sabe cuál manda al leer el JSON, y el orden que sale depende de en qué
+    // orden se apliquen. `sections` es la válvula del operador; para la
+    // elección del franquiciado, `prioridad`.
+    if (t.prioridad && t.sections && t.sections.length > 0) {
+      ctx.addIssue({ code: 'custom', path: [i, 'prioridad'],
+        message: 'esta tienda declara `prioridad` y `sections`: son dos formas de decidir el orden y solo puede mandar una' });
     }
 
     // EL PLACE ID TIENE QUE SER EL DE ESTA TIENDA.

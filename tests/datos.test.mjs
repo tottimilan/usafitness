@@ -35,6 +35,9 @@ import {
   seccionesInvalidas,
   plantillasConSeccionesInvalidas,
   tokensToCss,
+  PRIORIDADES,
+  ordenDeSecciones,
+  avisoDePrioridad,
 } from '../src/data/templates.ts';
 import {
   FUENTE_BASE,
@@ -194,6 +197,19 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
     const t = valida();
     t.placeId = 'ChIJgUbEo8cfqokR5lP9_Wh_DaM'; // ficha de otro negocio
     rechaza([t], 'apunta a la ficha');
+  });
+
+  test('una prioridad que no es una de las cuatro', () => {
+    const t = valida();
+    t.prioridad = 'productos';
+    rechaza([t], 'prioridad');
+  });
+
+  test('prioridad y sections a la vez: dos fuentes de orden', () => {
+    const t = valida();
+    t.prioridad = 'socio';
+    t.sections = ['hero', 'promotions'];
+    rechaza([t], 'solo puede mandar una');
   });
 
   test('un rótulo que no cabe en el cartel', () => {
@@ -1242,5 +1258,88 @@ describe('El Place ID lleva dentro la ficha a la que dice apuntar', () => {
     // anuncia el vacío.
     const grancasa = stores.find((s) => s.slug === 'grancasa');
     assert.equal(enlaceResena(grancasa), null);
+  });
+});
+
+describe('La tienda elige UNA cosa y solo se mueve un bloque', () => {
+  // Una plantilla de mentira: la de Rótulo llega con la plantilla. Lo que se
+  // prueba aquí es el MECANISMO, no el diseño — y el mecanismo es el que el
+  // dueño pidió: «no todas las tiendas tienen que seguir las mismas normas de
+  // orden», pero sin abrir un editor de órdenes que nadie pueda probar.
+  const conZona = {
+    id: 'prueba',
+    label: 'Prueba',
+    tokens: {},
+    sections: ['hero', 'promotions', 'products', 'reviews', 'schedule'],
+    zonaMovil: {
+      posicion: 1,
+      defecto: 'promotions',
+      mapa: { visita: 'schedule', oferta: 'promotions', socio: 'products', asesoramiento: 'reviews' },
+    },
+  };
+
+  test('sin prioridad manda el orden de la plantilla', () => {
+    const orden = ordenDeSecciones(conZona, {}).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'promotions', 'products', 'reviews', 'schedule']);
+  });
+
+  test('la prioridad intercambia UN bloque, y solo uno', () => {
+    const orden = ordenDeSecciones(conZona, { prioridad: 'socio' }).map((s) => s.id);
+    // products sube al hueco y promotions ocupa el que dejó: nada más se movió,
+    // y el número de secciones no cambia.
+    assert.deepEqual(orden, ['hero', 'products', 'promotions', 'reviews', 'schedule']);
+  });
+
+  test('es un intercambio, no una inserción: solo dos posiciones cambian', () => {
+    // Con un bloque LEJANO del hueco (schedule está en la 4, el hueco es la 1).
+    // Si esto fuera una inserción, products y reviews bajarían un puesto cada
+    // uno y una sola elección de la tienda habría reordenado media página.
+    // El caso adyacente no distingue las dos cosas: por eso hace falta este.
+    const orden = ordenDeSecciones(conZona, { prioridad: 'visita' }).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'schedule', 'products', 'reviews', 'promotions']);
+  });
+
+  test('el primer bloque no se toca nunca, con ninguna prioridad', () => {
+    // R1: el primer viewport es de la plantilla, no de la tienda.
+    for (const p of PRIORIDADES) {
+      assert.equal(ordenDeSecciones(conZona, { prioridad: p })[0].id, 'hero', `con ${p} el hero se movió`);
+    }
+  });
+
+  test('la prioridad que apunta al ocupante por defecto no mueve nada', () => {
+    const orden = ordenDeSecciones(conZona, { prioridad: 'oferta' }).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'promotions', 'products', 'reviews', 'schedule']);
+  });
+
+  test('si el bloque elegido no tiene dato, se queda el defecto y se avisa', () => {
+    // Hoy es el caso NORMAL, no el raro: 8 de 8 tiendas están sin oferta viva.
+    const sinReviews = (id) => id !== 'reviews';
+    const orden = ordenDeSecciones(conZona, { prioridad: 'asesoramiento' }, sinReviews).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'promotions', 'products', 'reviews', 'schedule'], 'sin dato no se mueve nada');
+    assert.match(
+      avisoDePrioridad(conZona, { slug: 'x', prioridad: 'asesoramiento' }, sinReviews),
+      /sin dato/
+    );
+  });
+
+  test('sin prioridad no hay aviso, y con dato tampoco', () => {
+    assert.equal(avisoDePrioridad(conZona, { slug: 'x' }, () => true), null);
+    assert.equal(avisoDePrioridad(conZona, { slug: 'x', prioridad: 'socio' }, () => true), null);
+  });
+
+  test('una plantilla sin zona móvil ignora la prioridad', () => {
+    const sinZona = { ...conZona, zonaMovil: undefined };
+    const orden = ordenDeSecciones(sinZona, { prioridad: 'socio' }).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'promotions', 'products', 'reviews', 'schedule']);
+    assert.equal(avisoDePrioridad(sinZona, { slug: 'x', prioridad: 'socio' }, () => true), null);
+  });
+
+  test('las plantillas vivas siguen sin zona móvil: nada cambia hoy', () => {
+    // La garantía de que esta rodaja no toca ninguna de las ocho webs.
+    for (const t of Object.values(TEMPLATES)) {
+      const conPrioridad = ordenDeSecciones(t, { prioridad: 'socio' }).map((s) => s.id);
+      const sinNada = ordenDeSecciones(t, {}).map((s) => s.id);
+      assert.deepEqual(conPrioridad, sinNada, `«${t.id}» cambió de orden y no debería`);
+    }
   });
 });
