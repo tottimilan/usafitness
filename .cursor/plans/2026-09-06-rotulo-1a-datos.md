@@ -3,7 +3,16 @@
 **Date:** 2026-09-06
 **Branch:** `feat/rotulo-datos`
 **Author:** User + Claude Opus 5
-**Status:** Draft
+**Status:** Done (2026-09-06)
+
+## Amendment 2026-09-06 — lo que se desvió al ejecutarlo
+
+1. **Las tareas 1 y 2 se commitearon juntas.** El plan preveía commitear la tarea 1 con dos tests en rojo, porque dependían de datos que llegaban en la 2. Commitear en rojo va contra la política de pruebas, así que se hicieron seguidas y se commiteó una sola vez.
+2. **Dos mutaciones de la tarea 5 sobrevivieron, y eso cambió el código y el test.** Quitar la guarda `origen === destino` no rompía nada: era código muerto, porque intercambiar un elemento consigo mismo ya no hace nada. Se ha borrado. Y cambiar el intercambio por una inserción tampoco rompía nada, porque el único caso probado tenía origen y destino **adyacentes**, donde las dos operaciones dan lo mismo. Se añadió el caso lejano, que ahora la mata. La tercera mutación (quitar la comprobación de dato) mataba desde el principio.
+3. **El evento `pedir_resena` va sin test.** Se registró y se clasifica, pero no hay ninguna píldora que lo emita hasta la rodaja 2: un test hoy pasaría por construcción, que es justo lo que memory/16 llama decorativo.
+4. **La rodaja 1b se ejecutó en esta misma rama.** El plan las daba por independientes y lo son, pero el test de cobertura de glifos de 1b lee el campo `rotulo` que entra en 1a, así que en secuencial sale más limpio un solo PR.
+
+**Resultado medido:** 220 pruebas, 220 pasan con la suite armada, 0 dormidas, 0 fallos. La línea de partida eran 196 con 3 dormidas. Ninguna de las ocho webs vivas cambia: ninguna tienda declara plantilla y hay un test que fija que las tres plantillas vivas no tienen zona móvil.
 
 ## Goal
 
