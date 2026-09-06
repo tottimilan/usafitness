@@ -17,6 +17,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { readFileSync, statSync } from 'node:fs';
 
 import { stores, esquemaTiendas, avisosDeDatos, tablaCoherente } from '../src/data/stores.ts';
 import { respuestaDeSalud } from '../src/data/salud.ts';
@@ -1348,6 +1349,43 @@ describe('La tienda elige UNA cosa y solo se mueve un bloque', () => {
       const conPrioridad = ordenDeSecciones(t, { prioridad: 'socio' }).map((s) => s.id);
       const sinNada = ordenDeSecciones(t, {}).map((s) => s.id);
       assert.deepEqual(conPrioridad, sinNada, `«${t.id}» cambió de orden y no debería`);
+    }
+  });
+});
+
+describe('Una fuente subseteada no puede quedarse sin una letra', () => {
+  // El riesgo real de subsetear: un rótulo con un carácter que no está dentro
+  // no da error, se pinta con la fuente del sistema en mitad del cartel y nadie
+  // se entera hasta ver la captura. Esto lo convierte en un test rojo.
+  //
+  // Se comprueba contra la LISTA que generó el fichero y no contra su tabla de
+  // caracteres: la lista es la fuente de verdad —es lo que se le pasa al
+  // subsetter— y leerla no exige descomprimir woff2 ni añadir una dependencia.
+  // Que la lista y el fichero coincidan lo garantiza el propio script, que
+  // falla si algún carácter de la lista no acabó dentro.
+  const listaDe = (fichero) => {
+    const nombre = fichero.includes('script') ? 'palabras-script.txt' : 'glifos-rotulo.txt';
+    return new Set(readFileSync(`src/data/fuentes/${nombre}`, 'utf8'));
+  };
+
+  test('cada letra de los ocho rótulos está en la display', () => {
+    const cubiertos = listaDe('archivo-expanded-black-rotulo.woff2');
+    const conRotulo = stores.filter((t) => t.rotulo);
+    assert.ok(conRotulo.length >= 8, `esperaba 8 rótulos y hay ${conRotulo.length}`);
+    for (const t of conRotulo) {
+      for (const c of t.rotulo.replace(/\|/g, '')) {
+        assert.ok(cubiertos.has(c), `${t.slug}: el rótulo usa "${c}" y la fuente no lo lleva`);
+      }
+    }
+  });
+
+  test('los dos ficheros existen y no engordan', () => {
+    // Techo por fichero además del tope global de la plantilla: si un día
+    // alguien mete la familia entera «para tenerlo todo», esto lo dice antes de
+    // que el presupuesto se lo trague.
+    for (const f of ['archivo-expanded-black-rotulo.woff2', 'rotulo-script.woff2']) {
+      const n = statSync(`public/fonts/${f}`).size;
+      assert.ok(n > 0 && n <= 6144, `${f} pesa ${n} B y el techo son 6144`);
     }
   });
 });

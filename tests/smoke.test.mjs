@@ -897,14 +897,19 @@ describe('La plantilla Energía es OTRA web, no otra piel', () => {
     assert.ok(!clasica.includes('barlow-condensed'), 'ni pagar la fuente que no usa');
   });
 
-  test('las fuentes que declara existen de verdad en public/', async () => {
+  test('las fuentes que declara CUALQUIER plantilla existen de verdad en public/', async () => {
+    // Estaba cableado a `energia`, así que una plantilla nueva con una fuente
+    // mal escrita no lo habría tocado: el build sí revienta, pero con un ENOENT
+    // crudo de `statSync` y sin decir qué plantilla la declara.
     const { TEMPLATES } = await import('../src/data/templates.ts');
     const { existsSync } = await import('node:fs');
-    for (const f of TEMPLATES.energia.fonts ?? []) {
-      assert.ok(
-        existsSync(new URL('../public' + f, import.meta.url)),
-        `${f} declarada en la plantilla pero no está en public/: la fuente caería a Arial sin que lo note nadie`
-      );
+    for (const t of Object.values(TEMPLATES)) {
+      for (const f of t.fonts ?? []) {
+        assert.ok(
+          existsSync(new URL('../public' + f, import.meta.url)),
+          `${f} la declara «${t.id}» y no está en public/: la fuente caería a Arial sin que lo note nadie`
+        );
+      }
     }
     assert.ok((TEMPLATES.energia.fonts ?? []).length >= 2, 'los dos pesos de Barlow');
   });

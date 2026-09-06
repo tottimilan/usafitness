@@ -88,6 +88,26 @@ export interface Template {
   /** Ficheros de fuente propios, para el <link rel="preload"> de Base.astro. */
   fonts?: string[];
   /**
+   * `false` cuando la plantilla NO usa la familia base para nada: entonces Inter
+   * deja de precargarse y de contar en el presupuesto (ver `presupuesto.ts`).
+   *
+   * Ojo, y por eso está escrito aquí y no solo allí: esto quita la PRECARGA,
+   * nada más. El `@font-face` de Inter sigue en `global.css` y `--font-family`
+   * la nombra, así que una plantilla con `usaFuenteBase: false` que no
+   * sobrescriba ese token hace que el navegador se la descargue igual — sin
+   * preload, o sea más tarde y peor — y el tope de peso no lo vería, porque
+   * mide lo declarado y no lo servido. Las dos cosas van juntas o no van.
+   */
+  usaFuenteBase?: boolean;
+  /**
+   * Cómo responde la plantilla al ajuste claro/oscuro del sistema. `claro` (por
+   * defecto) lo ignora; `auto` invierte sus superficies blancas. Es
+   * infraestructura de cada plantilla, nunca una plantilla aparte: un «modo
+   * oscuro» como producto era una de las cosas que el catálogo de patrones dio
+   * por pasada de moda.
+   */
+  modo?: 'claro' | 'auto';
+  /**
    * Variantes para las piezas FIJAS de la página (header, footer, contacto).
    * Siguen fijas —un error de configuración no puede dejar una landing sin
    * aviso de cookies ni enlaces legales—, pero una plantilla puede pedirles
