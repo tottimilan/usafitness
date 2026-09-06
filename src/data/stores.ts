@@ -30,6 +30,7 @@ import { z } from 'astro/zod';
 import bruto from './stores.json' with { type: 'json' };
 import { parseHorario } from './horario.ts';
 import { SECTION_IDS } from './templates.ts';
+import { cidDePlaceId } from './resenas.ts';
 
 /* ── Piezas reutilizadas ───────────────────────────────────────────────── */
 
@@ -199,6 +200,25 @@ const EsquemaTienda = z.strictObject({
    */
   googleMapsStatus: z.literal('sin-ficha-gbp').optional(),
 
+  /**
+   * Place ID de la ficha (`ChIJ…`). Es lo ÚNICO que acepta el formulario de
+   * «escribir reseña» de Google; el CID que ya guardamos solo abre la ficha y
+   * deja al visitante buscando el botón.
+   *
+   * Se saca del HTML del propio embed por CID con `scripts/place-id.mjs`, sin
+   * acceso de gestor y sin API de pago. Google avisa de que un Place ID puede
+   * cambiar y recomienda refrescarlo pasados doce meses: por eso el
+   * `superRefine` de abajo comprueba que lleva dentro el CID de ESTA tienda, y
+   * no se fía de que esté bien copiado.
+   */
+  placeId: z
+    .string()
+    .regex(
+      /^ChIJ[A-Za-z0-9_-]{23}$/,
+      'un Place ID de ficha de negocio son 27 caracteres que empiezan por "ChIJ" (p. ej. "ChIJzU_NTwBtEg0RmABuXlayxbM"); un CID o una URL no valen'
+    )
+    .optional(),
+
   /* Horario: se valida con el MISMO parser que emite el marcado */
   schedule: z.string().refine((t) => parseHorario(t).length > 0, {
     message:
@@ -296,6 +316,28 @@ export const esquemaTiendas = z.array(EsquemaTienda).superRefine((tiendas, ctx) 
     if (a && b && a !== b) {
       ctx.addIssue({ code: 'custom', path: [i, 'googleMapsLink'],
         message: `el embed apunta al CID ${a} y el enlace al ${b}: el mapa y el botón llevan a fichas distintas` });
+    }
+
+    // EL PLACE ID TIENE QUE SER EL DE ESTA TIENDA.
+    // Un Place ID lleva el CID dentro (ver `resenas.ts`), así que esto no es
+    // una comprobación de formato: se descodifica y se compara. Un Place ID
+    // copiado del centro comercial o de la tienda de al lado NO compila, que es
+    // exactamente el fallo que FICHAS_PROHIBIDAS evitó una vez con una lista
+    // escrita a mano — aquí sale gratis para las 58.
+    if (t.placeId) {
+      if (sinFicha) {
+        ctx.addIssue({ code: 'custom', path: [i, 'placeId'],
+          message: 'declara no tener ficha de Google pero trae placeId. Una de las dos cosas sobra' });
+      } else {
+        const dentro = cidDePlaceId(t.placeId);
+        if (dentro === null) {
+          ctx.addIssue({ code: 'custom', path: [i, 'placeId'],
+            message: 'no es un Place ID de ficha de negocio: no lleva un CID dentro. Sácalo con `node scripts/place-id.mjs`' });
+        } else if (b && dentro !== b) {
+          ctx.addIssue({ code: 'custom', path: [i, 'placeId'],
+            message: `el placeId apunta a la ficha ${dentro} y el enlace a la ${b}: son fichas distintas` });
+        }
+      }
     }
   });
 
@@ -435,6 +477,9 @@ export function avisosDeDatos(): string[] {
     // ficha, porque eso depende del franquiciado y no del código.
     if (t.googleMapsStatus === 'sin-ficha-gbp') {
       avisos.push(`${t.slug}: sin ficha de Google Business → sin mapa, sin botón de cómo llegar y sin "geo" en el marcado. Hay que darla de alta y verificarla`);
+    }
+    if (!t.placeId && t.googleMapsStatus !== 'sin-ficha-gbp') {
+      avisos.push(`${t.slug}: sin placeId → «escribe tu reseña» cae a «ver en Google» y el visitante tiene que buscar el botón. Sácalo con \`node scripts/place-id.mjs --escribir\``);
     }
   }
   return avisos;

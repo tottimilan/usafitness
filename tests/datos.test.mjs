@@ -46,6 +46,7 @@ import { clasificar, resumirFlota, esProblema } from '../src/data/flota.ts';
 import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.ts';
 import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/data/imagen.ts';
 import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
+import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -178,6 +179,31 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
     const t = valida();
     t.heroImage = 'photos/vigo/hero.webp'; // relativa: 404 en /aviso-legal
     rechaza([t], 'ruta absoluta');
+  });
+
+  test('un placeId que no es un Place ID de ficha', () => {
+    const t = valida();
+    t.placeId = 'https://maps.google.com/?cid=1192403823564073512';
+    rechaza([t], 'place id');
+  });
+
+  test('un placeId que apunta a OTRA ficha (el del centro comercial, el clásico)', () => {
+    // El caso real que la tentación pide: GranCasa no tiene ficha, el centro sí.
+    // El formato es válido, así que el regex lo deja pasar; lo caza la
+    // aritmética, que compara el CID de dentro con el del enlace.
+    const t = valida();
+    t.placeId = 'ChIJgUbEo8cfqokR5lP9_Wh_DaM'; // ficha de otro negocio
+    rechaza([t], 'apunta a la ficha');
+  });
+
+  test('placeId en una tienda que declara no tener ficha', () => {
+    const t = valida();
+    delete t.geo;
+    delete t.googleMapsEmbed;
+    delete t.googleMapsLink;
+    t.googleMapsStatus = 'sin-ficha-gbp';
+    t.placeId = 'ChIJzU_NTwBtEg0RmABuXlayxbM';
+    rechaza([t], 'placeid');
   });
 });
 
@@ -1141,5 +1167,59 @@ describe('Ninguna galería deja un hueco al final de una columna', () => {
     assert.ok(apaisada.parte > vertical.parte * 1.5, 'la apaisada ocupa bastante más');
     assert.ok(Math.abs(apaisada.parte + vertical.parte - 1) < 0.001, 'y entre las dos, la fila entera');
     assert.match(sizesDeFoto(apaisada.parte), /\d+px$/);
+  });
+});
+
+describe('El Place ID lleva dentro la ficha a la que dice apuntar', () => {
+  // La forma de un Place ID de negocio es base64url de un protobuf:
+  //   0a 12 09 <cellId LE64> 11 <CID LE64>
+  // Descodificarlo convierte «¿este identificador es el de esta tienda?» en
+  // aritmética, y no en un enlace roto que solo se ve pinchándolo. Es la misma
+  // familia de guarda que FICHAS_PROHIBIDAS, que ya evitó una vez que
+  // enlazáramos la ficha del centro comercial en la web de un cliente.
+  test('los Place ID de la flota llevan el CID de su propia ficha', () => {
+    const conPlaceId = stores.filter((t) => t.placeId);
+    assert.ok(conPlaceId.length >= 7, `esperaba al menos 7 tiendas con placeId y hay ${conPlaceId.length}`);
+    for (const t of conPlaceId) {
+      const cidDelEnlace = t.googleMapsLink.match(/\d{15,20}/)[0];
+      assert.equal(cidDePlaceId(t.placeId), cidDelEnlace, `${t.slug}: el placeId apunta a otra ficha`);
+    }
+  });
+
+  test('el ejemplo oficial de Google se descodifica', () => {
+    // developers.google.com/maps/documentation/places/web-service/place-id
+    assert.equal(cidDePlaceId('ChIJgUbEo8cfqokR5lP9_Wh_DaM'), '11749187091794056166');
+  });
+
+  test('lo que no es un Place ID de ficha devuelve null', () => {
+    assert.equal(cidDePlaceId('1192403823564073512'), null, 'un CID pelado no es un Place ID');
+    assert.equal(
+      cidDePlaceId('EicxMyBNYXJrZXQgU3QsIFdpbG1pbmd0b24sIE5DIDI4NDAxLCBVU0E'),
+      null,
+      'un Place ID de DIRECCIÓN no es de negocio'
+    );
+    assert.equal(cidDePlaceId('no-es-base64!'), null);
+    assert.equal(cidDePlaceId(''), null);
+  });
+
+  test('el enlace de reseña se construye en un solo sitio y degrada', () => {
+    const lagoh = stores.find((s) => s.slug === 'lagoh');
+    assert.equal(
+      enlaceResena(lagoh).href,
+      'https://search.google.com/local/writereview?placeid=ChIJzU_NTwBtEg0RmABuXlayxbM'
+    );
+    assert.equal(enlaceResena(lagoh).etiqueta, 'Escribe tu reseña');
+    assert.equal(enlaceResena(lagoh).tipo, 'formulario');
+
+    // Sin placeId, la píldora no promete el formulario: lleva a la ficha.
+    const sinPlaceId = { ...lagoh, placeId: undefined };
+    assert.equal(enlaceResena(sinPlaceId).href, lagoh.googleMapsLink);
+    assert.equal(enlaceResena(sinPlaceId).etiqueta, 'Ver en Google');
+    assert.equal(enlaceResena(sinPlaceId).tipo, 'ficha');
+
+    // Sin ficha no hay nada que enseñar: la pieza no se pinta y nunca se
+    // anuncia el vacío.
+    const grancasa = stores.find((s) => s.slug === 'grancasa');
+    assert.equal(enlaceResena(grancasa), null);
   });
 });
