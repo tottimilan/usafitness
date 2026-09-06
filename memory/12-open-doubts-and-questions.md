@@ -219,3 +219,69 @@ No son preguntas de estrategia: cada una es una llamada de teléfono y desbloque
 2. **Título de Amanda Gil documentado** (regulado; sin él, firma sin titulación específica).
 3. Beneficios completos del socio (sin fecha — sigue).
 4. Expertos en la web sí/no ya quedó implícitamente respondida con la aprobación de ronda 2 (equipo elevado y ruta Mujer aprobada) — PERO condicionada a la puerta 1-2.
+
+### Abiertas tras el loop de secciones (27-ago, tarde) — detalle en docs/product/loop-secciones-2026-08-27.md
+1. El vídeo-tour del ANEXO: ¿la central te entrega el fichero editado o solo el enlace a su cuenta oficial? Decide si va autoalojado con tope de peso o como fachada de tercero declarada en cookies, y si cabe pedirlo en el mismo viaje que el PDF de la guía y las imágenes del equipo.
+2. ¿Aceptas que el franquiciado elija UNA prioridad en el alta (visita / oferta / socio / asesoramiento) que mueve un solo bloque, en vez de un orden libre de secciones por tienda? Es la diferencia entre 50 altas con regla y 50 arrays a mano.
+3. Para el enlace «escribe tu reseña»: ¿lo sacas tú del perfil de Google de cada tienda en la sesión de alta (Read Reviews → Get more reviews, requiere el acceso de gestor que ya pides) o prefieres que use el Place ID con la herramienta pública? La primera es la vía oficial documentada; la segunda es la habitual pero no la he encontrado en ninguna página oficial de Google.
+4. El vale de orientación gratuita lo promete la propia GUÍA de la central en nombre de la marca: ¿lo publicamos por defecto en todas las tiendas con opción de quitarlo (opt-out), en vez de esperar a que cada franquiciado lo firme (opt-in)?
+5. ¿Se puede citar la GUÍA TIENDAS literalmente en la web (sus FAQ respondidas por dependientes, el capítulo de expertos) o solo sirve como fuente interna? Es distinto del permiso de alojar el PDF que ya está pedido, y decide quién escribe la FAQ y las verdades.
+6. Social: ¿aceptas que deje de ser una sección del cuerpo y baje al pie (periferia), y que Novedades pase a ser pieza del servicio mensual y no de la v1? Libera dos huecos de orden en las cinco plantillas sin perder ningún evento.
+
+### Abiertas tras el mapa de servicios (27-ago, tarde) — detalle en docs/product/servicios-y-automatizacion-2026-08-27.md
+1. Oferta propia: cuando un franquiciado pide su propia oferta que pisa a la central, ¿consume 1 de sus 2 cambios/mes de la Base, o entra como pieza aparte («campaña del mes gestionada»)? Decide cómo se empaqueta el servicio más vendible del mapa (pendiente en memory/15 §9 desde el 27-ago).
+2. Canal de WhatsApp: ¿quién publica en el canal de cada tienda — el franquiciado, reenviando la pieza mensual que le mandamos, o el operador con acceso administrador al canal? Decide si la serie del experto se vende como «te lo entrego» (0 h por tienda) o «te lo publico» (0,1 h por tienda y un compromiso de fecha).
+3. Vídeo-tour: ¿alguna de las 8 tiendas tiene ya el vídeo editado por la central en su poder? ¿Lo pides en el mismo viaje que el PDF de la guía y la imagen del equipo, o es un viaje aparte? (El de GranCasa que servimos sin enlazar, 2,25 MB, ¿es ese vídeo o una grabación propia?)
+4. Tarjeta que vuelve / cupón en caja: ¿estarías dispuesto a pedir a los franquiciados UN número al mes (canjes en caja) como respuesta al informe? Sin ese número, N8 y el cupón «enséñalo en caja» miden clics, no caja — y con el 57% de no-respuesta medido, hay que decidir si se promete el cierre del bucle o solo se ofrece.
+5. TPV: ¿sabes si la red tiene un TPV común obligatorio? Es la pregunta que memory/15 dejó para la central (§3.17): si sí, el inventario local en Google se integra una vez para las 58 y es el mayor desbloqueo del catálogo; si no, no se vuelve a mencionar.
+6. Dominio y marca: sigue abierta desde el 26-ago la restricción de la central sobre qué puede publicar cada tienda — ¿la llevas al viaje único a la central, y aceptas que hasta tener el «sí» por escrito la tienda 10 no se da de alta? Es el único riesgo que invalida el negocio entero, y cuesta un email.
+
+### Abiertas tras la sintesis de las cinco plantillas (27-ago, noche) — detalle en docs/plantillas/cinco/plantillas.md
+1. ¿Confirmas Rótulo como plantilla por defecto de la demo pre-construida (nueva-tienda.mjs) y Esquina como segunda demo cuando el prospecto entrega una foto de fachada? Alternativa: Esquina por defecto con la foto de fachada como precondición del alta (el operador la pide por WhatsApp antes de la sesión).
+2. Minutero «cierra en 2 h 15 min»: ¿(a) enviamos con la web un JSON estático de festivos nacionales + autonómicos (~14 fechas/año, públicas) y en festivo se imprime «Hoy festivo: consulta el horario del centro», o (b) solo «Hoy 10:00–22:00» hasta que exista holidays/<centro>.json por centro comercial? Aplica a las cinco.
+3. Los ocho rótulos curados para el campo `rotulo` (≤8 letras por línea): LAGOH · MARINEDA · LAS ROSAS · ALCOBENDAS · GRANCASA · GRAN VÍA · EL ARCÁNGEL · VILLANUEVA (o «EL ZOCO», pero Q13e aún no confirma si Villanueva está en El Zoco o en La Pasada). ¿Los confirmas?
+4. Script de Rótulo: ¿la palabra en cursiva se mantiene en inglés donde la cartelería de tienda lo hace («Stronger» en el pie) y en español en los titulares propios («socio», «aquí»), o prefieres todo en español para un público local?
+5. Estantería: tu arreglo pedía el chevrón completo (cuña cian + plata) arriba-izquierda en la balda 0. Propongo colocarlo en la esquina INFERIOR izquierda con la plata subiendo a 45° (donde el brand book pone el metal), porque un triángulo cian arriba-izquierda es la firma de Esquina y las dos miniaturas se confundirían. ¿Aceptas la desviación, o prefieres arriba-izquierda y asumir el parecido con Esquina?
+6. Tablero: propongo que sea la única sin triángulo (su marca: logo real, círculo con las cuentas del banner, cian en la barra) y que la cuña azul del 15 % detrás del logo se añada SOLO si en la fila de cinco miniaturas al 10 % no se reconoce como USA Fitness. ¿Aceptas que se decida en la fila y no ahora?
+7. Galería con celda fija y recorte (object-fit:cover + object-position por foto): lo decidiste para Rótulo. ¿Se aplica a las cinco (y se cambia el test «la galería no recorta ninguna foto» y Gallery.astro en el PR de sistema), o solo a Rótulo y las demás conservan la proporción real?
+8. ¿Aceptas que `prioridad:'socio'` sea la única prioridad que altera la columna vertebral (en Rótulo, Socio salta al puesto 2 delante de la Oferta; en Recorrido, la tarjeta de socio pasa a 01), o la zona móvil debe ser el único hueco que cambia en las cinco?
+9. Empieza aquí en Rótulo en variante de UN toque / 4 rutas (la de 3 toques / 6-8 rutas de ronda 2 queda para Recorrido y Tablero). ¿Lo aceptas como cambio de la pieza aprobada?
+10. Texto de marca: ¿quién redacta y quién revisa alegaciones (Reglamento 1924/2006) las 8 rutas de Empieza aquí, las 8 líneas de puerta, las 3 razones de Por qué en tienda, las 4 afirmaciones de socio y las 3 FAQ de marca, y con qué fecha?
+11. Grancasa sin ficha de Google: ¿se mantiene la regla «sin ficha no hay botón de ruta» (hero con LLAMAR como única conversión en las cinco plantillas) o se abre la excepción de un «Cómo llegar» por dirección postal en Maps sin CID hasta que llegue la ficha (Q13c)?
+12. Campos que solo Tablero exige (`asesorHoras`, `servicios[]`, `fotoAnotada` con pines y trazo por foto, `cierresExcepcionales[]`) y los de Esquina/Rótulo (`fachadaFoco`, `tipo` de foto): ¿se recogen en la sesión de alta con el franquiciado delante de sus fotos (~3 minutos por tienda), o los rellena el operador?
+13. Tablero: ¿aceptas que hospede como máximo dos fotos anotadas (fachada + lineal) y ninguna galería, aunque Marineda, Grancasa y Villanueva tengan 6 fotos?
+
+Puertas externas que bloquean piezas:
+- OK escrito de la central para distribuir el PDF de la GUÍA TIENDAS (bloquea el enlace al PDF en /guia de las cinco), la imagen y credenciales del equipo (bloquea la tarjeta 02 de Recorrido con retrato, el asesor con retrato de Tablero y la línea de Equipo de Esquina) y el vídeo-tour (bloquea la celda de vídeo en galería y el póster del trayecto en Hoy en tienda).
+- Permiso para citar la GUÍA TIENDAS literalmente (distinto del permiso de alojar el PDF): bloquea las FAQ de la GUÍA y Las verdades en las cinco; mientras, FAQ de marca redactada por el operador y Verdades sin pintar.
+- Título de Amanda Gil documentado (CAFD/TAFAD, entrenadora): bloquea la ruta Mujer firmada y la ficha de autor; sin él, puerta MUJER sin firma y voz de categoría.
+- Beneficios completos del programa de socio por escrito: bloquea las cifras en Hazte socio y /socio en las cinco; mientras, las cuatro afirmaciones ya sancionadas sin cifras.
+- Una oferta real del canal interno de la central con fecha-fin (el operador tiene acceso): bloquea que el rojo, el cupón y /oferta se vean en la demo de Marineda; sin ella, las 8 abren por Productos y no hay rojo en ninguna.
+- Restricción de la central sobre qué puede publicar cada tienda (abierta desde el 26-ago): es el único riesgo que invalida el negocio entero; hasta el «sí» por escrito, ninguna plantilla debería enseñarse a la tienda 10.
+- Ficha de Google Business de Grancasa (Q13c): bloquea Cómo llegar, mapa, nota y «escribe tu reseña» en Grancasa en las cinco.
+- Place ID / enlace oficial de reseña de cada tienda (Q13d y pregunta 3 del loop): bloquea la píldora «Escribe tu reseña» y la máquina de reseñas; sin él, solo «Ver en Google» por CID.
+- Razón social, NIF, domicilio y email legal de las 5 tiendas sin `company` (Q13a): bloquea los legales fuera de noindex y el informe GA4 con art. 28; el pie enlaza los 4 legales igualmente con la identificación provisional.
+- Una foto de fachada por tienda (precondición de Esquina) y una foto de interior/ambiente por tienda (banda de papel de Rótulo, lámina de Recorrido): se piden por WhatsApp en el paso 0 del alta; sin fachada Esquina no se enseña.
+- Confirmación de los números de WhatsApp fijos (Q13f) y de la dirección de Villanueva (El Zoco vs La Pasada, Q13e): afectan al segundo botón del hero y al rótulo curado.
+- Fotos de producto de Corelam (cerrada): no bloquea nada porque las cinco usan la foto del lineal de cada tienda, pero conviene dejarlo escrito para que nadie vuelva a proponer un catálogo con fotos.
+- Calendario de festivos: nacionales y autonómicos son datos públicos (tarea del operador, no puerta); los festivos y cierres de cada centro comercial sí son puerta externa (gerencia del centro o franquiciado) y bloquean el minutero en las cinco.
+
+### Respondidas el 6-sep por delegación del dueño («analízalas tú y respóndete tú») — NO re-preguntar
+
+Detalle y evidencia: `docs/product/decisiones-2026-09-06-ocho-preguntas.md`.
+
+1. **Demo por defecto** → Rótulo en los 58; Esquina como segunda demo solo con foto de fachada de ≥900 px, pedida al final de la primera llamada. La foto nunca es precondición del alta.
+2. **Rótulos curados** → los escribe el operador con una regla determinista sobre el nombre del directorio; el dueño confirma una tabla de 58 en `docs/plantillas/rotulo/rotulos-58.md`. Los ocho de casa: VILLANUEVA · MARINEDA · LAS ROSAS · ALCOBENDAS · GRANCASA · GRAN VÍA · EL ARCÁNGEL · LAGOH.
+3. **Una prioridad** → sí, basta una; intercambia un bloque en un hueco fijo; `prioridad` y `sections` a la vez es error de build. Cierra también la pregunta 8 del 27-ago: socio NO es especial, es el mismo intercambio.
+4. **Festivos** → por centro comercial. La ley de horarios comerciales no aplica a locales de menos de 300 m², así que manda el centro y no la comunidad. El minutero vuelve, acotado a los días no marcados.
+5. **Place ID** → un solo campo `placeId`, derivado del embed que ya tenemos y verificado en build contra el CID. Los siete valores están medidos. Sin `reviewLink`.
+6. **Texto de marca** → banco cerrado en `docs/brand/textos-de-marca.md`, redacta y revisa el operador, la central firma una vez. Cursiva en español en los titulares propios; inglés solo en los claims literales de la pared.
+7. **Vídeo-tour** → fichero propio autoalojado, nunca YouTube. Tope de 30 s y 4 MiB, sin audio por defecto.
+8. **Tipografía** → fuente del sistema, no se compra nada; pila corregida a `'Helvetica Neue', Roboto, 'Segoe UI', Arial`; pesos 300/400/700 y ningún 600.
+
+### Lo que sigue abierto DEL DUEÑO tras esas ocho (poco y concreto)
+
+- Confirmar la tabla de los 58 rótulos —un vistazo, no escribirlos— y si Villanueva es El Zoco o La Pasada (el directorio y otras tres fuentes dicen La Pasada; `stores.json` dice El Zoco).
+- Aceptar en la captura el corte del rótulo por el borde derecho (2-3 caracteres en 12 de 58 tiendas) y la cara de Segoe UI en la pantalla de Windows.
+- Qué es el clip de vídeo de GranCasa que ya servimos sin enlazar, y si lleva música de biblioteca de redes.
+- Las puertas externas de siempre, ninguna nueva: firma de la central sobre qué puede publicar cada tienda, ficha de Google de GranCasa, beneficios de socio por escrito, y una foto de un cartel real para fijar los claims en inglés.
