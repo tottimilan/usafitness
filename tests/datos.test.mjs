@@ -196,6 +196,27 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
     rechaza([t], 'apunta a la ficha');
   });
 
+  test('un rótulo que no cabe en el cartel', () => {
+    const t = valida();
+    t.rotulo = 'VILLANUEVA DE LA CAÑADA'; // cuatro palabras: más de dos líneas
+    rechaza([t], 'dos líneas');
+  });
+
+  test('un rótulo en minúscula', () => {
+    // El subset de Archivo que se descarga solo lleva mayúsculas: una minúscula
+    // caería a la fuente del sistema en mitad del cartel y nadie lo vería hasta
+    // la captura.
+    const t = valida();
+    t.rotulo = 'Villanueva';
+    rechaza([t], 'mayúsculas');
+  });
+
+  test('un rótulo con salto de línea explícito sí vale', () => {
+    const t = valida();
+    t.rotulo = 'TORRE|CÁRDENAS';
+    assert.ok(esquemaTiendas.safeParse([t]).success);
+  });
+
   test('placeId en una tienda que declara no tener ficha', () => {
     const t = valida();
     delete t.geo;

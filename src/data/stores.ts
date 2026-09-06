@@ -139,6 +139,36 @@ const EsquemaTienda = z.strictObject({
   title: texto('title'),
   subtitle: texto('subtitle'),
   location: texto('location'),
+
+  /**
+   * El rótulo del cartel: lo que la plantilla «Rótulo» pinta a tamaño cartel en
+   * el primer viewport. NO es `name`, que empieza por «USAFITNESS» en las ocho
+   * y por tanto pintaría la marca donde tiene que ir la tienda.
+   *
+   * Una palabra por línea y dos líneas como mucho; `|` es un salto de línea
+   * explícito para los nombres que no caben de otra forma («TORRE|CÁRDENAS»).
+   * Mayúsculas porque el subset de Archivo que se descarga solo las lleva: una
+   * minúscula caería a la fuente del sistema en mitad del cartel sin que
+   * saltara un solo error.
+   *
+   * Anchos medidos el 2026-09-06 con la tabla de avances real de Archivo
+   * wdth 125 / wght 900 (media 0,927 em) a 58 px sobre 375 px: LAGOH 277 px ·
+   * GRAN VÍA 227 · LAS ROSAS 271 entran enteros; MARINEDA 419 corta 0,8
+   * caracteres, EL ARCÁNGEL 432 (1,1), GRANCASA 443 (1,2), VILLANUEVA 499
+   * (2,5) y ALCOBENDAS 537 (3,0). Los dos últimos son los casos límite que hay
+   * que aprobar mirando la captura, no la aritmética.
+   *
+   * Sin él, la plantilla cae a `location` recortada en la coma.
+   */
+  rotulo: z
+    .string()
+    .regex(
+      /^[A-ZÁÉÍÓÚÑÜ0-9]+(?:[ |][A-ZÁÉÍÓÚÑÜ0-9]+)*$/,
+      'el rótulo va en mayúsculas, sin signos ni minúsculas; usa "|" para forzar el salto de línea'
+    )
+    .refine((r) => r.split(/[ |]/).length <= 2, 'el rótulo ocupa dos líneas como mucho, una palabra por línea')
+    .optional(),
+
   metaDescription: texto('metaDescription')
     // Google trunca alrededor de 160 caracteres. Pasarse no penaliza, pero el
     // final de la frase no lo lee nadie y aquí es texto escrito a mano.
@@ -478,6 +508,7 @@ export function avisosDeDatos(): string[] {
     if (t.googleMapsStatus === 'sin-ficha-gbp') {
       avisos.push(`${t.slug}: sin ficha de Google Business → sin mapa, sin botón de cómo llegar y sin "geo" en el marcado. Hay que darla de alta y verificarla`);
     }
+    if (!t.rotulo) avisos.push(`${t.slug}: sin rotulo → el cartel de la plantilla «Rótulo» imprimiría "${t.location}"`);
     if (!t.placeId && t.googleMapsStatus !== 'sin-ficha-gbp') {
       avisos.push(`${t.slug}: sin placeId → «escribe tu reseña» cae a «ver en Google» y el visitante tiene que buscar el botón. Sácalo con \`node scripts/place-id.mjs --escribir\``);
     }
