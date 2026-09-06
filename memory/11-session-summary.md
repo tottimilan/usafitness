@@ -166,6 +166,10 @@ plantillas, que llevaba desde el 24 de agosto construido y sin usar por nadie.
 - **Rótulo repartido en siete rodajas** con plan escrito para las dos primeras. Ninguna toca las ocho webs vivas. Nada construido: el dueño elige opción de ejecución.
 - **Coste del método:** el workflow agotó el modelo dos veces (24 agentes caídos de 35 en la segunda vuelta). Las dos preguntas que quedaron sin investigar las cerré yo con lectura directa de la ley y de las órdenes autonómicas, que resultó ser mejor camino que el agente.
 
+- **Ejecutadas las rodajas 1a y 1b** el mismo día (el dueño dijo «go»): rama `feat/rotulo-datos`, PR #26 con CI en verde. De 196 pruebas con 3 dormidas a **220 con 0 dormidas y 0 fallos**, sin tocar ninguna de las ocho webs vivas.
+- **Lo mejor que salió:** dos guardas que miden en vez de confiar. El Place ID se descodifica y se compara con el CID del enlace, así que pegar el del centro comercial es un error de compilación con los dos números en el mensaje. Y un rótulo con una letra fuera del subset de la fuente pone rojo un test, en vez de pintarse con la fuente del sistema sin que nadie lo vea.
+- **Lo que enseñó el método:** tres mutaciones sobrevivieron y una mató por el motivo equivocado. De ahí salieron dos entradas nuevas en memory/16 y un borrado de código muerto. Y las fuentes no eran reproducibles como el plan daba por hecho: fontTools escribe la hora en la cabecera, y hubo que fijar la marca de tiempo.
+
 ### Top 3 next priorities
 
 Reordenadas el 2026-08-26 por el modelo de negocio decidido. La restricción ya
