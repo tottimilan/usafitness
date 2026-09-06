@@ -199,6 +199,14 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
     rechaza([t], 'apunta a la ficha');
   });
 
+  test('una fotoInterior que es de otra tienda', () => {
+    // Pasa el formato y el fichero existe en disco: solo lo caza comparar con
+    // la galería de ESTA tienda.
+    const t = valida();
+    t.fotoInterior = '/photos/lagoh/tienda-2.webp';
+    rechaza([t], 'galleryimages');
+  });
+
   test('una prioridad que no es una de las cuatro', () => {
     const t = valida();
     t.prioridad = 'productos';

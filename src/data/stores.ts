@@ -261,6 +261,21 @@ const EsquemaTienda = z.strictObject({
   galleryImages: z.array(rutaPublica),
   galleryFeatured: z.boolean().optional(),
 
+  /**
+   * La foto que la banda de papel de «Rótulo» puede tratar en duotono.
+   *
+   * Solo interior: la fachada nunca se filtra —hay que reconocerla desde el
+   * pasillo del centro— y el lineal tampoco, porque el filtro mata los envases,
+   * que es justo lo que el visitante viene a ver. La máquina no puede saber qué
+   * enseña una foto, así que lo dice una persona.
+   *
+   * Sin ella la banda no se pinta y el rótulo crece para ocupar el hueco: la
+   * renuncia no se nota, que es la tesis de esa plantilla. Hoy ninguna de las
+   * 48 fotos de la flota es de ambiente, así que se queda vacío a propósito
+   * hasta que alguien las mire.
+   */
+  fotoInterior: rutaPublica.optional(),
+
   /* Prueba social */
   reviews: z.array(EsquemaResena),
   social: EsquemaSocial.optional(),
@@ -360,6 +375,15 @@ export const esquemaTiendas = z.array(EsquemaTienda).superRefine((tiendas, ctx) 
     if (a && b && a !== b) {
       ctx.addIssue({ code: 'custom', path: [i, 'googleMapsLink'],
         message: `el embed apunta al CID ${a} y el enlace al ${b}: el mapa y el botón llevan a fichas distintas` });
+    }
+
+    // La foto del papel tiene que ser una de las suyas. Una ruta de otra tienda
+    // pasa `rutaPublica` (existe, es una imagen) y el verificador de assets la
+    // encuentra en disco: sin esto, la web de un cliente enseñaría el interior
+    // de otro local sin que saltara nada.
+    if (t.fotoInterior && !t.galleryImages.includes(t.fotoInterior)) {
+      ctx.addIssue({ code: 'custom', path: [i, 'fotoInterior'],
+        message: `${t.fotoInterior} no está en galleryImages de esta tienda: la foto del papel tiene que ser una de las suyas` });
     }
 
     // Dos fuentes de orden es una de más: `sections` reemplaza el orden ENTERO
