@@ -145,6 +145,18 @@ avisa. El techo pasa a ser comercial: operar 58 tiendas cabe en 43,5 h/mes, pero
 pidió como material de venta— le da por fin un consumidor al sistema de
 plantillas, que llevaba desde el 24 de agosto construido y sin usar por nadie.
 
+### Séptima parte — el loop grande del dueño: secciones, patrones, marca, servicios y las cinco (2026-08-27 → 2026-09-06)
+
+- **Flota 8/8 en nuestro sistema** (dueño: «no queda ninguna en WordPress»; medido con `npm run flota`). Galería con **filas justificadas** tras el hueco que el dueño vio en villanueva (PR #24). **Capa 0**: `resolveSections` ya no descarta en silencio secciones nuevas; presupuesto partido (120 KB duro para plantilla, 900 KB aviso para página).
+- **Gramática de formas de la marca** (`docs/brand/gramatica-de-formas.md`): siete elementos vistos en brand book, banners y locales. Ninguna plantilla anterior los usaba — es la palanca de diferenciación.
+- **Loop de secciones** (`docs/product/loop-secciones-2026-08-27.md`): la estructura aguanta; cuatro hojas cambian; falta la **prioridad por tienda**; `placeId` para el enlace de reseña (el formulario de Google exige Place ID, verificado).
+- **Servicios y automatización** (`docs/product/servicios-y-automatizacion-2026-08-27.md`): 35 servicios en cinco capas, 15 nuevos, 22 descartes, orden de 12 pasos.
+- **Catálogo de patrones 2026** (11 agentes, 292 ejemplos verificados, 37 patrones, 7 familias) y **espacio de diseño repartido en cinco** antes de diseñar (matriz 5×5).
+- **Las cinco plantillas** (18 agentes: 5 diseñadores, 10 críticas, miniatura, síntesis): todas viven con arreglos, Estantería condicional; orden Rótulo → Esquina → Tablero → Estantería → Recorrido; minutero retirado hasta calendario de festivos (R3).
+- **Dos artefactos publicados y auditados** (contraste claro/oscuro, 375/1340, fuentes, foto real de Lagoh): Guía https://claude.ai/code/artifact/977c7298-0a0d-499d-9910-00629cd60cd0 · Cinco https://claude.ai/code/artifact/fed66a91-62c8-4a22-b2eb-06051f0c9ad5. Vistos en píxeles: cabecera de la Guía, Esquina, Estantería y la cabecera de Tablero; Rótulo y Recorrido solo medidos (la ventana oculta agotaba las capturas).
+- **PR #25** abierta con todo el bloque. Puerta: la confirmación del dueño sobre las cinco y sus 13 decisiones (memory/12).
+- **Errores nuevos catalogados** (memory/16): #11 argumento comercial no comprobado en el código · #12 panel del navegador compartido con subagentes · #13 los especímenes también se auditan.
+
 ### Top 3 next priorities
 
 Reordenadas el 2026-08-26 por el modelo de negocio decidido. La restricción ya
