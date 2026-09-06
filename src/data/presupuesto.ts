@@ -29,6 +29,14 @@
  *
  *     clásica  47 KB (Inter) +  7 KB de CSS  =  54 KB
  *     energía  47 + 22 + 22   + ~9 KB        = 100 KB
+ *     rótulo    5 KB (Archivo Expanded Black) + 4 KB (cursiva) + ~13 KB de CSS
+ *               = 22 KB, SIN Inter (usaFuenteBase:false)
+ *
+ * Las dos de rótulo están medidas (2026-09-06, `scripts/fuentes-rotulo.py`: la
+ * display instanciada a un solo punto de diseño pesa 5.120 B frente a los
+ * 90.104 de la variable completa de Google, que no deja acotar ejes). El CSS es
+ * una estimación calibrada contra global.css + energía y se re-mide cuando
+ * exista la hoja.
  *
  * El tope de 120 KB deja sitio a una familia más o a una display con dos pesos,
  * y no a cinco ficheros. Si una dirección lo necesita, se sube A PROPÓSITO y se

@@ -17,6 +17,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { readFileSync, statSync } from 'node:fs';
 
 import { stores, esquemaTiendas, avisosDeDatos, tablaCoherente } from '../src/data/stores.ts';
 import { respuestaDeSalud } from '../src/data/salud.ts';
@@ -35,6 +36,9 @@ import {
   seccionesInvalidas,
   plantillasConSeccionesInvalidas,
   tokensToCss,
+  PRIORIDADES,
+  ordenDeSecciones,
+  avisoDePrioridad,
 } from '../src/data/templates.ts';
 import {
   FUENTE_BASE,
@@ -46,6 +50,7 @@ import { clasificar, resumirFlota, esProblema } from '../src/data/flota.ts';
 import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.ts';
 import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/data/imagen.ts';
 import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
+import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -178,6 +183,73 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
     const t = valida();
     t.heroImage = 'photos/vigo/hero.webp'; // relativa: 404 en /aviso-legal
     rechaza([t], 'ruta absoluta');
+  });
+
+  test('un placeId que no es un Place ID de ficha', () => {
+    const t = valida();
+    t.placeId = 'https://maps.google.com/?cid=1192403823564073512';
+    rechaza([t], 'place id');
+  });
+
+  test('un placeId que apunta a OTRA ficha (el del centro comercial, el clásico)', () => {
+    // El caso real que la tentación pide: GranCasa no tiene ficha, el centro sí.
+    // El formato es válido, así que el regex lo deja pasar; lo caza la
+    // aritmética, que compara el CID de dentro con el del enlace.
+    const t = valida();
+    t.placeId = 'ChIJgUbEo8cfqokR5lP9_Wh_DaM'; // ficha de otro negocio
+    rechaza([t], 'apunta a la ficha');
+  });
+
+  test('una fotoInterior que es de otra tienda', () => {
+    // Pasa el formato y el fichero existe en disco: solo lo caza comparar con
+    // la galería de ESTA tienda.
+    const t = valida();
+    t.fotoInterior = '/photos/lagoh/tienda-2.webp';
+    rechaza([t], 'galleryimages');
+  });
+
+  test('una prioridad que no es una de las cuatro', () => {
+    const t = valida();
+    t.prioridad = 'productos';
+    rechaza([t], 'prioridad');
+  });
+
+  test('prioridad y sections a la vez: dos fuentes de orden', () => {
+    const t = valida();
+    t.prioridad = 'socio';
+    t.sections = ['hero', 'promotions'];
+    rechaza([t], 'solo puede mandar una');
+  });
+
+  test('un rótulo que no cabe en el cartel', () => {
+    const t = valida();
+    t.rotulo = 'VILLANUEVA DE LA CAÑADA'; // cuatro palabras: más de dos líneas
+    rechaza([t], 'dos líneas');
+  });
+
+  test('un rótulo en minúscula', () => {
+    // El subset de Archivo que se descarga solo lleva mayúsculas: una minúscula
+    // caería a la fuente del sistema en mitad del cartel y nadie lo vería hasta
+    // la captura.
+    const t = valida();
+    t.rotulo = 'Villanueva';
+    rechaza([t], 'mayúsculas');
+  });
+
+  test('un rótulo con salto de línea explícito sí vale', () => {
+    const t = valida();
+    t.rotulo = 'TORRE|CÁRDENAS';
+    assert.ok(esquemaTiendas.safeParse([t]).success);
+  });
+
+  test('placeId en una tienda que declara no tener ficha', () => {
+    const t = valida();
+    delete t.geo;
+    delete t.googleMapsEmbed;
+    delete t.googleMapsLink;
+    t.googleMapsStatus = 'sin-ficha-gbp';
+    t.placeId = 'ChIJzU_NTwBtEg0RmABuXlayxbM';
+    rechaza([t], 'placeid');
   });
 });
 
@@ -1141,5 +1213,179 @@ describe('Ninguna galería deja un hueco al final de una columna', () => {
     assert.ok(apaisada.parte > vertical.parte * 1.5, 'la apaisada ocupa bastante más');
     assert.ok(Math.abs(apaisada.parte + vertical.parte - 1) < 0.001, 'y entre las dos, la fila entera');
     assert.match(sizesDeFoto(apaisada.parte), /\d+px$/);
+  });
+});
+
+describe('El Place ID lleva dentro la ficha a la que dice apuntar', () => {
+  // La forma de un Place ID de negocio es base64url de un protobuf:
+  //   0a 12 09 <cellId LE64> 11 <CID LE64>
+  // Descodificarlo convierte «¿este identificador es el de esta tienda?» en
+  // aritmética, y no en un enlace roto que solo se ve pinchándolo. Es la misma
+  // familia de guarda que FICHAS_PROHIBIDAS, que ya evitó una vez que
+  // enlazáramos la ficha del centro comercial en la web de un cliente.
+  test('los Place ID de la flota llevan el CID de su propia ficha', () => {
+    const conPlaceId = stores.filter((t) => t.placeId);
+    assert.ok(conPlaceId.length >= 7, `esperaba al menos 7 tiendas con placeId y hay ${conPlaceId.length}`);
+    for (const t of conPlaceId) {
+      const cidDelEnlace = t.googleMapsLink.match(/\d{15,20}/)[0];
+      assert.equal(cidDePlaceId(t.placeId), cidDelEnlace, `${t.slug}: el placeId apunta a otra ficha`);
+    }
+  });
+
+  test('el ejemplo oficial de Google se descodifica', () => {
+    // developers.google.com/maps/documentation/places/web-service/place-id
+    assert.equal(cidDePlaceId('ChIJgUbEo8cfqokR5lP9_Wh_DaM'), '11749187091794056166');
+  });
+
+  test('lo que no es un Place ID de ficha devuelve null', () => {
+    assert.equal(cidDePlaceId('1192403823564073512'), null, 'un CID pelado no es un Place ID');
+    assert.equal(
+      cidDePlaceId('EicxMyBNYXJrZXQgU3QsIFdpbG1pbmd0b24sIE5DIDI4NDAxLCBVU0E'),
+      null,
+      'un Place ID de DIRECCIÓN no es de negocio'
+    );
+    assert.equal(cidDePlaceId('no-es-base64!'), null);
+    assert.equal(cidDePlaceId(''), null);
+  });
+
+  test('el enlace de reseña se construye en un solo sitio y degrada', () => {
+    const lagoh = stores.find((s) => s.slug === 'lagoh');
+    assert.equal(
+      enlaceResena(lagoh).href,
+      'https://search.google.com/local/writereview?placeid=ChIJzU_NTwBtEg0RmABuXlayxbM'
+    );
+    assert.equal(enlaceResena(lagoh).etiqueta, 'Escribe tu reseña');
+    assert.equal(enlaceResena(lagoh).tipo, 'formulario');
+
+    // Sin placeId, la píldora no promete el formulario: lleva a la ficha.
+    const sinPlaceId = { ...lagoh, placeId: undefined };
+    assert.equal(enlaceResena(sinPlaceId).href, lagoh.googleMapsLink);
+    assert.equal(enlaceResena(sinPlaceId).etiqueta, 'Ver en Google');
+    assert.equal(enlaceResena(sinPlaceId).tipo, 'ficha');
+
+    // Sin ficha no hay nada que enseñar: la pieza no se pinta y nunca se
+    // anuncia el vacío.
+    const grancasa = stores.find((s) => s.slug === 'grancasa');
+    assert.equal(enlaceResena(grancasa), null);
+  });
+});
+
+describe('La tienda elige UNA cosa y solo se mueve un bloque', () => {
+  // Una plantilla de mentira: la de Rótulo llega con la plantilla. Lo que se
+  // prueba aquí es el MECANISMO, no el diseño — y el mecanismo es el que el
+  // dueño pidió: «no todas las tiendas tienen que seguir las mismas normas de
+  // orden», pero sin abrir un editor de órdenes que nadie pueda probar.
+  const conZona = {
+    id: 'prueba',
+    label: 'Prueba',
+    tokens: {},
+    sections: ['hero', 'promotions', 'products', 'reviews', 'schedule'],
+    zonaMovil: {
+      posicion: 1,
+      defecto: 'promotions',
+      mapa: { visita: 'schedule', oferta: 'promotions', socio: 'products', asesoramiento: 'reviews' },
+    },
+  };
+
+  test('sin prioridad manda el orden de la plantilla', () => {
+    const orden = ordenDeSecciones(conZona, {}).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'promotions', 'products', 'reviews', 'schedule']);
+  });
+
+  test('la prioridad intercambia UN bloque, y solo uno', () => {
+    const orden = ordenDeSecciones(conZona, { prioridad: 'socio' }).map((s) => s.id);
+    // products sube al hueco y promotions ocupa el que dejó: nada más se movió,
+    // y el número de secciones no cambia.
+    assert.deepEqual(orden, ['hero', 'products', 'promotions', 'reviews', 'schedule']);
+  });
+
+  test('es un intercambio, no una inserción: solo dos posiciones cambian', () => {
+    // Con un bloque LEJANO del hueco (schedule está en la 4, el hueco es la 1).
+    // Si esto fuera una inserción, products y reviews bajarían un puesto cada
+    // uno y una sola elección de la tienda habría reordenado media página.
+    // El caso adyacente no distingue las dos cosas: por eso hace falta este.
+    const orden = ordenDeSecciones(conZona, { prioridad: 'visita' }).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'schedule', 'products', 'reviews', 'promotions']);
+  });
+
+  test('el primer bloque no se toca nunca, con ninguna prioridad', () => {
+    // R1: el primer viewport es de la plantilla, no de la tienda.
+    for (const p of PRIORIDADES) {
+      assert.equal(ordenDeSecciones(conZona, { prioridad: p })[0].id, 'hero', `con ${p} el hero se movió`);
+    }
+  });
+
+  test('la prioridad que apunta al ocupante por defecto no mueve nada', () => {
+    const orden = ordenDeSecciones(conZona, { prioridad: 'oferta' }).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'promotions', 'products', 'reviews', 'schedule']);
+  });
+
+  test('si el bloque elegido no tiene dato, se queda el defecto y se avisa', () => {
+    // Hoy es el caso NORMAL, no el raro: 8 de 8 tiendas están sin oferta viva.
+    const sinReviews = (id) => id !== 'reviews';
+    const orden = ordenDeSecciones(conZona, { prioridad: 'asesoramiento' }, sinReviews).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'promotions', 'products', 'reviews', 'schedule'], 'sin dato no se mueve nada');
+    assert.match(
+      avisoDePrioridad(conZona, { slug: 'x', prioridad: 'asesoramiento' }, sinReviews),
+      /sin dato/
+    );
+  });
+
+  test('sin prioridad no hay aviso, y con dato tampoco', () => {
+    assert.equal(avisoDePrioridad(conZona, { slug: 'x' }, () => true), null);
+    assert.equal(avisoDePrioridad(conZona, { slug: 'x', prioridad: 'socio' }, () => true), null);
+  });
+
+  test('una plantilla sin zona móvil ignora la prioridad', () => {
+    const sinZona = { ...conZona, zonaMovil: undefined };
+    const orden = ordenDeSecciones(sinZona, { prioridad: 'socio' }).map((s) => s.id);
+    assert.deepEqual(orden, ['hero', 'promotions', 'products', 'reviews', 'schedule']);
+    assert.equal(avisoDePrioridad(sinZona, { slug: 'x', prioridad: 'socio' }, () => true), null);
+  });
+
+  test('las plantillas vivas siguen sin zona móvil: nada cambia hoy', () => {
+    // La garantía de que esta rodaja no toca ninguna de las ocho webs.
+    for (const t of Object.values(TEMPLATES)) {
+      const conPrioridad = ordenDeSecciones(t, { prioridad: 'socio' }).map((s) => s.id);
+      const sinNada = ordenDeSecciones(t, {}).map((s) => s.id);
+      assert.deepEqual(conPrioridad, sinNada, `«${t.id}» cambió de orden y no debería`);
+    }
+  });
+});
+
+describe('Una fuente subseteada no puede quedarse sin una letra', () => {
+  // El riesgo real de subsetear: un rótulo con un carácter que no está dentro
+  // no da error, se pinta con la fuente del sistema en mitad del cartel y nadie
+  // se entera hasta ver la captura. Esto lo convierte en un test rojo.
+  //
+  // Se comprueba contra la LISTA que generó el fichero y no contra su tabla de
+  // caracteres: la lista es la fuente de verdad —es lo que se le pasa al
+  // subsetter— y leerla no exige descomprimir woff2 ni añadir una dependencia.
+  // Que la lista y el fichero coincidan lo garantiza el propio script, que
+  // falla si algún carácter de la lista no acabó dentro.
+  const listaDe = (fichero) => {
+    const nombre = fichero.includes('script') ? 'palabras-script.txt' : 'glifos-rotulo.txt';
+    return new Set(readFileSync(`src/data/fuentes/${nombre}`, 'utf8'));
+  };
+
+  test('cada letra de los ocho rótulos está en la display', () => {
+    const cubiertos = listaDe('archivo-expanded-black-rotulo.woff2');
+    const conRotulo = stores.filter((t) => t.rotulo);
+    assert.ok(conRotulo.length >= 8, `esperaba 8 rótulos y hay ${conRotulo.length}`);
+    for (const t of conRotulo) {
+      for (const c of t.rotulo.replace(/\|/g, '')) {
+        assert.ok(cubiertos.has(c), `${t.slug}: el rótulo usa "${c}" y la fuente no lo lleva`);
+      }
+    }
+  });
+
+  test('los dos ficheros existen y no engordan', () => {
+    // Techo por fichero además del tope global de la plantilla: si un día
+    // alguien mete la familia entera «para tenerlo todo», esto lo dice antes de
+    // que el presupuesto se lo trague.
+    for (const f of ['archivo-expanded-black-rotulo.woff2', 'rotulo-script.woff2']) {
+      const n = statSync(`public/fonts/${f}`).size;
+      assert.ok(n > 0 && n <= 6144, `${f} pesa ${n} B y el techo son 6144`);
+    }
   });
 });

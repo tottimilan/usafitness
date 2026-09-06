@@ -46,6 +46,10 @@
     function tipoDe(a) {
       var href = a.getAttribute('href') || '';
       if (href.indexOf('tel:') === 0) return 'contacto_llamada';
+      // Antes que el de Maps a propósito: el formulario de reseña también vive
+      // en un dominio de Google, y clasificarlo como "cómo llegar" mezclaría en
+      // el informe dos intenciones que no tienen nada que ver.
+      if (href.indexOf('search.google.com/local/writereview') > -1) return 'pedir_resena';
       if (href.indexOf('wa.me') > -1 || href.indexOf('whatsapp') > -1) return 'contacto_whatsapp';
       if (/google\.[a-z.]+\/maps|maps\.google|maps\.app\.goo\.gl/.test(href)) return 'contacto_maps';
       return null;

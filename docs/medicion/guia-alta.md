@@ -554,6 +554,7 @@ Ahora el flujo de datos:
 | `contacto_llamada` | `seccion` (origen) | cualquier `tel:` | ✅ vivo |
 | `contacto_whatsapp` | `seccion` | cualquier `wa.me` | ✅ vivo |
 | `contacto_maps` | `seccion` | enlaces a Maps | ✅ vivo |
+| `pedir_resena` | `seccion` | píldora «Escribe tu reseña» (en Reseñas, o en Hoy en tienda cuando Reseñas no se pinta) | ✅ clasificado, a la espera de que exista la píldora |
 | `interes_socio` | `seccion` | Hazte socio | pendiente de instrumentar (F2) |
 | `ver_oferta` | `seccion`, `origen` (central/propia) | Oferta del mes | pendiente (F2) |
 | `ver_horario` | `seccion` | Hoy en tienda | pendiente (F2) — en informes se llama «intención de visita» |

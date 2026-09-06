@@ -3,7 +3,15 @@
 **Date:** 2026-09-06
 **Branch:** `feat/rotulo-fuentes`
 **Author:** User + Claude Opus 5
-**Status:** Draft
+**Status:** Done (2026-09-06)
+
+## Amendment 2026-09-06 — lo que se desvió al ejecutarlo
+
+1. **La reproducibilidad no salía, y el plan la daba por hecha.** Dos ejecuciones seguidas producían ficheros con bytes distintos: fontTools escribe la hora actual en la cabecera de la fuente. Se arregló fijando `SOURCE_DATE_EPOCH` a la fecha del commit anclado. Ahora las dos huellas coinciden, y de paso la display pasó a pesar **5.120 bytes en vez de 5.124**: la cifra del plan y de la cabecera de `presupuesto.ts` está corregida.
+2. **La primera mutación del test de glifos no contaba.** Puse un rótulo con un punto medio, y el test se puso rojo… porque el esquema rechazaba ese rótulo antes de llegar. Una mutación que mata por el motivo equivocado no demuestra nada. Se repitió quitando la letra G de la lista, que el esquema sí acepta, y ahí el test dijo lo que tenía que decir.
+3. **Se ejecutó en la rama de la rodaja 1a**, porque su test de cobertura lee el campo `rotulo` que entra allí.
+
+**Resultado medido:** los dos ficheros generados dos veces dan la misma huella; la display no tiene ejes, declara ancho expandido y su M mide 1,178 em; los ocho rótulos y las ocho palabras están cubiertos.
 
 ## Goal
 

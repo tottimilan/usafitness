@@ -29,7 +29,8 @@
 import { z } from 'astro/zod';
 import bruto from './stores.json' with { type: 'json' };
 import { parseHorario } from './horario.ts';
-import { SECTION_IDS } from './templates.ts';
+import { SECTION_IDS, PRIORIDADES } from './templates.ts';
+import { cidDePlaceId } from './resenas.ts';
 
 /* ── Piezas reutilizadas ───────────────────────────────────────────────── */
 
@@ -138,6 +139,36 @@ const EsquemaTienda = z.strictObject({
   title: texto('title'),
   subtitle: texto('subtitle'),
   location: texto('location'),
+
+  /**
+   * El rótulo del cartel: lo que la plantilla «Rótulo» pinta a tamaño cartel en
+   * el primer viewport. NO es `name`, que empieza por «USAFITNESS» en las ocho
+   * y por tanto pintaría la marca donde tiene que ir la tienda.
+   *
+   * Una palabra por línea y dos líneas como mucho; `|` es un salto de línea
+   * explícito para los nombres que no caben de otra forma («TORRE|CÁRDENAS»).
+   * Mayúsculas porque el subset de Archivo que se descarga solo las lleva: una
+   * minúscula caería a la fuente del sistema en mitad del cartel sin que
+   * saltara un solo error.
+   *
+   * Anchos medidos el 2026-09-06 con la tabla de avances real de Archivo
+   * wdth 125 / wght 900 (media 0,927 em) a 58 px sobre 375 px: LAGOH 277 px ·
+   * GRAN VÍA 227 · LAS ROSAS 271 entran enteros; MARINEDA 419 corta 0,8
+   * caracteres, EL ARCÁNGEL 432 (1,1), GRANCASA 443 (1,2), VILLANUEVA 499
+   * (2,5) y ALCOBENDAS 537 (3,0). Los dos últimos son los casos límite que hay
+   * que aprobar mirando la captura, no la aritmética.
+   *
+   * Sin él, la plantilla cae a `location` recortada en la coma.
+   */
+  rotulo: z
+    .string()
+    .regex(
+      /^[A-ZÁÉÍÓÚÑÜ0-9]+(?:[ |][A-ZÁÉÍÓÚÑÜ0-9]+)*$/,
+      'el rótulo va en mayúsculas, sin signos ni minúsculas; usa "|" para forzar el salto de línea'
+    )
+    .refine((r) => r.split(/[ |]/).length <= 2, 'el rótulo ocupa dos líneas como mucho, una palabra por línea')
+    .optional(),
+
   metaDescription: texto('metaDescription')
     // Google trunca alrededor de 160 caracteres. Pasarse no penaliza, pero el
     // final de la frase no lo lee nadie y aquí es texto escrito a mano.
@@ -199,6 +230,25 @@ const EsquemaTienda = z.strictObject({
    */
   googleMapsStatus: z.literal('sin-ficha-gbp').optional(),
 
+  /**
+   * Place ID de la ficha (`ChIJ…`). Es lo ÚNICO que acepta el formulario de
+   * «escribir reseña» de Google; el CID que ya guardamos solo abre la ficha y
+   * deja al visitante buscando el botón.
+   *
+   * Se saca del HTML del propio embed por CID con `scripts/place-id.mjs`, sin
+   * acceso de gestor y sin API de pago. Google avisa de que un Place ID puede
+   * cambiar y recomienda refrescarlo pasados doce meses: por eso el
+   * `superRefine` de abajo comprueba que lleva dentro el CID de ESTA tienda, y
+   * no se fía de que esté bien copiado.
+   */
+  placeId: z
+    .string()
+    .regex(
+      /^ChIJ[A-Za-z0-9_-]{23}$/,
+      'un Place ID de ficha de negocio son 27 caracteres que empiezan por "ChIJ" (p. ej. "ChIJzU_NTwBtEg0RmABuXlayxbM"); un CID o una URL no valen'
+    )
+    .optional(),
+
   /* Horario: se valida con el MISMO parser que emite el marcado */
   schedule: z.string().refine((t) => parseHorario(t).length > 0, {
     message:
@@ -210,6 +260,21 @@ const EsquemaTienda = z.strictObject({
   heroImage: rutaPublica,
   galleryImages: z.array(rutaPublica),
   galleryFeatured: z.boolean().optional(),
+
+  /**
+   * La foto que la banda de papel de «Rótulo» puede tratar en duotono.
+   *
+   * Solo interior: la fachada nunca se filtra —hay que reconocerla desde el
+   * pasillo del centro— y el lineal tampoco, porque el filtro mata los envases,
+   * que es justo lo que el visitante viene a ver. La máquina no puede saber qué
+   * enseña una foto, así que lo dice una persona.
+   *
+   * Sin ella la banda no se pinta y el rótulo crece para ocupar el hueco: la
+   * renuncia no se nota, que es la tesis de esa plantilla. Hoy ninguna de las
+   * 48 fotos de la flota es de ambiente, así que se queda vacío a propósito
+   * hasta que alguien las mire.
+   */
+  fotoInterior: rutaPublica.optional(),
 
   /* Prueba social */
   reviews: z.array(EsquemaResena),
@@ -229,6 +294,20 @@ const EsquemaTienda = z.strictObject({
       ])
     )
     .optional(),
+
+  /**
+   * Lo que ESTA tienda quiere que se vea primero, después del horario.
+   *
+   * UNA elección, tecleada por el operador en la sesión de alta. Mueve un solo
+   * bloque en el hueco que la plantilla reserva (`zonaMovil` en templates.ts);
+   * no toca el primer viewport ni la periferia, así que ninguna tienda puede
+   * romper R1-R3 eligiendo mal.
+   *
+   * Es la respuesta a «no todas las tiendas tienen que seguir las mismas normas
+   * de orden» sin abrir un editor de órdenes: con `sections` habría cientos de
+   * miles de combinaciones por plantilla y ninguna forma de probarlas.
+   */
+  prioridad: z.enum(PRIORIDADES).optional(),
 
   /* Medición (Fase 1) — el código ya está, faltan los identificadores */
   // `GT-` además de `G-`: la interfaz de Google entrega hoy identificadores
@@ -296,6 +375,47 @@ export const esquemaTiendas = z.array(EsquemaTienda).superRefine((tiendas, ctx) 
     if (a && b && a !== b) {
       ctx.addIssue({ code: 'custom', path: [i, 'googleMapsLink'],
         message: `el embed apunta al CID ${a} y el enlace al ${b}: el mapa y el botón llevan a fichas distintas` });
+    }
+
+    // La foto del papel tiene que ser una de las suyas. Una ruta de otra tienda
+    // pasa `rutaPublica` (existe, es una imagen) y el verificador de assets la
+    // encuentra en disco: sin esto, la web de un cliente enseñaría el interior
+    // de otro local sin que saltara nada.
+    if (t.fotoInterior && !t.galleryImages.includes(t.fotoInterior)) {
+      ctx.addIssue({ code: 'custom', path: [i, 'fotoInterior'],
+        message: `${t.fotoInterior} no está en galleryImages de esta tienda: la foto del papel tiene que ser una de las suyas` });
+    }
+
+    // Dos fuentes de orden es una de más: `sections` reemplaza el orden ENTERO
+    // de la plantilla y `prioridad` mueve un bloque dentro de él. Juntas, nadie
+    // sabe cuál manda al leer el JSON, y el orden que sale depende de en qué
+    // orden se apliquen. `sections` es la válvula del operador; para la
+    // elección del franquiciado, `prioridad`.
+    if (t.prioridad && t.sections && t.sections.length > 0) {
+      ctx.addIssue({ code: 'custom', path: [i, 'prioridad'],
+        message: 'esta tienda declara `prioridad` y `sections`: son dos formas de decidir el orden y solo puede mandar una' });
+    }
+
+    // EL PLACE ID TIENE QUE SER EL DE ESTA TIENDA.
+    // Un Place ID lleva el CID dentro (ver `resenas.ts`), así que esto no es
+    // una comprobación de formato: se descodifica y se compara. Un Place ID
+    // copiado del centro comercial o de la tienda de al lado NO compila, que es
+    // exactamente el fallo que FICHAS_PROHIBIDAS evitó una vez con una lista
+    // escrita a mano — aquí sale gratis para las 58.
+    if (t.placeId) {
+      if (sinFicha) {
+        ctx.addIssue({ code: 'custom', path: [i, 'placeId'],
+          message: 'declara no tener ficha de Google pero trae placeId. Una de las dos cosas sobra' });
+      } else {
+        const dentro = cidDePlaceId(t.placeId);
+        if (dentro === null) {
+          ctx.addIssue({ code: 'custom', path: [i, 'placeId'],
+            message: 'no es un Place ID de ficha de negocio: no lleva un CID dentro. Sácalo con `node scripts/place-id.mjs`' });
+        } else if (b && dentro !== b) {
+          ctx.addIssue({ code: 'custom', path: [i, 'placeId'],
+            message: `el placeId apunta a la ficha ${dentro} y el enlace a la ${b}: son fichas distintas` });
+        }
+      }
     }
   });
 
@@ -435,6 +555,10 @@ export function avisosDeDatos(): string[] {
     // ficha, porque eso depende del franquiciado y no del código.
     if (t.googleMapsStatus === 'sin-ficha-gbp') {
       avisos.push(`${t.slug}: sin ficha de Google Business → sin mapa, sin botón de cómo llegar y sin "geo" en el marcado. Hay que darla de alta y verificarla`);
+    }
+    if (!t.rotulo) avisos.push(`${t.slug}: sin rotulo → el cartel de la plantilla «Rótulo» imprimiría "${t.location}"`);
+    if (!t.placeId && t.googleMapsStatus !== 'sin-ficha-gbp') {
+      avisos.push(`${t.slug}: sin placeId → «escribe tu reseña» cae a «ver en Google» y el visitante tiene que buscar el botón. Sácalo con \`node scripts/place-id.mjs --escribir\``);
     }
   }
   return avisos;

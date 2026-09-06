@@ -37,6 +37,38 @@ export type SectionId = (typeof SECTION_IDS)[number];
  *  distinto en dos plantillas sin duplicar el componente. */
 export type SectionRef = SectionId | { id: SectionId; variant?: string };
 
+/**
+ * Lo que una tienda puede pedir que se vea primero. UNA sola elección, tecleada
+ * por el operador en la sesión de alta a partir de una pregunta: «¿qué quieres
+ * que vea primero quien te busca?».
+ *
+ * Son cuatro y no más a propósito. El dueño pidió que no todas las tiendas
+ * siguieran el mismo orden, y la alternativa —dejar que cada tienda ordene sus
+ * secciones— son cientos de miles de órdenes posibles por plantilla, imposibles
+ * de diseñar y de probar, y con la puerta abierta a sacar el horario del primer
+ * scroll. Aquí la tienda mueve una cosa y el sistema garantiza el resto.
+ */
+export const PRIORIDADES = ['visita', 'oferta', 'socio', 'asesoramiento'] as const;
+export type Prioridad = (typeof PRIORIDADES)[number];
+
+/**
+ * El único hueco del orden que la tienda gobierna.
+ *
+ * `posicion` es el índice que la tienda puede cambiar, `defecto` quién lo ocupa
+ * si no elige, y `mapa` qué bloque sube por cada prioridad. El bloque desplazado
+ * baja al hueco que deja el que sube: es un INTERCAMBIO, así que el número de
+ * secciones no cambia, ninguna se cuela y ninguna desaparece.
+ *
+ * Lo que esto NO puede tocar, por construcción: la periferia, el primer
+ * viewport y las posiciones protegidas por R1-R3. Por eso la plantilla decide
+ * el mapa y `posicion` nunca es 0.
+ */
+export interface ZonaMovil {
+  posicion: number;
+  defecto: SectionId;
+  mapa: Partial<Record<Prioridad, SectionId>>;
+}
+
 export interface Template {
   id: string;
   label: string;
@@ -56,12 +88,38 @@ export interface Template {
   /** Ficheros de fuente propios, para el <link rel="preload"> de Base.astro. */
   fonts?: string[];
   /**
+   * `false` cuando la plantilla NO usa la familia base para nada: entonces Inter
+   * deja de precargarse y de contar en el presupuesto (ver `presupuesto.ts`).
+   *
+   * Ojo, y por eso está escrito aquí y no solo allí: esto quita la PRECARGA,
+   * nada más. El `@font-face` de Inter sigue en `global.css` y `--font-family`
+   * la nombra, así que una plantilla con `usaFuenteBase: false` que no
+   * sobrescriba ese token hace que el navegador se la descargue igual — sin
+   * preload, o sea más tarde y peor — y el tope de peso no lo vería, porque
+   * mide lo declarado y no lo servido. Las dos cosas van juntas o no van.
+   */
+  usaFuenteBase?: boolean;
+  /**
+   * Cómo responde la plantilla al ajuste claro/oscuro del sistema. `claro` (por
+   * defecto) lo ignora; `auto` invierte sus superficies blancas. Es
+   * infraestructura de cada plantilla, nunca una plantilla aparte: un «modo
+   * oscuro» como producto era una de las cosas que el catálogo de patrones dio
+   * por pasada de moda.
+   */
+  modo?: 'claro' | 'auto';
+  /**
    * Variantes para las piezas FIJAS de la página (header, footer, contacto).
    * Siguen fijas —un error de configuración no puede dejar una landing sin
    * aviso de cookies ni enlaces legales—, pero una plantilla puede pedirles
    * otra cara. Sin declarar nada, la cara de siempre: ninguna web viva cambia.
    */
   periferia?: { header?: string; footer?: string; contacto?: string };
+  /**
+   * El hueco que la tienda gobierna con su `prioridad`. Sin esto, la plantilla
+   * no admite prioridad y su orden manda siempre — que es lo que pasa hoy en
+   * las tres vivas.
+   */
+  zonaMovil?: ZonaMovil;
 }
 
 /** Normaliza el atajo string a la forma canónica. Un solo punto de entrada
@@ -246,4 +304,75 @@ export function resolveSections(
     if (filtradas.length > 0) return filtradas;
   }
   return limpiar(template.sections);
+}
+
+/**
+ * El orden final: el de `resolveSections` más el intercambio de la zona móvil.
+ *
+ * `tieneDato` lo inyecta quien llame —la página se lo pasa desde el registro de
+ * secciones— porque este módulo NO puede importar el registro: el registro
+ * importa los componentes `.astro`, y `templates.ts` tiene que cargar también
+ * en `node --test` y dentro de `astro:config:setup`. Es la misma restricción de
+ * tres cargadores que ya obligó a inyectar los lectores en `presupuesto.ts`.
+ *
+ * Sin `prioridad` o sin `zonaMovil` devuelve exactamente lo de siempre: por eso
+ * esta función puede sustituir a `resolveSections` en la página sin cambiar una
+ * sola de las ocho webs vivas.
+ */
+export function ordenDeSecciones(
+  template: Template,
+  store: { sections?: SectionRef[] | null; prioridad?: Prioridad },
+  tieneDato: (id: SectionId) => boolean = () => true
+): { id: SectionId; variant?: string }[] {
+  const orden = resolveSections(template, store.sections);
+  const zona = template.zonaMovil;
+  if (!zona || !store.prioridad) return orden;
+
+  const elegido = zona.mapa[store.prioridad];
+  // Sin dato que enseñar se queda el ocupante por defecto. Hoy es el caso
+  // normal y no el raro: las ocho tiendas están sin oferta viva, así que
+  // prometer que «oferta» mueve algo sería mentir en la sesión de alta.
+  if (!elegido || !tieneDato(elegido)) return orden;
+
+  const destino = zona.posicion;
+  const origen = orden.findIndex((s) => s.id === elegido);
+  // Si el bloque elegido no está en el orden (lo quitó un `visible`) o la
+  // posición no existe, no hay nada que intercambiar. El caso «ya ocupa el
+  // hueco» no necesita guarda: intercambiar un elemento consigo mismo no hace
+  // nada, y probé a añadirla — la mutación sobrevivía, o sea que era código
+  // muerto pidiendo mantenimiento.
+  if (origen < 0 || destino < 0 || destino >= orden.length) return orden;
+
+  // INTERCAMBIO, no inserción. Con una inserción el bloque desplazado y todos
+  // los de en medio bajarían un puesto, y una prioridad acabaría reordenando
+  // media página en vez de mover una cosa. Con el intercambio, exactamente dos
+  // posiciones cambian pase lo que pase.
+  const copia = [...orden];
+  [copia[destino], copia[origen]] = [copia[origen], copia[destino]];
+  return copia;
+}
+
+/**
+ * El aviso de build cuando la prioridad elegida no tiene dato que enseñar.
+ *
+ * No es un error: la prioridad la elige el franquiciado y el dato depende de
+ * que la central publique una oferta o de que lleguen los textos. Pero tiene
+ * que VERSE, porque si no, una tienda pide abrir por la oferta y abre por otra
+ * cosa sin que nadie se entere.
+ */
+export function avisoDePrioridad(
+  template: Template,
+  store: { slug: string; prioridad?: Prioridad },
+  tieneDato: (id: SectionId) => boolean
+): string | null {
+  const zona = template.zonaMovil;
+  if (!zona || !store.prioridad) return null;
+  const elegido = zona.mapa[store.prioridad];
+  if (!elegido) {
+    return `${store.slug}: la plantilla «${template.id}» no sabe qué hacer con prioridad "${store.prioridad}"`;
+  }
+  if (!tieneDato(elegido)) {
+    return `${store.slug}: prioridad "${store.prioridad}" sin dato (${elegido}) → se queda ${zona.defecto}`;
+  }
+  return null;
 }
