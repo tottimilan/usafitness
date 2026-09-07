@@ -52,6 +52,7 @@ import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/d
 import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
 import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
+import { ofertaViva } from '../src/data/ofertas.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -199,6 +200,55 @@ describe('La guarda rechaza lo que tiene que rechazar', () => {
     const t = valida();
     t.placeId = 'ChIJgUbEo8cfqokR5lP9_Wh_DaM'; // ficha de otro negocio
     rechaza([t], 'apunta a la ficha');
+  });
+
+  test('una oferta que termina antes de empezar', () => {
+    const t = valida();
+    t.ofertaPropia = {
+      cifra: '2×1', titulo: 'x', condicion: 'y',
+      desde: '2026-09-30', hasta: '2026-09-01',
+      procedencia: { autorizadaPor: 'Central', fecha: '2026-08-28' },
+    };
+    rechaza([t], 'termina antes de empezar');
+  });
+
+  test('una oferta sin fecha de fin: no caducaría sola y alguien la canjearía', () => {
+    const t = valida();
+    t.ofertaPropia = {
+      cifra: '2×1', titulo: 'x', condicion: 'y', desde: '2026-09-01',
+      procedencia: { autorizadaPor: 'Central', fecha: '2026-08-28' },
+    };
+    rechaza([t], 'hasta');
+  });
+
+  test('una oferta sin procedencia: nadie sabría de dónde salió el texto', () => {
+    // Es la lección del «Hasta 20% dto.» que hubo que retirar.
+    const t = valida();
+    t.ofertaPropia = { cifra: '2×1', titulo: 'x', condicion: 'y', desde: '2026-09-01', hasta: '2026-09-30' };
+    rechaza([t], 'procedencia');
+  });
+
+  test('un precio colado dentro de la cifra grande', () => {
+    // La puerta de atrás de la decisión «precios ocultos».
+    const t = valida();
+    const base = {
+      titulo: 'x', condicion: 'y', desde: '2026-09-01', hasta: '2026-09-30',
+      procedencia: { autorizadaPor: 'Central', fecha: '2026-08-28' },
+    };
+    t.ofertaPropia = { ...base, cifra: '24,90 €' };
+    rechaza([t], 'no puede llevar un precio');
+    t.ofertaPropia = { ...base, cifra: 'DESDE 19,99' };
+    rechaza([t], 'no puede llevar un precio');
+  });
+
+  test('una oferta bien puesta sí vale', () => {
+    const t = valida();
+    t.ofertaPropia = {
+      cifra: '−20 %', titulo: 'Veinte por ciento en creatina', condicion: 'solo en tienda',
+      desde: '2026-09-01', hasta: '2026-09-30',
+      procedencia: { autorizadaPor: 'Franquiciado', fecha: '2026-08-30', donde: 'WhatsApp' },
+    };
+    assert.ok(esquemaTiendas.safeParse([t]).success);
   });
 
   test('una fotoInterior que es de otra tienda', () => {
@@ -1525,5 +1575,84 @@ describe('El minutero no puede mentir: sin calendario del centro, no sale', () =
     const sin = centrosSinCalendario(stores, new Date('2026-09-08T12:00:00Z'));
     assert.equal(sin.length, 8, 'las ocho, porque el fichero nace vacío a propósito');
     assert.ok(sin.includes('C.C. Lagoh'));
+  });
+});
+
+describe('La oferta del mes caduca sola, y antes vacío que mentira', () => {
+  // La regla que el dueño fijó el 27-ago: dos niveles con precedencia propia
+  // sobre central, fecha de fin obligatoria y despublicación automática. Y la
+  // lección que la motiva: hubo que retirar un «Hasta 20% dto.» que nadie sabía
+  // de dónde salía. Por eso `procedencia` no es decorativa.
+  const lagoh = stores.find((s) => s.slug === 'lagoh');
+
+  const central = {
+    cifra: '2×1',
+    titulo: 'Dos por uno en proteínas',
+    condicion: 'solo en tienda · enséñalo en caja',
+    desde: '2026-09-01',
+    hasta: '2026-09-30',
+    procedencia: { autorizadaPor: 'Central USA Fitness', fecha: '2026-08-28', donde: 'canal interno' },
+  };
+  const propia = {
+    ...central,
+    cifra: '−20 %',
+    titulo: 'Veinte por ciento en creatina',
+    procedencia: { autorizadaPor: 'Franquiciado', fecha: '2026-08-30' },
+  };
+  const enSeptiembre = new Date('2026-09-15T10:00:00Z');
+
+  test('sin ninguna oferta no hay nada que pintar', () => {
+    assert.equal(ofertaViva(lagoh, enSeptiembre, null), null);
+  });
+
+  test('la de la central se publica, y dice de dónde viene', () => {
+    const o = ofertaViva(lagoh, enSeptiembre, central);
+    assert.equal(o.cifra, '2×1');
+    assert.equal(o.origen, 'central');
+  });
+
+  test('la propia pisa a la central', () => {
+    const o = ofertaViva({ ...lagoh, ofertaPropia: propia }, enSeptiembre, central);
+    assert.equal(o.cifra, '−20 %');
+    assert.equal(o.origen, 'propia');
+  });
+
+  test('si la propia caducó pero la central vive, sale la central', () => {
+    // La precedencia es entre ofertas VIVAS: una propia caducada no bloquea.
+    const caducada = { ...propia, desde: '2026-07-01', hasta: '2026-07-31' };
+    const o = ofertaViva({ ...lagoh, ofertaPropia: caducada }, enSeptiembre, central);
+    assert.equal(o.origen, 'central');
+  });
+
+  test('CADUCA SOLA: pasado el último día no se publica, sin que nadie toque nada', () => {
+    const octubre = new Date('2026-10-01T10:00:00Z');
+    assert.equal(ofertaViva(lagoh, octubre, central), null);
+  });
+
+  test('el último día cuenta, y el anterior al primero no', () => {
+    assert.ok(ofertaViva(lagoh, new Date('2026-09-30T21:00:00Z'), central), 'el 30 todavía vale');
+    assert.equal(ofertaViva(lagoh, new Date('2026-08-31T10:00:00Z'), central), null, 'el 31 de agosto aún no');
+  });
+
+  test('una oferta programada no se adelanta por el desfase horario', () => {
+    // 2026-08-31T23:30:00Z ya es 1 de septiembre en Madrid: la oferta empieza.
+    assert.ok(ofertaViva(lagoh, new Date('2026-08-31T23:30:00Z'), central));
+  });
+
+  test('el precio NO llega a la página salvo que la tienda lo active', () => {
+    // Decisión del dueño: precios ocultos por defecto, con interruptor por
+    // tienda «por si algún franquiciado sí los quiere».
+    const conPrecio = { ...central, precio: '24,90 €' };
+    assert.equal(ofertaViva(lagoh, enSeptiembre, conPrecio).precio, undefined);
+    assert.equal(
+      ofertaViva({ ...lagoh, preciosVisibles: true }, enSeptiembre, conPrecio).precio,
+      '24,90 €'
+    );
+  });
+
+  test('hoy ninguna de las ocho tiendas emite oferta: cero rojo en la flota', () => {
+    for (const t of stores) {
+      assert.equal(ofertaViva(t, new Date()), null, `${t.slug} pintaría una oferta`);
+    }
   });
 });
