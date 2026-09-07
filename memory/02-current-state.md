@@ -101,7 +101,11 @@ Beneficios de socio: reclasificados como dato de F1 (sección socio «lista-salv
 
 **TODA LA FONTANERÍA DE RÓTULO ESTÁ HECHA.** Cuatro rodajas (1a datos, 1b fuentes, 1c ofertas, 1d hoy y festivos) en cuatro PR apiladas, todas con CI en verde y sin tocar un píxel de las ocho webs vivas.
 
-**Siguiente y primer trabajo VISUAL:** rodaja 2, las secciones de generación 2 (Hazte socio, Empieza aquí, Por qué en tienda, FAQ y las variantes de horario, productos, reseñas y galería). Esa sí pasa por la puerta del dueño con capturas, sección a sección (Loop A). Las secciones de generación 2 y la plantilla en sí vienen después, y esas sí pasan por la puerta visual del dueño. (espacio → 5 diseñadores → 10 críticos → prueba de la miniatura → síntesis).
+**PRIMERA SECCIÓN VISUAL CONSTRUIDA: «Hazte socio»** (rama `feat/seccion-socio`, PR #29). **254 pruebas, 254 pasan con la suite armada.** Loop A completo y registrado en `docs/plantillas/rotulo/ficha.md`: **la primera vuelta NO pasó** —el botón quedaba bajo el pliegue con el aviso de cookies abierto— y la segunda sí, tras subir la acción de 639 a 178 px del inicio y bajar la sección de 796 a 693. Cero fallos de contraste en 12 textos, sin desbordes a 375 ni a 1180. **Ni una cifra**: las cuatro ventajas sin cuantificar hasta que la central mande el documento, con un test que lo impide. `TEMPLATES.rotulo` entra como ANDAMIO («Rótulo (en obras)», cuatro secciones) solo para poder ver cada pieza en su sitio.
+
+**Aprendizaje de método:** el panel del navegador escala la ventana emulada (pidiendo 375 daba 533), así que toda medida visual va en un marco propio de ancho exacto.
+
+**Siguiente:** el resto de la rodaja 2, las secciones de generación 2 (Hazte socio, Empieza aquí, Por qué en tienda, FAQ y las variantes de horario, productos, reseñas y galería). Esa sí pasa por la puerta del dueño con capturas, sección a sección (Loop A). Las secciones de generación 2 y la plantilla en sí vienen después, y esas sí pasan por la puerta visual del dueño. (espacio → 5 diseñadores → 10 críticos → prueba de la miniatura → síntesis).
 
 ~~**En curso:** workflow `investigacion-diseno-secciones-servicios`~~ (8 frentes de investigación + loop de secciones + servicios/automatización + síntesis de patrones) → después workflow de 5 plantillas → docs + 2 artefactos + memoria.
 
