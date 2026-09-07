@@ -3,7 +3,15 @@
 **Date:** 2026-09-06
 **Branch:** `feat/rotulo-hoy-festivos`
 **Author:** User + Claude Opus 5
-**Status:** Draft
+**Status:** Done (2026-09-06)
+
+## Amendment 2026-09-06 — lo que se desvió al ejecutarlo
+
+1. **Un solo `festivos.json` en vez de un fichero por centro.** El plan y el desglose decían `src/data/festivos/<centro>.json`. No vale: el módulo lo cargan los tres cargadores del proyecto y no puede tocar el disco, así que el fichero tiene que importarse estáticamente como `dimensiones.json`. Un único fichero indexado por el campo `mall` lo resuelve y además evita una carpeta de cincuenta y ocho ficheros.
+2. **El estado «hoy es festivo pero nadie lo confirmó» no existe, y es mejor así.** Estaba previsto detectar los días candidatos con el calendario laboral para poder decir «Hoy es festivo: consulta el horario del centro». Sobra: si el centro no tiene calendario vigente, el minutero ya no sale, y entonces da igual si hoy es fiesta. Menos código y la misma garantía — no hace falta saber si hoy es fiesta cuando ya hemos decidido no hablar.
+3. **El aviso va por centro y no por tienda**, porque la carencia es del centro. Sale una línea por centro, no ocho iguales.
+
+**Resultado medido:** 235 pruebas, 235 pasan con la suite armada, 0 dormidas. Cuatro mutaciones probadas: el reloj del servidor mata cuatro pruebas, ignorar la vigencia mata una y quitar la rama sin-calendario mata tres.
 
 ## Goal
 
