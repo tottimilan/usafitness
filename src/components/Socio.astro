@@ -1,0 +1,192 @@
+---
+/**
+ * HAZTE SOCIO — la sección que responde «¿qué gano yo?» (P3)
+ *
+ * Es contenido de MARCA: idéntico en las 50 tiendas, sin un solo dato que el
+ * franquiciado tenga que mantener. Por eso es digna en Lagoh por construcción,
+ * que es justo lo que la peor tienda necesitaba.
+ *
+ * POR QUÉ NO HAY NI UNA CIFRA
+ *
+ * Las promociones que hoy publican las ocho webs dicen «Hasta 10%», «Hasta
+ * 15%», «Hasta 20%» y «Cupón 5 € desde 49,90 €». Ninguna de esas cifras tiene
+ * documento de la central detrás, y ya hubo que retirar un «Hasta 20% dto.» de
+ * los metadatos de las ocho por ese mismo motivo. R2 lo dejó escrito: las
+ * cifras entran cuando lleguen POR ESCRITO, con fecha.
+ *
+ * Así que aquí están los cuatro beneficios sin cuantificar. Se lee peor de lo
+ * que se leerá el día que la central mande el documento, y se lee mucho mejor
+ * que una promesa que nadie puede sostener en el mostrador.
+ *
+ * LA CONVERSIÓN ES UNA VISITA, NO UN FORMULARIO
+ *
+ * El alta de socio es EN TIENDA y tarda dos minutos (dato del dueño, 27-ago).
+ * No hay nada que rellenar aquí: R8 prohíbe pedir datos personales en las
+ * tiendas sin bloque legal completo, y además la fricción real de hacerse socio
+ * es cero — solo hay que contarlo. N3 convierte a N1.
+ *
+ * El botón degrada por dato, como todos: con ficha de Google, «Cómo llegar»;
+ * sin ella (GranCasa), «Llamar». Nunca un botón que no lleve a ningún sitio.
+ */
+interface Props {
+  /** El rótulo curado si lo hay; si no, `location`. NUNCA `name`, que empieza
+   *  por «USAFITNESS» en las ocho y llenaría el botón de marca en vez de sitio. */
+  rotulo: string;
+  domain: string;
+  phone: string;
+  googleMapsLink?: string;
+  /** Variante que pide la plantilla. Sin ella, la cara de siempre. */
+  variant?: string;
+}
+const { rotulo, domain, phone, googleMapsLink, variant } = Astro.props;
+
+/**
+ * Los cuatro beneficios que la marca ya publica, sin las cifras que no tienen
+ * documento. El orden es el de siempre: el que aplica a cualquiera primero.
+ */
+const ventajas = [
+  {
+    titulo: 'Precio de socio',
+    linea: 'Un precio distinto en tu compra por estar dado de alta.',
+  },
+  {
+    titulo: 'Descuento funcionario',
+    linea: 'Para policía, bomberos y fuerzas de seguridad.',
+  },
+  {
+    titulo: 'Tu cumpleaños',
+    linea: 'Un descuento el día que cumples años.',
+  },
+  {
+    titulo: 'Cupón por compra',
+    linea: 'A partir de cierta compra, un cupón para la siguiente visita.',
+  },
+];
+---
+
+{/* La PRIMERA clase del <section> es el nombre que `ConversionTracking` manda
+    como parámetro `seccion` de cada evento. Si deja de ser «socio», el informe
+    del franquiciado deja de saber de dónde vino la visita. */}
+<section class:list={['socio', 'section', variant && `socio--${variant}`]} id="socio">
+  <div class="container socio-inner">
+    <h2 class="socio-titulo">Hazte socio en caja</h2>
+
+    <p class="socio-entrada">Lo pides al pagar y tardas dos minutos. Aquí no hay nada que rellenar.</p>
+
+    <div class="socio-cierre">
+      {googleMapsLink ? (
+        <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="btn btn-primary socio-cta">
+          Cómo llegar a {rotulo}
+        </a>
+      ) : (
+        <a href={`tel:${phone}`} class="btn btn-primary socio-cta">Llámanos y te lo contamos</a>
+      )}
+    </div>
+
+    <ul class="socio-ventajas">
+      {ventajas.map((v) => (
+        <li class="socio-ventaja">
+          <span class="socio-ventaja-titulo">{v.titulo}</span>
+          <span class="socio-ventaja-linea">{v.linea}</span>
+        </li>
+      ))}
+    </ul>
+
+    {/* La URL literal, para que el dependiente pueda decirla en voz alta cuando
+        alguien pregunte en el mostrador. */}
+    <p class="socio-url">{domain}</p>
+  </div>
+</section>
+
+<style>
+  .socio {
+    background: var(--color-primary);
+    color: var(--color-on-brand);
+  }
+
+  .socio-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .socio-titulo {
+    color: var(--color-on-brand);
+    font-size: var(--font-size-section-title);
+    font-weight: var(--font-weight-display);
+    line-height: 1.1;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .socio-entrada {
+    color: var(--color-on-brand-muted);
+    max-width: 46ch;
+    margin: 0;
+  }
+
+  .socio-ventajas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    background: var(--color-on-brand-divider);
+  }
+
+  /* Filetes en vez de tarjetas: cuatro cajas flotando serían el trío de
+     columnas con icono que la investigación dejó por pasado de moda, y encima
+     obligarían a inventar cuatro iconos para cuatro ideas que no son objetos. */
+  .socio-ventaja {
+    background: var(--color-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.7rem 0;
+  }
+
+  .socio-ventaja-titulo {
+    font-weight: var(--font-weight-heading);
+    font-size: 1.05rem;
+  }
+
+  .socio-ventaja-linea {
+    color: var(--color-on-brand-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .socio-cierre {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .socio-cta {
+    background: var(--color-on-brand);
+    color: var(--color-primary);
+  }
+
+  .socio-cta:hover {
+    background: var(--color-on-brand-muted);
+    color: var(--color-primary);
+  }
+
+  .socio-url {
+    color: var(--color-on-brand-faint);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .socio-ventajas {
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+    }
+    .socio-ventaja {
+      padding: 1rem 1.25rem;
+    }
+    .socio-ventaja:nth-child(odd) {
+      padding-left: 0;
+    }
+  }
+</style>

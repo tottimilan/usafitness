@@ -914,3 +914,70 @@ describe('La plantilla Energía es OTRA web, no otra piel', () => {
     assert.ok((TEMPLATES.energia.fonts ?? []).length >= 2, 'los dos pesos de Barlow');
   });
 });
+
+describe('«Hazte socio» responde qué gano yo, y no promete cifras que nadie pueda sostener', () => {
+  // La sección es contenido de MARCA: idéntica en las 50 tiendas, sin un dato
+  // que el franquiciado tenga que mantener. Por eso es digna en la peor tienda
+  // por construcción, que era el agujero que tenía que tapar.
+
+  /** El trozo de HTML de la sección, para no medir el resto de la página. */
+  const soloSocio = (html) => {
+    const i = html.indexOf('<section class="socio');
+    assert.ok(i > -1, 'no se pintó la sección socio');
+    const j = html.indexOf('</section>', i);
+    return html.slice(i, j);
+  };
+
+  test('la plantilla que la hospeda la pinta, y la clásica sigue sin ella', async () => {
+    const conSocio = (await get('/lagoh?plantilla=rotulo')).text();
+    assert.match(conSocio, /data-plantilla="rotulo"/);
+    assert.ok(conSocio.includes('<section class="socio'), 'la plantilla que la declara la pinta');
+
+    // La clásica es la que sirven las ocho webs vivas: no puede cambiar.
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.ok(!clasica.includes('class="socio'), 'la clásica no lleva la sección nueva');
+  });
+
+  test('NI UNA CIFRA: las promesas sin documento no se publican', async () => {
+    // Las promos actuales dicen «Hasta 10%», «Hasta 20%», «Cupón 5 € desde
+    // 49,90 €». Ninguna tiene documento de la central, y ya hubo que retirar un
+    // «Hasta 20% dto.» de los metadatos de las ocho por eso mismo. R2: las
+    // cifras entran cuando lleguen POR ESCRITO. Este test es esa regla.
+    const socio = soloSocio((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(!socio.includes('%'), 'un porcentaje sin documento se ha colado en Hazte socio');
+    assert.ok(!/€|\beuros?\b/i.test(socio), 'un importe sin documento se ha colado en Hazte socio');
+    assert.ok(!/\bhasta\s+\d/i.test(socio), 'un «hasta N» es justo la promesa que hubo que retirar');
+    // Y las cuatro ventajas siguen ahí: quitar las cifras no es quitar el fondo.
+    for (const v of ['Precio de socio', 'Descuento funcionario', 'Tu cumpleaños', 'Cupón por compra']) {
+      assert.ok(socio.includes(v), `falta la ventaja «${v}»`);
+    }
+  });
+
+  test('la conversión degrada por dato y nunca lleva a ningún sitio muerto', async () => {
+    // N3 → N1: el alta es EN TIENDA, así que la conversión es una visita.
+    const conFicha = soloSocio((await get('/lagoh?plantilla=rotulo')).text());
+    assert.match(conFicha, /Cómo llegar a LAGOH/, 'usa el rótulo curado, no «USAFITNESS C.C LAGOH»');
+    assert.match(conFicha, /href="https:\/\/maps\.google\.com\/\?cid=/);
+
+    // GranCasa no tiene ficha de Google: ni mapa ni botón muerto.
+    const sinFicha = soloSocio((await get('/grancasa?plantilla=rotulo')).text());
+    assert.ok(!/maps\.google\.com/.test(sinFicha), 'sin ficha no puede haber enlace a Maps');
+    assert.match(sinFicha, /href="tel:\+34/, 'el hueco lo ocupa el teléfono, no un botón roto');
+  });
+
+  test('no pide un solo dato personal', async () => {
+    // R8: nada de captura de datos en tiendas sin bloque legal completo. Y
+    // además la fricción real de hacerse socio es cero: se pide en caja.
+    const socio = soloSocio((await get('/lagoh?plantilla=rotulo')).text());
+    for (const etiqueta of ['<form', '<input', '<textarea', 'mailto:']) {
+      assert.ok(!socio.includes(etiqueta), `«Hazte socio» no puede llevar ${etiqueta}`);
+    }
+  });
+
+  test('el evento sabrá de dónde viene: la primera clase del section es «socio»', async () => {
+    // `ConversionTracking.seccionDe` toma className.split(' ')[0]. Si deja de
+    // ser «socio», el informe del franquiciado pierde el origen de la visita.
+    const html = (await get('/lagoh?plantilla=rotulo')).text();
+    assert.match(html, /<section class="socio /, 'la primera clase tiene que ser el id de la sección');
+  });
+});

@@ -29,6 +29,7 @@ import Products from '@/components/Products.astro';
 import Brands from '@/components/Brands.astro';
 import Schedule from '@/components/Schedule.astro';
 import Social from '@/components/Social.astro';
+import Socio from '@/components/Socio.astro';
 
 import type { SectionId } from '@/data/templates';
 import type { Tienda } from '@/data/stores';
@@ -122,6 +123,23 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       whatsapp: s.whatsapp,
       googleMapsLink: s.googleMapsLink,
       name: s.name,
+    }),
+  },
+
+  /**
+   * Hazte socio. Contenido de MARCA: no depende de ningún dato del
+   * franquiciado, así que no lleva `visible` y se pinta siempre que la
+   * plantilla la hospede. Es lo que la hace digna en la peor tienda.
+   */
+  socio: {
+    component: Socio,
+    props: (s) => ({
+      // El rótulo curado, o la localidad recortada en la coma. `name` no: las
+      // ocho empiezan por «USAFITNESS» y el botón diría la marca, no el sitio.
+      rotulo: s.rotulo ?? s.location.split(',')[0].trim(),
+      domain: s.domain,
+      phone: s.phone,
+      googleMapsLink: s.googleMapsLink,
     }),
   },
 
