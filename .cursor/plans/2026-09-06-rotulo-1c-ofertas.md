@@ -3,7 +3,16 @@
 **Date:** 2026-09-06
 **Branch:** `feat/rotulo-ofertas`
 **Author:** User + Claude Opus 5
-**Status:** Draft
+**Status:** Done (2026-09-06)
+
+## Amendment 2026-09-06 — lo que se desvió al ejecutarlo
+
+1. **La precedencia es entre ofertas VIVAS, y el plan no lo decía.** «Propia sobre central» admitía dos lecturas: que la propia bloquee siempre, o que solo gane si está viva. Se implementó la segunda, que es la útil: si el franquiciado puso una oferta en julio y no la quitó, en septiembre sale la de la central en vez de nada. Hay una prueba que lo fija.
+2. **El precio se borra en la función, no se oculta en la plantilla.** Es más fuerte: lo que no sale de `ofertaViva` no puede colarse en ninguna página por descuido. Y el esquema cierra la puerta de atrás, que era meter el precio dentro de la cifra grande.
+3. **El evento `ver_oferta` ya estaba en el registro** con su parámetro de origen desde el 27-ago. Se comprobó antes de escribirlo en vez de duplicarlo.
+4. **No hizo falta aviso de oferta caducada como tarea aparte:** salió con `ofertasParaLimpiar`, que el build ya imprime.
+
+**Resultado medido:** 249 pruebas, 249 pasan con la suite armada, 0 dormidas. Tres mutaciones: quitar la caducidad mata tres pruebas, invertir la precedencia mata una, dejar pasar el precio mata otra.
 
 ## Goal
 
