@@ -31,6 +31,8 @@ import Schedule from '@/components/Schedule.astro';
 import Social from '@/components/Social.astro';
 import Socio from '@/components/Socio.astro';
 import PorQue from '@/components/PorQue.astro';
+import Faq from '@/components/Faq.astro';
+import { faqDeTienda, MINIMO_ENTRADAS } from '@/data/faq';
 
 import type { SectionId } from '@/data/templates';
 import type { Tienda } from '@/data/stores';
@@ -156,6 +158,21 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       name: s.name,
       phone: s.phone,
       whatsapp: s.whatsapp,
+    }),
+  },
+
+  /**
+   * Preguntas de tienda. Cada pregunta se omite entera si su dato falta, así
+   * que el número de entradas varía por tienda: con menos de tres, la sección
+   * no se pinta. Es la misma regla que la galería y las reseñas.
+   */
+  faq: {
+    component: Faq,
+    visible: (s) => faqDeTienda(s).length >= MINIMO_ENTRADAS,
+    props: (s) => ({
+      schedule: s.schedule,
+      whatsapp: s.whatsapp,
+      phoneDisplay: s.phoneDisplay,
     }),
   },
 

@@ -1038,3 +1038,67 @@ describe('«Por qué en tienda» da tres razones, y la del medio la firma otro',
     assert.match(preview, /<section class="porque /, 'la primera clase es el id de la sección');
   });
 });
+
+describe('La FAQ no lleva marcado muerto, ni JavaScript, ni marcas que no estén en la página', () => {
+  const soloFaq = (html) => {
+    const i = html.indexOf('<section class="faq');
+    assert.ok(i > -1, 'no se pintó la sección faq');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+
+  test('NI FAQPage NI QAPage: el resultado enriquecido murió el 7 de mayo de 2026', async () => {
+    // Este test existe para que dentro de seis meses nadie lo reintroduzca
+    // después de leer un artículo de SEO de 2021. Google dejó de mostrar el
+    // resultado enriquecido de FAQ el 7-05-2026 y retiró su documentación el
+    // 15-06-2026; y QAPage prohíbe literalmente nuestro caso, «an FAQ page
+    // written by the site itself with no way for users to submit alternative
+    // answers». El motivo para no marcarlo es la futilidad, no el miedo.
+    // Se mira lo que se SIRVE, no el fuente: el fuente nombra «FAQPage» dentro
+    // del comentario que explica por qué no se usa, y un test que buscara la
+    // palabra estaría prohibiendo su propia documentación.
+    const servido = (await get('/lagoh?plantilla=rotulo')).text();
+    assert.ok(!/"@type"\s*:\s*"FAQPage"/.test(servido), 'FAQPage no se emite: el resultado enriquecido ya no existe');
+    assert.ok(!/"@type"\s*:\s*"QAPage"/.test(servido), 'QAPage prohíbe expresamente una FAQ escrita por el propio sitio');
+    assert.ok(!/"@type"\s*:\s*"Question"/.test(servido), 'ni Question suelta');
+
+    // Y el PORQUÉ tiene que seguir escrito donde alguien lo vaya a leer antes
+    // de reintroducirlo: sin el comentario, este test parece una manía.
+    const fuente = readFileSync(new URL('../src/components/Faq.astro', import.meta.url), 'utf8');
+    assert.match(fuente, /7 de mayo/, 'la razón, con su fecha, vive junto al código');
+  });
+
+  test('se abre y se cierra sin una línea de JavaScript', async () => {
+    const faq = soloFaq((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(faq.includes('<details'), 'el acordeón es nativo');
+    assert.ok(faq.includes('<summary'), 'con su summary');
+    assert.ok(!faq.includes('<script'), 'ni un script dentro de la sección');
+    assert.ok(!/onclick|addEventListener/.test(faq), 'ni un manejador escrito a mano');
+  });
+
+  test('no nombra ni una marca que no esté ya en la misma página', async () => {
+    // Nombrar ocho marcas por escrito compromete más que enseñar ocho logos:
+    // quien se desplaza y no encuentra la suya tiene un motivo para quejarse.
+    // La regla es que la FAQ no añade ninguna marca nueva a la página.
+    const html = (await get('/lagoh?plantilla=rotulo')).text();
+    const faq = soloFaq(html);
+    const { MARCAS } = await import('../src/data/faq.ts');
+    for (const m of MARCAS) {
+      assert.ok(faq.includes(m), `la FAQ debería nombrar ${m}`);
+      const fuera = html.slice(0, html.indexOf('<section class="faq')) + html.slice(html.indexOf('</section>', html.indexOf('<section class="faq')));
+      assert.ok(fuera.includes(m), `${m} se nombra en la FAQ pero no aparece en el resto de la página`);
+    }
+  });
+
+  test('la pregunta del domingo aparece donde hay domingo y falta donde no', async () => {
+    assert.match(soloFaq((await get('/lagoh?plantilla=rotulo')).text()), /¿Abrís los domingos\?/);
+    const grancasa = soloFaq((await get('/grancasa?plantilla=rotulo')).text());
+    assert.ok(!/domingo/i.test(grancasa), 'grancasa no declara domingo: la pregunta no existe');
+    assert.ok(!/no abrimos/i.test(grancasa), 'y tampoco afirma que cierre');
+  });
+
+  test('la clásica sigue sin FAQ, y el evento sabrá de dónde viene', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.ok(!clasica.includes('class="faq'), 'la clásica no lleva la sección nueva');
+    assert.match((await get('/lagoh?plantilla=rotulo')).text(), /<section class="faq /);
+  });
+});

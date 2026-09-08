@@ -99,3 +99,60 @@ Las tres tiendas con reseñas tienen cita; las cinco sin ellas dicen el hecho op
 
 ### Pendiente en esta pieza
 - **Los expertos con nombre del brand book** (Gouveia, Gil) siguen sin usar: es una puerta del dueño abierta desde el 27-ago.
+
+---
+
+## Preguntas de tienda — ✅ PASA en la segunda vuelta (2026-09-06)
+
+**Hoja de objetivos:** P1/P4 y SEO local con las preguntas literales · sin evento propio · 4-6 preguntas, primero las que dependen de dato de tienda · **pregunta sin dato: se omite entera**.
+
+### El hallazgo que cambió la decisión antes de escribir una línea
+
+Antes de construirla se investigaron tres frentes. Uno devolvió algo que nadie esperaba: **el resultado enriquecido de FAQ de Google dejó de mostrarse el 7 de mayo de 2026** y Google **retiró su documentación el 15 de junio de 2026** `[V, developers.google.com/search/updates]`. No queda ningún tipo de sitio elegible: ni administración, ni sanidad, ni nadie. Nuestra suposición de partida —que seguía vigente la restricción de agosto de 2023— era falsa.
+
+Y `QAPage` no es el sustituto: su documentación **prohíbe literalmente nuestro caso**, «an FAQ page written by the site itself with no way for users to submit alternative answers», y añade «don't use QAPage markup for FAQ pages».
+
+**Decisión: cero datos estructurados.** Y el motivo que hay que decir bien es **la futilidad, no el miedo**: nuestro texto es visible y una acción manual por datos estructurados no toca el ranking. Simplemente no serviría de nada. El porqué, con fecha y fuente, vive en el comentario de `Faq.astro`, y hay un test que falla si alguien lo reintroduce **o si borra la explicación**.
+
+### Las cuatro preguntas, y por qué son esas
+
+| Pregunta | De dónde sale | Tiendas |
+|---|---|---|
+| ¿Abrís los domingos? | `parseHorario`, con dos redacciones según si el domingo es igual al resto | 5 de 8 |
+| ¿Hay que pedir cita? | Banco de textos de marca, ya sancionado | 8 de 8 |
+| ¿Qué marcas tenéis? | Los ocho logos que las ocho webs ya publican | 8 de 8 |
+| ¿Cómo me hago socio? | Las cuatro ventajas del banco, sin una sola cifra | 8 de 8 |
+
+Villanueva, Marineda y GranCasa se quedan en tres, que es el mínimo. Ninguna baja de ahí.
+
+**Lo que se quedó fuera y por qué:** «¿Dónde estáis dentro del centro?» sería la más útil y hoy es imposible — `streetAddress` empieza literalmente por `mall` en las ocho, así que la respuesta sería repetir el nombre del centro. Esto **corrige un arreglo que el propio diseño daba por bueno** (`plantillas.md:674` prometía responderla con `mall` + dirección). Parking, medios de pago, envíos y devoluciones: cero de ocho, y el dato no es nuestro. Nada de nutrición: es alegación de salud sobre un alimento. Nada de precios.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada:**
+
+> «PREGUNTAS DE TIENDA» en gris pequeño. Cuatro preguntas en azul separadas por filetes, cada una con un «+» a la derecha. Todas cerradas.
+
+**Defecto:** dos de las cuatro preguntas se partían en dos líneas y la retícula quedaba desigual (filas de 50 y de 72 px, con el «+» centrado en bloques de distinta altura).
+
+### Vuelta 2 — PASA
+
+Las dos preguntas largas se acortan, y las cortas resultan ser **mejores preguntas**: «¿Hay que pedir cita?» y «¿Cómo me hago socio?» son como las teclearía una persona, que es justo lo que una FAQ local necesita.
+
+| Medido a 375 px, Lagoh | Vuelta 1 | Vuelta 2 |
+|---|---|---|
+| Alto cerrada | 378 px | **335 px** |
+| Alturas de pregunta | 50, 72, 50, 72 | **50, 50, 50, 50** |
+| Alto con las cuatro abiertas | — | 1.080 px |
+| Fallos de contraste | — | **0 de 9 textos** |
+
+### Dos cosas que cazaron mis propios tests
+
+1. **El primer test era ingenuo:** buscaba la palabra «FAQPage» en el fichero y la encontraba… en el comentario que explica por qué no se usa. Un test que prohíbe su propia documentación. Ahora mira **lo que se sirve** y, además, exige que la explicación siga estando.
+2. **Un fallo de verdad:** la FAQ nombraba ocho marcas por escrito y el andamio de la plantilla **no incluía los logos**, así que esa página nombraba marcas que no enseñaba. Se añadió `brands` al andamio. La regla queda fijada: la FAQ no nombra ninguna marca que no esté ya en la misma página.
+
+### Pendiente en esta pieza
+
+- **Riesgo anotado en memory/08:** `parseHorario` pierde el sábado si una línea nombra sábado Y domingo. Ninguna tienda lo escribe así hoy, pero la pregunta del domingo depende de ese parser.
+- **Sin ver en escritorio**, como la anterior. Queda para el Loop B.
+- La sección **no tiene la voz de Rótulo** todavía.

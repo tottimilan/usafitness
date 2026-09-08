@@ -33,6 +33,7 @@ export const SECTION_IDS = [
   // sistema cambiaría las ocho webs vivas.
   'socio',
   'porque',
+  'faq',
 ] as const;
 
 export type SectionId = (typeof SECTION_IDS)[number];
@@ -258,7 +259,11 @@ export const TEMPLATES: Record<string, Template> = {
     fonts: ['/fonts/archivo-expanded-black-rotulo.woff2', '/fonts/rotulo-script.woff2'],
     usaFuenteBase: false,
     modo: 'auto',
-    sections: ['hero', 'socio', 'porque', 'schedule', 'social'],
+    // `brands` está aquí porque un test lo exigió: la FAQ nombra las ocho
+    // marcas por escrito, y la regla es que no nombra ninguna que no esté ya en
+    // la misma página. Nombrar ocho marcas compromete más que enseñar ocho
+    // logos — quien se desplaza y no encuentra la suya tiene motivo de queja.
+    sections: ['hero', 'socio', 'porque', 'brands', 'schedule', 'faq', 'social'],
   },
 };
 

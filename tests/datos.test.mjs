@@ -54,6 +54,7 @@ import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
 import { ofertaViva } from '../src/data/ofertas.ts';
 import { citaDeAsesoramiento } from '../src/data/citas.ts';
+import { faqDeTienda, MARCAS, MINIMO_ENTRADAS } from '../src/data/faq.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -1711,5 +1712,66 @@ describe('La cita de asesoramiento es real, entera y de esa tienda', () => {
       { author: 'B', text: 'La atención fue estupenda del todo.' },
     ];
     assert.equal(citaDeAsesoramiento(dos).autor, 'A');
+  });
+});
+
+describe('La FAQ solo pregunta lo que puede responder', () => {
+  // La regla: una pregunta sin dato se omite ENTERA. Nunca una respuesta a
+  // medias ni un «consúltanos» disfrazado de respuesta.
+  test('sin domingo en el horario, la pregunta del domingo NO existe', () => {
+    // Escribir «no, los domingos no abrimos» sería deducir un cierre de la
+    // AUSENCIA de una línea, y esa ausencia puede ser un olvido al teclear.
+    const sinDomingo = stores.filter((t) => !parseHorario(t.schedule).some((f) => f.dayOfWeek.includes('Sunday')));
+    assert.equal(sinDomingo.length, 3, 'villanueva, marineda y grancasa no declaran domingo');
+    for (const t of sinDomingo) {
+      const preguntas = faqDeTienda(t).map((e) => e.pregunta);
+      assert.ok(!preguntas.some((p) => /domingo/i.test(p)), `${t.slug} no puede preguntar por los domingos`);
+      assert.ok(!faqDeTienda(t).some((e) => /no abrimos|cerrado/i.test(e.respuesta)), `${t.slug} no puede afirmar que cierra`);
+    }
+  });
+
+  test('la respuesta del domingo dice el horario REAL de esa tienda', () => {
+    // Alcobendas abre los domingos con OTRO horario que el resto de la semana:
+    // repetir el de diario sería mentir con un dato que tenemos bien.
+    const a = stores.find((t) => t.slug === 'alcobendas');
+    const r = faqDeTienda(a).find((e) => /domingo/i.test(e.pregunta)).respuesta;
+    assert.match(r, /11:00 a 21:00/, 'el horario del domingo de alcobendas');
+    assert.ok(!r.includes('10:00 a 22:00'), 'ese es el de diario, no el del domingo');
+    assert.match(r, /cerramos antes/, 'y se dice que es distinto');
+
+    const l = stores.find((t) => t.slug === 'lagoh');
+    assert.match(faqDeTienda(l).find((e) => /domingo/i.test(e.pregunta)).respuesta, /mismo horario/);
+  });
+
+  test('ninguna tienda baja del mínimo, y ninguna pasa de cuatro', () => {
+    for (const t of stores) {
+      const n = faqDeTienda(t).length;
+      assert.ok(n >= MINIMO_ENTRADAS && n <= 4, `${t.slug} tiene ${n} preguntas`);
+    }
+  });
+
+  test('ni nutrición ni precios: ni en la pregunta ni en la respuesta', () => {
+    // Una pregunta sobre qué proteína conviene es una alegación de salud sobre
+    // un alimento (Reglamento 1924/2006, que aplica aunque no vendamos online).
+    // Y los precios están ocultos por decisión del dueño.
+    const prohibido = /€|\bprecio de\b|\bcuesta\b|mejor proteína|qué creatina|para adelgazar|masa muscular|te ayuda a/i;
+    for (const t of stores) {
+      for (const e of faqDeTienda(t)) {
+        const texto = `${e.pregunta} ${e.respuesta}`;
+        // «precio de socio» es el nombre de una ventaja, no un importe: se
+        // permite, y por eso el patrón busca «precio de» seguido de otra cosa.
+        const limpio = texto.replace(/precio de socio/gi, '');
+        assert.ok(!prohibido.test(limpio), `${t.slug} · «${e.pregunta}»: ${limpio.slice(0, 90)}`);
+      }
+    }
+  });
+
+  test('el cierre de la pregunta de marcas degrada por dato', () => {
+    const conWa = faqDeTienda(stores.find((t) => t.slug === 'villanueva')).find((e) => /marcas/i.test(e.pregunta));
+    assert.match(conWa.respuesta, /WhatsApp/);
+    const sinWa = stores.find((t) => t.slug === 'lagoh');
+    const r = faqDeTienda(sinWa).find((e) => /marcas/i.test(e.pregunta)).respuesta;
+    assert.ok(!/WhatsApp/.test(r), 'lagoh no tiene WhatsApp');
+    assert.ok(r.includes(sinWa.phoneDisplay), 'le queda su teléfono, escrito entero');
   });
 });
