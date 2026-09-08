@@ -49,3 +49,47 @@
 - **El evento `interes_socio`** no está instrumentado. Hoy un clic en el botón emite `contacto_maps` con `seccion: 'socio'`, que ya distingue el origen; el evento propio llega con la medición de F2.
 - **`/socio` como página propia** no existe: la URL literal que se imprime es solo el dominio.
 - **La voz de Rótulo** —plano azul a sangre, titular en Expanded con una palabra en cursiva— llega con la hoja CSS de la plantilla. Lo que hay aquí es la sección con la cara de siempre.
+
+---
+
+## Por qué en tienda — ✅ PASA en la segunda vuelta (2026-09-06)
+
+**Hoja de objetivos** (hoja 5): P5 «¿me asesoran?» y cierre de P2 «¿y por qué no online?» · N2, contacto con intención · **exenta de evento propio, declarado**: su efecto se mide en el contacto que provoca, y un evento de scroll aquí sería decorativo.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada:**
+
+> «Por qué venir a la tienda» en azul y en dos líneas. Debajo, tres afirmaciones también en azul y en negrita, separadas por filetes: te lo llevas hoy, te asesora una persona —con una frase entrecomillada de Nieves Rodríguez en Google— y te haces socio al momento.
+
+**Defecto que la tumba:** el titular y las tres afirmaciones eran todos azules y en negrita. Se leían como cuatro cosas del mismo rango, y la jerarquía que hace legible la sección desaparecía. Es el trío de columnas que el diseño quería evitar, puesto en vertical.
+
+**Menor:** el título ocupaba dos líneas de tamaño grande para decir lo que las tres afirmaciones ya dicen.
+
+### Vuelta 2 — PASA
+
+**Qué cambió:** el título pasa a **etiqueta** —pequeña, en mayúsculas, gris— para que el azul sea de las afirmaciones y de nadie más; y sube el contraste de tamaño entre la primera y las otras dos.
+
+| Medido a 375 px, Villanueva | Vuelta 1 | Vuelta 2 |
+|---|---|---|
+| Alto de la sección | 662 px | **568 px** |
+| Botón, desde el inicio | 561 px | **467 px** |
+| Fallos de contraste | — | **0 de 10 textos** |
+| Desborde | 0 | 0 |
+
+Con eso la sección entera cabe sobre el aviso de cookies en la primera visita.
+
+**Segunda mirada:** una etiqueta gris pequeña; tres afirmaciones azules de tamaños distintos separadas por filetes, la primera manda; la segunda con una frase entrecomillada firmada por Nieves Rodríguez en Google; y al final, «Pregúntanos por WhatsApp».
+
+### La decisión que sostiene la sección
+
+**La afirmación del medio la firma otro.** Decir «te asesora una persona» es una afirmación nuestra, así que al lado va una frase literal de una reseña de esa tienda. Y elegirla tiene una trampa que solo se ve con los datos delante: la reseña de El Arcángel **empieza hablando de la variedad de producto** y el elogio al trato viene después. Coger la primera frase por sistema habría publicado una cita que no sostiene la afirmación de al lado. `citas.ts` elige la frase más corta, **completa** y que hable del trato — nunca recorta, porque es texto firmado con nombre y apellidos que la tienda republica.
+
+Las tres tiendas con reseñas tienen cita; las cinco sin ellas dicen el hecho operativo, que es verdad en las ocho. Nada se inventa.
+
+**No se nombra a ningún competidor.** Nombrarlo le hace publicidad, invita a ir a mirar y pone al visitante a comparar precios, que es el terreno donde una tienda de barrio no gana. Hay un test que lo impide.
+
+### Pendiente en esta pieza
+
+- **Verificado por medición, no visto, en Lagoh y en escritorio.** La captura a 375 es de Villanueva; en Lagoh comprobé el texto y las medidas, y el escritorio de esta sección no llegué a capturarlo porque el panel dejó de dibujar. Queda para el Loop B.
+- **Los expertos con nombre del brand book** (Gouveia, Gil) siguen sin usar: es una puerta del dueño abierta desde el 27-ago.

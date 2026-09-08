@@ -30,6 +30,7 @@ import Brands from '@/components/Brands.astro';
 import Schedule from '@/components/Schedule.astro';
 import Social from '@/components/Social.astro';
 import Socio from '@/components/Socio.astro';
+import PorQue from '@/components/PorQue.astro';
 
 import type { SectionId } from '@/data/templates';
 import type { Tienda } from '@/data/stores';
@@ -140,6 +141,21 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       domain: s.domain,
       phone: s.phone,
       googleMapsLink: s.googleMapsLink,
+    }),
+  },
+
+  /**
+   * Por qué en tienda. Las tres razones son de marca; lo único que cambia por
+   * tienda es la cita de reseña, que degrada sola: sin reseñas se dice el hecho
+   * operativo, que es verdad en las ocho. Por eso no lleva `visible`.
+   */
+  porque: {
+    component: PorQue,
+    props: (s) => ({
+      reviews: s.reviews,
+      name: s.name,
+      phone: s.phone,
+      whatsapp: s.whatsapp,
     }),
   },
 

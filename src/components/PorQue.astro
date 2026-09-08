@@ -1,0 +1,175 @@
+---
+/**
+ * POR QUÉ EN TIENDA — las tres razones para entrar por la puerta
+ *
+ * Responde P5 («¿me asesoran?») y cierra P2 («¿y por qué no lo compro online?»).
+ * Convierte a N2: contacto con intención, no una visita a ciegas.
+ *
+ * SIN EVENTO PROPIO, Y ESTÁ DECLARADO. Es una sección informativa: su efecto se
+ * mide en el contacto que provoca, o sea en `contacto_whatsapp` /
+ * `contacto_llamada` con `seccion: 'porque'`. Un evento de scroll aquí sería
+ * decorativo y ensuciaría el informe del franquiciado con una métrica que no
+ * decide nada.
+ *
+ * POR QUÉ NO SE NOMBRA A AMAZON
+ *
+ * La tentación es comparar. Nombrar al competidor en la propia web le hace
+ * publicidad, invita a ir a mirar y pone al visitante a evaluar precios, que es
+ * el terreno donde una tienda de barrio no gana. Las tres razones se sostienen
+ * solas: hoy, una persona, y el alta al momento.
+ *
+ * POR QUÉ NO SON TRES COLUMNAS IGUALES
+ *
+ * Un trío de tarjetas con icono es exactamente lo que el catálogo de patrones
+ * dio por pasado de moda, y además miente sobre el contenido: las tres razones
+ * NO pesan lo mismo. La segunda es la única que trae una prueba de fuera —una
+ * reseña real— así que ocupa más y se lee distinto.
+ *
+ * LA SEGUNDA RAZÓN SE SOSTIENE CON ALGUIEN QUE NO SOMOS NOSOTROS
+ *
+ * Decir «te asesora una persona» es una afirmación nuestra. Al lado va una
+ * frase literal de una reseña de ESTA tienda, elegida entera y nunca recortada
+ * (ver `citas.ts`). En las cinco tiendas sin reseñas no se inventa: se dice el
+ * hecho operativo, que es verdad en las ocho.
+ */
+import { citaDeAsesoramiento } from '@/data/citas';
+
+interface Props {
+  reviews: { text: string; author: string }[];
+  name: string;
+  phone: string;
+  whatsapp?: string;
+  variant?: string;
+}
+const { reviews, name, phone, whatsapp, variant } = Astro.props;
+
+const cita = citaDeAsesoramiento(reviews);
+const waNumber = whatsapp?.replace('+', '').trim() ?? '';
+const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(`Hola, quería preguntaros una duda sobre suplementación para ir a ${name}.`)}`;
+---
+
+{/* La PRIMERA clase es el nombre que viaja como `seccion` en los eventos. */}
+<section class:list={['porque', 'section', variant && `porque--${variant}`]} id="porque">
+  <div class="container porque-inner">
+    <h2 class="porque-titulo">Por qué venir a la tienda</h2>
+
+    <div class="porque-razon porque-razon--primera">
+      <p class="porque-afirmacion">Te lo llevas hoy.</p>
+      <p class="porque-linea">Sales por la puerta con el bote en la mano. Sin envío y sin esperar.</p>
+    </div>
+
+    <div class="porque-razon porque-razon--prueba">
+      <p class="porque-afirmacion">Te asesora una persona.</p>
+      {cita ? (
+        <figure class="porque-cita">
+          <blockquote>«{cita.texto}»</blockquote>
+          <figcaption>{cita.autor}, en Google</figcaption>
+        </figure>
+      ) : (
+        <p class="porque-linea">
+          Asesoramiento en el mostrador, sin cita y sin pedirlo por adelantado.
+          Cuentas qué entrenas y te dicen qué te conviene.
+        </p>
+      )}
+    </div>
+
+    <div class="porque-razon">
+      <p class="porque-afirmacion">Y te haces socio al momento.</p>
+      <p class="porque-linea">
+        Se pide en caja y tarda dos minutos. <a href="#socio">Lo que incluye</a>.
+      </p>
+    </div>
+
+    <p class="porque-cierre">
+      {waNumber ? (
+        <a href={waUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary">Pregúntanos por WhatsApp</a>
+      ) : (
+        <a href={`tel:${phone}`} class="btn btn-primary">Llámanos y te lo contamos</a>
+      )}
+    </p>
+  </div>
+</section>
+
+<style>
+  .porque-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.05rem;
+  }
+
+  /* ETIQUETA, no titular. Con el título en azul y a tamaño de sección, las
+     tres afirmaciones —que también son azules y en negrita— quedaban al mismo
+     rango que él: cuatro líneas iguales y ninguna jerarquía. Medido mirando la
+     captura, no deducido. */
+  .porque-titulo {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+  }
+
+  /* Filete de separación, no tarjeta: las tres razones son una lista de
+     afirmaciones, no tres objetos que floten. */
+  .porque-razon {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .porque-afirmacion {
+    margin: 0;
+    font-weight: var(--font-weight-heading);
+    color: var(--color-primary);
+    font-size: 1.25rem;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  /* La primera pesa más: es la razón que decide, y si las tres pesaran igual
+     esto volvería a ser el trío de columnas. */
+  .porque-razon--primera .porque-afirmacion {
+    font-size: 1.8rem;
+  }
+
+  .porque-linea {
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.55;
+    max-width: 52ch;
+  }
+
+  .porque-cita {
+    margin: 0;
+  }
+
+  .porque-cita blockquote {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--color-text);
+    max-width: 52ch;
+  }
+
+  .porque-cita figcaption {
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+  }
+
+  .porque-cierre {
+    margin: 0.25rem 0 0;
+  }
+
+  @media (min-width: 768px) {
+    .porque-afirmacion {
+      font-size: 1.5rem;
+    }
+    .porque-razon--primera .porque-afirmacion {
+      font-size: 2rem;
+    }
+  }
+</style>

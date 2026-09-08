@@ -32,6 +32,7 @@ export const SECTION_IDS = [
   // la clásica y tiene que seguir emitiendo exactamente lo mismo, o adoptar el
   // sistema cambiaría las ocho webs vivas.
   'socio',
+  'porque',
 ] as const;
 
 export type SectionId = (typeof SECTION_IDS)[number];
@@ -257,7 +258,7 @@ export const TEMPLATES: Record<string, Template> = {
     fonts: ['/fonts/archivo-expanded-black-rotulo.woff2', '/fonts/rotulo-script.woff2'],
     usaFuenteBase: false,
     modo: 'auto',
-    sections: ['hero', 'socio', 'schedule', 'social'],
+    sections: ['hero', 'socio', 'porque', 'schedule', 'social'],
   },
 };
 

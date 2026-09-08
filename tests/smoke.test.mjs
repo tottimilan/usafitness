@@ -981,3 +981,60 @@ describe('«Hazte socio» responde qué gano yo, y no promete cifras que nadie p
     assert.match(html, /<section class="socio /, 'la primera clase tiene que ser el id de la sección');
   });
 });
+
+describe('«Por qué en tienda» da tres razones, y la del medio la firma otro', () => {
+  const soloPorque = (html) => {
+    const i = html.indexOf('<section class="porque');
+    assert.ok(i > -1, 'no se pintó la sección porque');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+
+  test('la cita es literal, de una reseña de ESA tienda, y va firmada', async () => {
+    // Decir «te asesora una persona» es una afirmación nuestra. Al lado va una
+    // frase de alguien que no somos nosotros, entera y sin recortar.
+    const s = stores.find((x) => x.slug === 'villanueva');
+    const porque = soloPorque((await get(`/${s.slug}?plantilla=rotulo`)).text());
+    const cita = porque.match(/«([^»]+)»/);
+    assert.ok(cita, 'falta la cita entrecomillada');
+    assert.ok(
+      s.reviews.some((r) => r.text.includes(cita[1])),
+      `la cita «${cita[1]}» no aparece literal en ninguna reseña de ${s.slug}`
+    );
+    assert.ok(
+      s.reviews.some((r) => porque.includes(r.author)),
+      'la cita tiene que ir firmada por quien la escribió'
+    );
+    assert.ok(porque.includes('en Google'), 'y decir de dónde sale');
+  });
+
+  test('sin reseñas no se inventa una cita: se dice el hecho operativo', async () => {
+    // Cinco de las ocho tiendas están a cero reseñas. Es el caso normal.
+    const porque = soloPorque((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(!porque.includes('«'), 'lagoh no tiene reseñas: no puede haber cita');
+    assert.match(porque, /Asesoramiento en el mostrador/);
+  });
+
+  test('la conversión degrada: WhatsApp donde lo hay, teléfono donde no', async () => {
+    const conWa = soloPorque((await get('/villanueva?plantilla=rotulo')).text());
+    assert.match(conWa, /href="https:\/\/wa\.me\/34/);
+    const sinWa = soloPorque((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(!/wa\.me/.test(sinWa), 'lagoh no tiene WhatsApp: ningún enlace puede apuntar ahí');
+    assert.match(sinWa, /href="tel:\+34/);
+  });
+
+  test('no se nombra a ningún competidor', async () => {
+    // Nombrarlo le hace publicidad, invita a ir a mirar y pone al visitante a
+    // comparar precios, que es el terreno donde una tienda de barrio no gana.
+    const porque = soloPorque((await get('/villanueva?plantilla=rotulo')).text());
+    for (const quien of ['Amazon', 'amazon', 'Decathlon', 'MyProtein', 'Prozis', 'internet', 'online']) {
+      assert.ok(!porque.includes(quien), `«Por qué en tienda» no puede nombrar a ${quien}`);
+    }
+  });
+
+  test('la clásica sigue sin la sección, y el evento sabrá de dónde viene', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'villanueva').domain)).text();
+    assert.ok(!clasica.includes('class="porque'), 'la clásica no lleva la sección nueva');
+    const preview = (await get('/villanueva?plantilla=rotulo')).text();
+    assert.match(preview, /<section class="porque /, 'la primera clase es el id de la sección');
+  });
+});

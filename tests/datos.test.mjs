@@ -53,6 +53,7 @@ import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
 import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
 import { ofertaViva } from '../src/data/ofertas.ts';
+import { citaDeAsesoramiento } from '../src/data/citas.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -1654,5 +1655,61 @@ describe('La oferta del mes caduca sola, y antes vacío que mentira', () => {
     for (const t of stores) {
       assert.equal(ofertaViva(t, new Date()), null, `${t.slug} pintaría una oferta`);
     }
+  });
+});
+
+describe('La cita de asesoramiento es real, entera y de esa tienda', () => {
+  // La sección «Por qué en tienda» afirma que atiende una persona, y esa
+  // afirmación la sostiene alguien que no somos nosotros. Pero es texto firmado
+  // con nombre y apellidos que la tienda republica: recortarlo por la mitad
+  // puede cambiar lo que esa persona dijo.
+
+  test('elige una frase COMPLETA, nunca un trozo cortado', () => {
+    for (const t of stores) {
+      const c = citaDeAsesoramiento(t.reviews);
+      if (!c) continue;
+      const entera = t.reviews.some((r) => r.text.includes(c.texto));
+      assert.ok(entera, `${t.slug}: la cita no aparece literal en ninguna reseña`);
+      assert.ok(c.texto.length >= 30 && c.texto.length <= 120, `${t.slug}: la cita mide ${c.texto.length}`);
+      assert.ok(t.reviews.some((r) => r.author === c.autor), `${t.slug}: el autor no es de esta tienda`);
+    }
+  });
+
+  test('la frase elegida habla del asesoramiento, no de otra cosa', () => {
+    // El caso que lo obliga: la reseña de El Arcángel empieza por la variedad
+    // de producto y el elogio al trato viene DESPUÉS. Coger la primera frase
+    // habría publicado una cita que no sostiene la afirmación de al lado.
+    const arcangel = stores.find((s) => s.slug === 'arcangel');
+    const c = citaDeAsesoramiento(arcangel.reviews);
+    assert.ok(c, 'el arcángel tiene reseñas que sirven');
+    assert.ok(!/^Gran variedad/.test(c.texto), 'no puede ser la frase de la variedad de producto');
+    assert.match(c.texto, /asesor|atenci|aconsej|recomend|ayuda/i);
+  });
+
+  test('las tres tiendas con reseñas tienen cita, y las cinco sin ellas no', () => {
+    const conCita = stores.filter((t) => citaDeAsesoramiento(t.reviews));
+    assert.deepEqual(
+      conCita.map((t) => t.slug).sort(),
+      ['alcobendas', 'arcangel', 'villanueva'],
+      'hoy solo estas tres tienen reseñas'
+    );
+    for (const t of stores.filter((x) => x.reviews.length === 0)) {
+      assert.equal(citaDeAsesoramiento(t.reviews), null, `${t.slug} no puede inventarse una cita`);
+    }
+  });
+
+  test('una reseña que no habla de trato no produce cita', () => {
+    assert.equal(
+      citaDeAsesoramiento([{ author: 'X', text: 'Tienen mucha variedad de marcas y buenos precios.' }]),
+      null
+    );
+  });
+
+  test('a igualdad de longitud, siempre la misma: dos builds no pueden diferir', () => {
+    const dos = [
+      { author: 'A', text: 'La atención fue estupenda del todo.' },
+      { author: 'B', text: 'La atención fue estupenda del todo.' },
+    ];
+    assert.equal(citaDeAsesoramiento(dos).autor, 'A');
   });
 });
