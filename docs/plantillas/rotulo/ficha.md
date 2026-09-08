@@ -89,7 +89,13 @@ Las tres tiendas con reseñas tienen cita; las cinco sin ellas dicen el hecho op
 
 **No se nombra a ningún competidor.** Nombrarlo le hace publicidad, invita a ir a mirar y pone al visitante a comparar precios, que es el terreno donde una tienda de barrio no gana. Hay un test que lo impide.
 
-### Pendiente en esta pieza
+### Lagoh y escritorio, ya vistos (2026-09-06, misma sesión)
 
-- **Verificado por medición, no visto, en Lagoh y en escritorio.** La captura a 375 es de Villanueva; en Lagoh comprobé el texto y las medidas, y el escritorio de esta sección no llegué a capturarlo porque el panel dejó de dibujar. Queda para el Loop B.
+**Lagoh (sin reseñas, sin WhatsApp), 375 px:** 590 px de alto, el hecho operativo en lugar de la cita y «Llámanos y te lo contamos». Entra entera sobre el aviso de cookies. ✅
+
+**Escritorio 1180 px:** 563 px, sin desbordes, líneas de 449-471 px (medida de lectura correcta), afirmación principal a 32 px. **Pero se lee ESTRECHA**: tres bloques cortos alineados a la izquierda dentro de un contenedor de 1200, con la mitad derecha vacía. No está roto y no llega a defecto que la tumbe —ninguna tienda usa esta plantilla—, pero está lejos de lo que el diseño de Rótulo pide para escritorio: «afirmaciones | cita» a dos columnas, con la cita sacada a la derecha.
+
+**Decisión:** no se arregla aquí. Escribir ahora una maqueta de escritorio que la hoja de la plantilla va a sustituir sería trabajo tirado; queda como defecto nombrado para el Loop B, con el arreglo ya escrito (dos columnas, la cita a la derecha).
+
+### Pendiente en esta pieza
 - **Los expertos con nombre del brand book** (Gouveia, Gil) siguen sin usar: es una puerta del dueño abierta desde el 27-ago.
