@@ -914,3 +914,68 @@ describe('La plantilla Energía es OTRA web, no otra piel', () => {
     assert.ok((TEMPLATES.energia.fonts ?? []).length >= 2, 'los dos pesos de Barlow');
   });
 });
+
+describe('El host se normaliza, /_image está cerrado y robots no repite lo que le mandan', () => {
+  test('un Host en mayúsculas o con punto final sirve SU tienda, no el host genérico', async () => {
+    // Cloudflare hoy pone la cabecera en minúscula antes de reenviarla, así que
+    // en producción esto no se veía. Depender de la configuración de otro no es
+    // una defensa: si el borde cambia, o si alguien llega al servicio por otra
+    // vía, el dominio de un cliente se sirve como host desconocido.
+    for (const s of stores) {
+      for (const variante of [s.domain, s.domain.toUpperCase(), `${s.domain}.`]) {
+        const r = await get('/health', variante);
+        assert.equal(r.status, 200, `${variante} debería responder`);
+        assert.equal(JSON.parse(r.text()).tienda, s.slug, `${variante} debería servir ${s.slug}`);
+      }
+    }
+  });
+
+  test('un dominio ajeno sigue cayendo al host genérico', async () => {
+    // La normalización no puede haber vuelto permisiva la tabla.
+    const r = await get('/health', 'atacante.com');
+    assert.equal(JSON.parse(r.text()).tienda, null);
+  });
+
+  test('/_image devuelve 404 en TODOS los hosts, también en los desconocidos', async () => {
+    // No usamos `astro:assets` pero el adaptador registra el endpoint igual, y
+    // sharp se importa en tiempo de ejecución. En los dominios de tienda estaba
+    // tapado por casualidad (la reescritura lo convertía en /<slug>/_image); en
+    // cualquier otro host respondía 200 con 382 KB y 1,2 s de CPU por petición.
+    const ruta = '/_image?href=%2Fusafitness.svg&f=avif&w=4000&h=4000&q=100';
+    for (const host of [stores[0].domain, stores[0].domain.toUpperCase(), 'preview.up.railway.app', undefined]) {
+      const r = await get(ruta, host);
+      assert.equal(r.status, 404, `/_image debería estar cerrado en ${host ?? '(sin host)'}`);
+      assert.equal(r.text(), '', 'y sin cuerpo: no se codifica nada');
+    }
+  });
+
+  test('robots.txt no devuelve ni una letra de lo que le mandan', async () => {
+    const r = await getCon('/robots.txt', 'atacante.com', { 'x-forwarded-proto': 'javascript' });
+    const cuerpo = r.text();
+    assert.ok(!cuerpo.includes('atacante.com'), 'el Host no puede aparecer en el cuerpo');
+    assert.ok(!cuerpo.includes('javascript'), 'ni el esquema que mande quien llama');
+    assert.ok(!/Sitemap:/i.test(cuerpo), 'en un host desconocido no hay mapa que ofrecer');
+    // Se cachea una hora: que ninguna caché intermedia decida que es otra cosa.
+    assert.equal(r.headers['x-content-type-options'], 'nosniff');
+  });
+
+  test('robots.txt de una tienda apunta a SU dominio canónico, venga como venga la cabecera', async () => {
+    const s = stores[0];
+    for (const variante of [s.domain, s.domain.toUpperCase(), `${s.domain}.`]) {
+      const cuerpo = (await getCon('/robots.txt', variante, { 'x-forwarded-proto': 'http' })).text();
+      assert.match(cuerpo, new RegExp(`Sitemap: https://${s.domain.replace(/\./g, '\.')}/sitemap\.xml`));
+      assert.ok(!cuerpo.includes('http://'), 'el esquema lo decidimos nosotros, no la cabecera');
+    }
+  });
+
+  test('un ?plantilla= que apunte al prototipo no tumba la página', async () => {
+    // `constructor`, `toString` y `valueOf` pasan el filtro del parámetro y
+    // devolvían una función heredada, truthy, así que la reserva `??` no
+    // disparaba: 500 sin autenticar. Ahora caen en la plantilla de siempre.
+    for (const id of ['constructor', 'toString', 'valueOf', '__proto__']) {
+      const r = await get(`/${stores[0].slug}?plantilla=${id}`, 'preview.up.railway.app');
+      assert.equal(r.status, 200, `?plantilla=${id} no puede dar 500`);
+      assert.match(r.text(), /data-plantilla="clasica"/, `${id} debería caer en la clásica`);
+    }
+  });
+});
