@@ -121,3 +121,6 @@ docs/brand/fuentes/*Banner*
 # Variantes de imagen generadas en el build (src/build/generar-variantes.ts).
 # No se commitean: se rehacen solas y ocuparian mas que las fuentes.
 /public/_img/
+
+# Temporal de scripts/fuentes-rotulo.py: los .ttf de origen, que no se sirven.
+/.fuentes-tmp/
