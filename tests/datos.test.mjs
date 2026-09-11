@@ -55,6 +55,11 @@ import { clasificar, resumirFlota, esProblema } from '../src/data/flota.ts';
 import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.ts';
 import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/data/imagen.ts';
 import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
+import {
+  revisarAuditoria,
+  criticosDelInforme,
+  CAMPOS_OBLIGATORIOS,
+} from '../src/data/auditoria.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -1211,6 +1216,123 @@ describe('getTemplate no mira el prototipo', () => {
   test('y una plantilla de verdad sigue saliendo', () => {
     for (const id of Object.keys(TEMPLATES)) {
       assert.equal(getTemplate(id).id, id);
+    }
+  });
+});
+
+describe('La alarma de dependencias distingue lo conocido de lo nuevo', () => {
+  // Sustituye a `npm audit --audit-level=critical`, que era un sí o un no y se
+  // quedó permanentemente en «no» el 11-sep. Una alarma siempre roja no avisa.
+  const critico = (aviso, paquete = 'astro') => ({
+    vulnerabilities: {
+      [paquete]: {
+        name: paquete,
+        severity: 'critical',
+        via: [
+          'otro-paquete', // las cadenas de `via` son cadenas transitivas, no avisos
+          { severity: 'high', url: 'https://github.com/advisories/GHSA-alta-alta-alta', title: 'una alta' },
+          { severity: 'critical', url: `https://github.com/advisories/${aviso}`, title: 'la crítica', range: '<7.2.8' },
+        ],
+      },
+    },
+  });
+  const valida = (extra = {}) => ({
+    aviso: 'GHSA-aaaa-bbbb-cccc',
+    paquete: 'astro',
+    motivo: 'medido: el endpoint está cerrado',
+    evidencia: 'docs/security/triaje-2026-09-11-reevaluacion.md',
+    abierta: '2026-09-11',
+    caduca: '2026-10-13',
+    cierraEn: 'astro>=7.2.8',
+    ...extra,
+  });
+
+  test('un crítico que no está en la lista rompe el build', () => {
+    const r = revisarAuditoria({ informe: critico('GHSA-nuevo-nuevo-nuevo'), excepciones: [], hoy: '2026-09-11' });
+    assert.equal(r.problemas.length, 1);
+    assert.equal(r.problemas[0].clase, 'desconocido');
+    assert.match(r.problemas[0].detalle, /Es nuevo/);
+  });
+
+  test('solo cuentan los avisos críticos, y solo una vez', () => {
+    // `via` mezcla objetos y cadenas, y trae también las altas. Si se colaran,
+    // la alarma pediría una excepción por cada aviso del árbol y nadie la usaría.
+    const c = criticosDelInforme(critico('GHSA-aaaa-bbbb-cccc'));
+    assert.equal(c.length, 1);
+    assert.equal(c[0].aviso, 'GHSA-aaaa-bbbb-cccc');
+    assert.equal(c[0].paquete, 'astro');
+    assert.equal(criticosDelInforme({ vulnerabilities: {} }).length, 0);
+    assert.equal(criticosDelInforme({}).length, 0);
+  });
+
+  test('el crítico aceptado pasa, y se dice hasta cuándo', () => {
+    const r = revisarAuditoria({
+      informe: critico('GHSA-aaaa-bbbb-cccc'),
+      excepciones: [valida()],
+      hoy: '2026-09-11',
+    });
+    assert.deepEqual(r.problemas, []);
+    assert.equal(r.aceptados.length, 1);
+  });
+
+  test('la caducidad ROMPE el build, no avisa', () => {
+    // Es la regla que impide que esto se pudra: una excepción que solo avisa se
+    // renueva sola por costumbre.
+    const informe = critico('GHSA-aaaa-bbbb-cccc');
+    const ex = [valida()];
+    assert.deepEqual(revisarAuditoria({ informe, excepciones: ex, hoy: '2026-10-13' }).problemas, [], 'el día que caduca todavía pasa');
+    const r = revisarAuditoria({ informe, excepciones: ex, hoy: '2026-10-14' });
+    assert.equal(r.problemas.length, 1, 'UN problema, no dos: el aviso está triado, no es nuevo');
+    assert.equal(r.problemas[0].clase, 'caducada');
+    assert.match(r.problemas[0].detalle, /astro>=7\.2\.8/, 'y dice qué lo cerraría');
+  });
+
+  test('una excepción que ya no corresponde a nada rompe el build', () => {
+    // Si se arregló la dependencia y la entrada se queda, la lista dice que
+    // aceptamos un riesgo que ya no existe.
+    const r = revisarAuditoria({ informe: { vulnerabilities: {} }, excepciones: [valida()], hoy: '2026-09-11' });
+    assert.equal(r.problemas[0].clase, 'sobra');
+  });
+
+  test('«caduca en 2099» no cuela', () => {
+    for (const caduca of ['2027-09-11', '2026-09-10', '2026-09-11']) {
+      const r = revisarAuditoria({
+        informe: critico('GHSA-aaaa-bbbb-cccc'),
+        excepciones: [valida({ caduca })],
+        hoy: '2026-09-11',
+      });
+      assert.equal(r.problemas[0].clase, 'plazo-largo', `caduca=${caduca} debería rechazarse`);
+    }
+  });
+
+  test('sin motivo o sin evidencia no es una excepción, es un silencio', () => {
+    for (const campo of CAMPOS_OBLIGATORIOS) {
+      const r = revisarAuditoria({
+        informe: critico('GHSA-aaaa-bbbb-cccc'),
+        excepciones: [valida({ [campo]: '' })],
+        hoy: '2026-09-11',
+      });
+      assert.ok(
+        r.problemas.some((p) => p.clase === 'incompleta' && p.detalle.includes(campo)),
+        `sin «${campo}» tiene que romper`
+      );
+    }
+  });
+
+  test('la lista de verdad del repositorio está bien escrita y su evidencia existe', async () => {
+    const { readFileSync, statSync } = await import('node:fs');
+    // Una excepción que apunta a un documento que nadie escribió es una
+    // excepción sin evidencia con aspecto de tenerla.
+    const raiz = new URL('../', import.meta.url);
+    const { excepciones } = JSON.parse(readFileSync(new URL('docs/security/excepciones-audit.json', raiz), 'utf8'));
+    assert.ok(Array.isArray(excepciones));
+    for (const e of excepciones) {
+      for (const campo of CAMPOS_OBLIGATORIOS) {
+        assert.ok(String(e[campo] ?? '').trim(), `a ${e.aviso} le falta «${campo}»`);
+      }
+      assert.match(e.aviso, /^(GHSA-[a-z0-9-]+|CVE-\d{4}-\d+)$/i);
+      assert.ok(statSync(new URL(e.evidencia, raiz)).isFile(), `${e.aviso}: «${e.evidencia}» no existe`);
+      assert.ok(e.motivo.length > 60, `${e.aviso}: el motivo tiene que explicar, no etiquetar`);
     }
   });
 });
