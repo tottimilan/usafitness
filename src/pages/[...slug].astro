@@ -7,7 +7,7 @@ import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
 import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
 import ConversionTracking from '@/components/ConversionTracking.astro';
-import { porSlug } from '@/data/stores';
+import { porSlug, hostCanonico } from '@/data/stores';
 import { getTemplate, resolveSections, tokensToCss } from '@/data/templates';
 import { fuentesDeLaPagina } from '@/data/presupuesto';
 import { buildPlan } from '@/sections/registry';
@@ -22,7 +22,7 @@ if (!store) {
   return Astro.rewrite('/404');
 }
 
-const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const host = hostCanonico(Astro.request);
 const onOwnDomain = host === store.domain || host === `www.${store.domain}`;
 const legalBase = onOwnDomain ? '' : `/${store.slug}`;
 

@@ -22,6 +22,7 @@
  */
 
 import type { Tienda } from '@/data/stores';
+import { hostCanonico } from '@/data/stores';
 import { FUENTE_BASE } from '@/data/presupuesto';
 import '@/styles/global.css';
 
@@ -73,7 +74,7 @@ const {
   og,
 } = Astro.props;
 
-const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const host = hostCanonico(Astro.request);
 const enSuDominio = !!store && (host === store.domain || host === `www.${store.domain}`);
 
 // `max-image-preview:large` solo donde se indexa: es lo que permite la miniatura

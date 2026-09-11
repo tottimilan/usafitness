@@ -388,6 +388,35 @@ for (const t of stores) {
   porDominio.set(`www.${t.domain}`, t);
 }
 
+/**
+ * El host de una petición, en la forma en la que se puede buscar en `porDominio`.
+ *
+ * Existe porque el mapa de arriba tiene las claves en minúscula y sin punto
+ * final —el esquema valida `domain` con `^[a-z0-9.-]+`—, pero la cabecera `Host`
+ * NO es así: el RFC 9110 dice que el nombre de host no distingue mayúsculas, y
+ * `usafitnessvigo.com.` con punto final es un nombre absoluto perfectamente
+ * válido. Ocho sitios del código leían la cabecera cruda y hacían `.get(host)`,
+ * así que `USAFITNESSVIGO.COM` no encontraba tienda y la petición se servía como
+ * host genérico: el sitio equivocado para servir el dominio de un cliente.
+ *
+ * Medido el 11-sep contra el build de producción: `Host: usafitnessvigo.com` →
+ * `"vigo"`; `Host: USAFITNESSVIGO.COM` → `null`. Y medido también contra
+ * producción de verdad: allí NO pasa, porque Cloudflare pone la cabecera en
+ * minúscula antes de reenviarla y Railway rechaza el punto final con su propio
+ * 404. O sea: hoy nos tapa el fallo la configuración de otros dos. Eso no es
+ * una defensa, es una coincidencia — y por eso se arregla aquí.
+ */
+export function hostCanonico(request: Request): string {
+  return hostCanonicoDe(request.headers.get('host'));
+}
+
+/** La misma normalización sobre una cadena suelta, para poder probarla sin
+ *  fabricar una `Request`. Es la única forma de la regla; `hostCanonico` la
+ *  envuelve. */
+export function hostCanonicoDe(cabecera: string | null | undefined): string {
+  return (cabecera ?? '').split(':')[0].trim().toLowerCase().replace(/\.+$/, '');
+}
+
 export const porSlug = new Map(stores.map((t) => [t.slug, t]));
 
 /**
