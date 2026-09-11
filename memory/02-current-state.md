@@ -2,7 +2,9 @@
 
 **Phase:** MVP
 
-**Última actualización:** 2026-08-27 · Reescrito completo (el anterior describía 7 tiendas y tareas ya cerradas).
+**Última actualización:** 2026-09-11 · La rodaja 2 de Rótulo cerrada y en producción, más el triaje de seguridad que destapó cuatro defectos nuestros. Ver `memory/11` y `docs/security/triaje-2026-09-11-reevaluacion.md`.
+
+> **Con reloj:** la excepción del crítico de Astro caduca el **13-10-2026** y entonces rompe el build. Detalle en `memory/08`.
 
 > `**Phase:**` arriba, en inglés y en su propia línea, no es un descuido de idioma:
 > `scripts/phase-gate-check` lo lee con `^\*\*Phase:\*\*`. No traducirlo ni moverlo.
