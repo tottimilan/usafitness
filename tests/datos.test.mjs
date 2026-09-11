@@ -19,7 +19,14 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { readFileSync, statSync } from 'node:fs';
 
-import { stores, esquemaTiendas, avisosDeDatos, tablaCoherente } from '../src/data/stores.ts';
+import {
+  stores,
+  esquemaTiendas,
+  avisosDeDatos,
+  tablaCoherente,
+  hostCanonicoDe,
+  porDominio,
+} from '../src/data/stores.ts';
 import { respuestaDeSalud } from '../src/data/salud.ts';
 import {
   planDeConsentimiento,
@@ -39,6 +46,8 @@ import {
   PRIORIDADES,
   ordenDeSecciones,
   avisoDePrioridad,
+  getTemplate,
+  PLANTILLA_POR_DEFECTO,
 } from '../src/data/templates.ts';
 import {
   FUENTE_BASE,
@@ -1525,5 +1534,67 @@ describe('El minutero no puede mentir: sin calendario del centro, no sale', () =
     const sin = centrosSinCalendario(stores, new Date('2026-09-08T12:00:00Z'));
     assert.equal(sin.length, 8, 'las ocho, porque el fichero nace vacío a propósito');
     assert.ok(sin.includes('C.C. Lagoh'));
+  });
+});
+
+describe('El host de una petición se busca normalizado, no como venga', () => {
+  // La cabecera `Host` no distingue mayúsculas (RFC 9110) y `dominio.com.` con
+  // punto final es un nombre absoluto válido. El mapa `porDominio` tiene las
+  // claves en minúscula y sin punto porque el esquema valida `domain` con
+  // `^[a-z0-9.-]+`. Buscar la cabecera cruda hacía que el dominio de un cliente
+  // cayera al host genérico.
+  test('mayúsculas, punto final y puerto dan la misma clave', () => {
+    for (const t of stores) {
+      for (const variante of [
+        t.domain,
+        t.domain.toUpperCase(),
+        `${t.domain}.`,
+        `${t.domain}:443`,
+        `${t.domain.toUpperCase()}.:8080`,
+      ]) {
+        assert.equal(hostCanonicoDe(variante), t.domain, `«${variante}» debería dar ${t.domain}`);
+        assert.ok(porDominio.has(hostCanonicoDe(variante)), `«${variante}» debería encontrar tienda`);
+      }
+    }
+  });
+
+  test('una cabecera ausente o vacía no encuentra tienda, y no revienta', () => {
+    for (const v of [undefined, null, '', ':443', '...']) {
+      const h = hostCanonicoDe(v);
+      assert.equal(typeof h, 'string');
+      assert.ok(!porDominio.has(h), `«${JSON.stringify(v)}» no puede encontrar tienda`);
+    }
+  });
+
+  test('un dominio ajeno sigue sin encontrar tienda', () => {
+    // La normalización no puede volverse permisiva: solo quita mayúsculas,
+    // puerto y punto final.
+    for (const v of ['atacante.com', 'usafitnessvigo.com.evil.com', 'evil.com#usafitnessvigo.com']) {
+      assert.ok(!porDominio.has(hostCanonicoDe(v)), `«${v}» no es nuestro`);
+    }
+  });
+});
+
+describe('getTemplate no mira el prototipo', () => {
+  test('constructor, toString y valueOf devuelven la plantilla por defecto', () => {
+    // `TEMPLATES` es un objeto literal: hereda esas tres del prototipo, son
+    // funciones (truthy) y el `??` de reserva no disparaba. Las tres pasan el
+    // filtro de `?plantilla=` (minúsculas, guiones, 12 caracteres).
+    for (const id of ['constructor', 'toString', 'valueOf', 'hasOwnProperty', '__proto__']) {
+      const t = getTemplate(id);
+      assert.equal(t.id, PLANTILLA_POR_DEFECTO, `«${id}» debería caer en la de siempre`);
+    }
+  });
+
+  test('sin id, con id vacío y con un id inventado, también', () => {
+    for (const id of [undefined, '', 'no-existe']) {
+      assert.equal(getTemplate(id).id, PLANTILLA_POR_DEFECTO);
+    }
+  });
+
+  test('y una plantilla de verdad sigue saliendo', () => {
+    for (const id of Object.keys(TEMPLATES)) {
+      assert.equal(getTemplate(id).id, id);
+    }
   });
 });

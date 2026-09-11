@@ -3,6 +3,8 @@
 - **Fecha:** 2026-08-25
 - **Commit base:** `c0fa6a5` (rama `feat/seguimiento-revision-pr1`)
 - **Línea base:** [`docs/security/audit-2026-08-25.json`](./audit-2026-08-25.json) — 10 vulnerabilidades a nivel de paquete (8 high, 1 moderate, 1 low), todas con `fixAvailable=true`.
+> **REABIERTO EL 11-09-2026.** El tripwire del CI se puso rojo por un aviso **critical** nuevo en `astro` — el disparador nº 1 que este documento dejó escrito. La reevaluación, con lo que cambió y lo que no, está en [`triaje-2026-09-11-reevaluacion.md`](./triaje-2026-09-11-reevaluacion.md). Dos veredictos de aquí se corrigen allí: `/_image` **sí** existía sin usar `astro:assets`, y la alcanzabilidad medida solo contra el build local no valía — hay que medirla también contra producción.
+
 - **Método:** cada veredicto de alcanzabilidad se demostró con comandos (grep sobre `dist/server`, `curl` contra el build en ejecución, lectura de código con `fichero:línea`). Un segundo agente escéptico reejecutó la evidencia e intentó refutar cada "no alcanzable"; sus hallazgos están incorporados.
 
 **Resumen honesto en una frase:** de las 10 vulnerabilidades reportadas, solo una es alcanzable en este despliegue (el 500 por `If-Match` malformado del adaptador Node, que se mitiga con un patch dentro del mismo major); las otras nueve viven en código que este proyecto no empaqueta o en features que no usa, y el cierre definitivo de todas exige el salto mayor a astro@7 que queda fuera de alcance hoy.

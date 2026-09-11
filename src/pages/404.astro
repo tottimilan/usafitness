@@ -24,9 +24,9 @@ import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
 import ConversionTracking from '@/components/ConversionTracking.astro';
 import Base from '@/layouts/Base.astro';
-import { porDominio } from '@/data/stores';
+import { porDominio, hostCanonico } from '@/data/stores';
 
-const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const host = hostCanonico(Astro.request);
 const store = porDominio.get(host);
 
 // Si hay tienda es porque la petición llegó a SU dominio, así que los enlaces
