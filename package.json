@@ -17,8 +17,8 @@
     "flota": "node scripts/estado-flota.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^10.0.6",
-    "astro": "^6.1.5"
+    "@astrojs/node": "^10.1.4",
+    "astro": "^6.4.8"
   },
   "devDependencies": {
     "sharp": "^0.34.5"

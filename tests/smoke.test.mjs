@@ -1241,3 +1241,33 @@ describe('El host se normaliza, /_image está cerrado y robots no repite lo que 
     }
   });
 });
+
+describe('La fachada del mapa sobrevive a cómo el compilador escriba las entidades', () => {
+  test('el atributo decodifica EXACTAMENTE la URL de la tienda', async () => {
+    // Salió al subir de astro 6.1.5 a 6.4.8: el compilador cambió `&#38;` por
+    // `&amp;` en `data-map-src`. Las dos decodifican a `&` y el mapa siguió
+    // funcionando, pero no había un solo test mirando esto — si la entidad se
+    // hubiera roto, el mapa de las ocho tiendas habría dejado de cargar sin que
+    // nada se pusiera rojo. Se afirma sobre el valor DECODIFICADO, que es lo que
+    // el navegador le pasa al iframe, no sobre la grafía del HTML.
+    const decodificar = (s) =>
+      s.replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n))).replace(/&amp;/g, '&');
+
+    const conMapa = stores.filter((s) => s.googleMapsEmbed);
+    assert.ok(conMapa.length >= 7, `esperaba al menos 7 tiendas con mapa y hay ${conMapa.length}`);
+
+    for (const s of conMapa) {
+      const html = (await get('/', s.domain)).text();
+      const m = /data-map-src="([^"]+)"/.exec(html);
+      assert.ok(m, `${s.slug}: no se pintó la fachada del mapa`);
+      assert.equal(decodificar(m[1]), s.googleMapsEmbed, `${s.slug}: la URL del mapa no es la suya`);
+    }
+
+    // Y la tienda sin ficha de Google no puede tener fachada: sería el mapa de otro.
+    const sinFicha = stores.find((s) => !s.googleMapsEmbed);
+    if (sinFicha) {
+      assert.ok(!(await get('/', sinFicha.domain)).text().includes('data-map-src'),
+        `${sinFicha.slug} no tiene ficha: no puede pintar ningún mapa`);
+    }
+  });
+});
