@@ -34,7 +34,7 @@ import {
   esCookieDeGoogle,
   fuenteInline,
 } from '../src/data/consentimiento.ts';
-import { parseHorario } from '../src/data/horario.ts';
+import { parseHorario, franjaDeHoy, cierraEn } from '../src/data/horario.ts';
 import {
   SECTION_IDS,
   ORDEN_BASE,
@@ -60,6 +60,7 @@ import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.
 import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/data/imagen.ts';
 import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
 import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
+import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
 import {
   revisarAuditoria,
   criticosDelInforme,
@@ -1401,6 +1402,143 @@ describe('Una fuente subseteada no puede quedarse sin una letra', () => {
       const n = statSync(`public/fonts/${f}`).size;
       assert.ok(n > 0 && n <= 6144, `${f} pesa ${n} B y el techo son 6144`);
     }
+  });
+});
+
+describe('El horario de HOY se calcula con la hora de Madrid, no con la del servidor', () => {
+  // El servidor va en tiempo universal. Calcular el día con getDay() haría que
+  // la web dijera «cerrado» con la tienda abierta durante las horas de desfase,
+  // en las ocho tiendas a la vez y SOLO en producción. Por eso todas estas
+  // pruebas van con fechas fijas y con instantes elegidos para caer en un día
+  // distinto en Madrid y en tiempo universal.
+  const lagoh = stores.find((s) => s.slug === 'lagoh');       // lunes a domingo 10:00–22:00
+  const marineda = stores.find((s) => s.slug === 'marineda'); // lunes a SÁBADO 10:00–22:00
+
+  test('un martes cualquiera devuelve la franja del día', () => {
+    const martes = new Date('2026-09-08T12:00:00Z');
+    assert.deepEqual(franjaDeHoy(lagoh.schedule, martes), { opens: '10:00', closes: '22:00' });
+  });
+
+  test('el domingo de una tienda que cierra los domingos no inventa un horario', () => {
+    const domingo = new Date('2026-09-06T12:00:00Z');
+    assert.equal(franjaDeHoy(marineda.schedule, domingo), null, 'marineda no abre los domingos');
+    assert.deepEqual(franjaDeHoy(lagoh.schedule, domingo), { opens: '10:00', closes: '22:00' });
+  });
+
+  test('a las 23:30 de Madrid ya es OTRO día, aunque en tiempo universal no lo sea', () => {
+    // 2026-09-05T22:30:00Z es sábado 22:30 en Londres y DOMINGO 00:30 en Madrid.
+    // Con getDay() sobre el reloj del servidor, marineda diría que está abierta.
+    const yaEsDomingoEnMadrid = new Date('2026-09-05T22:30:00Z');
+    assert.equal(franjaDeHoy(marineda.schedule, yaEsDomingoEnMadrid), null);
+  });
+
+  test('el desfase de invierno también', () => {
+    // En enero Madrid va una hora por delante, no dos. 2026-01-03T23:30:00Z es
+    // sábado en Londres y DOMINGO 00:30 en Madrid.
+    const enero = new Date('2026-01-03T23:30:00Z');
+    assert.equal(franjaDeHoy(marineda.schedule, enero), null);
+    const sabadoEnero = new Date('2026-01-03T12:00:00Z');
+    assert.deepEqual(franjaDeHoy(marineda.schedule, sabadoEnero), { opens: '10:00', closes: '22:00' });
+  });
+
+  test('el horario de las ocho tiendas produce franja algún día de la semana', () => {
+    // Si el parser y esta función se separaran, una tienda podría validar el
+    // esquema y no tener nunca horario que enseñar.
+    for (const t of stores) {
+      const dias = ['2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11', '2026-09-12', '2026-09-13'];
+      const conFranja = dias.filter((d) => franjaDeHoy(t.schedule, new Date(`${d}T12:00:00Z`)));
+      assert.ok(conFranja.length > 0, `${t.slug} no abre ningún día de la semana`);
+    }
+  });
+
+  test('cierraEn cuenta los minutos que faltan, en hora de Madrid', () => {
+    // 2026-09-08T17:30:00Z = 19:30 en Madrid. Cierra a las 22:00 → 150 minutos.
+    const tarde = new Date('2026-09-08T17:30:00Z');
+    assert.equal(cierraEn({ opens: '10:00', closes: '22:00' }, tarde), 150);
+  });
+
+  test('cierraEn es null antes de abrir y después de cerrar', () => {
+    assert.equal(cierraEn({ opens: '10:00', closes: '22:00' }, new Date('2026-09-08T06:00:00Z')), null, 'a las 08:00 aún no ha abierto');
+    assert.equal(cierraEn({ opens: '10:00', closes: '22:00' }, new Date('2026-09-08T21:00:00Z')), null, 'a las 23:00 ya cerró');
+  });
+});
+
+describe('El minutero no puede mentir: sin calendario del centro, no sale', () => {
+  // La regla que hace que «cierra en 2 h 15 min» pueda volver. El día que el
+  // centro cierra por fiesta, un contador en marcha manda a alguien a una
+  // persiana bajada; y saber si el centro abre NO se deduce de la ley (los
+  // locales de menos de 300 m² tienen libertad de horarios), así que el dato
+  // es del centro o no existe.
+  const lagoh = stores.find((s) => s.slug === 'lagoh');
+  const abierto = new Date('2026-12-25T17:30:00Z'); // 18:30 en Madrid
+
+  const conCalendario = {
+    'C.C. Lagoh': {
+      fuente: 'prueba',
+      leidoEl: '2026-01-01',
+      cubreHasta: '2026-12-31',
+      dias: { '2026-12-25': null, '2026-01-05': { opens: '10:00', closes: '18:00' } },
+    },
+  };
+
+  test('sin calendario para su centro: se ve la franja pero NO el minutero', () => {
+    const e = estadoDeHoy(lagoh, abierto, {});
+    assert.equal(e.tipo, 'franja-sin-calendario');
+    assert.equal(e.opens, '10:00');
+    assert.equal(e.cierraEn, undefined, 'no puede haber cuenta atrás sin saber si el centro abre');
+  });
+
+  test('con calendario vigente y día normal: franja y minutero', () => {
+    const normal = new Date('2026-09-08T17:30:00Z'); // martes, 19:30 en Madrid
+    const e = estadoDeHoy(lagoh, normal, conCalendario);
+    assert.equal(e.tipo, 'franja');
+    assert.equal(e.cierraEn, 150);
+  });
+
+  test('con calendario vigente y día cerrado: se dice que está cerrado, sin horas', () => {
+    const e = estadoDeHoy(lagoh, abierto, conCalendario);
+    assert.equal(e.tipo, 'festivo-cerrado');
+    assert.equal(e.opens, undefined);
+    assert.equal(e.cierraEn, undefined);
+  });
+
+  test('con calendario vigente y horario especial: manda el del calendario', () => {
+    // 2026-01-05, 15:00 en Madrid. El horario de la tienda dice 10:00–22:00,
+    // pero ese día el centro cierra a las 18:00: quedan 180 minutos, no 420.
+    const reyes = new Date('2026-01-05T14:00:00Z');
+    const e = estadoDeHoy(lagoh, reyes, conCalendario);
+    assert.equal(e.tipo, 'festivo-especial');
+    assert.equal(e.closes, '18:00');
+    assert.equal(e.cierraEn, 180);
+  });
+
+  test('un calendario CADUCADO no vale: vuelve a no haber minutero', () => {
+    const caducado = { 'C.C. Lagoh': { ...conCalendario['C.C. Lagoh'], cubreHasta: '2026-06-30' } };
+    const e = estadoDeHoy(lagoh, abierto, caducado);
+    assert.equal(e.tipo, 'franja-sin-calendario');
+    assert.equal(e.cierraEn, undefined);
+  });
+
+  test('el día que la tienda no abre, el calendario no pinta nada', () => {
+    const marineda = stores.find((s) => s.slug === 'marineda');
+    const domingo = new Date('2026-09-06T12:00:00Z');
+    assert.equal(estadoDeHoy(marineda, domingo, {}).tipo, 'cerrado');
+  });
+
+  test('hoy, ningún centro de la flota tiene calendario: ninguna tienda emite minutero', () => {
+    // Es el estado de partida y tiene que verse. El día que alguien rellene
+    // festivos.json, este test dirá cuántas tiendas cambian.
+    for (const t of stores) {
+      const e = estadoDeHoy(t, new Date('2026-09-08T17:30:00Z'));
+      assert.notEqual(e.tipo, 'franja', `${t.slug} emitiría minutero sin calendario`);
+      assert.equal(e.cierraEn, undefined);
+    }
+  });
+
+  test('los centros sin calendario se listan para que se vean', () => {
+    const sin = centrosSinCalendario(stores, new Date('2026-09-08T12:00:00Z'));
+    assert.equal(sin.length, 8, 'las ocho, porque el fichero nace vacío a propósito');
+    assert.ok(sin.includes('C.C. Lagoh'));
   });
 });
 

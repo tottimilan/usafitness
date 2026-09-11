@@ -1,0 +1,15 @@
+{
+  "_leeme": "Los días en que un CENTRO COMERCIAL abre distinto o no abre. La clave es el campo `mall` de la tienda. Un día con null es cerrado; con horas, horario especial; un día que no está listado es normal. `cubreHasta` es lo que decide si el minutero «cierra en X» puede salir: pasada esa fecha el calendario deja de valer y la página vuelve a imprimir solo la franja. Nace VACÍO a propósito: el dato lo tiene el centro, no la ley (los locales de menos de 300 m² tienen libertad de horarios, así que lo que manda es si abre el centro). `node scripts/festivos.mjs <año>` imprime los días que hay que preguntar.",
+  "_ejemplo": {
+    "C.C. Ejemplo": {
+      "fuente": "https://www.ejemplo.es/horarios (leído a mano)",
+      "leidoEl": "2026-01-15",
+      "cubreHasta": "2026-12-31",
+      "dias": {
+        "2026-12-25": null,
+        "2026-01-05": { "opens": "10:00", "closes": "18:00" }
+      }
+    }
+  },
+  "centros": {}
+}

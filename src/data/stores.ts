@@ -31,6 +31,7 @@ import bruto from './stores.json' with { type: 'json' };
 import { parseHorario } from './horario.ts';
 import { SECTION_IDS, PRIORIDADES } from './templates.ts';
 import { cidDePlaceId } from './resenas.ts';
+import { centrosSinCalendario } from './festivos.ts';
 
 /* ── Piezas reutilizadas ───────────────────────────────────────────────── */
 
@@ -567,6 +568,19 @@ export function tablaCoherente(tiendas: Tienda[], mapa: Map<string, Tienda>): bo
  */
 export function avisosDeDatos(): string[] {
   const avisos: string[] = [];
+
+  // Los centros sin calendario vigente. No es una carencia de una tienda sino
+  // de un centro comercial, así que va antes del bucle y una sola vez por
+  // centro. Mientras esté aquí, esas tiendas imprimen la franja del día y
+  // ningún minutero: ver la cabecera de `festivos.ts`.
+  const sinCalendario = centrosSinCalendario(stores, new Date());
+  for (const centro of sinCalendario) {
+    avisos.push(
+      `${stores.find((t) => t.mall === centro)!.slug}: ${centro} sin calendario de festivos vigente → sin «cierra en X». ` +
+        `Los días que hay que preguntarle al centro salen de \`node scripts/festivos.mjs <año>\``
+    );
+  }
+
   for (const t of stores) {
     if (!t.company) avisos.push(`${t.slug}: sin datos legales → sus 4 páginas legales van a noindex`);
     if (t.galleryImages.length === 0) avisos.push(`${t.slug}: sin fotos → no se renderiza la galería`);

@@ -64,3 +64,80 @@ export function parseHorario(texto: string): FranjaHoraria[] {
 
   return franjas;
 }
+
+/* ── El horario de HOY ──────────────────────────────────────────────────────
+ *
+ * `parseHorario` dice qué días abre la tienda. Estas dos funciones dicen qué
+ * pasa HOY, que es lo que R3 pide enseñar en el primer scroll.
+ *
+ * TODO pasa por `Intl.DateTimeFormat` con `Europe/Madrid` y NUNCA por
+ * `getDay()` ni `getHours()`. El servidor va en tiempo universal: con el reloj
+ * del sistema, la web diría «cerrado» con la tienda abierta durante las horas
+ * de desfase, en las ocho tiendas a la vez y solo en producción, que es la
+ * clase de fallo que nadie ve hasta que lo cuenta un cliente.
+ *
+ * La fecha se inyecta y no se lee por dentro: si no, no habría forma de probar
+ * ninguna de las dos sin esperar a que llegara la hora.
+ */
+
+const DIA_EN_MADRID = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Europe/Madrid',
+  weekday: 'long',
+});
+
+const HORA_EN_MADRID = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Europe/Madrid',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
+
+/** Minutos desde medianoche de un "HH:MM". */
+function enMinutos(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+/** La fecha de hoy en Madrid como "AAAA-MM-DD", que es la clave del calendario. */
+export function fechaEnMadrid(ahora: Date): string {
+  // 'en-CA' da exactamente AAAA-MM-DD; construirlo a mano con getFullYear() y
+  // compañía volvería a leer el reloj del servidor, que es lo que aquí se evita.
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(ahora);
+}
+
+export interface FranjaDelDia {
+  opens: string;
+  closes: string;
+}
+
+/**
+ * La franja de hoy, o `null` si la tienda no abre hoy.
+ *
+ * `null` es un resultado legítimo y frecuente: Marineda cierra los domingos.
+ * Lo que NO se hace nunca es inventar un horario para rellenar el hueco — la
+ * plantilla imprime otra cosa, pero no una hora falsa.
+ */
+export function franjaDeHoy(texto: string, ahora: Date): FranjaDelDia | null {
+  const hoy = DIA_EN_MADRID.format(ahora);
+  for (const franja of parseHorario(texto)) {
+    if (franja.dayOfWeek.includes(hoy)) {
+      return { opens: franja.opens, closes: franja.closes };
+    }
+  }
+  return null;
+}
+
+/**
+ * Minutos que faltan para cerrar, o `null` si la tienda no está abierta ahora.
+ *
+ * Esto es el minutero, y su único trabajo es no mentir. Quien lo llama tiene
+ * que haber comprobado antes que hoy no es un día de calendario del centro
+ * (ver `festivos.ts`): esta función solo sabe de horas, no de fiestas.
+ */
+export function cierraEn(franja: FranjaDelDia, ahora: Date): number | null {
+  const ahoraMin = enMinutos(HORA_EN_MADRID.format(ahora));
+  const abre = enMinutos(franja.opens);
+  const cierra = enMinutos(franja.closes);
+  if (ahoraMin < abre || ahoraMin >= cierra) return null;
+  return cierra - ahoraMin;
+}
