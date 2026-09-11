@@ -1465,3 +1465,59 @@ describe('Cada plantilla recibe el marcado de galería que su hoja estiliza', ()
     assert.deepEqual(conTira.map((t) => t.id), ['rotulo'], 'si otra la pide, tiene que traer su CSS');
   });
 });
+
+describe('Las puertas servidas: siete estanterías y UN solo número', () => {
+  const seccion = (html) => {
+    const i = html.indexOf('<section class="products');
+    assert.ok(i > -1, 'no se pintó la sección de productos');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+  const visible = (t) => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  test('un solo número en toda la sección, y es el del catálogo', async () => {
+    // El error de agosto: siete puertas con cifra que sumaban 2.588 sobre un
+    // catálogo de 1.683. Quien sume tiene que poder seguir sumando sin que le
+    // salga una mentira, y la única forma es que no haya nada que sumar.
+    const sec = seccion((await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text());
+    // En las FILAS no puede haber ni un recuento. La fecha del pie sí lleva
+    // dígitos y es legítima, así que se mira puerta a puerta y no la sección
+    // entera — la primera versión de este test suspendía por «11 de septiembre
+    // de 2026», que es exactamente el dato que hace honesta la cifra.
+    const filas = [...sec.matchAll(/<li class="puerta"[\s\S]*?<\/li>/g)].map((m) => visible(m[0]));
+    assert.equal(filas.length, 7, 'las siete puertas');
+    for (const f of filas) {
+      assert.ok(!/\d{2,}/.test(f), `una puerta lleva un recuento: ${f.trim()}`);
+    }
+    const total = /class="puertas-total"[^>]*>([^<]*)/.exec(sec);
+    assert.ok(total, 'y hay UN total');
+    assert.equal(total[1].replace(/\D/g, ''), '1687', 'que es el del catálogo entero');
+  });
+
+  test('el número lleva su propio rótulo, separado del de la sección', async () => {
+    // Las cifras de la tienda y las de la cadena nunca comparten rótulo: el
+    // titular habla de la estantería de ESTA tienda y el número es del catálogo
+    // de la cadena. Sin separarlos, la sección se contradecía sola.
+    const sec = seccion((await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text());
+    assert.match(sec, /class="puertas-rotulo"[^>]*>Catálogo USA Fitness/);
+    const t = visible(sec);
+    assert.ok(t.indexOf('Catálogo USA Fitness') < t.indexOf('1687'), 'el rótulo va antes del número');
+    for (const mala of ['en tienda', 'disponible', 'en stock']) {
+      assert.ok(!t.toLowerCase().includes(mala), `la sección no puede decir «${mala}»`);
+    }
+  });
+
+  test('las siete puertas dicen qué hay dentro', async () => {
+    const sec = seccion((await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text());
+    const { PUERTAS } = await import('../src/data/puertas.ts');
+    for (const p of PUERTAS) {
+      assert.ok(sec.includes(p.nombre), `falta la puerta «${p.nombre}»`);
+      assert.ok(sec.includes(p.linea), `«${p.nombre}» no dice qué hay dentro`);
+    }
+  });
+
+  test('la clásica conserva sus dos tarjetas', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.match(clasica, /Nutrición deportiva/, 'la clásica mantiene sus listas');
+    assert.ok(!clasica.includes('puerta-nombre'), 'y no lleva nada de la variante');
+  });
+});

@@ -282,6 +282,7 @@ export const TEMPLATES: Record<string, Template> = {
       'socio',
       'empieza',
       'porque',
+      { id: 'products', variant: 'puertas' },
       'brands',
       { id: 'schedule', variant: 'hoy' },
       { id: 'gallery', variant: 'tira' },

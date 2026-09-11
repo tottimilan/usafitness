@@ -384,3 +384,61 @@ Arreglado: energía deja de declarar la variante, con el motivo escrito en la pl
 - **La forma de celda es revisable** con la tabla de arriba: 1:1 baja de 20 a 11 las fotos con más de un cuarto cortado.
 - **El `object-position` por foto** no existe como campo.
 - La sección **no tiene la voz de Rótulo** todavía (papel duotono, cartelas).
+
+---
+
+## Variante `products:puertas` — ✅ PASA en la segunda vuelta (2026-09-11)
+
+**Hoja de objetivos** (hoja 2 y su ampliación): P2 «¿qué tienen?» → N1. Es la respuesta literal a la queja del dueño sobre la web de siempre: «no veo ni productos».
+
+### El diseño pedía una cifra por puerta. No se puede, y está medido
+
+La tesis era «la cifra real, verificable»: «Proteínas — 199». Se verificó bajando los **conjuntos completos de fichas** de cada categoría del catálogo de la central, no solo los contadores impresos. El catálogo **no es una partición en ningún nivel**:
+
+- **Un bote está en tres puertas a la vez.** AMIX CGT-3 declara en su ficha Aminoácidos, Creatina y Pre-entrenos, y sale en los tres listados. No es un error de archivo: el producto es las tres cosas.
+- Creatina ∩ Pre-entrenos = 10 fichas, el 16 % de Creatina.
+- Las ocho hijas de Nutrición suman 1.435 y su unión son 1.282.
+
+El conjunto máximo con solape **cero** son cuatro puertas que cubren el 32 % del catálogo y dejan fuera aminoácidos y pre-entrenos. Y fundirlas tampoco vale: «Creatina y pre-entrenos — 133» sería correcto, pero **ninguna página imprime ese 133**, así que nadie puede comprobarlo con un clic — y la comprobabilidad era la tesis entera.
+
+**Decisión: las puertas van sin número.** Es un resultado, no una renuncia: evita el error de agosto, cuando siete puertas sumaban 2.588 sobre un catálogo de 1.683.
+
+### Una cifra que llevábamos repitiendo y era falsa
+
+**«Mujer — 557 referencias, un tercio del catálogo» no existe.** La ruta de mujer hace un 301 a la de control de peso: ese 557 es **Control de Peso** —barritas, L-carnitina, termogénicos, salsas— y no tiene que ver con una ruta de mujer. La categoría Mujer real tiene 100 fichas y ninguna URL navegable.
+
+El número estaba **bien copiado y mal etiquetado**, que es la peor forma de estar mal. Iba camino de imprimirse en ocho webs como cifra verificable. Corregido en `rutas.ts`, que era donde vivía.
+
+### Lo que ninguna frase puede decir
+
+**798 de las 1.687 fichas (47 %) llevan hoy «Fuera de stock»** en la web de la central, y desde fuera no se distingue si eso significa «no está en la estantería» o «no se envía hoy». Así que nada puede decir «en tienda», «disponibles» ni «en stock». Hay un test que lo impide.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada:**
+
+> «LO QUE HAY EN LA ESTANTERÍA» en gris pequeño. Siete filas con filete: el nombre de la estantería en azul y debajo, en gris, tres cosas que hay dentro. Al final, un número grande y un pie explicando qué cuenta.
+
+**Defecto que la tumba: la sección se contradecía sola.** El titular decía «la estantería» y el pie del número aclaraba «no es un recuento de la estantería». Dos ámbitos bajo un mismo rótulo, que es justo lo que el diseño prohíbe: *las cifras de la tienda y las de la cadena nunca comparten rótulo*.
+
+### Vuelta 2 — PASA
+
+El número lleva **su propio rótulo**, «CATÁLOGO USA FITNESS», encima. El titular gobierna las puertas y el bloque de cifra se identifica como dato de cadena.
+
+| Medido a 375 px, Lagoh | |
+|---|---|
+| Alto de la sección | 755 px |
+| Filas | **70 px las siete, exactas** |
+| Fallos de contraste | **0 de 18 textos** |
+| Números en las filas | **0** |
+| Desborde | 0 |
+
+### La cifra caduca sola
+
+Cinco de las ocho cifras de agosto se habían movido quince días después (el catálogo 1.683→1.687, Proteínas 199→203, Aminoácidos 156→**155**, que bajó). Una cifra escrita a mano sin caducidad es una cifra falsa con retardo, así que **el componente la retira solo** pasados 120 días del extracto: ni cifra huérfana ni pie sin cifra.
+
+### Lo que queda sin saber, y hay que preguntar
+
+1. **Qué significa «Fuera de stock»** en la web de la central. Decide si la cifra honesta es 1.687 o la mitad.
+2. **Cuál de las cinco «Creatina» es la suya.** La página de creatina sirve 63 fichas, pero otro nodo tiene Monohidrato con 32 que no aparecen ahí y son creatina de libro. Si la buena es 95, la puerta enseña dos tercios.
+3. **153 fichas no cuelgan de ninguna de las dos ramas** y 108 no se alcanzan navegando.

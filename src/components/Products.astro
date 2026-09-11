@@ -1,9 +1,22 @@
 ---
+/**
+ * VARIANTE `puertas` — la respuesta a «no veo ni productos»
+ *
+ * Siete puertas con su línea de surtido y UN solo número en toda la sección.
+ * El porqué de que las puertas no lleven cifra está medido y escrito en
+ * `puertas.ts`: el catálogo de la central no es una partición —hay botes en
+ * tres categorías a la vez— y sumar las cifras da un número que no existe.
+ */
+import { PUERTAS, cifraDelCatalogo } from '@/data/puertas';
+
 interface Props {
   /** 'pizarra' (plantilla Energía): una sola lista tipográfica sobre azul noche. */
   variant?: string;
 }
 const { variant } = Astro.props;
+
+/** SSR en cada petición: así la cifra se retira sola el día que caduque. */
+const cifra = variant === 'puertas' ? cifraDelCatalogo(new Date()) : null;
 
 const nutrition = [
   'Proteínas',
@@ -25,7 +38,38 @@ const supplements = [
 ];
 ---
 
-{variant === 'pizarra' ? (
+{variant === 'puertas' ? (
+  <section class="products section">
+    <div class="container puertas-inner">
+      <h2 class="puertas-titulo">Lo que hay en la estantería</h2>
+
+      <ul class="puertas-lista">
+        {PUERTAS.map((p) => (
+          <li class="puerta">
+            <span class="puerta-nombre">{p.nombre}</span>
+            <span class="puerta-linea">{p.linea}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* UN solo número, y con su pie. Si el extracto envejece, `cifra` es
+          null y esto desaparece entero: ni cifra huérfana ni pie sin cifra. */}
+      {/* El número lleva SU PROPIO rótulo, y no es un adorno: el título de arriba
+          habla de la estantería de esta tienda y este número es del catálogo de
+          la cadena. Sin separarlos, la sección se contradecía sola — el titular
+          prometía la estantería y el pie aclaraba que no la contaba. Es la regla
+          heredada del diseño: las cifras de la tienda y las de la cadena nunca
+          comparten rótulo. */}
+      {cifra && (
+        <p class="puertas-cifra">
+          <span class="puertas-rotulo">Catálogo USA Fitness</span>
+          <span class="puertas-total">{cifra.total.toLocaleString('es-ES')}</span>
+          <span class="puertas-pie">{cifra.pie}</span>
+        </p>
+      )}
+    </div>
+  </section>
+) : variant === 'pizarra' ? (
   <section class="products pizarra section">
     <div class="container">
       <h2 class="section-title">¿Qué encontrarás en la tienda?</h2>
@@ -136,5 +180,85 @@ const supplements = [
     .product-card {
       padding: 1.5rem;
     }
+  }
+  /* ————— variante `puertas` ————— */
+
+  .puertas-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.05rem;
+  }
+
+  .puertas-titulo {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+  }
+
+  .puertas-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Filas con filete, como el resto de las secciones nuevas. Sin iconos: siete
+     iconos para siete estanterías serían siete dibujos inventados. */
+  .puerta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.85rem 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .puerta:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .puerta-nombre {
+    font-weight: var(--font-weight-strong);
+    color: var(--color-primary);
+    line-height: 1.3;
+  }
+
+  .puerta-linea {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+
+  .puertas-cifra {
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .puertas-rotulo {
+    font-size: 0.72rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+  }
+
+  .puertas-total {
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: var(--font-weight-heading);
+    color: var(--color-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .puertas-pie {
+    color: var(--color-text-light);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    max-width: 46ch;
   }
 </style>

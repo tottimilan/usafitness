@@ -60,6 +60,7 @@ import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.
 import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/data/imagen.ts';
 import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
 import { textoDeHoy, enHorasYMinutos, lineasDeSemana } from '../src/data/hoy.ts';
+import { PUERTAS, cifraDelCatalogo, enCastellano, textosDePuertas } from '../src/data/puertas.ts';
 import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
 import { ofertaViva } from '../src/data/ofertas.ts';
@@ -2147,5 +2148,72 @@ describe('«Hoy en tienda» contesta P1 sin inventarse nada', () => {
       'Sábados: 10:00–21:00',
     ]);
     assert.equal(lineasDeSemana('De lunes a domingo: 10:00 a 22:00').length, 1, 'con una línea no hay semana que desplegar');
+  });
+});
+
+describe('Las puertas de producto no llevan cifra, y la del catálogo caduca sola', () => {
+  // El catálogo de la central NO es una partición: hay botes en tres categorías
+  // a la vez, así que sumar las cifras por puerta da un número que no existe.
+  // En agosto siete puertas sumaban 2.588 sobre un catálogo de 1.683.
+  test('ninguna puerta lleva una cifra de catálogo', () => {
+    // Dos dígitos o más, que es la forma de un recuento (63, 155, 1.687). Un
+    // dígito suelto se admite porque «omega 3» es el nombre del producto, no
+    // una cuenta — lo cazó este mismo test en su primera versión.
+    for (const t of textosDePuertas()) {
+      assert.ok(!/\d{2,}/.test(t), `«${t}» lleva lo que parece un recuento`);
+    }
+    assert.ok(
+      PUERTAS.some((p) => /omega 3/i.test(p.linea)),
+      'y «omega 3» sigue pudiendo escribirse: es un nombre, no una cifra'
+    );
+  });
+
+  test('las líneas de surtido no prometen ningún efecto', () => {
+    // La misma regla que `rutas.ts`: surtido, sin verbos de resultado. El
+    // nombre de la puerta se cita del catálogo y por eso se excluye.
+    const prohibido = ['para ', 'ayuda', 'mejora', 'aumenta', 'favorece', 'contribuye', 'quema', 'reduce', 'adelgaz', 'rendimiento'];
+    for (const p of PUERTAS) {
+      for (const mala of prohibido) {
+        assert.ok(!p.linea.toLowerCase().includes(mala), `«${p.linea}» contiene «${mala}»`);
+      }
+    }
+  });
+
+  test('las puertas son categorías que existen de verdad en el catálogo', () => {
+    // Si una puerta no existe en el catálogo de la central, es una estantería
+    // inventada y nadie puede comprobarla.
+    const pelado = (x) => x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z ]/g, '');
+    const reales = new Set(
+      Object.values(JSON.parse(readFileSync(new URL('../docs/product/catalogo-usafitness-2026-08.json', import.meta.url), 'utf8')).categorias).map(pelado)
+    );
+    for (const p of PUERTAS) {
+      assert.ok(reales.has(pelado(p.nombre)), `«${p.nombre}» no es una categoría del catálogo`);
+    }
+  });
+
+  test('la cifra del catálogo se retira sola cuando el extracto envejece', () => {
+    // Cinco de las ocho cifras de agosto se movieron en quince días. Una cifra
+    // escrita a mano sin caducidad es una cifra falsa con retardo.
+    const datos = { extraido: '2026-09-11', diasDeValidez: 120, total: 1687 };
+    assert.ok(cifraDelCatalogo(new Date('2026-09-11T12:00:00Z'), datos), 'el día del extracto vale');
+    assert.ok(cifraDelCatalogo(new Date('2027-01-09T12:00:00Z'), datos), 'el último día del plazo también');
+    assert.equal(cifraDelCatalogo(new Date('2027-01-10T12:00:00Z'), datos), null, 'al día siguiente ya no');
+    assert.equal(cifraDelCatalogo(new Date('2026-09-10T12:00:00Z'), datos), null, 'una fecha anterior al extracto tampoco');
+  });
+
+  test('el pie dice qué cuenta y no promete lo que no sabemos', () => {
+    // 798 de las 1.687 fichas llevan «Fuera de stock» en la web de la central y
+    // nadie ha contado la estantería de ninguna tienda.
+    const { pie } = cifraDelCatalogo(new Date('2026-09-11T12:00:00Z'));
+    for (const mala of ['en tienda', 'disponible', 'en stock', 'estantería de']) {
+      assert.ok(!pie.toLowerCase().includes(mala), `el pie no puede decir «${mala}»: ${pie}`);
+    }
+    assert.match(pie, /catálogo/, 'y sí tiene que decir que es el catálogo');
+    assert.match(pie, /11 de septiembre de 2026/, 'con su fecha, en castellano');
+  });
+
+  test('la fecha se escribe como la escribe una persona', () => {
+    assert.equal(enCastellano('2026-09-11'), '11 de septiembre de 2026');
+    assert.equal(enCastellano('2027-01-06'), '6 de enero de 2027');
   });
 });
