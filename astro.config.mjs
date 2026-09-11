@@ -208,6 +208,18 @@ export default defineConfig({
   // son dos URLs que devuelven la misma página, y Google las trata como
   // contenido duplicado. El middleware redirige con 301 las que lleguen con
   // barra final, para que el enlace externo acabe corrigiéndose.
+  /**
+   * En Astro 7 el valor por defecto pasa de `true` a `'jsx'`, que deja de
+   * preservar el espacio entre elementos en línea: `<span>hola</span>
+<em>mundo</em>`
+   * renderiza «holamundo». Sin error y sin aviso, en 8 webs de 8 clientes.
+   *
+   * Se fija a `true` EN LA MISMA SUBIDA a propósito, para que este salto de
+   * versión no traiga además un cambio visual. Adoptar `'jsx'` —metiendo los
+   * `{" "}` donde hagan falta— es un trabajo aparte, de una web cada vez, y con
+   * el diff de HTML delante.
+   */
+  compressHTML: true,
   trailingSlash: 'never',
   adapter: node({ mode: 'standalone' }),
   site: 'https://usafitness.es',
