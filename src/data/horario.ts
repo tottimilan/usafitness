@@ -134,6 +134,20 @@ export function franjaDeHoy(texto: string, ahora: Date): FranjaDelDia | null {
  * que haber comprobado antes que hoy no es un día de calendario del centro
  * (ver `festivos.ts`): esta función solo sabe de horas, no de fiestas.
  */
+/**
+ * ¿El reloj va antes, dentro o después de la franja de hoy?
+ *
+ * Existe porque `cierraEn` devuelve `null` en los DOS extremos y quien pinta la
+ * página necesita distinguirlos: «todavía no hemos abierto» y «ya hemos
+ * cerrado» son frases distintas, y decir la que no es queda ridículo.
+ */
+export function momentoDelDia(franja: FranjaDelDia, ahora: Date): 'antes' | 'dentro' | 'despues' {
+  const ahoraMin = enMinutos(HORA_EN_MADRID.format(ahora));
+  if (ahoraMin < enMinutos(franja.opens)) return 'antes';
+  if (ahoraMin >= enMinutos(franja.closes)) return 'despues';
+  return 'dentro';
+}
+
 export function cierraEn(franja: FranjaDelDia, ahora: Date): number | null {
   const ahoraMin = enMinutos(HORA_EN_MADRID.format(ahora));
   const abre = enMinutos(franja.opens);

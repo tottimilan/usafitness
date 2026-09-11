@@ -34,7 +34,7 @@ import {
   esCookieDeGoogle,
   fuenteInline,
 } from '../src/data/consentimiento.ts';
-import { parseHorario, franjaDeHoy, cierraEn } from '../src/data/horario.ts';
+import { parseHorario, franjaDeHoy, cierraEn , momentoDelDia } from '../src/data/horario.ts';
 import {
   SECTION_IDS,
   ORDEN_BASE,
@@ -59,6 +59,7 @@ import { clasificar, resumirFlota, esProblema } from '../src/data/flota.ts';
 import { planDeGaleria, orientacionDe, columnasPara } from '../src/data/galeria.ts';
 import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/data/imagen.ts';
 import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
+import { textoDeHoy, enHorasYMinutos, lineasDeSemana } from '../src/data/hoy.ts';
 import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
 import { ofertaViva } from '../src/data/ofertas.ts';
@@ -2073,5 +2074,78 @@ describe('La alarma de dependencias distingue lo conocido de lo nuevo', () => {
       assert.ok(statSync(new URL(e.evidencia, raiz)).isFile(), `${e.aviso}: «${e.evidencia}» no existe`);
       assert.ok(e.motivo.length > 60, `${e.aviso}: el motivo tiene que explicar, no etiquetar`);
     }
+  });
+});
+
+describe('«Hoy en tienda» contesta P1 sin inventarse nada', () => {
+  // La sección más leída de la página (P1 es el 54 % de por qué alguien busca
+  // una tienda) y la más fácil de convertir en mentira.
+  const madrid = (hhmm) => new Date(`2026-09-11T${String(Number(hhmm.slice(0, 2)) - 2).padStart(2, '0')}:${hhmm.slice(3)}:00Z`);
+  const franja = { opens: '10:00', closes: '22:00' };
+
+  test('el minutero se escribe como lo diría una persona', () => {
+    assert.equal(enHorasYMinutos(45), '45 min');
+    assert.equal(enHorasYMinutos(120), '2 h');
+    assert.equal(enHorasYMinutos(135), '2 h 15 min');
+    assert.ok(!enHorasYMinutos(120).includes('0 min'), 'nada de «2 h 0 min»');
+  });
+
+  test('antes, dentro y después, con los bordes exactos', () => {
+    assert.equal(momentoDelDia(franja, madrid('09:59')), 'antes');
+    assert.equal(momentoDelDia(franja, madrid('10:00')), 'dentro', 'la hora de apertura ya cuenta como abierto');
+    assert.equal(momentoDelDia(franja, madrid('21:59')), 'dentro');
+    assert.equal(momentoDelDia(franja, madrid('22:00')), 'despues', 'a la hora de cierre ya está cerrado');
+  });
+
+  test('SIN calendario se calla dentro de la franja y habla fuera', () => {
+    // La asimetría que hace segura la frase: un festivo del centro solo puede
+    // CERRAR más, nunca abrir de más. Así que «ya hemos cerrado» es seguro sin
+    // calendario, y «está abierto» no lo sería.
+    const sinCal = { tipo: 'franja-sin-calendario', ...franja };
+    assert.equal(textoDeHoy(sinCal, madrid('12:00')).minutero, null, 'dentro, no se afirma nada');
+    assert.match(textoDeHoy(sinCal, madrid('08:00')).minutero, /Todavía no hemos abierto/);
+    assert.match(textoDeHoy(sinCal, madrid('23:30')).minutero, /Ya hemos cerrado/);
+    assert.match(textoDeHoy(sinCal, madrid('12:00')).titular, /Hoy, de 10:00 a 22:00/);
+  });
+
+  test('CON calendario vigente aparece el minutero', () => {
+    const con = { tipo: 'franja', ...franja, cierraEn: 135 };
+    assert.equal(textoDeHoy(con, madrid('19:45')).minutero, 'Cierra en 2 h 15 min.');
+  });
+
+  test('un día no cubierto NO se convierte en «cerrado»', () => {
+    // Es la regla cara: en el semáforo NAP de agosto DOS tiendas figuraban
+    // cerradas los domingos estando abiertas. Deducir el cierre de la ausencia
+    // de una línea manda a alguien a su casa.
+    const t = textoDeHoy({ tipo: 'cerrado' }, madrid('12:00'));
+    assert.ok(!/cerrad/i.test(t.titular), `no puede afirmar el cierre: «${t.titular}»`);
+    assert.ok(!/abrimos|abierto/i.test(t.titular), 'ni lo contrario');
+    assert.equal(t.pideLlamar, true, 'y ofrece el teléfono, que convierte la duda en contacto');
+  });
+
+  test('el festivo del centro SÍ se afirma, porque lo dice un dato positivo', () => {
+    const t = textoDeHoy({ tipo: 'festivo-cerrado' }, madrid('12:00'));
+    assert.match(t.titular, /no abre/);
+    assert.equal(t.pideLlamar, false);
+  });
+
+  test('ninguna tienda real se queda sin titular, ningún día de la semana', () => {
+    const dias = ['2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11', '2026-09-12', '2026-09-13'];
+    for (const s of stores) {
+      for (const d of dias) {
+        const ahora = new Date(`${d}T12:00:00Z`);
+        const t = textoDeHoy(estadoDeHoy(s, ahora, {}), ahora);
+        assert.ok(t.titular.trim().length > 0, `${s.slug} el ${d} se queda mudo`);
+        assert.ok(!/cerrad/i.test(t.titular), `${s.slug} el ${d} afirma un cierre: «${t.titular}»`);
+      }
+    }
+  });
+
+  test('la semana se lee tal y como la escribió el operador', () => {
+    assert.deepEqual(lineasDeSemana('De lunes a viernes: 10:00 a 21:30\nSábados: 10:00–21:00'), [
+      'De lunes a viernes: 10:00 a 21:30',
+      'Sábados: 10:00–21:00',
+    ]);
+    assert.equal(lineasDeSemana('De lunes a domingo: 10:00 a 22:00').length, 1, 'con una línea no hay semana que desplegar');
   });
 });

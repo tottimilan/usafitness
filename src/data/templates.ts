@@ -264,7 +264,16 @@ export const TEMPLATES: Record<string, Template> = {
     // marcas por escrito, y la regla es que no nombra ninguna que no esté ya en
     // la misma página. Nombrar ocho marcas compromete más que enseñar ocho
     // logos — quien se desplaza y no encuentra la suya tiene motivo de queja.
-    sections: ['hero', 'socio', 'empieza', 'porque', 'brands', 'schedule', 'faq', 'social'],
+    sections: [
+      'hero',
+      'socio',
+      'empieza',
+      'porque',
+      'brands',
+      { id: 'schedule', variant: 'hoy' },
+      'faq',
+      'social',
+    ],
   },
 };
 

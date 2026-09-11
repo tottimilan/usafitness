@@ -1271,3 +1271,50 @@ describe('La fachada del mapa sobrevive a cómo el compilador escriba las entida
     }
   });
 });
+
+describe('La variante «hoy» del horario, servida', () => {
+  const soloHoy = (html) => {
+    const i = html.indexOf('<section class="schedule');
+    assert.ok(i > -1, 'no se pintó la sección de horario');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+  const visible = (t) => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  test('las ocho dicen algo de hoy, y ninguna afirma un cierre', async () => {
+    // El cierre solo se afirma cuando lo dice el calendario del centro, que hoy
+    // está vacío. Deducirlo de que falte una línea del horario manda a alguien
+    // a su casa — ya pasó con dos tiendas en Google.
+    for (const s of stores) {
+      const t = visible(soloHoy((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text()));
+      assert.match(t, /HOY EN TIENDA|Hoy en tienda/i, `${s.slug} no rotula la sección`);
+      assert.match(t, /Hoy,|Hoy no figura|no abre/, `${s.slug} no dice nada de hoy: ${t.slice(0, 120)}`);
+      assert.ok(!/Hoy cerrado|Hoy, cerrado/i.test(t), `${s.slug} afirma un cierre`);
+    }
+  });
+
+  test('dice DÓNDE, que es la otra mitad de P1', async () => {
+    for (const s of stores) {
+      const t = visible(soloHoy((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text()));
+      assert.ok(t.includes(s.mall), `${s.slug} no nombra su centro comercial`);
+    }
+  });
+
+  test('la semana se pliega solo cuando hay más de una línea', async () => {
+    // Un desplegable para enseñar lo que ya está justo encima es ruido.
+    const unaLinea = stores.find((s) => s.schedule.split('\n').filter(Boolean).length === 1);
+    const varias = stores.find((s) => s.schedule.split('\n').filter(Boolean).length > 1);
+    assert.ok(unaLinea && varias, 'la flota tiene de los dos tipos');
+    assert.ok(!soloHoy((await get(`/${unaLinea.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text()).includes('<details'),
+      `${unaLinea.slug} tiene una sola línea y no debería desplegar nada`);
+    assert.ok(soloHoy((await get(`/${varias.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text()).includes('Toda la semana'),
+      `${varias.slug} tiene varias y debería poder verlas`);
+  });
+
+  test('la clásica conserva sus dos tarjetas de siempre', async () => {
+    // Las ocho webs vivas no declaran plantilla: esta variante no puede
+    // llegarles ni por asomo.
+    const clasica = (await get('/', stores.find((s) => s.slug === 'vigo').domain)).text();
+    assert.match(clasica, /Horario y canales de contacto/, 'la clásica mantiene su título');
+    assert.ok(!clasica.includes('hoy-dato'), 'y no lleva ni un rastro de la variante');
+  });
+});

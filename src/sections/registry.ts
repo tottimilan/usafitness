@@ -127,6 +127,9 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       whatsapp: s.whatsapp,
       googleMapsLink: s.googleMapsLink,
       name: s.name,
+      // Solo los usa la variante `hoy`; el resto de plantillas los ignora.
+      mall: s.mall,
+      streetAddress: s.streetAddress,
     }),
   },
 

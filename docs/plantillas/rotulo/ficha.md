@@ -234,3 +234,54 @@ Lo que sigue faltando es lo mismo que en «Por qué en tienda»: **las dos colum
 - **`punto_de_partida{ruta}`** no está instrumentado (F2), como `interes_socio` y `ver_productos`. Mientras tanto, la ruta viaja **dentro del mensaje de WhatsApp**, que es donde el franquiciado la lee sin abrir nada.
 - **La ruta «Mujer»**, bloqueada por el título de Amanda.
 - La sección **no tiene la voz de Rótulo** todavía: plano cian, «EMPIEZA *aquí*» con la palabra en script y el corte en espejo llegan con la hoja de la plantilla.
+
+---
+
+## Variante `schedule:hoy` — «Hoy en tienda» — ✅ PASA en la segunda vuelta (2026-09-11)
+
+**Hoja de objetivos** (hoja 4 + su ampliación): **P1** —¿está abierto?, ¿a qué hora?, ¿dónde?—, que es el 54 % de por qué alguien busca una tienda · N1, la visita · sin evento propio: su efecto se mide en `contacto_maps` y `contacto_llamada` con `seccion: 'schedule'`.
+
+**Qué cambia respecto a la sección clásica:** el dato de HOY manda y la semana pasa a un `<details>` cerrado; se dice DÓNDE (centro + lo que la dirección añada); y los dos canales dejan de ser tarjetas con icono para ser una fila de texto bajo un solo botón.
+
+### La decisión cara: un día no cubierto NO se convierte en «cerrado»
+
+Tres de las ocho tiendas —Villanueva, Marineda y GranCasa— no declaran el domingo. Escribir «Hoy cerrado» quedaría estupendo y **no se hace**, porque el semáforo NAP de agosto midió que **dos tiendas figuraban cerradas los domingos en Google estando abiertas**. La ausencia de una línea ya ha significado «se nos olvidó» en este mismo proyecto, y deducir de ahí un cierre manda a su casa a alguien que iba a ir.
+
+Se dice la verdad sobre nosotros —«Hoy no figura en nuestro horario»— y se ofrece el teléfono. Una duda convertida en llamada es mejor que una certeza inventada. **El festivo del centro sí se afirma**, porque ahí el cierre lo escribió alguien en un calendario: es un dato positivo, no una ausencia.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada** (escrito antes de comparar con el objetivo):
+
+> «HOY EN TIENDA» en gris pequeño. Debajo, en azul y grande, «Hoy, de 10:00 a 22:00.». El centro en negrita y la calle en gris. Un botón azul «Cómo llegar», «WhatsApp» subrayado a su lado, y «Llamar al 986 916 804» solo en la línea de abajo.
+
+**Defecto que la tumba: P1 contestado a medias.** A las 23:30 la sección decía «Hoy, de 10:00 a 22:00.» y se quedaba tan ancha. Quien pregunta «¿está abierto?» tenía que hacer la cuenta él, que es justo lo que esta sección existe para evitar. Comprobado ejecutando el estado a las 08:00, 12:00, 21:30 y 23:30: las cuatro devolvían exactamente la misma frase.
+
+**Menor:** las tres acciones a tres pesos y dos alturas — a 375 px la fila partía por el medio y dejaba «Llamar» suelto debajo.
+
+### Vuelta 2 — PASA
+
+**La asimetría que lo arregla gratis.** Sin calendario del centro no se puede afirmar que la tienda esté ABIERTA ahora: un festivo podría haberla cerrado. Pero sí lo contrario, porque **un festivo solo puede cerrar más, nunca abrir de más**. Así que fuera de la franja se dice «Ya hemos cerrado por hoy» o «Todavía no hemos abierto» con calendario o sin él, y dentro se calla salvo que haya calendario.
+
+Y el botón pasa a su propia línea, con los dos enlaces de contacto en la suya.
+
+| Medido a 375 px, Villanueva | Vuelta 1 | Vuelta 2 |
+|---|---|---|
+| Responde «¿está abierto ahora?» | ❌ nunca | **✅ fuera de horario, siempre** |
+| Acciones | 3 pesos en 2 filas partidas | **botón + fila de contacto** |
+| Alto con la semana plegada | — | 376 px |
+| Alto con la semana abierta | — | 442 px |
+| Fallos de contraste | — | **0 de 10 textos** |
+| Desborde horizontal | 0 | 0 |
+
+**Escritorio (1180 px):** 408 px, sin desbordes. Mismo defecto ya nombrado en «Por qué en tienda» y «Empieza aquí» —todo a la izquierda, mitad derecha vacía— y **aplazado al mismo Loop B**, porque la hoja de Rótulo va a sustituir cualquier maqueta de escritorio que se escriba ahora.
+
+### Una frase nuestra que era falsa, corregida de paso
+
+`faq.ts` decía que `streetAddress` «empieza literalmente por `mall` en las 8, así que la respuesta sería el propio nombre del centro otra vez». Medido: empieza por `mall` en las ocho, sí, pero **lo que sigue es una calle de verdad en 5**, y Vigo trae «(Planta 0)». La decisión de la FAQ no cambia —la PLANTA falta en 7 de 8 y con una sola tienda no se monta una pregunta—, pero el motivo estaba mal escrito y ahora dice lo que se midió.
+
+### Pendiente en esta pieza
+
+- **El minutero no lo ve nadie todavía**: exige calendario del centro vigente y `festivos.json` nace vacío a propósito. Es correcto, no una carencia.
+- **La fusión con el mapa** que pide el diseño de Rótulo (fachada de clic-para-cargar dentro de la propia sección) es de la rodaja 3: aquí la variante hace «horario + dónde», que es lo que el desglose contrata.
+- La sección **no tiene la voz de Rótulo** todavía.
