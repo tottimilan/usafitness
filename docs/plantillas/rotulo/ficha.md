@@ -156,3 +156,81 @@ Las dos preguntas largas se acortan, y las cortas resultan ser **mejores pregunt
 - **Riesgo anotado en memory/08:** `parseHorario` pierde el sábado si una línea nombra sábado Y domingo. Ninguna tienda lo escribe así hoy, pero la pregunta del domingo depende de ese parser.
 - **Sin ver en escritorio**, como la anterior. Queda para el Loop B.
 - La sección **no tiene la voz de Rótulo** todavía.
+
+---
+
+## Empieza aquí — ✅ PASA en la segunda vuelta (2026-09-11)
+
+**Hoja de objetivos** (ficha de ronda 2, estrella 1): P6 «no sé por dónde empezar, y me da vergüenza preguntar» · N2, un WhatsApp precalificado → N1 · evento `punto_de_partida{ruta}` **pendiente de F2** · peor tienda: contenido de marca, digna por construcción · **dato bloqueado: el árbol de rutas se redacta con el equipo y lo firma el dueño**.
+
+### Lo que se decidió antes de escribir una línea, y hay que revisar
+
+El diseño traía cuatro etiquetas escritas: «GANAR MÚSCULO», «ENERGÍA Y RESISTENCIA», «CONTROL DE PESO», «EMPIEZO DE CERO». **Dos no sobrevivieron a la decisión 6 del 6-sep** y van construidas en su versión segura, a la espera de tu firma:
+
+| Diseño | Construido | Por qué |
+|---|---|---|
+| ENERGÍA Y RESISTENCIA | **ENTRENO DE RESISTENCIA** | Autocontrol calificó «máxima energía» y «máximo rendimiento» de declaraciones no autorizadas `[P]`. Una modalidad de entrenamiento es un hecho sobre la persona; «energía» es un efecto sobre el cuerpo. |
+| CONTROL DE PESO | **CUIDAR LA ALIMENTACIÓN** | No es una etiqueta desafortunada: «control de peso» es **literalmente** una de las categorías de declaración de salud que el Reglamento 1924/2006 nombra (art. 13.1.c). Encima de una lista de complementos, la declaración la hacemos nosotros. |
+
+**La pérdida hay que decirla:** quien entra buscando perder peso ya no encuentra su ruta. Es coherente con el resto del sistema —el consejo se da en el mostrador— pero es una pérdida real, no un tecnicismo. **Es una de las preguntas abiertas.**
+
+**La forma que hace segura la sección**, y que un test sostiene: la etiqueta nombra el objetivo de LA PERSONA; las líneas de debajo listan SURTIDO —categorías reales del catálogo extraído— **sin un solo conector causal**. Nunca «proteínas para ganar músculo»: «GANAR MÚSCULO» arriba, «Proteínas» abajo, y la relación la hace quien lee, que es lo que hace igualmente al entrar por la puerta.
+
+**Sin cifras.** Los contadores del catálogo son tentadores y no cuadran: siete de esas puertas suman 2.588 sobre un catálogo de 1.683 porque «Mujer» y «Nutrición» engloban a las otras. Las cifras son de «Productos y marcas», con puertas disjuntas.
+
+**Sin la ruta «Mujer».** Es un tercio del catálogo (557 de 1.683) y la única que el diseño quiere con voz propia: la de Amanda Gil. Esa puerta —título documentado y permiso de imagen— sigue cerrada, y una ruta «MUJER» que prometa voz y entregue una lista de estantería es peor que no tenerla.
+
+**La de regalo SE AÑADE, no sustituye.** El diseño decía que entre el 15-nov y el 6-ene el cuarto botón pasa a «VENGO A REGALAR». Se añade como quinto: «Empiezo de cero» es la única ruta que responde literalmente la pregunta que da nombre a la sección, y quitarla en Navidad —seis semanas de tráfico de gente que no sabe de esto— es quitarla cuando más falta hace.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada** (escrito antes de comparar con el objetivo):
+
+> «¿A qué vienes?» en azul, una línea gris que ocupa dos renglones, y cuatro cajas con borde azul de 2 px, cada una con un rótulo en mayúsculas y tres palabras en gris debajo. Al pulsar una, se pone azul entera y debajo sale un panel gris con tres estanterías, el formato y el botón.
+
+**Defecto que la tumba:** las tres líneas del panel partían en dos renglones **las tres**, y una de ellas —«Creatina — monohidrato y kre-alkalina»— por el guion de «kre-alkalina», que se confunde con el guion largo de la propia lista. El cartel de la ruta, que es lo único nuevo que el panel aporta, quedaba ilegible.
+
+**Menor:** la entrada «Elige una y te decimos qué mirar en la tienda» dejaba «tienda.» huérfana en un segundo renglón.
+
+### Vuelta 2 — PASA
+
+**Qué cambió:** el nombre de la estantería pasa a su **propia línea** y la descripción va debajo, más pequeña y en gris. Cuesta exactamente el mismo alto y deja de depender de que quepan 36 caracteres —en Android, con Roboto, no caben—. Y la entrada se acorta a una línea.
+
+| Medido a 375 px, Lagoh | Vuelta 1 | Vuelta 2 |
+|---|---|---|
+| Alto cerrada | 480 px | **456 px** |
+| Alto con una ruta abierta | 829 px | **796 px** |
+| Líneas del panel partidas solas | 3 de 3 | **0 de 3** |
+| Entrada | 2 renglones | **1 renglón** |
+| Altura de los cuatro botones | 64, 64, 64, 64 | 64, 64, 64, 64 |
+| Fallos de contraste | — | **0 de 46 textos** |
+| Desborde horizontal | 0 | 0 |
+| Del botón pulsado a la acción | — | **268 px** |
+
+**Villanueva (con WhatsApp), 375 px:** 761 px con una ruta abierta, un `wa.me` por ruta y cada uno con su frase dentro.
+
+**Navidad**, forzando el 20-dic en una compilación desechada: cinco rutas, 868 px abierta. Se revirtió y hoy se sirven cuatro.
+
+### Un tercer defecto, en el mensaje que es la conversión
+
+El WhatsApp decía **«Hola, os escribo desde la web de VILLANUEVA»**: el rótulo está hecho para un cartel, no para una frase, y dentro del texto salía gritado. Se quita el nombre de la tienda entero —el mensaje ya va a su número y a ningún otro— y se queda «**desde vuestra web**», que es la única atribución que el franquiciado va a ver sin abrir un informe. Hay un test que impide que el rótulo vuelva a colarse.
+
+### Escritorio — arreglado a medias, y dicho
+
+A 1180 px los cuatro botones medían **1.140 px de ancho** para llevar dos palabras cada uno: cuatro bandas vacías que no parecen botones. Se acota la lista a 560 px y la sección queda en 775 px.
+
+Lo que sigue faltando es lo mismo que en «Por qué en tienda»: **las dos columnas de verdad**. Queda como defecto nombrado para el **Loop B de Rótulo**, para las dos a la vez y con el mismo criterio, porque la hoja de la plantilla va a sustituir cualquier maqueta de escritorio que se escriba ahora.
+
+### Decisiones de forma, con su motivo
+
+- **Sección, jamás una ventana.** Transparent Labs sirve este mismo patrón como interstitial; R7 lo prohíbe.
+- **Un toque, no tres.** El asesor de tres toques (6-8 rutas, dos ejes) es de «Recorrido» y «Tablero», donde la ruta ES la columna vertebral. Aquí es una sección entre otras, y tres toques serían tres oportunidades de abandonar.
+- **Radios, y no `<details>`.** La FAQ de esta misma página ya es un acordeón de `<details>`: dos seguidos se leen como la misma cosa dos veces. Y esto no es una lista de preguntas, es una elección.
+- **Los radios se recortan, no se esconden.** Con `display:none` salen del tabulador y la sección deja de existir con teclado. Hay un test que mira el **CSS servido**, no el fuente.
+
+### Pendiente en esta pieza
+
+- **Las dos etiquetas de zona ámbar** esperan tu firma, y con ellas la ruta que hoy no existe (peso).
+- **`punto_de_partida{ruta}`** no está instrumentado (F2), como `interes_socio` y `ver_productos`. Mientras tanto, la ruta viaja **dentro del mensaje de WhatsApp**, que es donde el franquiciado la lee sin abrir nada.
+- **La ruta «Mujer»**, bloqueada por el título de Amanda.
+- La sección **no tiene la voz de Rótulo** todavía: plano cian, «EMPIEZA *aquí*» con la palabra en script y el corte en espejo llegan con la hoja de la plantilla.

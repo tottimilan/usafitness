@@ -55,6 +55,13 @@ import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
 import { ofertaViva } from '../src/data/ofertas.ts';
 import { citaDeAsesoramiento } from '../src/data/citas.ts';
 import { faqDeTienda, MARCAS, MINIMO_ENTRADAS } from '../src/data/faq.ts';
+import {
+  rutasDeHoy,
+  esTemporadaDeRegalo,
+  mensajeDeRuta,
+  textosDeRuta,
+  LEXICO_PROHIBIDO,
+} from '../src/data/rutas.ts';
 
 /** Una tienda que pasa el esquema. Cada test la rompe por un sitio distinto. */
 const valida = () => JSON.parse(JSON.stringify(stores[0]));
@@ -1773,5 +1780,105 @@ describe('La FAQ solo pregunta lo que puede responder', () => {
     const r = faqDeTienda(sinWa).find((e) => /marcas/i.test(e.pregunta)).respuesta;
     assert.ok(!/WhatsApp/.test(r), 'lagoh no tiene WhatsApp');
     assert.ok(r.includes(sinWa.phoneDisplay), 'le queda su teléfono, escrito entero');
+  });
+});
+
+describe('Las rutas de «Empieza aquí» listan surtido, nunca prometen un efecto', () => {
+  // Enero y julio: hay que probar las dos poblaciones, porque en Navidad entra
+  // una ruta más y sería justo la que se escapara del corrector.
+  const TODAS = [...rutasDeHoy(new Date('2026-07-01T10:00:00Z')), ...rutasDeHoy(new Date('2026-12-20T10:00:00Z'))];
+
+  test('ni un conector causal ni un verbo de resultado en ningún texto', () => {
+    // La regla que gobierna el fichero: la etiqueta nombra el objetivo de la
+    // persona, la línea de abajo lista categorías. Nunca «proteínas PARA ganar
+    // músculo», que es lo que convierte una lista en una declaración de salud.
+    for (const r of TODAS) {
+      for (const t of textosDeRuta(r)) {
+        for (const mala of LEXICO_PROHIBIDO) {
+          assert.ok(!t.toLowerCase().includes(mala), `ruta «${r.id}»: «${t}» contiene «${mala}»`);
+        }
+      }
+    }
+  });
+
+  test('toda estantería nombrada existe de verdad en el catálogo extraído', () => {
+    // El catálogo es de la central y se lee del fichero, no de memoria: una
+    // ruta no puede mandar a nadie a una estantería que no existe.
+    const catalogo = JSON.parse(
+      readFileSync(new URL('../docs/product/catalogo-usafitness-2026-08.json', import.meta.url), 'utf8')
+    );
+    const reales = new Set(Object.values(catalogo.categorias));
+    for (const r of TODAS) {
+      for (const q of r.queMirar) {
+        assert.ok(reales.has(q.categoria), `ruta «${r.id}»: «${q.categoria}» no está en el catálogo`);
+      }
+    }
+  });
+
+  test('lo que se imprime es la misma palabra que el catálogo, solo bien escrita', () => {
+    // `muestra` existe para corregir «Proteinas» sin tilde, no para cambiar de
+    // estantería: sin esta comprobación sería una puerta trasera para escribir
+    // lo que se quisiera encima de un nombre real.
+    const pelado = (x) =>
+      x
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    for (const r of TODAS) {
+      for (const q of r.queMirar) {
+        assert.equal(pelado(q.muestra), pelado(q.categoria), `ruta «${r.id}»: «${q.muestra}» ≠ «${q.categoria}»`);
+      }
+    }
+  });
+
+  test('ninguna ruta lleva una sola cifra', () => {
+    // Los contadores del catálogo son tentadores y no cuadran: siete de esas
+    // puertas suman 2.588 sobre un catálogo de 1.683 porque «Mujer» y
+    // «Nutrición» engloban a las otras. Las cifras son de «Productos y marcas».
+    for (const r of TODAS) {
+      for (const t of textosDeRuta(r)) {
+        assert.ok(!/\d/.test(t), `ruta «${r.id}»: «${t}» lleva una cifra`);
+      }
+    }
+  });
+
+  test('la ruta de regalo entra el 15-nov y se va el 7-ene, en hora de Madrid', () => {
+    // El servidor corre en UTC. El 6 de enero a las 00:30 en Madrid es todavía
+    // el 5 en UTC: sin `fechaEnMadrid`, la ruta desaparecería un día antes
+    // justo en la única noche en que eso se nota.
+    assert.equal(esTemporadaDeRegalo(new Date('2026-11-14T12:00:00Z')), false, '14 de noviembre, todavía no');
+    assert.equal(esTemporadaDeRegalo(new Date('2026-11-15T12:00:00Z')), true, '15 de noviembre, ya sí');
+    assert.equal(esTemporadaDeRegalo(new Date('2027-01-05T23:30:00Z')), true, 'medianoche y media del 6 en Madrid');
+    assert.equal(esTemporadaDeRegalo(new Date('2027-01-06T23:30:00Z')), false, 'esa misma hora del día 7, fuera');
+    assert.equal(esTemporadaDeRegalo(new Date('2026-07-01T12:00:00Z')), false, 'en julio no se regala');
+
+    assert.equal(rutasDeHoy(new Date('2026-07-01T10:00:00Z')).length, 4);
+    const navidad = rutasDeHoy(new Date('2026-12-20T10:00:00Z'));
+    assert.equal(navidad.length, 5, 'la de regalo SE AÑADE');
+    assert.ok(
+      navidad.some((r) => r.id === 'cero'),
+      'y «Empiezo de cero» sigue ahí: es la única que responde la pregunta que da nombre a la sección'
+    );
+  });
+
+  test('el mensaje lleva la ruta y no lleva el nombre de ninguna tienda', () => {
+    // La precalificación viaja en el texto: el franquiciado sabe a qué viene
+    // quien escribe sin abrir un informe. El nombre de la tienda sobra —el
+    // mensaje ya va a su número— y con el rótulo salía gritado en mayúsculas.
+    for (const r of TODAS) {
+      const m = mensajeDeRuta(r);
+      assert.ok(m.includes(r.frase), `el mensaje de «${r.id}» no dice a qué viene`);
+      assert.match(m, /desde vuestra web/, 'y dice que viene de la web, que es la única atribución que se ve');
+      for (const t of stores) {
+        assert.ok(!m.includes(t.name), `el mensaje no puede nombrar a ${t.name}`);
+        if (t.rotulo) assert.ok(!m.includes(t.rotulo), `ni el rótulo ${t.rotulo}`);
+      }
+    }
+  });
+
+  test('«empieza» es una sección del vocabulario y NO del orden histórico', () => {
+    // Si entrara en ORDEN_BASE, aparecería en las ocho webs vivas mañana.
+    assert.ok(SECTION_IDS.includes('empieza'));
+    assert.ok(!ORDEN_BASE.map((r) => (typeof r === 'string' ? r : r.id)).includes('empieza'));
   });
 });

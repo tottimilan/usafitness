@@ -34,6 +34,7 @@ export const SECTION_IDS = [
   'socio',
   'porque',
   'faq',
+  'empieza',
 ] as const;
 
 export type SectionId = (typeof SECTION_IDS)[number];
@@ -263,7 +264,7 @@ export const TEMPLATES: Record<string, Template> = {
     // marcas por escrito, y la regla es que no nombra ninguna que no esté ya en
     // la misma página. Nombrar ocho marcas compromete más que enseñar ocho
     // logos — quien se desplaza y no encuentra la suya tiene motivo de queja.
-    sections: ['hero', 'socio', 'porque', 'brands', 'schedule', 'faq', 'social'],
+    sections: ['hero', 'socio', 'empieza', 'porque', 'brands', 'schedule', 'faq', 'social'],
   },
 };
 

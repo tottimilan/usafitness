@@ -1,0 +1,278 @@
+---
+/**
+ * EMPIEZA AQUÍ — el selector de un toque
+ *
+ * Responde P6 («no sé por dónde empezar») y convierte a N2: un WhatsApp que
+ * llega con el objetivo del cliente ya dicho. Las rutas, su texto y la regla
+ * que impide que prometan nada viven en `rutas.ts`, que es puro y se prueba sin
+ * levantar nada. Aquí solo está la forma.
+ *
+ * SECCIÓN, JAMÁS UNA VENTANA. Transparent Labs sirve este mismo patrón como
+ * interstitial —te tapa la página antes de dejarte verla—, y R7 lo prohíbe. Va
+ * en el flujo, se puede ignorar bajando, y no interrumpe a nadie.
+ *
+ * UN TOQUE, NO TRES. Con cuatro rutas, un solo toque abre el cartel. El asesor
+ * de tres toques (6-8 rutas, dos ejes) es de «Recorrido» y «Tablero», donde la
+ * ruta ES la columna vertebral de la página; aquí es una sección entre otras y
+ * tres toques serían tres oportunidades de abandonar.
+ *
+ * SIN JAVASCRIPT, Y ESTA VEZ NO CON `<details>`
+ *
+ * Son radios ocultos con `:checked`. `<details>` habría sido más corto, pero la
+ * FAQ de esta misma página ya es un acordeón de `<details>`: dos acordeones
+ * iguales seguidos se leen como la misma cosa dos veces, y esto no es una lista
+ * de preguntas — es una elección. Los radios además dan gratis lo que hace
+ * falta: solo una ruta abierta a la vez, y el estado de elegida.
+ *
+ * Los radios NO se ocultan con `display:none`: eso los saca del tabulador y
+ * dejaría la sección inservible con teclado. Se recortan a un píxel y el foco
+ * se pinta sobre la etiqueta.
+ *
+ * QUÉ SE MIDE Y QUÉ NO
+ *
+ * `punto_de_partida{ruta}` no está instrumentado —está en el registro como
+ * pendiente de F2, igual que `interes_socio` y `ver_productos`—, así que abrir
+ * una ruta no emite nada. El clic del cierre sí: `ConversionTracking` lo pilla
+ * solo y lo manda con `seccion: 'empieza'`, porque la PRIMERA clase de este
+ * `<section>` es ese nombre.
+ *
+ * Y hay una cosa mejor que el evento, que conviene no perder de vista: la ruta
+ * viaja DENTRO del mensaje de WhatsApp. El franquiciado no necesita abrir
+ * ningún informe para saber a qué viene quien le escribe; lo lee en el móvil.
+ */
+import { rutasDeHoy, mensajeDeRuta } from '@/data/rutas';
+
+interface Props {
+  phone: string;
+  phoneDisplay: string;
+  whatsapp?: string;
+  variant?: string;
+}
+const { phone, phoneDisplay, whatsapp, variant } = Astro.props;
+
+/** SSR en cada petición: la ruta de regalo entra sola el 15 de noviembre y se
+ *  va sola el 7 de enero, sin que nadie toque nada ni se acuerde de hacerlo. */
+const rutas = rutasDeHoy(new Date());
+const waNumber = whatsapp?.replace('+', '').trim() ?? '';
+---
+
+{/* La PRIMERA clase es el nombre que viaja como `seccion` en los eventos. */}
+<section class:list={['empieza', 'section', variant && `empieza--${variant}`]} id="empieza">
+  <div class="container empieza-inner">
+    {/* El título es la pregunta, no el nombre de la sección. «Empieza aquí» es
+        como la llamamos nosotros; «¿A qué vienes?» es lo que hay que contestar
+        para que los cuatro botones signifiquen algo. Y rompe a propósito la
+        racha de etiquetas grises: esta sección se USA, no se lee. */}
+    <h2 class="empieza-titulo">¿A qué vienes?</h2>
+    <p class="empieza-entrada">Elige una y te decimos qué mirar.</p>
+
+    <div class="empieza-lista">
+      {rutas.map((r) => (
+        <div class="empieza-ruta">
+          <input type="radio" name="empieza" id={`ruta-${r.id}`} class="empieza-radio" />
+          <label for={`ruta-${r.id}`} class="empieza-btn">
+            <span class="empieza-etiqueta">{r.etiqueta}</span>
+            <span class="empieza-surtido">{r.surtido}</span>
+          </label>
+
+          <div class="empieza-panel">
+            <ul class="empieza-mirar">
+              {r.queMirar.map((q) => (
+                <li>
+                  <span class="empieza-estante">{q.muestra}</span>
+                  <span class="empieza-que">{q.linea}</span>
+                </li>
+              ))}
+            </ul>
+            <p class="empieza-formato">{r.formato}</p>
+
+            {waNumber ? (
+              <a
+                href={`https://wa.me/${waNumber}?text=${encodeURIComponent(mensajeDeRuta(r))}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+              >
+                Pregúntanos por WhatsApp
+              </a>
+            ) : (
+              <>
+                {/* Las tres tiendas sin WhatsApp no pierden la sección: pierden
+                    el atajo. Enseñar la pantalla en el mostrador hace el mismo
+                    trabajo —el dependiente ve a qué viene— sin pedirle a nadie
+                    un número que la tienda no tiene verificado. */}
+                <p class="empieza-mostrador">
+                  Enséñale esta pantalla a quien te atienda: ya sabe a qué vienes.
+                </p>
+                <a href={`tel:${phone}`} class="btn btn-primary">Llamar al {phoneDisplay}</a>
+              </>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .empieza-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .empieza-titulo {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-heading);
+    color: var(--color-primary);
+    line-height: 1.2;
+  }
+
+  .empieza-entrada {
+    margin: 0 0 0.6rem;
+    color: var(--color-text-light);
+    line-height: 1.5;
+  }
+
+  .empieza-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* El radio se RECORTA, no se esconde: con `display:none` desaparece del
+     tabulador y la sección deja de existir para quien navega con teclado. */
+  .empieza-radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .empieza-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    justify-content: center;
+    min-height: 64px;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-btn);
+    background: var(--color-bg);
+    cursor: pointer;
+  }
+
+  .empieza-etiqueta {
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    line-height: 1.2;
+  }
+
+  .empieza-surtido {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    line-height: 1.3;
+  }
+
+  /* La ruta elegida se invierte: así, con el cartel abierto debajo, se ve de un
+     vistazo cuál de las cuatro está contestada. */
+  .empieza-radio:checked + .empieza-btn {
+    background: var(--color-primary);
+  }
+
+  .empieza-radio:checked + .empieza-btn .empieza-etiqueta {
+    color: var(--color-on-brand);
+  }
+
+  .empieza-radio:checked + .empieza-btn .empieza-surtido {
+    color: var(--color-on-brand-muted);
+  }
+
+  .empieza-radio:focus-visible + .empieza-btn {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: 2px;
+  }
+
+  .empieza-panel {
+    display: none;
+  }
+
+  .empieza-radio:checked ~ .empieza-panel {
+    display: block;
+    padding: 1rem 1rem 1.1rem;
+    background: var(--color-bg-alt);
+    border-radius: 0 0 var(--radius-btn) var(--radius-btn);
+  }
+
+  .empieza-mirar {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  /* El nombre de la estantería en su propia línea, y debajo qué es.
+     En la primera vuelta iban seguidos —«Creatina — monohidrato y
+     kre-alkalina»— y las tres entradas partían en dos renglones por su cuenta,
+     una de ellas por el guion de «kre-alkalina», que se confundía con el guion
+     de la propia lista. Repartirlo en dos líneas A PROPÓSITO cuesta exactamente
+     el mismo alto y deja de depender de que quepan 36 caracteres: en Android,
+     con Roboto, no caben. */
+  .empieza-mirar li {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .empieza-estante {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-strong);
+    line-height: 1.3;
+  }
+
+  .empieza-que {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+
+  .empieza-formato {
+    margin: 0.7rem 0 0.9rem;
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+  }
+
+  .empieza-mostrador {
+    margin: 0 0 0.8rem;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+
+  @media (min-width: 768px) {
+    .empieza-titulo {
+      font-size: 1.9rem;
+    }
+
+    /* Sin este tope, en 1180 px los cuatro botones medían 1.140 px de ancho
+       para llevar dos palabras cada uno: cuatro bandas vacías. Un selector se
+       lee mejor estrecho que estirado, y estirado además no parece un botón.
+       Lo que falta aquí —las dos columnas de verdad, con el cartel de la ruta
+       al lado de la lista— es de la hoja de la plantilla, y es el mismo defecto
+       de escritorio ya anotado en «Por qué en tienda»: se arregla en el Loop B
+       de Rótulo, para las dos a la vez y con el mismo criterio. */
+    .empieza-lista {
+      max-width: 560px;
+    }
+  }
+</style>

@@ -32,6 +32,7 @@ import Social from '@/components/Social.astro';
 import Socio from '@/components/Socio.astro';
 import PorQue from '@/components/PorQue.astro';
 import Faq from '@/components/Faq.astro';
+import Empieza from '@/components/Empieza.astro';
 import { faqDeTienda, MINIMO_ENTRADAS } from '@/data/faq';
 
 import type { SectionId } from '@/data/templates';
@@ -173,6 +174,21 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       schedule: s.schedule,
       whatsapp: s.whatsapp,
       phoneDisplay: s.phoneDisplay,
+    }),
+  },
+
+  /**
+   * Empieza aquí. Contenido de MARCA: las rutas son las mismas en las 50
+   * tiendas y no dependen de ningún dato del franquiciado, así que no lleva
+   * `visible`. Lo único que cambia por tienda es el cierre, que degrada solo:
+   * con WhatsApp, el mensaje precalificado; sin él, el mostrador y el teléfono.
+   */
+  empieza: {
+    component: Empieza,
+    props: (s) => ({
+      phone: s.phone,
+      phoneDisplay: s.phoneDisplay,
+      whatsapp: s.whatsapp,
     }),
   },
 

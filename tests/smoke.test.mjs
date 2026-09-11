@@ -1102,3 +1102,77 @@ describe('La FAQ no lleva marcado muerto, ni JavaScript, ni marcas que no estén
     assert.match((await get('/lagoh?plantilla=rotulo')).text(), /<section class="faq /);
   });
 });
+
+describe('«Empieza aquí» elige sin JavaScript, sin teclado roto y sin prometer nada', () => {
+  const soloEmpieza = (html) => {
+    const i = html.indexOf('<section class="empieza');
+    assert.ok(i > -1, 'no se pintó la sección empieza');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+  /** El texto que un visitante LEE, sin atributos ni URLs. */
+  const visible = (trozo) => trozo.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  test('cuatro radios de un mismo grupo y ni una línea de JavaScript', async () => {
+    const e = soloEmpieza((await get('/lagoh?plantilla=rotulo')).text());
+    assert.equal((e.match(/type="radio"/g) || []).length, 4, 'cuatro rutas fuera de temporada de regalo');
+    assert.equal((e.match(/name="empieza"/g) || []).length, 4, 'del mismo grupo: solo una abierta a la vez');
+    assert.equal((e.match(/<label /g) || []).length, 4, 'cada una con su etiqueta');
+    assert.ok(!e.includes('<script'), 'ni un script dentro de la sección');
+    assert.ok(!/onclick|onchange|addEventListener/.test(e), 'ni un manejador escrito a mano');
+  });
+
+  test('los radios siguen siendo alcanzables con el tabulador', async () => {
+    // Se mira el CSS SERVIDO, no el fuente: `display:none` en un radio oculto
+    // es el error clásico del patrón, y deja la sección inservible con teclado
+    // sin que se note en ninguna captura.
+    const html = (await get('/lagoh?plantilla=rotulo')).text();
+    const hojas = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1]);
+    assert.ok(hojas.length > 0, 'la página sirve alguna hoja de estilos');
+    let regla = null;
+    for (const h of hojas) {
+      const css = (await get(h)).text();
+      const m = css.match(/\.empieza-radio\[[^\]]*\]\{([^}]*)\}/);
+      if (m) regla = m[1];
+    }
+    assert.ok(regla, 'la regla del radio llega al navegador');
+    assert.match(regla, /clip-path/, 'se recorta');
+    assert.ok(!/display:\s*none/.test(regla), 'nunca se esconde con display:none');
+  });
+
+  test('con WhatsApp, cada ruta manda su propio mensaje ya escrito', async () => {
+    const e = soloEmpieza((await get('/villanueva?plantilla=rotulo')).text());
+    const enlaces = [...e.matchAll(/href="(https:\/\/wa\.me\/[^"]+)"/g)].map((m) =>
+      decodeURIComponent(m[1].replace(/&#38;/g, '&'))
+    );
+    assert.equal(enlaces.length, 4, 'un WhatsApp por ruta');
+    for (const frase of ['Vengo a ganar músculo.', 'Entreno resistencia.', 'Quiero cuidar la alimentación.', 'Empiezo de cero.']) {
+      assert.ok(enlaces.some((u) => u.includes(frase)), `falta el mensaje de «${frase}»`);
+    }
+    assert.ok(!enlaces.some((u) => u.includes('VILLANUEVA')), 'el rótulo no se cuela gritando dentro de la frase');
+  });
+
+  test('sin WhatsApp no hay promesa rota: queda el mostrador y el teléfono', async () => {
+    const e = soloEmpieza((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(!e.includes('wa.me'), 'lagoh no tiene WhatsApp verificado');
+    assert.equal((e.match(/href="tel:/g) || []).length, 4, 'una llamada por ruta');
+    assert.match(visible(e), /Enséñale esta pantalla/, 'y la salida que no necesita ningún dato');
+  });
+
+  test('ni un conector causal ni una cifra en lo que se lee', async () => {
+    // La regla del Reglamento 1924/2006 aplicada donde se nota: la etiqueta
+    // nombra el objetivo de la persona, la línea de abajo lista estanterías.
+    // «Proteínas PARA ganar músculo» sería una declaración de salud.
+    const texto = visible(soloEmpieza((await get('/lagoh?plantilla=rotulo')).text()));
+    assert.ok(!/ para /i.test(texto), `se coló un conector causal: ${texto.slice(0, 120)}`);
+    assert.ok(!/control de peso|adelgaz|rendimiento|energía y resistencia/i.test(texto), 'ni una etiqueta de zona ámbar');
+    // El teléfono es la única cifra admitida, y solo dentro de un tel:.
+    assert.ok(!/\d/.test(texto.replace(/Llamar al [\d\s]+/g, '')), 'ninguna cifra de catálogo');
+  });
+
+  test('la clásica no la lleva, y el evento sabrá de dónde viene', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.ok(!clasica.includes('class="empieza'), 'las ocho webs vivas no cambian');
+    // La PRIMERA clase del <section> es el parámetro `seccion` del evento.
+    assert.match((await get('/lagoh?plantilla=rotulo')).text(), /<section class="empieza /);
+  });
+});
