@@ -621,6 +621,14 @@ describe('El endpoint de salud sirve para diagnosticar, no solo para hacer ping'
 });
 
 describe('La galería no recorta ninguna foto', () => {
+  // ACOTADO el 11-09-2026: «ninguna» quiere decir **en la galería clásica**, que
+  // es la que sirven las ocho webs vivas y la que estos tests piden por su
+  // dominio propio. La variante `tira` de Rótulo SÍ recorta, a propósito y con
+  // decisión del dueño escrita (memory/12, pregunta 7), y tiene su propio
+  // bloque más abajo. Lo que sigue abierto es si esa decisión se extiende a las
+  // otras cuatro plantillas; mientras no se extienda, este bloque las cubre a
+  // todas menos a Rótulo.
+
   // Lo que se puede afirmar por HTTP es que cada celda declara la proporción
   // REAL de su foto. Que eso se traduzca en píxeles sin recorte se comprobó en
   // navegador y está en el commit: Lagoh pasó de 442×332 con el 44% del alto
@@ -1380,5 +1388,80 @@ describe('Las reseñas como dato, y la píldora donde no llegan a tres', () => {
     const clasica = (await get('/', stores.find((s) => s.slug === 'alcobendas').domain)).text();
     assert.match(clasica, /review-tab/, 'la clásica mantiene su carrusel');
     assert.ok(!clasica.includes('dato-resena'), 'y no lleva nada de la variante');
+  });
+});
+
+describe('La tira de Rótulo recorta a propósito, y solo ella', () => {
+  const seccion = (html) => {
+    const i = html.indexOf('<section class="gallery');
+    return i === -1 ? null : html.slice(i, html.indexOf('</section>', i));
+  };
+
+  test('una celda por foto, y todas del mismo tamaño', async () => {
+    for (const s of stores.filter((x) => x.galleryImages.length)) {
+      const sec = seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text());
+      const celdas = (sec.match(/class="tira-celda"/g) || []).length;
+      const { fotosDe } = await import('../src/data/galeria-de-tiendas.ts');
+      const { planDeGaleria } = await import('../src/data/galeria.ts');
+      const esperadas = planDeGaleria(fotosDe(s)).fotos.length;
+      assert.equal(celdas, esperadas, `${s.slug}: ${celdas} celdas para ${esperadas} fotos`);
+      assert.ok(!sec.includes('gallery-fila'), `${s.slug} no puede llevar la maquetación clásica`);
+    }
+  });
+
+  test('la celda fija y el recorte llegan de verdad al navegador', async () => {
+    // Se mira el CSS SERVIDO y no el fuente: es el único sitio donde consta que
+    // esta variante recorta, y recortar es justo lo que el rediseño de la
+    // galería quitó. Si algún día desaparece, que se vea.
+    const html = (await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text();
+    const hojas = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1]);
+    let regla = null;
+    for (const h of hojas) {
+      const css = (await get(h)).text();
+      const m = css.match(/\.tira-celda\[[^\]]*\]\{([^}]*)\}/);
+      if (m) regla = m[1];
+    }
+    assert.ok(regla, 'la regla de la celda llega al navegador');
+    assert.match(regla, /aspect-ratio:\s*4\s*\/\s*5/, 'celda fija de 4:5');
+    const img = [...hojas].length && html;
+    assert.match(html, /tira-celda/, 'y las celdas están en el HTML');
+  });
+
+  test('se llega con el teclado', async () => {
+    // Un carrusel horizontal al que no se llega tabulando no existe para quien
+    // navega así, y el contenido queda sencillamente inaccesible.
+    const sec = seccion((await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text());
+    assert.match(sec, /class="tira"[^>]*tabindex="0"/, 'la tira es enfocable');
+    assert.match(sec, /role="group"[^>]*aria-label="Fotos de /, 'y dice lo que es');
+  });
+
+  test('las ocho webs vivas siguen sin recortar un píxel', async () => {
+    for (const s of stores.filter((x) => x.galleryImages.length)) {
+      const clasica = (await get('/', s.domain)).text();
+      assert.ok(!clasica.includes('tira-celda'), `${s.slug} no puede recibir la tira`);
+      assert.match(clasica, /gallery-fila/, `${s.slug} mantiene las filas justificadas`);
+    }
+  });
+});
+
+describe('Cada plantilla recibe el marcado de galería que su hoja estiliza', () => {
+  test('«energía» conserva las filas justificadas, que es lo que su CSS sabe pintar', async () => {
+    // Esta plantilla declaraba `variant: 'tira'` sin que la variante existiera,
+    // y su tira la construye su propia hoja sobre el marcado clásico. El día
+    // que `tira` pasó a cambiar el MARCADO, energía se quedó sin CSS que
+    // encajara: celdas que su hoja no conoce y filas que ya no existen.
+    const html = (await get('/lagoh?plantilla=energia', 'preview.up.railway.app')).text();
+    const i = html.indexOf('<section class="gallery');
+    const sec = html.slice(i, html.indexOf('</section>', i));
+    assert.match(sec, /gallery-fila/, 'energía necesita las filas: su hoja las convierte en tira');
+    assert.ok(!sec.includes('tira-celda'), 'y no puede recibir el marcado de Rótulo');
+  });
+
+  test('solo Rótulo recibe la tira de marcado', async () => {
+    const { TEMPLATES } = await import('../src/data/templates.ts');
+    const conTira = Object.values(TEMPLATES).filter((t) =>
+      t.sections.some((r) => typeof r === 'object' && r.id === 'gallery' && r.variant === 'tira')
+    );
+    assert.deepEqual(conTira.map((t) => t.id), ['rotulo'], 'si otra la pide, tiene que traer su CSS');
   });
 });

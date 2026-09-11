@@ -332,3 +332,55 @@ Sin estrellas, y **de la más corta a la más larga**. No se recorta ninguna —
 - **El alto sigue siendo grande** en Alcobendas (883 px) por la reseña de 369 caracteres. No se recorta y no se descarta: es la voz de un cliente y es el contenido más valioso de la página. Queda dicho, no escondido.
 - Si algún día entra una reseña que no sea de cinco estrellas, **hay que volver a decidir** si se pintan.
 - La sección **no tiene la voz de Rótulo** todavía.
+
+---
+
+## Variante `gallery:tira` — ✅ PASA (2026-09-11)
+
+**Hoja de objetivos:** P4 «¿cómo es por dentro?» → N1 · sin evento propio · **la única pieza de la casa que recorta fotos**, y con decisión escrita del dueño (memory/12, pregunta 7: «lo decidiste para Rótulo»).
+
+**Qué es:** una tira horizontal con celda fija de 4:5 y `object-fit: cover`, cortada por el borde derecho. El corte es lo que dice «hay más» sin un contador ni una flecha.
+
+### Lo que cuesta el recorte, medido antes de enseñarlo
+
+Todo el rediseño de la galería de agosto existe porque recortar rompía las fotos de Lagoh (44 % del alto cortado). Así que aquí el número va delante:
+
+| Celda | Recorte medio | Peor foto | Fotos con >25 % cortado |
+|---|---|---|---|
+| **4:5 (la del diseño)** | 28 % | **55 %** | **20 de 32** |
+| 1:1 | 29 % | 44 % | 11 de 32 |
+| 4:3 | 25 % | 58 % | 15 de 32 |
+
+**Ninguna forma de celda gana**, y el motivo es estructural: la flota está partida casi a la mitad —17 apaisadas y 15 verticales—, que es exactamente lo que obligó a abandonar la celda fija en agosto. Con 4:5, las cuatro fotos de Alcobendas pierden el 55 % del ancho.
+
+**Se construye con el 4:5 del diseño igualmente**, y el motivo es que al MIRARLO el recorte no duele: son fotos de interior, con estanterías que se repiten de lado a lado, así que lo que se pierde son los bordes y el centro aguanta. La tabla queda escrita para que la decisión se pueda revisar con el número delante en vez de con una impresión.
+
+**Riesgo que no se puede cerrar desde aquí:** sin punto de foco por foto (`object-position`), el recorte centrado corta por donde caiga. En interiores da igual; el día que entre un retrato, no. El campo no existe y está en la misma pregunta abierta.
+
+### El fallo que destapó una mutación
+
+Al matar la variante para comprobar el test, **el test no cayó**. Investigado: mi mutación había quitado la declaración de `energia`, no la de Rótulo, porque las dos plantillas tenían la misma línea y sustituí la primera.
+
+Y eso destapó algo peor que la mutación mal hecha: **`energia` declaraba `variant: 'tira'` desde antes y no hacía nada.** Su tira la construye entera su propia hoja CSS sobre el marcado clásico, con `display:contents`. Era una etiqueta decorativa — hasta que `tira` pasó a ser una variante de marcado de verdad, y entonces energía empezó a recibir celdas que su hoja no estiliza y su galería se quedó sin CSS.
+
+Arreglado: energía deja de declarar la variante, con el motivo escrito en la plantilla, y hay **dos tests** que lo fijan — que energía conserva sus filas, y que Rótulo es la única que pide la tira de marcado.
+
+### Medido a 375 px
+
+| | |
+|---|---|
+| Alto de la sección (Alcobendas, 4 fotos) | 415 px |
+| Celda | 213 × 266 px (4:5 exacto) |
+| Tira: visible / total | 328 / 913 px → **asoma la siguiente, cortada** |
+| Desborde de página | 0 |
+| Imagen servida | variante de 600 px en celda de 213 → nítida a 3× |
+
+### Un susto que no era
+
+`naturalWidth` devolvía 270 px para un fichero de 600. No es un fallo: el navegador **corrige por densidad** el tamaño intrínseco cuando la imagen se elige por `srcset` con descriptor `w`. Los ficheros en disco son 400/600/900 correctos, comprobado con `sharp`. Anotado porque medir nitidez con `naturalWidth` engaña.
+
+### Pendiente en esta pieza
+
+- **La forma de celda es revisable** con la tabla de arriba: 1:1 baja de 20 a 11 las fotos con más de un cuarto cortado.
+- **El `object-position` por foto** no existe como campo.
+- La sección **no tiene la voz de Rótulo** todavía (papel duotono, cartelas).

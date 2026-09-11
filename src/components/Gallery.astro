@@ -45,6 +45,28 @@ const altSuffix = location ? ` en ${location}` : '';
 ---
 
 {/*
+  VARIANTE `tira` — la única de la casa que SÍ recorta, y con permiso escrito.
+
+  Todo lo que hay debajo de este comentario existe porque recortar fotos rompía
+  las de Lagoh. La variante `tira` hace justo lo contrario: celda fija de 4:5 y
+  `cover`. No es un descuido — es la decisión del dueño para Rótulo (memory/12,
+  pregunta 7: «lo decidiste para Rótulo»), y lo que sigue abierto es si se
+  aplica también a las otras cuatro plantillas. Por eso va como VARIANTE: solo
+  recorta donde una plantilla lo pide, y la galería de las ocho webs vivas sigue
+  sin recortar un píxel.
+
+  Lo que la tira compra a cambio del recorte: una forma de celda idéntica para
+  todas, que es lo que deja hacer una tira horizontal cortada por el borde
+  derecho. Con proporciones reales mezcladas, una tira es una fila de alturas
+  distintas y no se lee.
+
+  EL RIESGO QUE NO SE PUEDE CERRAR DESDE AQUÍ: sin un punto de foco por foto
+  (`object-position`), el recorte centrado corta por donde caiga. En fotos de
+  interior y fachada suele dar igual; el día que entre un retrato, no. El campo
+  no existe todavía y está en la misma pregunta abierta.
+
+  ————— y a partir de aquí, la galería de siempre —————
+
   LA GALERÍA NO RECORTA NINGUNA FOTO.
 
   Antes: grid de 2 columnas con `aspect-ratio: 4/3` y `object-fit: cover`. A las
@@ -70,6 +92,33 @@ const altSuffix = location ? ` en ${location}` : '';
   vertical para pasar a 3: a 2 columnas la celda mide 442 px, así que una 9:16
   —las de Vigo— saldría de 786 px de alto y se comería la pantalla.
 */}
+{variant === 'tira' ? (
+  <section class="gallery section">
+    <div class="container tira-inner">
+      <h2 class="tira-titulo">La tienda por dentro</h2>
+    </div>
+    {/* La tira se sale del contenedor por la derecha a propósito: el corte es
+        lo que dice «hay más» sin un contador ni una flecha. Y es `tabindex`
+        porque un carrusel al que no se llega con el teclado no existe para
+        quien navega así. */}
+    <div class="tira" tabindex="0" role="group" aria-label={`Fotos de ${name}`}>
+      {plan.fotos.map((f, i) => (
+        <figure class="tira-celda">
+          <img
+            src={f.src}
+            srcset={srcsetDe(f)}
+            sizes="72vw"
+            alt={`Foto ${i + 1} de ${plan.fotos.length} de ${name}${altSuffix}`}
+            width={f.ancho}
+            height={f.alto}
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+      ))}
+    </div>
+  </section>
+) : (
 <section class="gallery section">
   <div class="container">
     <h2 class="section-title">Conoce nuestra tienda y equipo</h2>
@@ -102,6 +151,8 @@ const altSuffix = location ? ` en ${location}` : '';
   </div>
 </section>
 
+
+)}
 
 <style>
   .gallery {
@@ -200,6 +251,70 @@ const altSuffix = location ? ` en ${location}` : '';
     }
     .gallery-fila--centrada > .gallery-item img {
       width: 100%;
+    }
+  }
+  /* ————— variante `tira` ————— */
+
+  .tira-inner {
+    margin-bottom: 1rem;
+  }
+
+  .tira-titulo {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+  }
+
+  .tira {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    /* `proximity` y no `mandatory`: con `mandatory` el gesto se pelea con el
+       usuario cuando quiere parar entre dos fotos. */
+    scroll-snap-type: x proximity;
+    /* El sangrado: la primera foto empieza donde empezaría el texto y la última
+       se va por el borde derecho. `scroll-padding` mantiene el margen al
+       desplazarse, que si no la primera se pega al borde al volver. */
+    padding: 0 1rem 0.4rem;
+    scroll-padding-left: 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tira:focus-visible {
+    outline: 3px solid var(--color-primary-light);
+    outline-offset: -3px;
+  }
+
+  .tira-celda {
+    margin: 0;
+    flex: 0 0 72%;
+    scroll-snap-align: start;
+    /* LA CELDA FIJA, que es lo que la hace una tira y no una fila de alturas
+       distintas. Es el único sitio del proyecto donde se recorta. */
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-alt);
+  }
+
+  .tira-celda img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (min-width: 768px) {
+    .tira {
+      padding-left: max(1rem, calc((100vw - var(--ancho-contenedor, 1200px)) / 2));
+      scroll-padding-left: max(1rem, calc((100vw - var(--ancho-contenedor, 1200px)) / 2));
+    }
+
+    .tira-celda {
+      flex-basis: 30%;
     }
   }
 </style>
