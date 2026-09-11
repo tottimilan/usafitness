@@ -76,7 +76,7 @@ Modelo de datos aprobado el 27-ago (memory/04): dos niveles con precedencia prop
 > | `empieza` — Empieza aquí | ✅ pasa en la 2.ª vuelta | ficha §Empieza aquí |
 > | `schedule:hoy` | ✅ pasa en la 2.ª vuelta | ficha §schedule:hoy |
 > | `products:puertas` | ⬜ | |
-> | `reviews:dato` | ⬜ | |
+> | `reviews:dato` | ✅ pasa en la 2.ª vuelta (+ píldora de reseña en «Hoy en tienda») | ficha §reviews:dato |
 > | `gallery:tira` | ⬜ | |
 >
 > **Las tres a la primera vuelta suspendieron**, y las cuatro llevan defectos de escritorio nombrados y aplazados al Loop B de la rodaja 3.

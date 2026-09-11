@@ -6,12 +6,87 @@ interface Review {
   stars: number;
 }
 
+/**
+ * VARIANTE `dato` — las reseñas como prueba, no como carrusel
+ *
+ * La cara de siempre son pestañas con JavaScript: tres botones «Reseña de
+ * Google» y un panel que se cambia al pulsar. Se queda intacta, porque es lo que
+ * sirven las ocho webs vivas.
+ *
+ * Qué cambia la variante, y por qué:
+ *
+ *  · **Se leen todas a la vez.** Un carrusel esconde dos tercios de la prueba
+ *    social detrás de un clic que casi nadie da, y aquí la prueba es justo lo
+ *    que hay que enseñar. Tres citas cortas caben sin esconder nada.
+ *  · **Cero JavaScript.** Sin pestañas no hay estado que gestionar.
+ *  · **Umbral de TRES.** Con menos, la sección no se pinta: dos reseñas no son
+ *    prueba social, son dos personas. Villanueva tiene dos y hoy las enseña.
+ *  · **Y la que no llega a tres pide la suya**, pero no aquí: la píldora vive en
+ *    «Hoy en tienda», que es la sección que sí ve todo el mundo. Anunciar el
+ *    vacío en el sitio donde deberían estar las reseñas sería subrayarlo.
+ *
+ * SIN `aggregateRating`, como en la clásica: no tenemos la nota media real de
+ * Google, solo dos o tres citas curadas, y emitir una media calculada sobre lo
+ * que nosotros elegimos sería inventarse una estrella.
+ */
+import { enlaceResena } from '@/data/resenas';
+
+/** Menos de esto no es prueba social, son dos personas. */
+export const MINIMO_RESENAS = 3;
+
 interface Props {
   reviews: Review[];
+  placeId?: string;
+  googleMapsLink?: string;
+  variant?: string;
 }
 
-const { reviews } = Astro.props;
+const { reviews, placeId, googleMapsLink, variant } = Astro.props;
+const enlace = enlaceResena({ placeId, googleMapsLink });
+
+/**
+ * De la más corta a la más larga.
+ *
+ * No se recorta ninguna —es texto firmado con nombre y apellidos que la tienda
+ * republica, la misma regla que `citas.ts`—, pero sí se ordena. Las ocho
+ * reseñas de la flota van de 88 a 369 caracteres, y con la de 369 arriba la
+ * sección abre con once líneas seguidas de una sola persona. Empezando por la
+ * corta, el ojo entra.
+ */
+const porLongitud = [...reviews].sort((a, b) => a.text.length - b.text.length);
 ---
+
+{variant === 'dato' ? (
+  reviews.length >= MINIMO_RESENAS && (
+    <section class="reviews section">
+      <div class="container dato-inner">
+        <h2 class="dato-titulo">Lo que dicen en Google</h2>
+
+        {/* SIN ESTRELLAS, y no es un olvido. Las ocho reseñas de la flota son
+            de cinco estrellas —lógico: las elegimos nosotros—, así que pintar
+            cinco glifos idénticos en todas no informa de nada y sugiere una
+            distribución que no existe. Encima fallaban el contraste: el amarillo
+            de marca da 1,85 sobre blanco y el mínimo son 4,5, medido el 11-sep.
+            El dato sigue en `stores.json`; el día que entre una reseña que no
+            sea de cinco, esto se vuelve a decidir con ese caso delante. */}
+        <ul class="dato-lista">
+          {porLongitud.map((r) => (
+            <li class="dato-resena">
+              <p class="dato-texto">«{r.text}»</p>
+              <p class="dato-firma">{r.author}, en Google</p>
+            </li>
+          ))}
+        </ul>
+
+        {enlace && (
+          <p class="dato-cierre">
+            <a href={enlace.href} target="_blank" rel="noopener noreferrer" class="dato-enlace">{enlace.etiqueta}</a>
+          </p>
+        )}
+      </div>
+    </section>
+  )
+) : (
 
 <section class="reviews section">
   <div class="container">
@@ -77,6 +152,8 @@ const { reviews } = Astro.props;
     });
   });
 </script>
+
+)}
 
 <style>
   .reviews {
@@ -186,5 +263,63 @@ const { reviews } = Astro.props;
 
   .stars {
     margin-top: 2px;
+  }
+  /* ————— variante `dato` ————— */
+
+  .dato-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.05rem;
+  }
+
+  .dato-titulo {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+  }
+
+  .dato-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Filete de separación, como en «Por qué en tienda» y la FAQ: son una lista
+     de voces, no tres tarjetas que floten. */
+  .dato-resena {
+    border-top: 1px solid var(--color-border);
+    padding: 1rem 0;
+  }
+
+  .dato-resena:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .dato-texto {
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.55;
+    max-width: 56ch;
+  }
+
+  .dato-firma {
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+  }
+
+  .dato-cierre {
+    margin: 0;
+  }
+
+  .dato-enlace {
+    color: var(--color-cta);
+    font-weight: var(--font-weight-strong);
+    text-decoration: underline;
   }
 </style>

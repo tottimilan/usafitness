@@ -20,6 +20,7 @@
  */
 import { estadoDeHoy } from '@/data/festivos';
 import { textoDeHoy, lineasDeSemana } from '@/data/hoy';
+import { enlaceResena } from '@/data/resenas';
 
 interface Props {
   schedule: string;
@@ -32,6 +33,9 @@ interface Props {
   /** Solo los usa la variante `hoy`, para la mitad «dónde» de P1. */
   mall?: string;
   streetAddress?: string;
+  /** Para la píldora de reseña: cuántas tiene y a dónde mandar a quien escriba. */
+  numeroDeResenas?: number;
+  placeId?: string;
   variant?: string;
 }
 const {
@@ -43,6 +47,8 @@ const {
   name = '',
   mall = '',
   streetAddress = '',
+  numeroDeResenas = 0,
+  placeId,
   variant,
 } = Astro.props;
 
@@ -52,6 +58,23 @@ const waNumber = whatsapp?.replace('+', '').trim() ?? '';
 /** SSR en cada petición: el dato de hoy es de hoy, no del último despliegue. */
 const hoy = variant === 'hoy' ? textoDeHoy(estadoDeHoy({ schedule, mall }, new Date()), new Date()) : null;
 const semana = lineasDeSemana(schedule);
+/**
+ * LA PÍLDORA DE RESEÑA VIVE AQUÍ, Y NO EN LA SECCIÓN DE RESEÑAS
+ *
+ * Seis de las ocho tiendas no llegan a tres reseñas, así que su sección de
+ * reseñas no se pinta. Poner ahí el «escribe la tuya» sería abrir un hueco para
+ * anunciar que está vacío — subrayar la carencia justo donde se nota.
+ *
+ * Va en «Hoy en tienda», que es la sección que ve todo el mundo y la que lee
+ * alguien que ya conoce la tienda y está mirando el horario. Y es PASIVA a
+ * propósito: la política de contribuciones de Google prohíbe incentivar
+ * reseñas, así que esto invita y no ofrece nada a cambio.
+ *
+ * El clic se mide solo: `ConversionTracking` reconoce la URL del formulario y
+ * emite `pedir_resena` con `seccion: 'schedule'`.
+ */
+const pideResena = variant === 'hoy' && numeroDeResenas < 3 ? enlaceResena({ placeId, googleMapsLink }) : null;
+
 /** Lo que la dirección añade al nombre del centro, si añade algo. */
 const restoDireccion =
   mall && streetAddress.startsWith(mall)
@@ -110,6 +133,14 @@ const restoDireccion =
         )}
         <a href={`tel:${phone}`} class="hoy-enlace">Llamar al {phoneDisplay}</a>
       </div>
+
+      {pideResena && (
+        <p class="hoy-resena">
+          <a href={pideResena.href} target="_blank" rel="noopener noreferrer" class="hoy-pildora">
+            ¿Ya nos conoces? {pideResena.etiqueta}
+          </a>
+        </p>
+      )}
     </div>
   </section>
 ) : (
@@ -414,6 +445,23 @@ const restoDireccion =
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem 1.4rem;
+  }
+
+  .hoy-resena {
+    margin: 0.9rem 0 0;
+  }
+
+  /* Contorno y no relleno: es una invitación, no la acción principal de la
+     sección. Compitiendo con «Cómo llegar» le quitaría clics a la visita, que
+     es lo que de verdad paga el franquiciado. */
+  .hoy-pildora {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-pill);
+    color: var(--color-primary);
+    font-size: 0.88rem;
+    line-height: 1.3;
   }
 
   .hoy-enlace {

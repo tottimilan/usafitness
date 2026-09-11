@@ -1318,3 +1318,67 @@ describe('La variante «hoy» del horario, servida', () => {
     assert.ok(!clasica.includes('hoy-dato'), 'y no lleva ni un rastro de la variante');
   });
 });
+
+describe('Las reseñas como dato, y la píldora donde no llegan a tres', () => {
+  const seccion = (html, clase) => {
+    const i = html.indexOf(`<section class="${clase}`);
+    return i === -1 ? null : html.slice(i, html.indexOf('</section>', i));
+  };
+  const visible = (t) => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  test('con menos de tres reseñas la sección NO se pinta', async () => {
+    // Dos reseñas no son prueba social, son dos personas. Villanueva tiene dos
+    // y hoy las enseña como si fueran un aval.
+    for (const s of stores.filter((x) => x.reviews.length < 3)) {
+      const html = (await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text();
+      assert.equal(seccion(html, 'reviews'), null, `${s.slug} tiene ${s.reviews.length} y no debería pintarlas`);
+    }
+    const conTres = stores.filter((x) => x.reviews.length >= 3);
+    assert.ok(conTres.length >= 2, 'la flota tiene al menos dos tiendas con tres reseñas');
+    for (const s of conTres) {
+      assert.ok(seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'reviews'));
+    }
+  });
+
+  test('la píldora aparece justo donde faltan reseñas, y nunca donde no hay ficha', async () => {
+    // GranCasa no tiene ficha de Google: no se pinta ni la píldora. Nunca se
+    // anuncia el vacío, y menos aún con un enlace que no lleva a ningún sitio.
+    for (const s of stores) {
+      const hoy = seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'schedule');
+      const tiene = hoy.includes('hoy-pildora');
+      const debe = s.reviews.length < 3 && (!!s.placeId || !!s.googleMapsLink);
+      assert.equal(tiene, debe, `${s.slug}: reseñas=${s.reviews.length} ficha=${!!s.googleMapsLink} píldora=${tiene}`);
+    }
+    const sinFicha = stores.find((s) => !s.googleMapsLink);
+    if (sinFicha) {
+      const hoy = seccion((await get(`/${sinFicha.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'schedule');
+      assert.ok(!/reseña/i.test(visible(hoy)), `${sinFicha.slug} no puede ni nombrar las reseñas`);
+    }
+  });
+
+  test('la píldora usa el formulario de Google, que es lo que mide `pedir_resena`', async () => {
+    const s = stores.find((x) => x.reviews.length < 3 && x.placeId);
+    const hoy = seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'schedule');
+    assert.match(hoy, /search\.google\.com\/local\/writereview\?placeid=/);
+    // Y va la ÚLTIMA: es una invitación, no la acción que paga el franquiciado.
+    assert.ok(hoy.indexOf('hoy-cta') < hoy.indexOf('hoy-resena'), 'el botón de visita va antes');
+    assert.ok(hoy.indexOf('hoy-acciones') < hoy.indexOf('hoy-resena'), 'y el contacto también');
+  });
+
+  test('las reseñas van de la más corta a la más larga, y enteras', async () => {
+    const s = stores.find((x) => x.reviews.length >= 3);
+    const sec = seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'reviews');
+    const largos = [...sec.matchAll(/class="dato-texto"[^>]*>«([^»]*)»/g)].map((m) => m[1].length);
+    assert.equal(largos.length, s.reviews.length, 'se pintan todas');
+    assert.deepEqual(largos, [...largos].sort((a, b) => a - b), 'de la más corta a la más larga');
+    // Ninguna recortada: es texto firmado con nombre y apellidos que republicamos.
+    for (const r of s.reviews) assert.ok(sec.includes(r.text), `«${r.author}» sale recortada`);
+    assert.ok(!sec.includes('★'), 'sin estrellas: las ocho de la flota son de cinco y no informan de nada');
+  });
+
+  test('la clásica conserva sus pestañas con JavaScript', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'alcobendas').domain)).text();
+    assert.match(clasica, /review-tab/, 'la clásica mantiene su carrusel');
+    assert.ok(!clasica.includes('dato-resena'), 'y no lleva nada de la variante');
+  });
+});

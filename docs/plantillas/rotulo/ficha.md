@@ -285,3 +285,50 @@ Y el botón pasa a su propia línea, con los dos enlaces de contacto en la suya.
 - **El minutero no lo ve nadie todavía**: exige calendario del centro vigente y `festivos.json` nace vacío a propósito. Es correcto, no una carencia.
 - **La fusión con el mapa** que pide el diseño de Rótulo (fachada de clic-para-cargar dentro de la propia sección) es de la rodaja 3: aquí la variante hace «horario + dónde», que es lo que el desglose contrata.
 - La sección **no tiene la voz de Rótulo** todavía.
+
+---
+
+## Variante `reviews:dato` + la píldora de reseña — ✅ PASA en la segunda vuelta (2026-09-11)
+
+**Hoja de objetivos:** P4 «¿es de fiar?» → N1 · y la otra mitad, la **máquina de reseñas**: `pedir_resena{seccion}`, que el registro de medición tenía dado de alta sin nada que lo emitiera.
+
+**Qué cambia:** las reseñas dejan de ser un carrusel de pestañas con JavaScript y se leen todas a la vez, con filete, como una lista de voces. Umbral de **tres**: con menos, la sección no se pinta.
+
+### La pieza tiene dos mitades, y la segunda vive en otra sección
+
+Seis de las ocho tiendas no llegan a tres reseñas. Poner ahí el «escribe la tuya» sería abrir un hueco para anunciar que está vacío. La píldora va a **«Hoy en tienda»**, que es la sección que ve todo el mundo y la que lee alguien que ya conoce la tienda. Va **la última** de esa sección: es una invitación, no la acción que paga el franquiciado.
+
+Y es pasiva a propósito — la política de contribuciones de Google prohíbe incentivar reseñas.
+
+**GranCasa no tiene ficha de Google: no se pinta ni la sección ni la píldora, y su HTML no nombra la palabra «reseña».** Nunca se anuncia el vacío.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada:**
+
+> «LO QUE DICEN EN GOOGLE» en gris pequeño. Debajo, separadas por filetes, las reseñas completas entre comillas, con el nombre y cinco estrellas amarillas.
+
+**Defecto que la tumba, y es de accesibilidad:** las estrellas dan **1,85 de contraste** sobre blanco y el mínimo para texto son 4,5. Tres fallos en la auditoría. Es la lección del manual de marca otra vez: `--color-stars` está pensado para un cartel, no para un glifo de 14 px.
+
+Y al mirar el dato apareció algo mejor: **las ocho reseñas de la flota son de cinco estrellas**. Lógico, las elegimos nosotros. Así que pintar cinco glifos idénticos en todas no informa de nada y sugiere una distribución que no existe. **Se quitan**, que arregla las dos cosas a la vez. El campo sigue en `stores.json`: el día que entre una que no sea de cinco, se vuelve a decidir con ese caso delante.
+
+**Menor:** la reseña de 369 caracteres abría la sección con once líneas seguidas de una sola persona.
+
+### Vuelta 2 — PASA
+
+Sin estrellas, y **de la más corta a la más larga**. No se recorta ninguna —es texto firmado con nombre y apellidos que la tienda republica, la misma regla que `citas.ts`— pero sí se ordena: con la larga arriba el ojo no entra.
+
+| Medido a 375 px | Vuelta 1 | Vuelta 2 |
+|---|---|---|
+| Fallos de contraste (Alcobendas) | **3 de 11** | **0 de 11** |
+| Alto (El Arcángel, 3 reseñas) | — | 635 px |
+| Orden de longitudes | 369 · 161 · 184 | **90 · 107 · 161** |
+| Desborde | 0 | 0 |
+
+**La píldora, en Lagoh:** 396 px la sección entera, con el botón de visita primero, el contacto después y la invitación al final.
+
+### Pendiente en esta pieza
+
+- **El alto sigue siendo grande** en Alcobendas (883 px) por la reseña de 369 caracteres. No se recorta y no se descarta: es la voz de un cliente y es el contenido más valioso de la página. Queda dicho, no escondido.
+- Si algún día entra una reseña que no sea de cinco estrellas, **hay que volver a decidir** si se pintan.
+- La sección **no tiene la voz de Rótulo** todavía.
