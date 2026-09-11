@@ -28,6 +28,13 @@ export const SECTION_IDS = [
   'brands',
   'schedule',
   'social',
+  // Generación 2. NO entran en ORDEN_BASE: ese array es el orden histórico de
+  // la clásica y tiene que seguir emitiendo exactamente lo mismo, o adoptar el
+  // sistema cambiaría las ocho webs vivas.
+  'socio',
+  'porque',
+  'faq',
+  'empieza',
 ] as const;
 
 export type SectionId = (typeof SECTION_IDS)[number];
@@ -225,6 +232,39 @@ export const TEMPLATES: Record<string, Template> = {
       { id: 'schedule', variant: 'billboard' },
       { id: 'social', variant: 'compacta' },
     ],
+  },
+
+  rotulo: {
+    id: 'rotulo',
+    label: 'Rótulo (en obras)',
+    // ANDAMIO, no la plantilla. Existe para poder VER cada sección nueva en su
+    // sitio mientras se construye: la metodología exige una captura por sección
+    // (Loop A) y sin una plantilla que la hospede no hay nada que capturar.
+    // La narrativa de verdad —hero de cartel, oferta, hoy en tienda, zona
+    // móvil— llega en su rodaja, con la hoja CSS entera. Ninguna tienda la
+    // declara y su label lo dice.
+    tokens: {
+      '--radius': '0px',
+      '--radius-sm': '0px',
+      '--radius-xs': '0px',
+      '--radius-btn': '0px',
+      '--shadow-card': 'none',
+      '--shadow-card-hover': 'none',
+      '--shadow-media': 'none',
+      // Sin esto, `usaFuenteBase: false` solo quita la precarga y el navegador
+      // se descarga Inter igual al pintar el primer texto. Las dos cosas van
+      // juntas. La pila es la decidida el 6-sep: Helvetica Neue en Apple,
+      // Roboto en Android, Segoe UI en Windows, todas con Light real.
+      '--font-family': "'Helvetica Neue', Roboto, 'Segoe UI', Arial, sans-serif",
+    },
+    fonts: ['/fonts/archivo-expanded-black-rotulo.woff2', '/fonts/rotulo-script.woff2'],
+    usaFuenteBase: false,
+    modo: 'auto',
+    // `brands` está aquí porque un test lo exigió: la FAQ nombra las ocho
+    // marcas por escrito, y la regla es que no nombra ninguna que no esté ya en
+    // la misma página. Nombrar ocho marcas compromete más que enseñar ocho
+    // logos — quien se desplaza y no encuentra la suya tiene motivo de queja.
+    sections: ['hero', 'socio', 'empieza', 'porque', 'brands', 'schedule', 'faq', 'social'],
   },
 };
 

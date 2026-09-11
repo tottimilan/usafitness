@@ -1,0 +1,135 @@
+---
+/**
+ * PREGUNTAS DE TIENDA
+ *
+ * Las cuatro preguntas y de dónde sale cada respuesta viven en `faq.ts`, que es
+ * puro y se puede probar sin levantar nada. Aquí solo está la forma.
+ *
+ * SIN JAVASCRIPT: `<details>` nativo. Un acordeón hecho a mano costaría código,
+ * gestión de foco y atributos de accesibilidad para conseguir exactamente lo
+ * que el navegador ya hace bien y gratis.
+ *
+ * Y SIN DATOS ESTRUCTURADOS, que es la decisión que hay que dejar escrita
+ * porque dentro de seis meses alguien va a leer un artículo de SEO de 2021 y
+ * querrá añadir `FAQPage`:
+ *
+ *   · El resultado enriquecido de FAQ **dejó de mostrarse el 7 de mayo de
+ *     2026** y Google retiró su documentación el 15 de junio de 2026
+ *     (developers.google.com/search/updates). No queda ningún tipo de sitio
+ *     elegible: ni administración, ni sanidad, ni nadie.
+ *   · Google dice además que «structured data that's not being used does not
+ *     cause problems for Search, but also has no visible effects». O sea: el
+ *     motivo para no ponerlo es que no sirve de nada, NO el miedo a una
+ *     penalización — nuestro texto es visible y una acción manual por datos
+ *     estructurados no toca el ranking.
+ *   · `QAPage` tampoco vale como sustituto: su documentación prohíbe
+ *     literalmente nuestro caso, «an FAQ page written by the site itself with
+ *     no way for users to submit alternative answers», y añade «don't use
+ *     QAPage markup for FAQ pages». Marcarla así sí sería marcado engañoso.
+ *
+ * Es el gemelo del comentario de `Landing.astro` que explica por qué no se
+ * emite `aggregateRating`.
+ */
+import { faqDeTienda, MINIMO_ENTRADAS } from '@/data/faq';
+
+interface Props {
+  schedule: string;
+  whatsapp?: string;
+  phoneDisplay: string;
+  variant?: string;
+}
+const { schedule, whatsapp, phoneDisplay, variant } = Astro.props;
+
+const entradas = faqDeTienda({ schedule, whatsapp, phoneDisplay });
+---
+
+{/* Tres respuestas son una FAQ; una es un hueco. El registro de secciones ya
+    aplica la misma regla con `visible`, pero se comprueba también aquí porque
+    el componente no puede depender de que nadie lo llame mal. */}
+{entradas.length >= MINIMO_ENTRADAS && (
+  <section class:list={['faq', 'section', variant && `faq--${variant}`]} id="faq">
+    <div class="container faq-inner">
+      <h2 class="faq-titulo">Preguntas de tienda</h2>
+      <div class="faq-lista">
+        {entradas.map((e) => (
+          <details class="faq-entrada">
+            <summary class="faq-pregunta">{e.pregunta}</summary>
+            <p class="faq-respuesta">{e.respuesta}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .faq-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.05rem;
+  }
+
+  /* Etiqueta, no titular: la misma decisión que en «Por qué en tienda». Si el
+     título compite con las preguntas, la sección se lee como una lista plana. */
+  .faq-titulo {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+  }
+
+  .faq-lista {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faq-entrada {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .faq-entrada:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .faq-pregunta {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.9rem 2rem 0.9rem 0;
+    position: relative;
+    font-weight: var(--font-weight-strong);
+    color: var(--color-primary);
+    line-height: 1.35;
+  }
+
+  /* El triángulo por defecto de `<details>` se quita en los dos motores y se
+     sustituye por un signo tipográfico, que es lo que el resto de la página usa
+     en vez de iconos de librería. */
+  .faq-pregunta::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-pregunta::after {
+    content: '+';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--color-text-light);
+  }
+
+  .faq-entrada[open] .faq-pregunta::after {
+    content: '–';
+  }
+
+  .faq-respuesta {
+    margin: 0;
+    padding: 0 2rem 1rem 0;
+    color: var(--color-text);
+    line-height: 1.6;
+    max-width: 60ch;
+  }
+</style>

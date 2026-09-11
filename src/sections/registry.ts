@@ -29,6 +29,11 @@ import Products from '@/components/Products.astro';
 import Brands from '@/components/Brands.astro';
 import Schedule from '@/components/Schedule.astro';
 import Social from '@/components/Social.astro';
+import Socio from '@/components/Socio.astro';
+import PorQue from '@/components/PorQue.astro';
+import Faq from '@/components/Faq.astro';
+import Empieza from '@/components/Empieza.astro';
+import { faqDeTienda, MINIMO_ENTRADAS } from '@/data/faq';
 
 import type { SectionId } from '@/data/templates';
 import type { Tienda } from '@/data/stores';
@@ -122,6 +127,68 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       whatsapp: s.whatsapp,
       googleMapsLink: s.googleMapsLink,
       name: s.name,
+    }),
+  },
+
+  /**
+   * Hazte socio. Contenido de MARCA: no depende de ningún dato del
+   * franquiciado, así que no lleva `visible` y se pinta siempre que la
+   * plantilla la hospede. Es lo que la hace digna en la peor tienda.
+   */
+  socio: {
+    component: Socio,
+    props: (s) => ({
+      // El rótulo curado, o la localidad recortada en la coma. `name` no: las
+      // ocho empiezan por «USAFITNESS» y el botón diría la marca, no el sitio.
+      rotulo: s.rotulo ?? s.location.split(',')[0].trim(),
+      domain: s.domain,
+      phone: s.phone,
+      googleMapsLink: s.googleMapsLink,
+    }),
+  },
+
+  /**
+   * Por qué en tienda. Las tres razones son de marca; lo único que cambia por
+   * tienda es la cita de reseña, que degrada sola: sin reseñas se dice el hecho
+   * operativo, que es verdad en las ocho. Por eso no lleva `visible`.
+   */
+  porque: {
+    component: PorQue,
+    props: (s) => ({
+      reviews: s.reviews,
+      name: s.name,
+      phone: s.phone,
+      whatsapp: s.whatsapp,
+    }),
+  },
+
+  /**
+   * Preguntas de tienda. Cada pregunta se omite entera si su dato falta, así
+   * que el número de entradas varía por tienda: con menos de tres, la sección
+   * no se pinta. Es la misma regla que la galería y las reseñas.
+   */
+  faq: {
+    component: Faq,
+    visible: (s) => faqDeTienda(s).length >= MINIMO_ENTRADAS,
+    props: (s) => ({
+      schedule: s.schedule,
+      whatsapp: s.whatsapp,
+      phoneDisplay: s.phoneDisplay,
+    }),
+  },
+
+  /**
+   * Empieza aquí. Contenido de MARCA: las rutas son las mismas en las 50
+   * tiendas y no dependen de ningún dato del franquiciado, así que no lleva
+   * `visible`. Lo único que cambia por tienda es el cierre, que degrada solo:
+   * con WhatsApp, el mensaje precalificado; sin él, el mostrador y el teléfono.
+   */
+  empieza: {
+    component: Empieza,
+    props: (s) => ({
+      phone: s.phone,
+      phoneDisplay: s.phoneDisplay,
+      whatsapp: s.whatsapp,
     }),
   },
 

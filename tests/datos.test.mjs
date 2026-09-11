@@ -62,6 +62,15 @@ import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
 import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
 import { ofertaViva } from '../src/data/ofertas.ts';
+import { citaDeAsesoramiento } from '../src/data/citas.ts';
+import { faqDeTienda, MARCAS, MINIMO_ENTRADAS } from '../src/data/faq.ts';
+import {
+  rutasDeHoy,
+  esTemporadaDeRegalo,
+  mensajeDeRuta,
+  textosDeRuta,
+  LEXICO_PROHIBIDO,
+} from '../src/data/rutas.ts';
 import {
   revisarAuditoria,
   criticosDelInforme,
@@ -1668,6 +1677,223 @@ describe('La oferta del mes caduca sola, y antes vacío que mentira', () => {
     for (const t of stores) {
       assert.equal(ofertaViva(t, new Date()), null, `${t.slug} pintaría una oferta`);
     }
+  });
+});
+
+describe('La cita de asesoramiento es real, entera y de esa tienda', () => {
+  // La sección «Por qué en tienda» afirma que atiende una persona, y esa
+  // afirmación la sostiene alguien que no somos nosotros. Pero es texto firmado
+  // con nombre y apellidos que la tienda republica: recortarlo por la mitad
+  // puede cambiar lo que esa persona dijo.
+
+  test('elige una frase COMPLETA, nunca un trozo cortado', () => {
+    for (const t of stores) {
+      const c = citaDeAsesoramiento(t.reviews);
+      if (!c) continue;
+      const entera = t.reviews.some((r) => r.text.includes(c.texto));
+      assert.ok(entera, `${t.slug}: la cita no aparece literal en ninguna reseña`);
+      assert.ok(c.texto.length >= 30 && c.texto.length <= 120, `${t.slug}: la cita mide ${c.texto.length}`);
+      assert.ok(t.reviews.some((r) => r.author === c.autor), `${t.slug}: el autor no es de esta tienda`);
+    }
+  });
+
+  test('la frase elegida habla del asesoramiento, no de otra cosa', () => {
+    // El caso que lo obliga: la reseña de El Arcángel empieza por la variedad
+    // de producto y el elogio al trato viene DESPUÉS. Coger la primera frase
+    // habría publicado una cita que no sostiene la afirmación de al lado.
+    const arcangel = stores.find((s) => s.slug === 'arcangel');
+    const c = citaDeAsesoramiento(arcangel.reviews);
+    assert.ok(c, 'el arcángel tiene reseñas que sirven');
+    assert.ok(!/^Gran variedad/.test(c.texto), 'no puede ser la frase de la variedad de producto');
+    assert.match(c.texto, /asesor|atenci|aconsej|recomend|ayuda/i);
+  });
+
+  test('las tres tiendas con reseñas tienen cita, y las cinco sin ellas no', () => {
+    const conCita = stores.filter((t) => citaDeAsesoramiento(t.reviews));
+    assert.deepEqual(
+      conCita.map((t) => t.slug).sort(),
+      ['alcobendas', 'arcangel', 'villanueva'],
+      'hoy solo estas tres tienen reseñas'
+    );
+    for (const t of stores.filter((x) => x.reviews.length === 0)) {
+      assert.equal(citaDeAsesoramiento(t.reviews), null, `${t.slug} no puede inventarse una cita`);
+    }
+  });
+
+  test('una reseña que no habla de trato no produce cita', () => {
+    assert.equal(
+      citaDeAsesoramiento([{ author: 'X', text: 'Tienen mucha variedad de marcas y buenos precios.' }]),
+      null
+    );
+  });
+
+  test('a igualdad de longitud, siempre la misma: dos builds no pueden diferir', () => {
+    const dos = [
+      { author: 'A', text: 'La atención fue estupenda del todo.' },
+      { author: 'B', text: 'La atención fue estupenda del todo.' },
+    ];
+    assert.equal(citaDeAsesoramiento(dos).autor, 'A');
+  });
+});
+
+describe('La FAQ solo pregunta lo que puede responder', () => {
+  // La regla: una pregunta sin dato se omite ENTERA. Nunca una respuesta a
+  // medias ni un «consúltanos» disfrazado de respuesta.
+  test('sin domingo en el horario, la pregunta del domingo NO existe', () => {
+    // Escribir «no, los domingos no abrimos» sería deducir un cierre de la
+    // AUSENCIA de una línea, y esa ausencia puede ser un olvido al teclear.
+    const sinDomingo = stores.filter((t) => !parseHorario(t.schedule).some((f) => f.dayOfWeek.includes('Sunday')));
+    assert.equal(sinDomingo.length, 3, 'villanueva, marineda y grancasa no declaran domingo');
+    for (const t of sinDomingo) {
+      const preguntas = faqDeTienda(t).map((e) => e.pregunta);
+      assert.ok(!preguntas.some((p) => /domingo/i.test(p)), `${t.slug} no puede preguntar por los domingos`);
+      assert.ok(!faqDeTienda(t).some((e) => /no abrimos|cerrado/i.test(e.respuesta)), `${t.slug} no puede afirmar que cierra`);
+    }
+  });
+
+  test('la respuesta del domingo dice el horario REAL de esa tienda', () => {
+    // Alcobendas abre los domingos con OTRO horario que el resto de la semana:
+    // repetir el de diario sería mentir con un dato que tenemos bien.
+    const a = stores.find((t) => t.slug === 'alcobendas');
+    const r = faqDeTienda(a).find((e) => /domingo/i.test(e.pregunta)).respuesta;
+    assert.match(r, /11:00 a 21:00/, 'el horario del domingo de alcobendas');
+    assert.ok(!r.includes('10:00 a 22:00'), 'ese es el de diario, no el del domingo');
+    assert.match(r, /cerramos antes/, 'y se dice que es distinto');
+
+    const l = stores.find((t) => t.slug === 'lagoh');
+    assert.match(faqDeTienda(l).find((e) => /domingo/i.test(e.pregunta)).respuesta, /mismo horario/);
+  });
+
+  test('ninguna tienda baja del mínimo, y ninguna pasa de cuatro', () => {
+    for (const t of stores) {
+      const n = faqDeTienda(t).length;
+      assert.ok(n >= MINIMO_ENTRADAS && n <= 4, `${t.slug} tiene ${n} preguntas`);
+    }
+  });
+
+  test('ni nutrición ni precios: ni en la pregunta ni en la respuesta', () => {
+    // Una pregunta sobre qué proteína conviene es una alegación de salud sobre
+    // un alimento (Reglamento 1924/2006, que aplica aunque no vendamos online).
+    // Y los precios están ocultos por decisión del dueño.
+    const prohibido = /€|\bprecio de\b|\bcuesta\b|mejor proteína|qué creatina|para adelgazar|masa muscular|te ayuda a/i;
+    for (const t of stores) {
+      for (const e of faqDeTienda(t)) {
+        const texto = `${e.pregunta} ${e.respuesta}`;
+        // «precio de socio» es el nombre de una ventaja, no un importe: se
+        // permite, y por eso el patrón busca «precio de» seguido de otra cosa.
+        const limpio = texto.replace(/precio de socio/gi, '');
+        assert.ok(!prohibido.test(limpio), `${t.slug} · «${e.pregunta}»: ${limpio.slice(0, 90)}`);
+      }
+    }
+  });
+
+  test('el cierre de la pregunta de marcas degrada por dato', () => {
+    const conWa = faqDeTienda(stores.find((t) => t.slug === 'villanueva')).find((e) => /marcas/i.test(e.pregunta));
+    assert.match(conWa.respuesta, /WhatsApp/);
+    const sinWa = stores.find((t) => t.slug === 'lagoh');
+    const r = faqDeTienda(sinWa).find((e) => /marcas/i.test(e.pregunta)).respuesta;
+    assert.ok(!/WhatsApp/.test(r), 'lagoh no tiene WhatsApp');
+    assert.ok(r.includes(sinWa.phoneDisplay), 'le queda su teléfono, escrito entero');
+  });
+});
+
+describe('Las rutas de «Empieza aquí» listan surtido, nunca prometen un efecto', () => {
+  // Enero y julio: hay que probar las dos poblaciones, porque en Navidad entra
+  // una ruta más y sería justo la que se escapara del corrector.
+  const TODAS = [...rutasDeHoy(new Date('2026-07-01T10:00:00Z')), ...rutasDeHoy(new Date('2026-12-20T10:00:00Z'))];
+
+  test('ni un conector causal ni un verbo de resultado en ningún texto', () => {
+    // La regla que gobierna el fichero: la etiqueta nombra el objetivo de la
+    // persona, la línea de abajo lista categorías. Nunca «proteínas PARA ganar
+    // músculo», que es lo que convierte una lista en una declaración de salud.
+    for (const r of TODAS) {
+      for (const t of textosDeRuta(r)) {
+        for (const mala of LEXICO_PROHIBIDO) {
+          assert.ok(!t.toLowerCase().includes(mala), `ruta «${r.id}»: «${t}» contiene «${mala}»`);
+        }
+      }
+    }
+  });
+
+  test('toda estantería nombrada existe de verdad en el catálogo extraído', () => {
+    // El catálogo es de la central y se lee del fichero, no de memoria: una
+    // ruta no puede mandar a nadie a una estantería que no existe.
+    const catalogo = JSON.parse(
+      readFileSync(new URL('../docs/product/catalogo-usafitness-2026-08.json', import.meta.url), 'utf8')
+    );
+    const reales = new Set(Object.values(catalogo.categorias));
+    for (const r of TODAS) {
+      for (const q of r.queMirar) {
+        assert.ok(reales.has(q.categoria), `ruta «${r.id}»: «${q.categoria}» no está en el catálogo`);
+      }
+    }
+  });
+
+  test('lo que se imprime es la misma palabra que el catálogo, solo bien escrita', () => {
+    // `muestra` existe para corregir «Proteinas» sin tilde, no para cambiar de
+    // estantería: sin esta comprobación sería una puerta trasera para escribir
+    // lo que se quisiera encima de un nombre real.
+    const pelado = (x) =>
+      x
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    for (const r of TODAS) {
+      for (const q of r.queMirar) {
+        assert.equal(pelado(q.muestra), pelado(q.categoria), `ruta «${r.id}»: «${q.muestra}» ≠ «${q.categoria}»`);
+      }
+    }
+  });
+
+  test('ninguna ruta lleva una sola cifra', () => {
+    // Los contadores del catálogo son tentadores y no cuadran: siete de esas
+    // puertas suman 2.588 sobre un catálogo de 1.683 porque «Mujer» y
+    // «Nutrición» engloban a las otras. Las cifras son de «Productos y marcas».
+    for (const r of TODAS) {
+      for (const t of textosDeRuta(r)) {
+        assert.ok(!/\d/.test(t), `ruta «${r.id}»: «${t}» lleva una cifra`);
+      }
+    }
+  });
+
+  test('la ruta de regalo entra el 15-nov y se va el 7-ene, en hora de Madrid', () => {
+    // El servidor corre en UTC. El 6 de enero a las 00:30 en Madrid es todavía
+    // el 5 en UTC: sin `fechaEnMadrid`, la ruta desaparecería un día antes
+    // justo en la única noche en que eso se nota.
+    assert.equal(esTemporadaDeRegalo(new Date('2026-11-14T12:00:00Z')), false, '14 de noviembre, todavía no');
+    assert.equal(esTemporadaDeRegalo(new Date('2026-11-15T12:00:00Z')), true, '15 de noviembre, ya sí');
+    assert.equal(esTemporadaDeRegalo(new Date('2027-01-05T23:30:00Z')), true, 'medianoche y media del 6 en Madrid');
+    assert.equal(esTemporadaDeRegalo(new Date('2027-01-06T23:30:00Z')), false, 'esa misma hora del día 7, fuera');
+    assert.equal(esTemporadaDeRegalo(new Date('2026-07-01T12:00:00Z')), false, 'en julio no se regala');
+
+    assert.equal(rutasDeHoy(new Date('2026-07-01T10:00:00Z')).length, 4);
+    const navidad = rutasDeHoy(new Date('2026-12-20T10:00:00Z'));
+    assert.equal(navidad.length, 5, 'la de regalo SE AÑADE');
+    assert.ok(
+      navidad.some((r) => r.id === 'cero'),
+      'y «Empiezo de cero» sigue ahí: es la única que responde la pregunta que da nombre a la sección'
+    );
+  });
+
+  test('el mensaje lleva la ruta y no lleva el nombre de ninguna tienda', () => {
+    // La precalificación viaja en el texto: el franquiciado sabe a qué viene
+    // quien escribe sin abrir un informe. El nombre de la tienda sobra —el
+    // mensaje ya va a su número— y con el rótulo salía gritado en mayúsculas.
+    for (const r of TODAS) {
+      const m = mensajeDeRuta(r);
+      assert.ok(m.includes(r.frase), `el mensaje de «${r.id}» no dice a qué viene`);
+      assert.match(m, /desde vuestra web/, 'y dice que viene de la web, que es la única atribución que se ve');
+      for (const t of stores) {
+        assert.ok(!m.includes(t.name), `el mensaje no puede nombrar a ${t.name}`);
+        if (t.rotulo) assert.ok(!m.includes(t.rotulo), `ni el rótulo ${t.rotulo}`);
+      }
+    }
+  });
+
+  test('«empieza» es una sección del vocabulario y NO del orden histórico', () => {
+    // Si entrara en ORDEN_BASE, aparecería en las ocho webs vivas mañana.
+    assert.ok(SECTION_IDS.includes('empieza'));
+    assert.ok(!ORDEN_BASE.map((r) => (typeof r === 'string' ? r : r.id)).includes('empieza'));
   });
 });
 

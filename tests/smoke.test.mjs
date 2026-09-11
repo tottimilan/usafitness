@@ -915,6 +915,268 @@ describe('La plantilla Energía es OTRA web, no otra piel', () => {
   });
 });
 
+describe('«Hazte socio» responde qué gano yo, y no promete cifras que nadie pueda sostener', () => {
+  // La sección es contenido de MARCA: idéntica en las 50 tiendas, sin un dato
+  // que el franquiciado tenga que mantener. Por eso es digna en la peor tienda
+  // por construcción, que era el agujero que tenía que tapar.
+
+  /** El trozo de HTML de la sección, para no medir el resto de la página. */
+  const soloSocio = (html) => {
+    const i = html.indexOf('<section class="socio');
+    assert.ok(i > -1, 'no se pintó la sección socio');
+    const j = html.indexOf('</section>', i);
+    return html.slice(i, j);
+  };
+
+  test('la plantilla que la hospeda la pinta, y la clásica sigue sin ella', async () => {
+    const conSocio = (await get('/lagoh?plantilla=rotulo')).text();
+    assert.match(conSocio, /data-plantilla="rotulo"/);
+    assert.ok(conSocio.includes('<section class="socio'), 'la plantilla que la declara la pinta');
+
+    // La clásica es la que sirven las ocho webs vivas: no puede cambiar.
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.ok(!clasica.includes('class="socio'), 'la clásica no lleva la sección nueva');
+  });
+
+  test('NI UNA CIFRA: las promesas sin documento no se publican', async () => {
+    // Las promos actuales dicen «Hasta 10%», «Hasta 20%», «Cupón 5 € desde
+    // 49,90 €». Ninguna tiene documento de la central, y ya hubo que retirar un
+    // «Hasta 20% dto.» de los metadatos de las ocho por eso mismo. R2: las
+    // cifras entran cuando lleguen POR ESCRITO. Este test es esa regla.
+    const socio = soloSocio((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(!socio.includes('%'), 'un porcentaje sin documento se ha colado en Hazte socio');
+    assert.ok(!/€|\beuros?\b/i.test(socio), 'un importe sin documento se ha colado en Hazte socio');
+    assert.ok(!/\bhasta\s+\d/i.test(socio), 'un «hasta N» es justo la promesa que hubo que retirar');
+    // Y las cuatro ventajas siguen ahí: quitar las cifras no es quitar el fondo.
+    for (const v of ['Precio de socio', 'Descuento funcionario', 'Tu cumpleaños', 'Cupón por compra']) {
+      assert.ok(socio.includes(v), `falta la ventaja «${v}»`);
+    }
+  });
+
+  test('la conversión degrada por dato y nunca lleva a ningún sitio muerto', async () => {
+    // N3 → N1: el alta es EN TIENDA, así que la conversión es una visita.
+    const conFicha = soloSocio((await get('/lagoh?plantilla=rotulo')).text());
+    assert.match(conFicha, /Cómo llegar a LAGOH/, 'usa el rótulo curado, no «USAFITNESS C.C LAGOH»');
+    assert.match(conFicha, /href="https:\/\/maps\.google\.com\/\?cid=/);
+
+    // GranCasa no tiene ficha de Google: ni mapa ni botón muerto.
+    const sinFicha = soloSocio((await get('/grancasa?plantilla=rotulo')).text());
+    assert.ok(!/maps\.google\.com/.test(sinFicha), 'sin ficha no puede haber enlace a Maps');
+    assert.match(sinFicha, /href="tel:\+34/, 'el hueco lo ocupa el teléfono, no un botón roto');
+  });
+
+  test('no pide un solo dato personal', async () => {
+    // R8: nada de captura de datos en tiendas sin bloque legal completo. Y
+    // además la fricción real de hacerse socio es cero: se pide en caja.
+    const socio = soloSocio((await get('/lagoh?plantilla=rotulo')).text());
+    for (const etiqueta of ['<form', '<input', '<textarea', 'mailto:']) {
+      assert.ok(!socio.includes(etiqueta), `«Hazte socio» no puede llevar ${etiqueta}`);
+    }
+  });
+
+  test('el evento sabrá de dónde viene: la primera clase del section es «socio»', async () => {
+    // `ConversionTracking.seccionDe` toma className.split(' ')[0]. Si deja de
+    // ser «socio», el informe del franquiciado pierde el origen de la visita.
+    const html = (await get('/lagoh?plantilla=rotulo')).text();
+    assert.match(html, /<section class="socio /, 'la primera clase tiene que ser el id de la sección');
+  });
+});
+
+describe('«Por qué en tienda» da tres razones, y la del medio la firma otro', () => {
+  const soloPorque = (html) => {
+    const i = html.indexOf('<section class="porque');
+    assert.ok(i > -1, 'no se pintó la sección porque');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+
+  test('la cita es literal, de una reseña de ESA tienda, y va firmada', async () => {
+    // Decir «te asesora una persona» es una afirmación nuestra. Al lado va una
+    // frase de alguien que no somos nosotros, entera y sin recortar.
+    const s = stores.find((x) => x.slug === 'villanueva');
+    const porque = soloPorque((await get(`/${s.slug}?plantilla=rotulo`)).text());
+    const cita = porque.match(/«([^»]+)»/);
+    assert.ok(cita, 'falta la cita entrecomillada');
+    assert.ok(
+      s.reviews.some((r) => r.text.includes(cita[1])),
+      `la cita «${cita[1]}» no aparece literal en ninguna reseña de ${s.slug}`
+    );
+    assert.ok(
+      s.reviews.some((r) => porque.includes(r.author)),
+      'la cita tiene que ir firmada por quien la escribió'
+    );
+    assert.ok(porque.includes('en Google'), 'y decir de dónde sale');
+  });
+
+  test('sin reseñas no se inventa una cita: se dice el hecho operativo', async () => {
+    // Cinco de las ocho tiendas están a cero reseñas. Es el caso normal.
+    const porque = soloPorque((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(!porque.includes('«'), 'lagoh no tiene reseñas: no puede haber cita');
+    assert.match(porque, /Asesoramiento en el mostrador/);
+  });
+
+  test('la conversión degrada: WhatsApp donde lo hay, teléfono donde no', async () => {
+    const conWa = soloPorque((await get('/villanueva?plantilla=rotulo')).text());
+    assert.match(conWa, /href="https:\/\/wa\.me\/34/);
+    const sinWa = soloPorque((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(!/wa\.me/.test(sinWa), 'lagoh no tiene WhatsApp: ningún enlace puede apuntar ahí');
+    assert.match(sinWa, /href="tel:\+34/);
+  });
+
+  test('no se nombra a ningún competidor', async () => {
+    // Nombrarlo le hace publicidad, invita a ir a mirar y pone al visitante a
+    // comparar precios, que es el terreno donde una tienda de barrio no gana.
+    const porque = soloPorque((await get('/villanueva?plantilla=rotulo')).text());
+    for (const quien of ['Amazon', 'amazon', 'Decathlon', 'MyProtein', 'Prozis', 'internet', 'online']) {
+      assert.ok(!porque.includes(quien), `«Por qué en tienda» no puede nombrar a ${quien}`);
+    }
+  });
+
+  test('la clásica sigue sin la sección, y el evento sabrá de dónde viene', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'villanueva').domain)).text();
+    assert.ok(!clasica.includes('class="porque'), 'la clásica no lleva la sección nueva');
+    const preview = (await get('/villanueva?plantilla=rotulo')).text();
+    assert.match(preview, /<section class="porque /, 'la primera clase es el id de la sección');
+  });
+});
+
+describe('La FAQ no lleva marcado muerto, ni JavaScript, ni marcas que no estén en la página', () => {
+  const soloFaq = (html) => {
+    const i = html.indexOf('<section class="faq');
+    assert.ok(i > -1, 'no se pintó la sección faq');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+
+  test('NI FAQPage NI QAPage: el resultado enriquecido murió el 7 de mayo de 2026', async () => {
+    // Este test existe para que dentro de seis meses nadie lo reintroduzca
+    // después de leer un artículo de SEO de 2021. Google dejó de mostrar el
+    // resultado enriquecido de FAQ el 7-05-2026 y retiró su documentación el
+    // 15-06-2026; y QAPage prohíbe literalmente nuestro caso, «an FAQ page
+    // written by the site itself with no way for users to submit alternative
+    // answers». El motivo para no marcarlo es la futilidad, no el miedo.
+    // Se mira lo que se SIRVE, no el fuente: el fuente nombra «FAQPage» dentro
+    // del comentario que explica por qué no se usa, y un test que buscara la
+    // palabra estaría prohibiendo su propia documentación.
+    const servido = (await get('/lagoh?plantilla=rotulo')).text();
+    assert.ok(!/"@type"\s*:\s*"FAQPage"/.test(servido), 'FAQPage no se emite: el resultado enriquecido ya no existe');
+    assert.ok(!/"@type"\s*:\s*"QAPage"/.test(servido), 'QAPage prohíbe expresamente una FAQ escrita por el propio sitio');
+    assert.ok(!/"@type"\s*:\s*"Question"/.test(servido), 'ni Question suelta');
+
+    // Y el PORQUÉ tiene que seguir escrito donde alguien lo vaya a leer antes
+    // de reintroducirlo: sin el comentario, este test parece una manía.
+    const fuente = readFileSync(new URL('../src/components/Faq.astro', import.meta.url), 'utf8');
+    assert.match(fuente, /7 de mayo/, 'la razón, con su fecha, vive junto al código');
+  });
+
+  test('se abre y se cierra sin una línea de JavaScript', async () => {
+    const faq = soloFaq((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(faq.includes('<details'), 'el acordeón es nativo');
+    assert.ok(faq.includes('<summary'), 'con su summary');
+    assert.ok(!faq.includes('<script'), 'ni un script dentro de la sección');
+    assert.ok(!/onclick|addEventListener/.test(faq), 'ni un manejador escrito a mano');
+  });
+
+  test('no nombra ni una marca que no esté ya en la misma página', async () => {
+    // Nombrar ocho marcas por escrito compromete más que enseñar ocho logos:
+    // quien se desplaza y no encuentra la suya tiene un motivo para quejarse.
+    // La regla es que la FAQ no añade ninguna marca nueva a la página.
+    const html = (await get('/lagoh?plantilla=rotulo')).text();
+    const faq = soloFaq(html);
+    const { MARCAS } = await import('../src/data/faq.ts');
+    for (const m of MARCAS) {
+      assert.ok(faq.includes(m), `la FAQ debería nombrar ${m}`);
+      const fuera = html.slice(0, html.indexOf('<section class="faq')) + html.slice(html.indexOf('</section>', html.indexOf('<section class="faq')));
+      assert.ok(fuera.includes(m), `${m} se nombra en la FAQ pero no aparece en el resto de la página`);
+    }
+  });
+
+  test('la pregunta del domingo aparece donde hay domingo y falta donde no', async () => {
+    assert.match(soloFaq((await get('/lagoh?plantilla=rotulo')).text()), /¿Abrís los domingos\?/);
+    const grancasa = soloFaq((await get('/grancasa?plantilla=rotulo')).text());
+    assert.ok(!/domingo/i.test(grancasa), 'grancasa no declara domingo: la pregunta no existe');
+    assert.ok(!/no abrimos/i.test(grancasa), 'y tampoco afirma que cierre');
+  });
+
+  test('la clásica sigue sin FAQ, y el evento sabrá de dónde viene', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.ok(!clasica.includes('class="faq'), 'la clásica no lleva la sección nueva');
+    assert.match((await get('/lagoh?plantilla=rotulo')).text(), /<section class="faq /);
+  });
+});
+
+describe('«Empieza aquí» elige sin JavaScript, sin teclado roto y sin prometer nada', () => {
+  const soloEmpieza = (html) => {
+    const i = html.indexOf('<section class="empieza');
+    assert.ok(i > -1, 'no se pintó la sección empieza');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+  /** El texto que un visitante LEE, sin atributos ni URLs. */
+  const visible = (trozo) => trozo.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  test('cuatro radios de un mismo grupo y ni una línea de JavaScript', async () => {
+    const e = soloEmpieza((await get('/lagoh?plantilla=rotulo')).text());
+    assert.equal((e.match(/type="radio"/g) || []).length, 4, 'cuatro rutas fuera de temporada de regalo');
+    assert.equal((e.match(/name="empieza"/g) || []).length, 4, 'del mismo grupo: solo una abierta a la vez');
+    assert.equal((e.match(/<label /g) || []).length, 4, 'cada una con su etiqueta');
+    assert.ok(!e.includes('<script'), 'ni un script dentro de la sección');
+    assert.ok(!/onclick|onchange|addEventListener/.test(e), 'ni un manejador escrito a mano');
+  });
+
+  test('los radios siguen siendo alcanzables con el tabulador', async () => {
+    // Se mira el CSS SERVIDO, no el fuente: `display:none` en un radio oculto
+    // es el error clásico del patrón, y deja la sección inservible con teclado
+    // sin que se note en ninguna captura.
+    const html = (await get('/lagoh?plantilla=rotulo')).text();
+    const hojas = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1]);
+    assert.ok(hojas.length > 0, 'la página sirve alguna hoja de estilos');
+    let regla = null;
+    for (const h of hojas) {
+      const css = (await get(h)).text();
+      const m = css.match(/\.empieza-radio\[[^\]]*\]\{([^}]*)\}/);
+      if (m) regla = m[1];
+    }
+    assert.ok(regla, 'la regla del radio llega al navegador');
+    assert.match(regla, /clip-path/, 'se recorta');
+    assert.ok(!/display:\s*none/.test(regla), 'nunca se esconde con display:none');
+  });
+
+  test('con WhatsApp, cada ruta manda su propio mensaje ya escrito', async () => {
+    const e = soloEmpieza((await get('/villanueva?plantilla=rotulo')).text());
+    const enlaces = [...e.matchAll(/href="(https:\/\/wa\.me\/[^"]+)"/g)].map((m) =>
+      decodeURIComponent(m[1].replace(/&#38;/g, '&'))
+    );
+    assert.equal(enlaces.length, 4, 'un WhatsApp por ruta');
+    for (const frase of ['Vengo a ganar músculo.', 'Entreno resistencia.', 'Quiero cuidar la alimentación.', 'Empiezo de cero.']) {
+      assert.ok(enlaces.some((u) => u.includes(frase)), `falta el mensaje de «${frase}»`);
+    }
+    assert.ok(!enlaces.some((u) => u.includes('VILLANUEVA')), 'el rótulo no se cuela gritando dentro de la frase');
+  });
+
+  test('sin WhatsApp no hay promesa rota: queda el mostrador y el teléfono', async () => {
+    const e = soloEmpieza((await get('/lagoh?plantilla=rotulo')).text());
+    assert.ok(!e.includes('wa.me'), 'lagoh no tiene WhatsApp verificado');
+    assert.equal((e.match(/href="tel:/g) || []).length, 4, 'una llamada por ruta');
+    assert.match(visible(e), /Enséñale esta pantalla/, 'y la salida que no necesita ningún dato');
+  });
+
+  test('ni un conector causal ni una cifra en lo que se lee', async () => {
+    // La regla del Reglamento 1924/2006 aplicada donde se nota: la etiqueta
+    // nombra el objetivo de la persona, la línea de abajo lista estanterías.
+    // «Proteínas PARA ganar músculo» sería una declaración de salud.
+    const texto = visible(soloEmpieza((await get('/lagoh?plantilla=rotulo')).text()));
+    assert.ok(!/ para /i.test(texto), `se coló un conector causal: ${texto.slice(0, 120)}`);
+    assert.ok(!/control de peso|adelgaz|rendimiento|energía y resistencia/i.test(texto), 'ni una etiqueta de zona ámbar');
+    // El teléfono es la única cifra admitida, y solo dentro de un tel:.
+    assert.ok(!/\d/.test(texto.replace(/Llamar al [\d\s]+/g, '')), 'ninguna cifra de catálogo');
+  });
+
+  test('la clásica no la lleva, y el evento sabrá de dónde viene', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.ok(!clasica.includes('class="empieza'), 'las ocho webs vivas no cambian');
+    // La PRIMERA clase del <section> es el parámetro `seccion` del evento.
+    assert.match((await get('/lagoh?plantilla=rotulo')).text(), /<section class="empieza /);
+  });
+});
+
 describe('El host se normaliza, /_image está cerrado y robots no repite lo que le mandan', () => {
   test('un Host en mayúsculas o con punto final sirve SU tienda, no el host genérico', async () => {
     // Cloudflare hoy pone la cabecera en minúscula antes de reenviarla, así que
