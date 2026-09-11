@@ -32,6 +32,7 @@ import { parseHorario } from './horario.ts';
 import { SECTION_IDS, PRIORIDADES } from './templates.ts';
 import { cidDePlaceId } from './resenas.ts';
 import { centrosSinCalendario } from './festivos.ts';
+import { EsquemaOferta, ofertasParaLimpiar } from './ofertas.ts';
 
 /* ── Piezas reutilizadas ───────────────────────────────────────────────── */
 
@@ -310,6 +311,22 @@ const EsquemaTienda = z.strictObject({
    */
   prioridad: z.enum(PRIORIDADES).optional(),
 
+  /**
+   * La oferta de ESTA tienda, que pisa a la de la central mientras esté viva.
+   * Con fecha de fin obligatoria: caduca sola. Ver `ofertas.ts`.
+   */
+  ofertaPropia: EsquemaOferta.optional(),
+
+  /**
+   * `true` solo si este franquiciado quiere ver precios en su web.
+   *
+   * Los precios están OCULTOS por decisión del dueño (27-ago), con este
+   * interruptor «por si algún franquiciado sí los quiere». Activarlo reabre la
+   * pregunta de qué permite publicar la central (método §10.4), así que no se
+   * pone sin hablarlo.
+   */
+  preciosVisibles: z.boolean().optional(),
+
   /* Medición (Fase 1) — el código ya está, faltan los identificadores */
   // `GT-` además de `G-`: la interfaz de Google entrega hoy identificadores
   // `GT-` y `gtag('config')` acepta los dos. Con el regex anterior, pegar el
@@ -573,6 +590,8 @@ export function avisosDeDatos(): string[] {
   // de un centro comercial, así que va antes del bucle y una sola vez por
   // centro. Mientras esté aquí, esas tiendas imprimen la franja del día y
   // ningún minutero: ver la cabecera de `festivos.ts`.
+  for (const a of ofertasParaLimpiar(stores, new Date())) avisos.push(a);
+
   const sinCalendario = centrosSinCalendario(stores, new Date());
   for (const centro of sinCalendario) {
     avisos.push(

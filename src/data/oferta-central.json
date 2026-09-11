@@ -1,0 +1,12 @@
+{
+  "_leeme": "La oferta del mes que la central produce y el operador publica en las tiendas que no tengan la suya. Se publica BAJO EL CIF DE CADA FRANQUICIADO, así que `procedencia` (quién autorizó el texto y cuándo) es obligatoria: ya hubo que retirar un «Hasta 20% dto.» que nadie sabía de dónde salía. `hasta` también es obligatoria y la oferta deja de publicarse sola ese día, sin que nadie tenga que acordarse. Precios ocultos: `precio` solo se sirve en las tiendas con `preciosVisibles`. Pon `oferta` a null cuando no haya ninguna.",
+  "_ejemplo": {
+    "cifra": "2×1",
+    "titulo": "Dos por uno en proteínas",
+    "condicion": "solo en tienda · enséñalo en caja",
+    "desde": "2026-09-01",
+    "hasta": "2026-09-30",
+    "procedencia": { "autorizadaPor": "Central USA Fitness", "fecha": "2026-08-28", "donde": "canal interno" }
+  },
+  "oferta": null
+}
