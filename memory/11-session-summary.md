@@ -215,6 +215,24 @@ Los cuatro arreglados y verificados en producción. Un quinto —redirección ab
 
 ---
 
+### La tarde: la rodaja 2 cerrada entera, y cuatro afirmaciones nuestras que eran falsas
+
+Cuatro variantes en una tanda: `schedule:hoy`, `reviews:dato`, `gallery:tira` y `products:puertas`. **Siete de las ocho piezas de la rodaja suspendieron la primera vuelta**, todas por defectos que solo se ven mirando la captura.
+
+Lo que la tanda destapó, que vale más que las secciones:
+
+1. **«Mujer — 557 referencias, un tercio del catálogo» no existe.** La ruta de mujer del catálogo de la central hace un 301 a la de control de peso: ese 557 es Control de Peso. La categoría Mujer real tiene 100 fichas y ninguna URL navegable. Iba camino de imprimirse en ocho webs como cifra verificable.
+2. **Las cifras por puerta no se pueden publicar.** El catálogo no es una partición en ningún nivel —hay un bote en tres categorías a la vez— y el conjunto máximo con solape cero cubre el 32 %. Las puertas van sin número, y el único número de la sección caduca solo a los 120 días.
+3. **`faq.ts` decía que la dirección no añade nada al nombre del centro.** Añade una calle real en 5 de 8, y Vigo trae «(Planta 0)».
+4. **Las estrellas de las reseñas fallaban el contraste** (1,85 sobre 4,5) y además las ocho reseñas de la flota son de cinco estrellas, así que no informaban de nada.
+5. **`energia` declaraba `variant: 'tira'` sin usarlo**, y el día que `tira` pasó a cambiar el marcado su galería se quedó sin CSS. Lo destapó una mutación que yo había dirigido mal.
+
+Y una decisión que se repite en tres piezas: **no deducir un cierre de la ausencia de un dato**. Tres tiendas no declaran el domingo y el semáforo NAP ya midió que dos figuraban cerradas en Google estando abiertas, así que «Hoy en tienda» dice la verdad sobre nosotros y ofrece el teléfono. La asimetría que lo salva: un festivo solo puede cerrar más, nunca abrir de más, así que «ya hemos cerrado» sí se puede decir sin calendario.
+
+De 274 tests por la mañana a **341**, todos en verde con la suite armada.
+
+---
+
 ### Lessons learned (candidates for cross-project Memory Graph)
 - **`grep` es para localizar, nunca para concluir.** Extraer campos sueltos de un fichero de datos y no leer su contenido llevó a inferir el sector equivocado del nombre de marca, y contaminó toda la memoria hasta que el usuario lo corrigió.
 - **Verificar el estado desplegado, no solo el repo.** El repositorio describía 5 tiendas "vivas"; comprobar cada dominio reveló que 3 seguían en WordPress. Un `curl` por dominio cambió el encuadre del proyecto entero.
@@ -224,6 +242,8 @@ Los cuatro arreglados y verificados en producción. Un quinto —redirección ab
 - **"Desacoplado" hay que comprobarlo, no declararlo.** Se dieron por separadas dos variables que seguían valiendo lo mismo (`avisoCookies = analitica`): funcionalmente idéntico a no haber hecho nada.
 - **Un `git status` limpio no demuestra que el árbol esté completo.** Un fichero ignorado es invisible en `git status` Y en el repositorio. `build/` sin barra inicial se tragó `src/build/`; todo pasaba en local y el CI cayó con "Cannot find module". Los patrones de salida de build hay que anclarlos con `/`.
 - **Duplicar el `<head>` no es un riesgo, es un fallo con retardo.** Dos de las cuatro copias ya habían derivado: una publicaba páginas legales de un cliente como indexables en el host de preview, la otra llevaba un color de marca retirado. Ninguna de las dos daba error en ningún sitio.
+- **Una cifra bien copiada y mal etiquetada es peor que una cifra inventada.** El «557 de Mujer» venía del contador correcto de otra categoría; nadie lo habría pillado revisando el número. Lo que lo cazó fue ir a la fuente y comprobar a QUÉ apuntaba la URL. Antes de publicar una cifra ajena, verificar la etiqueta, no el dígito.
+- **Un nombre de variante compartido entre «cambia el marcado» y «solo es una etiqueta» es una mina.** Funcionó durante semanas porque la variante no hacía nada; explotó el día que empezó a hacer algo.
 - **Una alarma que no puede volver a verde deja de ser una alarma.** Un tripwire de seguridad que se queda rojo por algo aceptado con evidencia y sin arreglo posible entrena a todo el mundo a ignorarlo, y el día que salte de verdad nadie mira. La salida no es bajar el umbral ni silenciarlo: es que la excepción tenga motivo, evidencia, fecha de caducidad **que rompa el build**, y que sobre cuando ya no haga falta.
 - **Un agente que verifica y otro que refuta valen más que dos que verifican.** Mi propia comprobación de la mañana dio el veredicto correcto por el motivo equivocado («no usamos astro:assets, luego no hay endpoint»), y habría cerrado el asunto con tres agujeros dentro. Lo que los encontró fue encargarle a un segundo agente que me refutara.
 - **Un esquema que rechaza todo lo importante bloquea el despliegue de clientes vivos.** La línea útil no es "estricto" ni "laxo": error para lo que rompe render o publica un dato falso, aviso para lo que solo degrada y depende de terceros.

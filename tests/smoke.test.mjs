@@ -621,6 +621,14 @@ describe('El endpoint de salud sirve para diagnosticar, no solo para hacer ping'
 });
 
 describe('La galería no recorta ninguna foto', () => {
+  // ACOTADO el 11-09-2026: «ninguna» quiere decir **en la galería clásica**, que
+  // es la que sirven las ocho webs vivas y la que estos tests piden por su
+  // dominio propio. La variante `tira` de Rótulo SÍ recorta, a propósito y con
+  // decisión del dueño escrita (memory/12, pregunta 7), y tiene su propio
+  // bloque más abajo. Lo que sigue abierto es si esa decisión se extiende a las
+  // otras cuatro plantillas; mientras no se extienda, este bloque las cubre a
+  // todas menos a Rótulo.
+
   // Lo que se puede afirmar por HTTP es que cada celda declara la proporción
   // REAL de su foto. Que eso se traduzca en píxeles sin recorte se comprobó en
   // navegador y está en el commit: Lagoh pasó de 442×332 con el 44% del alto
@@ -1269,5 +1277,247 @@ describe('La fachada del mapa sobrevive a cómo el compilador escriba las entida
       assert.ok(!(await get('/', sinFicha.domain)).text().includes('data-map-src'),
         `${sinFicha.slug} no tiene ficha: no puede pintar ningún mapa`);
     }
+  });
+});
+
+describe('La variante «hoy» del horario, servida', () => {
+  const soloHoy = (html) => {
+    const i = html.indexOf('<section class="schedule');
+    assert.ok(i > -1, 'no se pintó la sección de horario');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+  const visible = (t) => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  test('las ocho dicen algo de hoy, y ninguna afirma un cierre', async () => {
+    // El cierre solo se afirma cuando lo dice el calendario del centro, que hoy
+    // está vacío. Deducirlo de que falte una línea del horario manda a alguien
+    // a su casa — ya pasó con dos tiendas en Google.
+    for (const s of stores) {
+      const t = visible(soloHoy((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text()));
+      assert.match(t, /HOY EN TIENDA|Hoy en tienda/i, `${s.slug} no rotula la sección`);
+      assert.match(t, /Hoy,|Hoy no figura|no abre/, `${s.slug} no dice nada de hoy: ${t.slice(0, 120)}`);
+      assert.ok(!/Hoy cerrado|Hoy, cerrado/i.test(t), `${s.slug} afirma un cierre`);
+    }
+  });
+
+  test('dice DÓNDE, que es la otra mitad de P1', async () => {
+    for (const s of stores) {
+      const t = visible(soloHoy((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text()));
+      assert.ok(t.includes(s.mall), `${s.slug} no nombra su centro comercial`);
+    }
+  });
+
+  test('la semana se pliega solo cuando hay más de una línea', async () => {
+    // Un desplegable para enseñar lo que ya está justo encima es ruido.
+    const unaLinea = stores.find((s) => s.schedule.split('\n').filter(Boolean).length === 1);
+    const varias = stores.find((s) => s.schedule.split('\n').filter(Boolean).length > 1);
+    assert.ok(unaLinea && varias, 'la flota tiene de los dos tipos');
+    assert.ok(!soloHoy((await get(`/${unaLinea.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text()).includes('<details'),
+      `${unaLinea.slug} tiene una sola línea y no debería desplegar nada`);
+    assert.ok(soloHoy((await get(`/${varias.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text()).includes('Toda la semana'),
+      `${varias.slug} tiene varias y debería poder verlas`);
+  });
+
+  test('la clásica conserva sus dos tarjetas de siempre', async () => {
+    // Las ocho webs vivas no declaran plantilla: esta variante no puede
+    // llegarles ni por asomo.
+    const clasica = (await get('/', stores.find((s) => s.slug === 'vigo').domain)).text();
+    assert.match(clasica, /Horario y canales de contacto/, 'la clásica mantiene su título');
+    assert.ok(!clasica.includes('hoy-dato'), 'y no lleva ni un rastro de la variante');
+  });
+});
+
+describe('Las reseñas como dato, y la píldora donde no llegan a tres', () => {
+  const seccion = (html, clase) => {
+    const i = html.indexOf(`<section class="${clase}`);
+    return i === -1 ? null : html.slice(i, html.indexOf('</section>', i));
+  };
+  const visible = (t) => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  test('con menos de tres reseñas la sección NO se pinta', async () => {
+    // Dos reseñas no son prueba social, son dos personas. Villanueva tiene dos
+    // y hoy las enseña como si fueran un aval.
+    for (const s of stores.filter((x) => x.reviews.length < 3)) {
+      const html = (await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text();
+      assert.equal(seccion(html, 'reviews'), null, `${s.slug} tiene ${s.reviews.length} y no debería pintarlas`);
+    }
+    const conTres = stores.filter((x) => x.reviews.length >= 3);
+    assert.ok(conTres.length >= 2, 'la flota tiene al menos dos tiendas con tres reseñas');
+    for (const s of conTres) {
+      assert.ok(seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'reviews'));
+    }
+  });
+
+  test('la píldora aparece justo donde faltan reseñas, y nunca donde no hay ficha', async () => {
+    // GranCasa no tiene ficha de Google: no se pinta ni la píldora. Nunca se
+    // anuncia el vacío, y menos aún con un enlace que no lleva a ningún sitio.
+    for (const s of stores) {
+      const hoy = seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'schedule');
+      const tiene = hoy.includes('hoy-pildora');
+      const debe = s.reviews.length < 3 && (!!s.placeId || !!s.googleMapsLink);
+      assert.equal(tiene, debe, `${s.slug}: reseñas=${s.reviews.length} ficha=${!!s.googleMapsLink} píldora=${tiene}`);
+    }
+    const sinFicha = stores.find((s) => !s.googleMapsLink);
+    if (sinFicha) {
+      const hoy = seccion((await get(`/${sinFicha.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'schedule');
+      assert.ok(!/reseña/i.test(visible(hoy)), `${sinFicha.slug} no puede ni nombrar las reseñas`);
+    }
+  });
+
+  test('la píldora usa el formulario de Google, que es lo que mide `pedir_resena`', async () => {
+    const s = stores.find((x) => x.reviews.length < 3 && x.placeId);
+    const hoy = seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'schedule');
+    assert.match(hoy, /search\.google\.com\/local\/writereview\?placeid=/);
+    // Y va la ÚLTIMA: es una invitación, no la acción que paga el franquiciado.
+    assert.ok(hoy.indexOf('hoy-cta') < hoy.indexOf('hoy-resena'), 'el botón de visita va antes');
+    assert.ok(hoy.indexOf('hoy-acciones') < hoy.indexOf('hoy-resena'), 'y el contacto también');
+  });
+
+  test('las reseñas van de la más corta a la más larga, y enteras', async () => {
+    const s = stores.find((x) => x.reviews.length >= 3);
+    const sec = seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text(), 'reviews');
+    const largos = [...sec.matchAll(/class="dato-texto"[^>]*>«([^»]*)»/g)].map((m) => m[1].length);
+    assert.equal(largos.length, s.reviews.length, 'se pintan todas');
+    assert.deepEqual(largos, [...largos].sort((a, b) => a - b), 'de la más corta a la más larga');
+    // Ninguna recortada: es texto firmado con nombre y apellidos que republicamos.
+    for (const r of s.reviews) assert.ok(sec.includes(r.text), `«${r.author}» sale recortada`);
+    assert.ok(!sec.includes('★'), 'sin estrellas: las ocho de la flota son de cinco y no informan de nada');
+  });
+
+  test('la clásica conserva sus pestañas con JavaScript', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'alcobendas').domain)).text();
+    assert.match(clasica, /review-tab/, 'la clásica mantiene su carrusel');
+    assert.ok(!clasica.includes('dato-resena'), 'y no lleva nada de la variante');
+  });
+});
+
+describe('La tira de Rótulo recorta a propósito, y solo ella', () => {
+  const seccion = (html) => {
+    const i = html.indexOf('<section class="gallery');
+    return i === -1 ? null : html.slice(i, html.indexOf('</section>', i));
+  };
+
+  test('una celda por foto, y todas del mismo tamaño', async () => {
+    for (const s of stores.filter((x) => x.galleryImages.length)) {
+      const sec = seccion((await get(`/${s.slug}?plantilla=rotulo`, 'preview.up.railway.app')).text());
+      const celdas = (sec.match(/class="tira-celda"/g) || []).length;
+      const { fotosDe } = await import('../src/data/galeria-de-tiendas.ts');
+      const { planDeGaleria } = await import('../src/data/galeria.ts');
+      const esperadas = planDeGaleria(fotosDe(s)).fotos.length;
+      assert.equal(celdas, esperadas, `${s.slug}: ${celdas} celdas para ${esperadas} fotos`);
+      assert.ok(!sec.includes('gallery-fila'), `${s.slug} no puede llevar la maquetación clásica`);
+    }
+  });
+
+  test('la celda fija y el recorte llegan de verdad al navegador', async () => {
+    // Se mira el CSS SERVIDO y no el fuente: es el único sitio donde consta que
+    // esta variante recorta, y recortar es justo lo que el rediseño de la
+    // galería quitó. Si algún día desaparece, que se vea.
+    const html = (await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text();
+    const hojas = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1]);
+    let regla = null;
+    for (const h of hojas) {
+      const css = (await get(h)).text();
+      const m = css.match(/\.tira-celda\[[^\]]*\]\{([^}]*)\}/);
+      if (m) regla = m[1];
+    }
+    assert.ok(regla, 'la regla de la celda llega al navegador');
+    assert.match(regla, /aspect-ratio:\s*4\s*\/\s*5/, 'celda fija de 4:5');
+    const img = [...hojas].length && html;
+    assert.match(html, /tira-celda/, 'y las celdas están en el HTML');
+  });
+
+  test('se llega con el teclado', async () => {
+    // Un carrusel horizontal al que no se llega tabulando no existe para quien
+    // navega así, y el contenido queda sencillamente inaccesible.
+    const sec = seccion((await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text());
+    assert.match(sec, /class="tira"[^>]*tabindex="0"/, 'la tira es enfocable');
+    assert.match(sec, /role="group"[^>]*aria-label="Fotos de /, 'y dice lo que es');
+  });
+
+  test('las ocho webs vivas siguen sin recortar un píxel', async () => {
+    for (const s of stores.filter((x) => x.galleryImages.length)) {
+      const clasica = (await get('/', s.domain)).text();
+      assert.ok(!clasica.includes('tira-celda'), `${s.slug} no puede recibir la tira`);
+      assert.match(clasica, /gallery-fila/, `${s.slug} mantiene las filas justificadas`);
+    }
+  });
+});
+
+describe('Cada plantilla recibe el marcado de galería que su hoja estiliza', () => {
+  test('«energía» conserva las filas justificadas, que es lo que su CSS sabe pintar', async () => {
+    // Esta plantilla declaraba `variant: 'tira'` sin que la variante existiera,
+    // y su tira la construye su propia hoja sobre el marcado clásico. El día
+    // que `tira` pasó a cambiar el MARCADO, energía se quedó sin CSS que
+    // encajara: celdas que su hoja no conoce y filas que ya no existen.
+    const html = (await get('/lagoh?plantilla=energia', 'preview.up.railway.app')).text();
+    const i = html.indexOf('<section class="gallery');
+    const sec = html.slice(i, html.indexOf('</section>', i));
+    assert.match(sec, /gallery-fila/, 'energía necesita las filas: su hoja las convierte en tira');
+    assert.ok(!sec.includes('tira-celda'), 'y no puede recibir el marcado de Rótulo');
+  });
+
+  test('solo Rótulo recibe la tira de marcado', async () => {
+    const { TEMPLATES } = await import('../src/data/templates.ts');
+    const conTira = Object.values(TEMPLATES).filter((t) =>
+      t.sections.some((r) => typeof r === 'object' && r.id === 'gallery' && r.variant === 'tira')
+    );
+    assert.deepEqual(conTira.map((t) => t.id), ['rotulo'], 'si otra la pide, tiene que traer su CSS');
+  });
+});
+
+describe('Las puertas servidas: siete estanterías y UN solo número', () => {
+  const seccion = (html) => {
+    const i = html.indexOf('<section class="products');
+    assert.ok(i > -1, 'no se pintó la sección de productos');
+    return html.slice(i, html.indexOf('</section>', i));
+  };
+  const visible = (t) => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  test('un solo número en toda la sección, y es el del catálogo', async () => {
+    // El error de agosto: siete puertas con cifra que sumaban 2.588 sobre un
+    // catálogo de 1.683. Quien sume tiene que poder seguir sumando sin que le
+    // salga una mentira, y la única forma es que no haya nada que sumar.
+    const sec = seccion((await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text());
+    // En las FILAS no puede haber ni un recuento. La fecha del pie sí lleva
+    // dígitos y es legítima, así que se mira puerta a puerta y no la sección
+    // entera — la primera versión de este test suspendía por «11 de septiembre
+    // de 2026», que es exactamente el dato que hace honesta la cifra.
+    const filas = [...sec.matchAll(/<li class="puerta"[\s\S]*?<\/li>/g)].map((m) => visible(m[0]));
+    assert.equal(filas.length, 7, 'las siete puertas');
+    for (const f of filas) {
+      assert.ok(!/\d{2,}/.test(f), `una puerta lleva un recuento: ${f.trim()}`);
+    }
+    const total = /class="puertas-total"[^>]*>([^<]*)/.exec(sec);
+    assert.ok(total, 'y hay UN total');
+    assert.equal(total[1].replace(/\D/g, ''), '1687', 'que es el del catálogo entero');
+  });
+
+  test('el número lleva su propio rótulo, separado del de la sección', async () => {
+    // Las cifras de la tienda y las de la cadena nunca comparten rótulo: el
+    // titular habla de la estantería de ESTA tienda y el número es del catálogo
+    // de la cadena. Sin separarlos, la sección se contradecía sola.
+    const sec = seccion((await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text());
+    assert.match(sec, /class="puertas-rotulo"[^>]*>Catálogo USA Fitness/);
+    const t = visible(sec);
+    assert.ok(t.indexOf('Catálogo USA Fitness') < t.indexOf('1687'), 'el rótulo va antes del número');
+    for (const mala of ['en tienda', 'disponible', 'en stock']) {
+      assert.ok(!t.toLowerCase().includes(mala), `la sección no puede decir «${mala}»`);
+    }
+  });
+
+  test('las siete puertas dicen qué hay dentro', async () => {
+    const sec = seccion((await get('/lagoh?plantilla=rotulo', 'preview.up.railway.app')).text());
+    const { PUERTAS } = await import('../src/data/puertas.ts');
+    for (const p of PUERTAS) {
+      assert.ok(sec.includes(p.nombre), `falta la puerta «${p.nombre}»`);
+      assert.ok(sec.includes(p.linea), `«${p.nombre}» no dice qué hay dentro`);
+    }
+  });
+
+  test('la clásica conserva sus dos tarjetas', async () => {
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.match(clasica, /Nutrición deportiva/, 'la clásica mantiene sus listas');
+    assert.ok(!clasica.includes('puerta-nombre'), 'y no lleva nada de la variante');
   });
 });

@@ -4,7 +4,9 @@
 
 **Última actualización:** 2026-09-11 · La rodaja 2 de Rótulo cerrada y en producción, más el triaje de seguridad que destapó cuatro defectos nuestros. Ver `memory/11` y `docs/security/triaje-2026-09-11-reevaluacion.md`.
 
-> **Con reloj:** la excepción del crítico de Astro caduca el **13-10-2026** y entonces rompe el build. Detalle en `memory/08`.
+> **Rodaja 2 de Rótulo CERRADA** el 11-09-2026: ocho piezas (4 secciones + 4 variantes), todas con su Loop A en `docs/plantillas/rotulo/ficha.md`. Siguiente: rodaja 3, la hoja de la plantilla — que es donde por fin se ve la voz de Rótulo.
+>
+> **Ya sin reloj:** la subida a Astro 7 cerró el crítico y `npm audit` devuelve **cero** avisos. La excepción que caducaba el 13-10 ya no existe.
 
 > `**Phase:**` arriba, en inglés y en su propia línea, no es un descuido de idioma:
 > `scripts/phase-gate-check` lo lee con `^\*\*Phase:\*\*`. No traducirlo ni moverlo.

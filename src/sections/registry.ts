@@ -103,7 +103,9 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
     component: Reviews,
     // Una tienda recién abierta no tiene reseñas todavía.
     visible: (s) => s.reviews.length > 0,
-    props: (s) => ({ reviews: s.reviews }),
+    // `placeId` y la ficha solo los usa la variante `dato`, para el enlace de
+    // «escribe la tuya». La clásica los ignora.
+    props: (s) => ({ reviews: s.reviews, placeId: s.placeId, googleMapsLink: s.googleMapsLink }),
   },
 
   products: {
@@ -127,6 +129,11 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       whatsapp: s.whatsapp,
       googleMapsLink: s.googleMapsLink,
       name: s.name,
+      // Solo los usa la variante `hoy`; el resto de plantillas los ignora.
+      mall: s.mall,
+      streetAddress: s.streetAddress,
+      numeroDeResenas: s.reviews.length,
+      placeId: s.placeId,
     }),
   },
 

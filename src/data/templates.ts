@@ -222,7 +222,20 @@ export const TEMPLATES: Record<string, Template> = {
     sections: [
       { id: 'hero', variant: 'cartel' },
       { id: 'promotions', variant: 'marquesina' },
-      { id: 'gallery', variant: 'tira' },
+      // `gallery` SIN variante, y es un arreglo del 11-09-2026.
+      //
+      // Esta plantilla declaraba `variant: 'tira'` y no hacía nada: su tira la
+      // construye entera su propia hoja CSS sobre el MARCADO CLÁSICO
+      // (`plantilla-energia-css.ts`, «Galería: tira-escaparate con snap»), que
+      // convierte las filas justificadas en una línea que se desliza con
+      // `display:contents`. Era una etiqueta decorativa.
+      //
+      // El día que `tira` pasó a ser una variante de MARCADO de verdad —para
+      // Rótulo— esta declaración dejó de ser inofensiva: energía empezó a
+      // recibir celdas `.tira-celda` que su hoja no estiliza, y su galería se
+      // quedó sin CSS. Un nombre de variante compartido entre «cambio de
+      // marcado» y «etiqueta que no hace nada» es una mina, y explotó.
+      'gallery',
       { id: 'products', variant: 'pizarra' },
       // Brands YA es una marquesina con pista duplicada: la hoja solo la
       // reestiliza (logos en gris, sobre blanco). No hace falta variante.
@@ -264,7 +277,19 @@ export const TEMPLATES: Record<string, Template> = {
     // marcas por escrito, y la regla es que no nombra ninguna que no esté ya en
     // la misma página. Nombrar ocho marcas compromete más que enseñar ocho
     // logos — quien se desplaza y no encuentra la suya tiene motivo de queja.
-    sections: ['hero', 'socio', 'empieza', 'porque', 'brands', 'schedule', 'faq', 'social'],
+    sections: [
+      'hero',
+      'socio',
+      'empieza',
+      'porque',
+      { id: 'products', variant: 'puertas' },
+      'brands',
+      { id: 'schedule', variant: 'hoy' },
+      { id: 'gallery', variant: 'tira' },
+      { id: 'reviews', variant: 'dato' },
+      'faq',
+      'social',
+    ],
   },
 };
 

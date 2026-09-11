@@ -44,8 +44,17 @@
  *
  * NO ESTÁ LA RUTA «MUJER», Y NO ES UN OLVIDO
  *
- * Es un tercio del catálogo (557 de 1.683) y la única que el diseño quiere con
- * voz propia: la de Amanda Gil, entrenadora. Esa puerta —título documentado y
+ * Es la única ruta que el diseño quiere con voz propia: la de Amanda Gil,
+ * entrenadora.
+ *
+ * Y de paso se corrige una cifra que llevábamos repitiendo y era falsa. El
+ * diseño decía «Mujer, 557 referencias, un tercio del catálogo». Medido contra
+ * la tienda de la central el 11-09-2026: la ruta «mujer» hace un 301 a la de
+ * «control de peso», así que ese 557 es Control de Peso —barritas, L-carnitina,
+ * termogénicos, salsas— y no tiene que ver con una ruta de mujer. La categoría
+ * Mujer real existe (id 329), tiene 100 fichas y no tiene URL navegable. Estaba
+ * bien copiado y mal etiquetado, que es la peor forma de estar mal: iba camino
+ * de imprimirse en ocho webs como cifra verificable. Esa puerta —título documentado y
  * permiso de imagen— sigue cerrada. Una ruta «MUJER» que prometa voz y entregue
  * una lista de estantería es peor que no tenerla: le promete a un tercio del
  * catálogo una atención que no hay. Se omite entera, como la pregunta sin dato

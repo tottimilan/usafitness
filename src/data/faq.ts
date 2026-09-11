@@ -21,10 +21,13 @@
  *    tienda aunque no venda online. Los beneficios se predican de la TIENDA.
  *  · Nada de precios: decisión del dueño, ni siquiera en la forma «no
  *    publicamos precios», que sonaría a opacidad y no responde.
- *  · «¿Dónde estáis dentro del centro?» sería la más útil y hoy es imposible:
- *    `streetAddress` empieza literalmente por `mall` en las 8, así que la
- *    respuesta sería el propio nombre del centro otra vez. Necesita un campo de
- *    planta o zona que nadie ha rellenado.
+ *  · «¿Dónde estáis dentro del centro?» sería la más útil y hoy no se puede
+ *    responder en las ocho. Matiz medido el 11-sep, porque la primera versión de
+ *    este comentario lo decía mal: `streetAddress` empieza por `mall` en las 8,
+ *    pero lo que sigue SÍ aporta en 5 —una calle de verdad— y Vigo incluso trae
+ *    «(Planta 0)». Lo que no hay es la PLANTA en 7 de 8, que es lo que la
+ *    pregunta pide; con una sola tienda no se monta una pregunta de la FAQ.
+ *    Sigue necesitando un campo de planta o zona que nadie ha rellenado.
  *  · Parking, medios de pago, envíos y devoluciones: 0 de 8. El dato no es
  *    nuestro —es del centro comercial o de la central— y se publicaría bajo el
  *    CIF del franquiciado.

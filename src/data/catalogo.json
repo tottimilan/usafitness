@@ -1,0 +1,44 @@
+{
+  "_lee_esto_antes_de_tocar": [
+    "Medido el 11-09-2026 contra el listado de https://usafitness.es, contando fichas de producto una a una (no del contador impreso solo: se cruzaron los conjuntos completos de id_product).",
+    "La cifra cuenta FICHAS DE CATÁLOGO publicadas y visibles, que es lo que pagina la tienda. No cuenta productos distintos (el mismo bote en cuatro tamaños son cuatro fichas), ni referencias por sabor, ni lo que hay en la estantería de ninguna tienda.",
+    "798 de las 1687 fichas (47%) llevan hoy el flag «Fuera de stock» en la propia web. No se sabe si eso significa «no está en la tienda física» o «no se puede enviar hoy», así que NINGÚN texto puede decir «en tienda», «disponibles» ni «en stock».",
+    "LAS CIFRAS POR PUERTA NO SE PUBLICAN. Están aquí como dato interno, no para imprimirlas: las categorías de la tienda NO son disjuntas y sumarlas da un número que no existe. Ver `puertas.ts`.",
+    "Caduca: si `extraido` tiene más de `diasDeValidez` días, el componente deja de enseñar la cifra solo. Cinco de las ocho cifras de agosto se movieron en quince días."
+  ],
+  "extraido": "2026-09-11",
+  "fuente": "https://usafitness.es",
+  "diasDeValidez": 120,
+  "total": 1687,
+  "puertas": {
+    "proteinas": 203,
+    "salud-y-bienestar": 297,
+    "complementos": 225,
+    "alimentos-fitness-y-gourmet": 200,
+    "aminoacidos": 155,
+    "pre-entrenos": 80,
+    "creatina": 63
+  },
+  "solapes": [
+    "Creatina ∩ Pre-entrenos = 10 fichas (creatinas con estimulante: son de verdad las dos cosas)",
+    "Aminoácidos ∩ Pre-entrenos = 6",
+    "Aminoácidos ∩ Salud y bienestar = 4",
+    "Proteínas ∩ Aminoácidos = 3",
+    "Proteínas ∩ Salud y bienestar = 3",
+    "Salud y bienestar ∩ Alimentos fitness = 3",
+    "Creatina ∩ Aminoácidos = 2",
+    "Pre-entrenos ∩ Salud y bienestar = 2",
+    "Proteínas ∩ Alimentos fitness = 1",
+    "Complementos ∩ todas = 0 (la única limpia)"
+  ],
+  "correcciones": [
+    "«Mujer — 557» NO EXISTE. /mujer hace 301 a /control-de-peso: el 557 que el extracto de agosto archivó como «mujer» es Control de Peso (barritas, L-carnitina, termogénicos, salsas). La categoría Mujer real es la id 329, tiene 100 fichas y no tiene URL navegable.",
+    "«Nutrición — 1313» es el PADRE de seis de las siete puertas, no una puerta.",
+    "Movimiento en quince días: total 1683→1687, Nutrición 1309→1313, Proteínas 199→203, Creatina 62→63, Aminoácidos 156→155 (bajó)."
+  ],
+  "sinResolver": [
+    "Qué significa el flag «Fuera de stock»: decide si la cifra honesta es 1687 o la mitad. Hay que preguntárselo a la tienda.",
+    "Hay cinco nodos llamados «Creatina» y /creatina sirve el de 63 fichas; otro tiene Monohidrato con 32 fichas que no aparecen ahí y son creatina de libro. Si la buena es 95, la puerta enseñaría dos tercios.",
+    "153 fichas no cuelgan ni de Nutrición ni de Complementos, y 108 de ellas no se alcanzan navegando."
+  ]
+}

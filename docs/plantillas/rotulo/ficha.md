@@ -234,3 +234,211 @@ Lo que sigue faltando es lo mismo que en «Por qué en tienda»: **las dos colum
 - **`punto_de_partida{ruta}`** no está instrumentado (F2), como `interes_socio` y `ver_productos`. Mientras tanto, la ruta viaja **dentro del mensaje de WhatsApp**, que es donde el franquiciado la lee sin abrir nada.
 - **La ruta «Mujer»**, bloqueada por el título de Amanda.
 - La sección **no tiene la voz de Rótulo** todavía: plano cian, «EMPIEZA *aquí*» con la palabra en script y el corte en espejo llegan con la hoja de la plantilla.
+
+---
+
+## Variante `schedule:hoy` — «Hoy en tienda» — ✅ PASA en la segunda vuelta (2026-09-11)
+
+**Hoja de objetivos** (hoja 4 + su ampliación): **P1** —¿está abierto?, ¿a qué hora?, ¿dónde?—, que es el 54 % de por qué alguien busca una tienda · N1, la visita · sin evento propio: su efecto se mide en `contacto_maps` y `contacto_llamada` con `seccion: 'schedule'`.
+
+**Qué cambia respecto a la sección clásica:** el dato de HOY manda y la semana pasa a un `<details>` cerrado; se dice DÓNDE (centro + lo que la dirección añada); y los dos canales dejan de ser tarjetas con icono para ser una fila de texto bajo un solo botón.
+
+### La decisión cara: un día no cubierto NO se convierte en «cerrado»
+
+Tres de las ocho tiendas —Villanueva, Marineda y GranCasa— no declaran el domingo. Escribir «Hoy cerrado» quedaría estupendo y **no se hace**, porque el semáforo NAP de agosto midió que **dos tiendas figuraban cerradas los domingos en Google estando abiertas**. La ausencia de una línea ya ha significado «se nos olvidó» en este mismo proyecto, y deducir de ahí un cierre manda a su casa a alguien que iba a ir.
+
+Se dice la verdad sobre nosotros —«Hoy no figura en nuestro horario»— y se ofrece el teléfono. Una duda convertida en llamada es mejor que una certeza inventada. **El festivo del centro sí se afirma**, porque ahí el cierre lo escribió alguien en un calendario: es un dato positivo, no una ausencia.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada** (escrito antes de comparar con el objetivo):
+
+> «HOY EN TIENDA» en gris pequeño. Debajo, en azul y grande, «Hoy, de 10:00 a 22:00.». El centro en negrita y la calle en gris. Un botón azul «Cómo llegar», «WhatsApp» subrayado a su lado, y «Llamar al 986 916 804» solo en la línea de abajo.
+
+**Defecto que la tumba: P1 contestado a medias.** A las 23:30 la sección decía «Hoy, de 10:00 a 22:00.» y se quedaba tan ancha. Quien pregunta «¿está abierto?» tenía que hacer la cuenta él, que es justo lo que esta sección existe para evitar. Comprobado ejecutando el estado a las 08:00, 12:00, 21:30 y 23:30: las cuatro devolvían exactamente la misma frase.
+
+**Menor:** las tres acciones a tres pesos y dos alturas — a 375 px la fila partía por el medio y dejaba «Llamar» suelto debajo.
+
+### Vuelta 2 — PASA
+
+**La asimetría que lo arregla gratis.** Sin calendario del centro no se puede afirmar que la tienda esté ABIERTA ahora: un festivo podría haberla cerrado. Pero sí lo contrario, porque **un festivo solo puede cerrar más, nunca abrir de más**. Así que fuera de la franja se dice «Ya hemos cerrado por hoy» o «Todavía no hemos abierto» con calendario o sin él, y dentro se calla salvo que haya calendario.
+
+Y el botón pasa a su propia línea, con los dos enlaces de contacto en la suya.
+
+| Medido a 375 px, Villanueva | Vuelta 1 | Vuelta 2 |
+|---|---|---|
+| Responde «¿está abierto ahora?» | ❌ nunca | **✅ fuera de horario, siempre** |
+| Acciones | 3 pesos en 2 filas partidas | **botón + fila de contacto** |
+| Alto con la semana plegada | — | 376 px |
+| Alto con la semana abierta | — | 442 px |
+| Fallos de contraste | — | **0 de 10 textos** |
+| Desborde horizontal | 0 | 0 |
+
+**Escritorio (1180 px):** 408 px, sin desbordes. Mismo defecto ya nombrado en «Por qué en tienda» y «Empieza aquí» —todo a la izquierda, mitad derecha vacía— y **aplazado al mismo Loop B**, porque la hoja de Rótulo va a sustituir cualquier maqueta de escritorio que se escriba ahora.
+
+### Una frase nuestra que era falsa, corregida de paso
+
+`faq.ts` decía que `streetAddress` «empieza literalmente por `mall` en las 8, así que la respuesta sería el propio nombre del centro otra vez». Medido: empieza por `mall` en las ocho, sí, pero **lo que sigue es una calle de verdad en 5**, y Vigo trae «(Planta 0)». La decisión de la FAQ no cambia —la PLANTA falta en 7 de 8 y con una sola tienda no se monta una pregunta—, pero el motivo estaba mal escrito y ahora dice lo que se midió.
+
+### Pendiente en esta pieza
+
+- **El minutero no lo ve nadie todavía**: exige calendario del centro vigente y `festivos.json` nace vacío a propósito. Es correcto, no una carencia.
+- **La fusión con el mapa** que pide el diseño de Rótulo (fachada de clic-para-cargar dentro de la propia sección) es de la rodaja 3: aquí la variante hace «horario + dónde», que es lo que el desglose contrata.
+- La sección **no tiene la voz de Rótulo** todavía.
+
+---
+
+## Variante `reviews:dato` + la píldora de reseña — ✅ PASA en la segunda vuelta (2026-09-11)
+
+**Hoja de objetivos:** P4 «¿es de fiar?» → N1 · y la otra mitad, la **máquina de reseñas**: `pedir_resena{seccion}`, que el registro de medición tenía dado de alta sin nada que lo emitiera.
+
+**Qué cambia:** las reseñas dejan de ser un carrusel de pestañas con JavaScript y se leen todas a la vez, con filete, como una lista de voces. Umbral de **tres**: con menos, la sección no se pinta.
+
+### La pieza tiene dos mitades, y la segunda vive en otra sección
+
+Seis de las ocho tiendas no llegan a tres reseñas. Poner ahí el «escribe la tuya» sería abrir un hueco para anunciar que está vacío. La píldora va a **«Hoy en tienda»**, que es la sección que ve todo el mundo y la que lee alguien que ya conoce la tienda. Va **la última** de esa sección: es una invitación, no la acción que paga el franquiciado.
+
+Y es pasiva a propósito — la política de contribuciones de Google prohíbe incentivar reseñas.
+
+**GranCasa no tiene ficha de Google: no se pinta ni la sección ni la píldora, y su HTML no nombra la palabra «reseña».** Nunca se anuncia el vacío.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada:**
+
+> «LO QUE DICEN EN GOOGLE» en gris pequeño. Debajo, separadas por filetes, las reseñas completas entre comillas, con el nombre y cinco estrellas amarillas.
+
+**Defecto que la tumba, y es de accesibilidad:** las estrellas dan **1,85 de contraste** sobre blanco y el mínimo para texto son 4,5. Tres fallos en la auditoría. Es la lección del manual de marca otra vez: `--color-stars` está pensado para un cartel, no para un glifo de 14 px.
+
+Y al mirar el dato apareció algo mejor: **las ocho reseñas de la flota son de cinco estrellas**. Lógico, las elegimos nosotros. Así que pintar cinco glifos idénticos en todas no informa de nada y sugiere una distribución que no existe. **Se quitan**, que arregla las dos cosas a la vez. El campo sigue en `stores.json`: el día que entre una que no sea de cinco, se vuelve a decidir con ese caso delante.
+
+**Menor:** la reseña de 369 caracteres abría la sección con once líneas seguidas de una sola persona.
+
+### Vuelta 2 — PASA
+
+Sin estrellas, y **de la más corta a la más larga**. No se recorta ninguna —es texto firmado con nombre y apellidos que la tienda republica, la misma regla que `citas.ts`— pero sí se ordena: con la larga arriba el ojo no entra.
+
+| Medido a 375 px | Vuelta 1 | Vuelta 2 |
+|---|---|---|
+| Fallos de contraste (Alcobendas) | **3 de 11** | **0 de 11** |
+| Alto (El Arcángel, 3 reseñas) | — | 635 px |
+| Orden de longitudes | 369 · 161 · 184 | **90 · 107 · 161** |
+| Desborde | 0 | 0 |
+
+**La píldora, en Lagoh:** 396 px la sección entera, con el botón de visita primero, el contacto después y la invitación al final.
+
+### Pendiente en esta pieza
+
+- **El alto sigue siendo grande** en Alcobendas (883 px) por la reseña de 369 caracteres. No se recorta y no se descarta: es la voz de un cliente y es el contenido más valioso de la página. Queda dicho, no escondido.
+- Si algún día entra una reseña que no sea de cinco estrellas, **hay que volver a decidir** si se pintan.
+- La sección **no tiene la voz de Rótulo** todavía.
+
+---
+
+## Variante `gallery:tira` — ✅ PASA (2026-09-11)
+
+**Hoja de objetivos:** P4 «¿cómo es por dentro?» → N1 · sin evento propio · **la única pieza de la casa que recorta fotos**, y con decisión escrita del dueño (memory/12, pregunta 7: «lo decidiste para Rótulo»).
+
+**Qué es:** una tira horizontal con celda fija de 4:5 y `object-fit: cover`, cortada por el borde derecho. El corte es lo que dice «hay más» sin un contador ni una flecha.
+
+### Lo que cuesta el recorte, medido antes de enseñarlo
+
+Todo el rediseño de la galería de agosto existe porque recortar rompía las fotos de Lagoh (44 % del alto cortado). Así que aquí el número va delante:
+
+| Celda | Recorte medio | Peor foto | Fotos con >25 % cortado |
+|---|---|---|---|
+| **4:5 (la del diseño)** | 28 % | **55 %** | **20 de 32** |
+| 1:1 | 29 % | 44 % | 11 de 32 |
+| 4:3 | 25 % | 58 % | 15 de 32 |
+
+**Ninguna forma de celda gana**, y el motivo es estructural: la flota está partida casi a la mitad —17 apaisadas y 15 verticales—, que es exactamente lo que obligó a abandonar la celda fija en agosto. Con 4:5, las cuatro fotos de Alcobendas pierden el 55 % del ancho.
+
+**Se construye con el 4:5 del diseño igualmente**, y el motivo es que al MIRARLO el recorte no duele: son fotos de interior, con estanterías que se repiten de lado a lado, así que lo que se pierde son los bordes y el centro aguanta. La tabla queda escrita para que la decisión se pueda revisar con el número delante en vez de con una impresión.
+
+**Riesgo que no se puede cerrar desde aquí:** sin punto de foco por foto (`object-position`), el recorte centrado corta por donde caiga. En interiores da igual; el día que entre un retrato, no. El campo no existe y está en la misma pregunta abierta.
+
+### El fallo que destapó una mutación
+
+Al matar la variante para comprobar el test, **el test no cayó**. Investigado: mi mutación había quitado la declaración de `energia`, no la de Rótulo, porque las dos plantillas tenían la misma línea y sustituí la primera.
+
+Y eso destapó algo peor que la mutación mal hecha: **`energia` declaraba `variant: 'tira'` desde antes y no hacía nada.** Su tira la construye entera su propia hoja CSS sobre el marcado clásico, con `display:contents`. Era una etiqueta decorativa — hasta que `tira` pasó a ser una variante de marcado de verdad, y entonces energía empezó a recibir celdas que su hoja no estiliza y su galería se quedó sin CSS.
+
+Arreglado: energía deja de declarar la variante, con el motivo escrito en la plantilla, y hay **dos tests** que lo fijan — que energía conserva sus filas, y que Rótulo es la única que pide la tira de marcado.
+
+### Medido a 375 px
+
+| | |
+|---|---|
+| Alto de la sección (Alcobendas, 4 fotos) | 415 px |
+| Celda | 213 × 266 px (4:5 exacto) |
+| Tira: visible / total | 328 / 913 px → **asoma la siguiente, cortada** |
+| Desborde de página | 0 |
+| Imagen servida | variante de 600 px en celda de 213 → nítida a 3× |
+
+### Un susto que no era
+
+`naturalWidth` devolvía 270 px para un fichero de 600. No es un fallo: el navegador **corrige por densidad** el tamaño intrínseco cuando la imagen se elige por `srcset` con descriptor `w`. Los ficheros en disco son 400/600/900 correctos, comprobado con `sharp`. Anotado porque medir nitidez con `naturalWidth` engaña.
+
+### Pendiente en esta pieza
+
+- **La forma de celda es revisable** con la tabla de arriba: 1:1 baja de 20 a 11 las fotos con más de un cuarto cortado.
+- **El `object-position` por foto** no existe como campo.
+- La sección **no tiene la voz de Rótulo** todavía (papel duotono, cartelas).
+
+---
+
+## Variante `products:puertas` — ✅ PASA en la segunda vuelta (2026-09-11)
+
+**Hoja de objetivos** (hoja 2 y su ampliación): P2 «¿qué tienen?» → N1. Es la respuesta literal a la queja del dueño sobre la web de siempre: «no veo ni productos».
+
+### El diseño pedía una cifra por puerta. No se puede, y está medido
+
+La tesis era «la cifra real, verificable»: «Proteínas — 199». Se verificó bajando los **conjuntos completos de fichas** de cada categoría del catálogo de la central, no solo los contadores impresos. El catálogo **no es una partición en ningún nivel**:
+
+- **Un bote está en tres puertas a la vez.** AMIX CGT-3 declara en su ficha Aminoácidos, Creatina y Pre-entrenos, y sale en los tres listados. No es un error de archivo: el producto es las tres cosas.
+- Creatina ∩ Pre-entrenos = 10 fichas, el 16 % de Creatina.
+- Las ocho hijas de Nutrición suman 1.435 y su unión son 1.282.
+
+El conjunto máximo con solape **cero** son cuatro puertas que cubren el 32 % del catálogo y dejan fuera aminoácidos y pre-entrenos. Y fundirlas tampoco vale: «Creatina y pre-entrenos — 133» sería correcto, pero **ninguna página imprime ese 133**, así que nadie puede comprobarlo con un clic — y la comprobabilidad era la tesis entera.
+
+**Decisión: las puertas van sin número.** Es un resultado, no una renuncia: evita el error de agosto, cuando siete puertas sumaban 2.588 sobre un catálogo de 1.683.
+
+### Una cifra que llevábamos repitiendo y era falsa
+
+**«Mujer — 557 referencias, un tercio del catálogo» no existe.** La ruta de mujer hace un 301 a la de control de peso: ese 557 es **Control de Peso** —barritas, L-carnitina, termogénicos, salsas— y no tiene que ver con una ruta de mujer. La categoría Mujer real tiene 100 fichas y ninguna URL navegable.
+
+El número estaba **bien copiado y mal etiquetado**, que es la peor forma de estar mal. Iba camino de imprimirse en ocho webs como cifra verificable. Corregido en `rutas.ts`, que era donde vivía.
+
+### Lo que ninguna frase puede decir
+
+**798 de las 1.687 fichas (47 %) llevan hoy «Fuera de stock»** en la web de la central, y desde fuera no se distingue si eso significa «no está en la estantería» o «no se envía hoy». Así que nada puede decir «en tienda», «disponibles» ni «en stock». Hay un test que lo impide.
+
+### Vuelta 1 — NO PASA
+
+**Test de primera mirada:**
+
+> «LO QUE HAY EN LA ESTANTERÍA» en gris pequeño. Siete filas con filete: el nombre de la estantería en azul y debajo, en gris, tres cosas que hay dentro. Al final, un número grande y un pie explicando qué cuenta.
+
+**Defecto que la tumba: la sección se contradecía sola.** El titular decía «la estantería» y el pie del número aclaraba «no es un recuento de la estantería». Dos ámbitos bajo un mismo rótulo, que es justo lo que el diseño prohíbe: *las cifras de la tienda y las de la cadena nunca comparten rótulo*.
+
+### Vuelta 2 — PASA
+
+El número lleva **su propio rótulo**, «CATÁLOGO USA FITNESS», encima. El titular gobierna las puertas y el bloque de cifra se identifica como dato de cadena.
+
+| Medido a 375 px, Lagoh | |
+|---|---|
+| Alto de la sección | 755 px |
+| Filas | **70 px las siete, exactas** |
+| Fallos de contraste | **0 de 18 textos** |
+| Números en las filas | **0** |
+| Desborde | 0 |
+
+### La cifra caduca sola
+
+Cinco de las ocho cifras de agosto se habían movido quince días después (el catálogo 1.683→1.687, Proteínas 199→203, Aminoácidos 156→**155**, que bajó). Una cifra escrita a mano sin caducidad es una cifra falsa con retardo, así que **el componente la retira solo** pasados 120 días del extracto: ni cifra huérfana ni pie sin cifra.
+
+### Lo que queda sin saber, y hay que preguntar
+
+1. **Qué significa «Fuera de stock»** en la web de la central. Decide si la cifra honesta es 1.687 o la mitad.
+2. **Cuál de las cinco «Creatina» es la suya.** La página de creatina sirve 63 fichas, pero otro nodo tiene Monohidrato con 32 que no aparecen ahí y son creatina de libro. Si la buena es 95, la puerta enseña dos tercios.
+3. **153 fichas no cuelgan de ninguna de las dos ramas** y 108 no se alcanzan navegando.

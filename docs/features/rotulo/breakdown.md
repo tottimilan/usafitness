@@ -8,15 +8,15 @@
 
 ## Mapa de rodajas
 
-| # | Rodaja | Tipo | Depende de | Plan detallado |
-|---|---|---|---|---|
-| 1a | `datos-rotulo` — campos de tienda y mecánica de orden | código, TDD | capa 0 | `.cursor/plans/2026-09-06-rotulo-1a-datos.md` |
-| 1b | `fuentes-rotulo` — las dos fuentes autoalojadas y el contrato de plantilla | código, TDD | capa 0 | `.cursor/plans/2026-09-06-rotulo-1b-fuentes.md` |
-| 1c | `ofertas` — modelo de datos de la oferta del mes (propia > central > nada, fecha-fin) | código, TDD | 1a | se planifica al cerrar 1a (`/mm-plan ofertas`) |
-| 1d | `hoy-y-festivos` — `franjaDeHoy` con zona horaria de Madrid y el calendario por centro comercial que decide cuándo callar | código, TDD | 1a | se planifica al cerrar 1a (`/mm-plan hoy-y-festivos`) |
-| 2 | `secciones-gen-2` — Hazte socio, Empieza aquí, Por qué en tienda, FAQ; variantes `hoy` (horario+dónde), `puertas` (productos+marcas), `dato` (reseñas con enlaces), `tira` (galería 4:5) | visual, Loop A por pieza | 1a | se planifica al cerrar 1a (`/mm-plan secciones-gen-2`) |
-| 3 | `plantilla-rotulo` — hoja CSS, hero, periferia, tests de humo, Loop B, ficha | visual, Loop B | 1a, 1b, 2 | se planifica al cerrar 2 (`/mm-plan plantilla-rotulo`) |
-| 4 | `demo-pre-construida` — `scripts/nueva-tienda.mjs` genera la home de un prospecto con Rótulo desde el directorio de la central | código + proceso comercial | 3 | fuera de esta tanda; hoy el script no existe |
+| # | Rodaja | Tipo | Depende de | Estado | Plan detallado |
+|---|---|---|---|---|---|
+| 1a | `datos-rotulo` — campos de tienda y mecánica de orden | código, TDD | capa 0 | ✅ **hecho** 6-sep · PR #26 | `.cursor/plans/2026-09-06-rotulo-1a-datos.md` |
+| 1b | `fuentes-rotulo` — las dos fuentes autoalojadas y el contrato de plantilla | código, TDD | capa 0 | ✅ **hecho** 6-sep · PR #26 | `.cursor/plans/2026-09-06-rotulo-1b-fuentes.md` |
+| 1c | `ofertas` — modelo de datos de la oferta del mes (propia > central > nada, fecha-fin) | código, TDD | 1a | ✅ **hecho** 7-sep · PR #28 | se planifica al cerrar 1a (`/mm-plan ofertas`) |
+| 1d | `hoy-y-festivos` — `franjaDeHoy` con zona horaria de Madrid y el calendario por centro comercial que decide cuándo callar | código, TDD | 1a | ✅ **hecho** 7-sep · PR #27 | se planifica al cerrar 1a (`/mm-plan hoy-y-festivos`) |
+| 2 | `secciones-gen-2` — Hazte socio, Empieza aquí, Por qué en tienda, FAQ; variantes `hoy` (horario+dónde), `puertas` (productos+marcas), `dato` (reseñas con enlaces), `tira` (galería 4:5) | visual, Loop A por pieza | 1a | ✅ **CERRADA** 11-sep · 4 secciones (PR #29) + 4 variantes | se planifica al cerrar 1a (`/mm-plan secciones-gen-2`) |
+| 3 | `plantilla-rotulo` — hoja CSS, hero, periferia, tests de humo, Loop B, ficha | visual, Loop B | 1a, 1b, 2 | ⬜ siguiente | se planifica al cerrar 2 (`/mm-plan plantilla-rotulo`) |
+| 4 | `demo-pre-construida` — `scripts/nueva-tienda.mjs` genera la home de un prospecto con Rótulo desde el directorio de la central | código + proceso comercial | 3 | ⬜ fuera de esta tanda | fuera de esta tanda; hoy el script no existe |
 
 **Por qué este orden.** 1a y 1b son independientes entre sí y se pueden ejecutar en paralelo (worktrees): no comparten ficheros salvo `tests/datos.test.mjs`, donde cada una añade su `describe`. Ninguna de las dos cambia un píxel de las 8 webs vivas (0/8 tiendas declaran `template`). La rodaja 2 necesita los campos de 1a (`prioridad`, `placeId`, `fotoInterior`, `franjaDeHoy`) y es la que produce las piezas nuevas que cualquier plantilla de las cinco hospedará; se construye y se juzga sección a sección. La 3 es la plantilla propiamente dicha y solo tiene sentido cuando las secciones ya pasaron Loop A. La 1c entra antes del Loop B para que la demo de Marineda enseñe el rojo, el cupón y `/oferta` con una oferta real (arreglo aceptado en la síntesis de las cinco).
 
@@ -65,6 +65,24 @@ Modelo de datos aprobado el 27-ago (memory/04): dos niveles con precedencia prop
 **Degradación, que es lo que R3 exige:** en un día marcado sin horario confirmado se imprime «Hoy es festivo: consulta el horario del centro», nunca una cuenta atrás. Sin fichero para ese centro, solo la franja del día. **Con esto el minutero «cierra en X» puede volver**, acotado a los días no marcados, que son unos 350 al año.
 
 ## Rodaja 2 — `secciones-gen-2`
+
+> **Estado a 11-09-2026.** Las cuatro SECCIONES nuevas están hechas, en producción y con su Loop A registrado en `docs/plantillas/rotulo/ficha.md`. Las cuatro VARIANTES están en curso.
+>
+> | Pieza | Estado | Registro |
+> |---|---|---|
+> | `socio` — Hazte socio | ✅ pasa en la 2.ª vuelta | ficha §Hazte socio |
+> | `porque` — Por qué en tienda | ✅ pasa en la 2.ª vuelta | ficha §Por qué en tienda |
+> | `faq` — Preguntas de tienda | ✅ pasa en la 2.ª vuelta | ficha §Preguntas de tienda |
+> | `empieza` — Empieza aquí | ✅ pasa en la 2.ª vuelta | ficha §Empieza aquí |
+> | `schedule:hoy` | ✅ pasa en la 2.ª vuelta | ficha §schedule:hoy |
+> | `products:puertas` | ✅ pasa en la 2.ª vuelta · **sin cifra por puerta**, medido | ficha §products:puertas |
+> | `reviews:dato` | ✅ pasa en la 2.ª vuelta (+ píldora de reseña en «Hoy en tienda») | ficha §reviews:dato |
+> | `gallery:tira` | ✅ pasa (+ arreglo de `energia`, que declaraba la variante sin usarla) | ficha §gallery:tira |
+>
+> **Rodaja CERRADA el 11-09-2026.** Ocho piezas, y **siete de las ocho suspendieron la primera vuelta** por defectos que solo se vieron mirando la captura. Las ocho llevan el mismo defecto de escritorio nombrado y aplazado al Loop B de la rodaja 3: todo a la izquierda, mitad derecha vacía.
+>
+> Lo que la rodaja destapó de paso: dos afirmaciones nuestras que eran falsas (la dirección «no añade nada al nombre del centro» y «Mujer, 557 referencias»), un fallo de contraste en las estrellas de Google, la galería de `energia` rota por compartir nombre de variante, y el evento `pedir_resena` que llevaba dado de alta desde agosto sin nada que lo emitiera.
+
 
 Cuatro secciones nuevas (`socio`, `empieza`, `porque`, `faq`) en `SECTION_IDS` + registro + componente, y cuatro variantes de secciones existentes (`schedule:hoy`, `products:puertas`, `reviews:dato`, `gallery:tira`). Cada pieza con su hoja P/N/evento (las cinco de `docs/plantillas/secciones-f1/ficha.md` más las que faltan, en `docs/plantillas/rotulo/ficha.md`), captura 375 y 1440 con Lagoh y Marineda, test de primera mirada escrito antes de comparar, pasa/no pasa. La variante `tira` cambia el test «la galería no recorta ninguna foto» para que aplique solo a la galería clásica: decisión del dueño (memory/12, pregunta 7) con nota en memory/07.
 

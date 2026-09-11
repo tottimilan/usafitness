@@ -1,4 +1,27 @@
 ---
+/**
+ * VARIANTE `hoy` — «Hoy en tienda», la pieza que contesta P1
+ *
+ * La cara de siempre (dos tarjetas: horario completo y canales) se queda
+ * intacta: ninguna de las ocho webs vivas declara plantilla y no puede cambiar.
+ *
+ * Qué hace la variante distinto, y por qué:
+ *
+ *  · **El dato de HOY manda.** El horario de la semana pasa a un `<details>`
+ *    cerrado. Quien busca una tienda a las 20:40 no quiere una tabla de siete
+ *    filas: quiere saber si llega. La tabla sigue ahí para quien la quiera.
+ *  · **El minutero solo si se puede sostener** — ver la cabecera de `hoy.ts`.
+ *  · **Se dice DÓNDE**, que es la otra mitad de P1. El nombre del centro y, si
+ *    la dirección añade algo más, también: medido el 11-sep, lo que sigue al
+ *    nombre del centro es una calle de verdad en 5 de las 8 tiendas.
+ *  · **Los canales dejan de ser tarjetas** y pasan a una fila de acciones. Dos
+ *    tarjetas con icono para dos enlaces es el patrón que el catálogo dio por
+ *    pasado de moda.
+ */
+import { estadoDeHoy } from '@/data/festivos';
+import { textoDeHoy, lineasDeSemana } from '@/data/hoy';
+import { enlaceResena } from '@/data/resenas';
+
 interface Props {
   schedule: string;
   phone: string;
@@ -7,13 +30,120 @@ interface Props {
   whatsapp?: string;
   googleMapsLink?: string;
   name?: string;
+  /** Solo los usa la variante `hoy`, para la mitad «dónde» de P1. */
+  mall?: string;
+  streetAddress?: string;
+  /** Para la píldora de reseña: cuántas tiene y a dónde mandar a quien escriba. */
+  numeroDeResenas?: number;
+  placeId?: string;
+  variant?: string;
 }
-const { schedule, phone, phoneDisplay, whatsapp, googleMapsLink, name = '' } = Astro.props;
+const {
+  schedule,
+  phone,
+  phoneDisplay,
+  whatsapp,
+  googleMapsLink,
+  name = '',
+  mall = '',
+  streetAddress = '',
+  numeroDeResenas = 0,
+  placeId,
+  variant,
+} = Astro.props;
 
 const scheduleLines = schedule.split('\n');
 const waNumber = whatsapp?.replace('+', '').trim() ?? '';
+
+/** SSR en cada petición: el dato de hoy es de hoy, no del último despliegue. */
+const hoy = variant === 'hoy' ? textoDeHoy(estadoDeHoy({ schedule, mall }, new Date()), new Date()) : null;
+const semana = lineasDeSemana(schedule);
+/**
+ * LA PÍLDORA DE RESEÑA VIVE AQUÍ, Y NO EN LA SECCIÓN DE RESEÑAS
+ *
+ * Seis de las ocho tiendas no llegan a tres reseñas, así que su sección de
+ * reseñas no se pinta. Poner ahí el «escribe la tuya» sería abrir un hueco para
+ * anunciar que está vacío — subrayar la carencia justo donde se nota.
+ *
+ * Va en «Hoy en tienda», que es la sección que ve todo el mundo y la que lee
+ * alguien que ya conoce la tienda y está mirando el horario. Y es PASIVA a
+ * propósito: la política de contribuciones de Google prohíbe incentivar
+ * reseñas, así que esto invita y no ofrece nada a cambio.
+ *
+ * El clic se mide solo: `ConversionTracking` reconoce la URL del formulario y
+ * emite `pedir_resena` con `seccion: 'schedule'`.
+ */
+const pideResena = variant === 'hoy' && numeroDeResenas < 3 ? enlaceResena({ placeId, googleMapsLink }) : null;
+
+/** Lo que la dirección añade al nombre del centro, si añade algo. */
+const restoDireccion =
+  mall && streetAddress.startsWith(mall)
+    ? streetAddress.slice(mall.length).replace(/^[,\s]+/, '')
+    : streetAddress;
 ---
 
+{variant === 'hoy' ? (
+  <section class="schedule section" id="contacto">
+    <div class="container hoy-inner">
+      <h2 class="hoy-titulo">Hoy en tienda</h2>
+
+      <p class="hoy-dato">{hoy.titular}</p>
+      {hoy.minutero && <p class="hoy-minutero">{hoy.minutero}</p>}
+      {hoy.pideLlamar && (
+        <p class="hoy-aviso">No lo publicamos para hoy. Llámanos y te lo confirmamos antes de que te muevas.</p>
+      )}
+
+      {/* La semana entera, plegada. Con una sola línea no se pinta: sería un
+          desplegable para enseñar lo que ya está justo encima. */}
+      {semana.length > 1 && (
+        <details class="hoy-semana">
+          <summary>Toda la semana</summary>
+          <ul>
+            {semana.map((l) => (
+              <li>{l}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      <p class="hoy-donde">
+        <span class="hoy-centro">{mall}</span>
+        {restoDireccion && <span class="hoy-calle">{restoDireccion}</span>}
+      </p>
+
+      {/* El botón en su propia línea y los dos enlaces en la suya. En la primera
+          vuelta iban los tres en la misma fila y el ancho de 375 partía justo
+          por el medio: botón + «WhatsApp» arriba y «Llamar» suelto debajo, tres
+          pesos a tres alturas. La acción principal manda sola; el contacto es
+          una fila de texto. */}
+      {googleMapsLink && (
+        <p class="hoy-cta">
+          <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="btn btn-primary">Cómo llegar</a>
+        </p>
+      )}
+
+      <div class="hoy-acciones">
+        {waNumber && (
+          <a
+            href={`https://wa.me/${waNumber}?text=${encodeURIComponent('Hola, os escribo desde vuestra web. ¿Estáis abiertos ahora?')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hoy-enlace"
+          >WhatsApp</a>
+        )}
+        <a href={`tel:${phone}`} class="hoy-enlace">Llamar al {phoneDisplay}</a>
+      </div>
+
+      {pideResena && (
+        <p class="hoy-resena">
+          <a href={pideResena.href} target="_blank" rel="noopener noreferrer" class="hoy-pildora">
+            ¿Ya nos conoces? {pideResena.etiqueta}
+          </a>
+        </p>
+      )}
+    </div>
+  </section>
+) : (
 <section class="schedule section" id="contacto">
   <div class="container">
     <h2 class="section-title">Horario y canales de contacto</h2>
@@ -77,6 +207,8 @@ const waNumber = whatsapp?.replace('+', '').trim() ?? '';
     </div>
   </div>
 </section>
+
+)}
 
 <style>
   .schedule {
@@ -213,5 +345,128 @@ const waNumber = whatsapp?.replace('+', '').trim() ?? '';
     .schedule-card {
       padding: 1.5rem;
     }
+  }
+  /* ————— variante `hoy` ————— */
+
+  .hoy-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    align-items: flex-start;
+  }
+
+  /* Etiqueta, no titular: el dato de hoy es lo que tiene que mandar, y con un
+     h2 a tamaño de sección competían los dos. Misma decisión que en «Por qué
+     en tienda» y en la FAQ. */
+  .hoy-titulo {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+  }
+
+  .hoy-dato {
+    margin: 0;
+    font-size: 1.6rem;
+    line-height: 1.2;
+    font-weight: var(--font-weight-heading);
+    color: var(--color-primary);
+    /* Cifras tabulares: «10:00 a 22:00» alinea con la tabla de la semana sin
+       trucos, y en Android con Roboto la diferencia se nota. */
+    font-variant-numeric: tabular-nums;
+    text-wrap: balance;
+  }
+
+  .hoy-minutero {
+    margin: 0;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hoy-aviso {
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.5;
+    max-width: 46ch;
+  }
+
+  .hoy-semana {
+    margin: 0.35rem 0 0;
+    width: 100%;
+  }
+
+  .hoy-semana summary {
+    cursor: pointer;
+    color: var(--color-primary);
+    font-weight: var(--font-weight-strong);
+    font-size: 0.9rem;
+  }
+
+  .hoy-semana ul {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .hoy-semana li {
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hoy-donde {
+    margin: 0.55rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .hoy-centro {
+    font-weight: var(--font-weight-strong);
+    color: var(--color-text);
+  }
+
+  .hoy-calle {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+  }
+
+  .hoy-cta {
+    margin: 0.8rem 0 0;
+  }
+
+  .hoy-acciones {
+    margin-top: 0.65rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.4rem;
+  }
+
+  .hoy-resena {
+    margin: 0.9rem 0 0;
+  }
+
+  /* Contorno y no relleno: es una invitación, no la acción principal de la
+     sección. Compitiendo con «Cómo llegar» le quitaría clics a la visita, que
+     es lo que de verdad paga el franquiciado. */
+  .hoy-pildora {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-pill);
+    color: var(--color-primary);
+    font-size: 0.88rem;
+    line-height: 1.3;
+  }
+
+  .hoy-enlace {
+    color: var(--color-cta);
+    font-weight: var(--font-weight-strong);
+    text-decoration: underline;
   }
 </style>
