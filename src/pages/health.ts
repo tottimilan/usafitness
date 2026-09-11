@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { stores, porDominio } from '@/data/stores';
+import { stores, porDominio, hostCanonico } from '@/data/stores';
 import { respuestaDeSalud } from '@/data/salud';
 
 export const prerender = false;
@@ -34,7 +34,7 @@ export const prerender = false;
  * monitor que consume la respuesta.
  */
 export const GET: APIRoute = ({ request }) => {
-  const host = request.headers.get('host')?.split(':')[0] ?? '';
+  const host = hostCanonico(request);
 
   const { status, cuerpo } = respuestaDeSalud(
     stores,

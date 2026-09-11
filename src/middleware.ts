@@ -1,5 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
-import { porDominio } from './data/stores';
+import { porDominio, hostCanonico } from './data/stores';
 
 /**
  * ENRUTADO POR DOMINIO
@@ -42,8 +42,32 @@ import { porDominio } from './data/stores';
  */
 const RAIZ_COMPARTIDA = new Set(['/sitemap.xml', '/robots.txt', '/404', '/health']);
 
+/**
+ * El endpoint de imágenes de Astro, cerrado a propósito.
+ *
+ * No usamos `astro:assets` —`src/data/imagen.ts:28` explica por qué— pero el
+ * adaptador registra `/_image` igualmente: está en el manifiesto compilado y
+ * `sharp` se importa en tiempo de ejecución. En los ocho dominios quedaba
+ * tapado por casualidad, porque la reescritura de abajo lo convertía en
+ * `/<slug>/_image`, que no existe. En cualquier otro host respondía: medido el
+ * 11-sep contra el build de producción, `?f=avif&w=4000&h=4000&q=100` devolvía
+ * 200 con 382.030 bytes y **1,21 s de CPU** por petición, contra 0,028 s del
+ * 404. Eso es un amplificador de 43× que no le cuesta nada a quien lo pide.
+ *
+ * Además es la precondición del único aviso CRÍTICO que tenemos abierto
+ * (GHSA-26w7-cxv4-gfx2, 9,8: ejecución remota al decodificar AVIF). Hoy no hay
+ * un solo `.avif` que el endpoint pueda leer, así que la RCE no nos alcanza;
+ * pero el esquema de `stores.ts` ACEPTA rutas `.avif`, o sea que estábamos a un
+ * commit de que sí.
+ *
+ * SI ALGÚN DÍA SE ADOPTA `astro:assets`: esto es lo primero que hay que quitar,
+ * y entonces `/_image` tiene que entrar en `RAIZ_COMPARTIDA` — sin eso las
+ * imágenes darían 404 en los ocho dominios a la vez.
+ */
+const ENDPOINT_IMAGEN = '/_image';
+
 export const onRequest = defineMiddleware(async (context, next) => {
-  const host = context.request.headers.get('host')?.split(':')[0] ?? '';
+  const host = hostCanonico(context.request);
   const path = context.url.pathname;
 
   // La barra final NO se trata aquí: `trailingSlash: 'never'` en la config ya
@@ -51,6 +75,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // redirect a mano en este fichero y, al quitarlo para comprobarlo, los tests
   // siguieron en verde — era código muerto. Está anotado para que no vuelva.
   const store = porDominio.get(host);
+
+  // Se corta ANTES de mirar la tienda: el agujero estaba justo en el camino del
+  // host desconocido, así que cerrarlo solo para los dominios conocidos no
+  // habría cerrado nada.
+  if (path === ENDPOINT_IMAGEN) return new Response(null, { status: 404 });
 
   // Host desconocido (dominio genérico, preview de Railway): se sirve tal cual.
   // Ahí las tiendas viven en /<slug> y el layout las marca `noindex`, para que
