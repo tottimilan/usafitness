@@ -56,8 +56,18 @@ jobs:
       - name: La suite armada (fixture con ga4Id)
         run: npm run test:armado
 
-      # Tripwire de dependencias: hoy pasa (0 critical). Se pone rojo el dia
-      # que aparezca algo genuinamente nuevo y grave — que es exactamente
-      # cuando el triaje de docs/security/ debe reevaluarse, no antes.
+      # Tripwire de dependencias. Antes era `npm audit --audit-level=critical`,
+      # un si o un no, y el 11-sep se quedo permanentemente en "no": aparecio el
+      # primer critico (GHSA-26w7-cxv4-gfx2) y no tiene arreglo dentro de la
+      # linea 6.x de astro, asi que la alarma no podia volver a verde con
+      # ninguna accion razonable. Una alarma siempre roja no avisa de nada — es
+      # el mismo teatro que el triaje de agosto rechazo al descartar el umbral
+      # `high`.
+      #
+      # Ahora falla con cualquier critico que NO este en
+      # docs/security/excepciones-audit.json con motivo, evidencia medida y
+      # fecha de caducidad. Y falla tambien si una excepcion caduca, si sobra
+      # porque ya se arreglo, si se le da mas de 90 dias o si le falta un campo:
+      # son cinco formas de romper el build, no una de silenciarlo.
       - name: Auditoria de dependencias (tripwire)
-        run: npm audit --audit-level=critical
+        run: npm run auditoria
