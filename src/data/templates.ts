@@ -295,8 +295,18 @@ export function plantillasConSeccionesInvalidas(
 
 export const PLANTILLA_POR_DEFECTO = 'clasica';
 
+/**
+ * La plantilla de ese id, o la de siempre.
+ *
+ * `Object.hasOwn` y no `TEMPLATES[id] ?? ...`: `TEMPLATES` es un objeto
+ * literal, así que hereda `constructor`, `toString` y `valueOf` del prototipo.
+ * Los tres pasan el filtro de `?plantilla=` —solo minúsculas, guiones y 12
+ * caracteres— y devuelven una FUNCIÓN, que es truthy, así que el `??` de
+ * reserva no disparaba y la página reventaba con un 500 sin autenticar.
+ * Medido el 11-sep: `?plantilla=constructor`, `toString` y `valueOf` → 500.
+ */
 export function getTemplate(id?: string): Template {
-  return TEMPLATES[id ?? ''] ?? TEMPLATES[PLANTILLA_POR_DEFECTO];
+  return id && Object.hasOwn(TEMPLATES, id) ? TEMPLATES[id] : TEMPLATES[PLANTILLA_POR_DEFECTO];
 }
 
 /** Convierte los tokens de una plantilla en una regla CSS.

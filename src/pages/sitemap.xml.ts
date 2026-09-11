@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { stores, porDominio } from '@/data/stores';
+import { stores, porDominio, hostCanonico } from '@/data/stores';
 import { LEGAL_DOCS } from '@/data/legal';
 
 export const prerender = false;
@@ -15,7 +15,7 @@ function urlEntry(loc: string): string {
 }
 
 export const GET: APIRoute = ({ request }) => {
-  const host = request.headers.get('host')?.split(':')[0] ?? '';
+  const host = hostCanonico(request);
   const store = porDominio.get(host);
 
   let entries: string[] = [];

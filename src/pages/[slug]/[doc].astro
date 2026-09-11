@@ -4,7 +4,7 @@ export const prerender = false;
 import Base from '@/layouts/Base.astro';
 import Footer from '@/components/Footer.astro';
 import CookieConsent from '@/components/CookieConsent.astro';
-import { porSlug } from '@/data/stores';
+import { porSlug, hostCanonico } from '@/data/stores';
 import { getLegalDoc, isLegalDoc, LEGAL_DOCS, identificacionProvisional } from '@/data/legal';
 
 const { slug, doc } = Astro.params;
@@ -57,7 +57,7 @@ if (legalReady) {
   );
 }
 
-const host = Astro.request.headers.get('host')?.split(':')[0] ?? '';
+const host = hostCanonico(Astro.request);
 const onOwnDomain = host === store.domain || host === `www.${store.domain}`;
 const legalBase = onOwnDomain ? '' : `/${store.slug}`;
 const homeHref = onOwnDomain ? '/' : `/${store.slug}`;
