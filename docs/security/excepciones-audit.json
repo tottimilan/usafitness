@@ -1,0 +1,19 @@
+{
+  "_lee_esto_antes_de_tocar": [
+    "Cada entrada aquí es un aviso CRÍTICO que hemos decidido no arreglar todavía, con la evidencia de por qué no nos alcanza.",
+    "No es una lista para silenciar: cinco cosas rompen el build (un crítico que no está, una entrada caducada, una que ya no corresponde a nada, un plazo de más de 90 días, y una a la que le falte un campo).",
+    "La caducidad ROMPE, no avisa. Renovarla exige volver a medir y escribir la evidencia de ese día, no cambiar la fecha.",
+    "La regla vive en src/data/auditoria.ts y está bajo test. El comando es `npm run auditoria`."
+  ],
+  "excepciones": [
+    {
+      "aviso": "GHSA-26w7-cxv4-gfx2",
+      "paquete": "astro",
+      "motivo": "El camino de ataque es el endpoint /_image, que decodifica AVIF con sharp. Desde el 11-sep ese endpoint devuelve 404 en todos los hosts, cortado en el middleware antes de mirar la tienda. Y aunque no lo estuviera: no hay un solo fichero .avif en public/, en src/ ni en dist/client, así que el decodificador no tiene nada que decodificar. Medido contra el build de producción, no deducido.",
+      "evidencia": "docs/security/triaje-2026-09-11-reevaluacion.md",
+      "abierta": "2026-09-11",
+      "caduca": "2026-10-13",
+      "cierraEn": "astro>=7.2.8 (no hay arreglo dentro de la línea 6.x, que acaba en 6.4.8)"
+    }
+  ]
+}
