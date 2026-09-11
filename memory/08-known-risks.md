@@ -62,3 +62,23 @@
 **Por qué importa igualmente:** el fallo es silencioso y `parseHorario` es la única implementación — la usan a la vez el esquema de `stores.json`, el `openingHoursSpecification` de Schema.org que ven las ocho webs, `franjaDeHoy` y la FAQ. La tienda 9 que escriba «Sábados y domingos» publicará datos incompletos a Google y una respuesta incorrecta en su FAQ, sin que salte nada.
 
 **Arreglo (no hecho aquí a propósito: toca las ocho webs vivas y merece su propia verificación):** acumular los días sueltos en vez de excluirlos, manteniendo los rangos evaluados primero —«lunes a domingo» también contiene «domingo» y evaluarlo al revés duplicaría el día—. Test rojo primero, y comprobar que las ocho tiendas producen exactamente las mismas franjas que antes.
+
+### 2026-09-11 — el crítico de Astro tiene fecha: 13 de octubre
+
+`GHSA-26w7-cxv4-gfx2` (RCE 9,8 al decodificar AVIF) **no tiene arreglo dentro de la línea 6.x**: la 6.x acaba en 6.4.8 y el aviso se cierra en `>=7.2.8`. Hoy no nos alcanza —`/_image` devuelve 404 en todos los hosts y no hay un solo `.avif` que el decodificador pueda leer—, y esa aceptación está escrita en `docs/security/excepciones-audit.json` con **caducidad el 13-10-2026**.
+
+**Cuando caduque, el build ROMPE.** No avisa. O se ha subido a Astro 7 para entonces, o hay que volver a medir y renovar con la evidencia de ese día. Renovar cambiando solo la fecha es exactamente lo que la regla existe para impedir, y nada lo impide salvo la costumbre.
+
+El estudio de rotura de la subida (guía de migración, adaptador, middleware, API de integraciones contra nuestro `astro.config.mjs`) está hecho y su riesgo es **alto**: los dos cambios peores no dan error y sí cambian la pantalla — `compressHTML` pasa de `true` a `'jsx'` y junta palabras entre elementos en línea, y el compilador Rust deja de recolocar el HTML mal anidado.
+
+### 2026-09-11 — redirección abierta en el servidor de estáticos del adaptador
+
+`GET //evil.com/../photos/` devuelve `301 Location: https://evil.com/photos`, **medido contra producción**. Vive en `@astrojs/node/dist/serve-static.js`, que corre ANTES del middleware: no se puede interceptar desde la aplicación. La rama `case "never"` —la nuestra, por `trailingSlash: 'never'`— decide con la ruta normalizada y responde con la cruda, sin pasar por `isInternalPath`; el parche 11.0.2 solo arregla la rama `always`.
+
+**Aceptado** porque hace falta un cliente que no normalice los segmentos `..`: un navegador sí los normaliza y el host ajeno desaparece, así que no sirve para engañar a una persona con un enlace. **Reevaluar** al subir a `@astrojs/node@11` (comprobar si sigue, no suponerlo) y reportar aguas arriba.
+
+### 2026-09-11 — CSS muerto en las ocho webs vivas, y ninguna guarda lo ve
+
+El paquete de CSS pasó de 14.523 a 21.464 bytes al entrar las cuatro secciones de generación 2: **+1.024 bytes comprimidos en cada página de cada tienda**, para 55 reglas de componentes que ninguna tienda pinta (todas con su `data-astro-cid`, así que no afectan a nada — solo pesan).
+
+**El punto ciego:** el tope de peso del build mide el CSS **fuente** gzipeado, no el paquete que de verdad se descarga, así que esto no lo caza ninguna guarda. Se cierra solo cuando Rótulo tenga su hoja propia —que viaja únicamente en las páginas que la usan—, pero hasta entonces lo pagan los ocho dominios.

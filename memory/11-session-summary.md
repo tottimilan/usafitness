@@ -194,6 +194,27 @@ y la ficha de Google de GranCasa. Ver `docs/mapas/pendiente-franquiciados.md`.
 Técnicas sin dependencias: el rediseño de la galería (las verticales se ven al
 56%), 3.8 imágenes responsive, 3.3 `locals.store`, 3.10 partir `stores.json`.
 
+## 2026-09-11 — la rodaja 2 cerrada, un triaje que destapó cuatro fallos nuestros, y la pila entera en producción
+
+**Producto:** «Empieza aquí», la última sección de la rodaja 2. Selector de un toque, cuatro rutas, cero JavaScript. Dos de las cuatro etiquetas que traía el diseño no sobrevivieron a la decisión 6 del 6-sep y van en versión segura pendiente de firma del dueño: «energía y resistencia» → «entreno de resistencia», y «control de peso» —que es literalmente una categoría de declaración de salud del Reglamento 1924/2006— → «cuidar la alimentación». **Se pierde la ruta de peso**, y eso hay que decirlo, no esconderlo.
+
+**Seguridad, que fue el grueso del día.** La alarma de `npm audit` se puso roja por primera vez: apareció un crítico 9,8 en Astro (RCE al decodificar AVIF) sin arreglo dentro de la línea 6.x. Al reabrir el triaje de agosto —con cinco vectores, cada uno verificado por un agente y **refutado por otro**— aparecieron **cuatro defectos nuestros** que el triaje anterior no había visto:
+
+1. La cabecera `Host` se leía cruda en ocho sitios; `USAFITNESSVIGO.COM` caía al host genérico.
+2. `/_image` respondía a cualquiera en hosts no canónicos: 382 KB y 1,21 s de CPU por petición, amplificador de 43×. En los ocho dominios estaba tapado **por casualidad**, por la reescritura del middleware.
+3. `robots.txt` devolvía `Host` y `x-forwarded-proto` sin validar, cacheado una hora.
+4. `?plantilla=constructor` daba 500: `TEMPLATES` es un objeto literal y heredaba del prototipo.
+
+Los cuatro arreglados y verificados en producción. Un quinto —redirección abierta en el servidor de estáticos del adaptador— se acepta con fecha: es de Astro, corre antes del middleware y los navegadores normalizan los `..` antes de enviar.
+
+**La alarma dejó de ser un sí o un no.** `npm audit --audit-level=critical` se había quedado permanentemente en «no» sin acción posible que lo cambiara. Ahora falla con cualquier crítico que no esté en `docs/security/excepciones-audit.json` con motivo, evidencia y fecha — y **cinco cosas rompen el build**, incluidas la caducidad y la excepción que sobra porque ya se arregló. La única entrada caduca el **13-10-2026**.
+
+**Desplegado:** las siete PRs mezcladas, `main` verde por primera vez en el día, flota 8/8. Comparación A/B compilando el commit de antes y el de ahora: las ocho portadas cambian en exactamente dos cosas —el hash del paquete CSS y 317 bytes del script de medición (`pedir_resena`)—, cero reglas CSS cambiadas o borradas. **Coste no previsto:** +1.024 bytes comprimidos de CSS en cada página de las ocho tiendas, para reglas de componentes que esas páginas no pintan.
+
+**Errores míos del día:** cuatro, dos de ellos repeticiones de errores ya escritos (ver `memory/16`, entradas 18-22, y la 15 marcada como repetida). El más caro fue recomendar `--delete-branch` sin haberlo visto funcionar en una pila: cerró una PR.
+
+---
+
 ### Lessons learned (candidates for cross-project Memory Graph)
 - **`grep` es para localizar, nunca para concluir.** Extraer campos sueltos de un fichero de datos y no leer su contenido llevó a inferir el sector equivocado del nombre de marca, y contaminó toda la memoria hasta que el usuario lo corrigió.
 - **Verificar el estado desplegado, no solo el repo.** El repositorio describía 5 tiendas "vivas"; comprobar cada dominio reveló que 3 seguían en WordPress. Un `curl` por dominio cambió el encuadre del proyecto entero.
@@ -203,6 +224,8 @@ Técnicas sin dependencias: el rediseño de la galería (las verticales se ven a
 - **"Desacoplado" hay que comprobarlo, no declararlo.** Se dieron por separadas dos variables que seguían valiendo lo mismo (`avisoCookies = analitica`): funcionalmente idéntico a no haber hecho nada.
 - **Un `git status` limpio no demuestra que el árbol esté completo.** Un fichero ignorado es invisible en `git status` Y en el repositorio. `build/` sin barra inicial se tragó `src/build/`; todo pasaba en local y el CI cayó con "Cannot find module". Los patrones de salida de build hay que anclarlos con `/`.
 - **Duplicar el `<head>` no es un riesgo, es un fallo con retardo.** Dos de las cuatro copias ya habían derivado: una publicaba páginas legales de un cliente como indexables en el host de preview, la otra llevaba un color de marca retirado. Ninguna de las dos daba error en ningún sitio.
+- **Una alarma que no puede volver a verde deja de ser una alarma.** Un tripwire de seguridad que se queda rojo por algo aceptado con evidencia y sin arreglo posible entrena a todo el mundo a ignorarlo, y el día que salte de verdad nadie mira. La salida no es bajar el umbral ni silenciarlo: es que la excepción tenga motivo, evidencia, fecha de caducidad **que rompa el build**, y que sobre cuando ya no haga falta.
+- **Un agente que verifica y otro que refuta valen más que dos que verifican.** Mi propia comprobación de la mañana dio el veredicto correcto por el motivo equivocado («no usamos astro:assets, luego no hay endpoint»), y habría cerrado el asunto con tres agujeros dentro. Lo que los encontró fue encargarle a un segundo agente que me refutara.
 - **Un esquema que rechaza todo lo importante bloquea el despliegue de clientes vivos.** La línea útil no es "estricto" ni "laxo": error para lo que rompe render o publica un dato falso, aviso para lo que solo degrada y depende de terceros.
 
 

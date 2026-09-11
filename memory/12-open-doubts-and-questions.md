@@ -285,3 +285,27 @@ Detalle y evidencia: `docs/product/decisiones-2026-09-06-ocho-preguntas.md`.
 - Aceptar en la captura el corte del rótulo por el borde derecho (2-3 caracteres en 12 de 58 tiendas) y la cara de Segoe UI en la pantalla de Windows.
 - Qué es el clip de vídeo de GranCasa que ya servimos sin enlazar, y si lleva música de biblioteca de redes.
 - Las puertas externas de siempre, ninguna nueva: firma de la central sobre qué puede publicar cada tienda, ficha de Google de GranCasa, beneficios de socio por escrito, y una foto de un cartel real para fijar los claims en inglés.
+
+---
+
+## Abiertas del dueño tras el 11-sep (acumuladas, ninguna respondida)
+
+Se listan aquí porque **bloquean o condicionan** trabajo ya construido, no como recordatorio genérico.
+
+**Bloquean «Empieza aquí», que ya está en producción con textos provisionales:**
+
+1. ¿Firmas «ENTRENO DE RESISTENCIA» y «CUIDAR LA ALIMENTACIÓN» como sustitutas de «ENERGÍA Y RESISTENCIA» y «CONTROL DE PESO»? Las cambié yo aplicando la decisión 6; el motivo está en `src/data/rutas.ts` y en la ficha de Rótulo.
+2. ¿Aceptas quedarte **sin ruta de peso** en la web —el consejo se da en el mostrador— o quieres una y la redactamos con quien tenga el criterio? Es una pérdida real de tráfico cualificado, no un tecnicismo.
+3. Las tres líneas de cada ruta las escribí yo con el catálogo delante. ¿Las revisa alguien de tienda antes de que esto se enseñe a un franquiciado?
+
+**Condicionan las secciones ya construidas:**
+
+4. ¿Es correcto el azul a sangre de «Hazte socio»?
+5. ¿Aguantan las cuatro ventajas del socio sin cifras, o esperamos al documento de la central?
+6. ¿Te vale republicar una reseña firmada con nombre y apellidos («Por qué en tienda»)?
+
+**Con fecha:**
+
+7. La excepción del crítico de Astro caduca el **13 de octubre** y entonces rompe el build. ¿Subimos a Astro 7 antes —riesgo alto, despliega a 8 webs vivas— o se renueva con evidencia nueva?
+
+**De antes, sin cerrar:** la tabla de los 58 rótulos y si Villanueva es El Zoco o La Pasada; el corte del rótulo por el borde derecho; qué es el clip de vídeo de GranCasa.
