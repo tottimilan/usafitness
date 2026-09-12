@@ -1,5 +1,8 @@
 ---
 import { srcsetDe } from '@/data/imagen';
+import { medirRotulo } from '@/data/rotulo';
+import { estadoDeHoy } from '@/data/festivos';
+import { textoDeHoy } from '@/data/hoy';
 
 interface Props {
   name: string;
@@ -14,8 +17,38 @@ interface Props {
   heroText?: string;
   /** Variante que pide la plantilla. 'compacto' = más bajo y alineado a la izquierda. */
   variant?: string;
+  /** Solo la variante `rotulo`: el cartel y la línea de dato. */
+  rotulo?: string;
+  schedule?: string;
+  mall?: string;
 }
-const { name, title, location, googleMapsLink, hero, heroText, variant, phone = '', whatsapp } = Astro.props;
+const {
+  name,
+  title,
+  location,
+  googleMapsLink,
+  hero,
+  heroText,
+  variant,
+  phone = '',
+  whatsapp,
+  rotulo = '',
+  schedule = '',
+  mall = '',
+} = Astro.props;
+/**
+ * EL CARTEL DE RÓTULO, medido en el servidor.
+ *
+ * 343 px es el ancho útil a 375: la pantalla menos el margen del plano. El
+ * tamaño de letra sale de la tabla de avances de la fuente que se sirve, así que
+ * no hay `vw` a ojo ni salto de maquetación cuando la fuente termina de cargar.
+ * Ver `rotulo.ts` para por qué algunos se cortan por la derecha a propósito.
+ */
+const cartel = variant === 'rotulo' && rotulo ? medirRotulo(rotulo, 343) : null;
+/** La línea de dato del cartel: lo que responde P1 sin bajar de la primera pantalla. */
+const hoyEnCartel =
+  variant === 'rotulo' && schedule ? textoDeHoy(estadoDeHoy({ schedule, mall }, new Date()), new Date()) : null;
+
 const introText = heroText || `En ${name} encontrarás asesoramiento personalizado y la mejor nutrición deportiva al mejor precio en ${location}. Nuestros productos están seleccionados para ayudarte a alcanzar tus objetivos de fitness y bienestar.`;
 ---
 
@@ -28,7 +61,57 @@ const introText = heroText || `En ${name} encontrarás asesoramiento personaliza
     Los CTAs degradan: teléfono SIEMPRE (las 8 tiendas lo tienen), WhatsApp
     solo si existe — 3 de 8 no lo tienen, y prometer «dos botones siempre» fue
     la mentira que el panel de diseño cazó en los cinco conceptos a la vez. */}
-{variant === 'cartel' ? (
+{/* VARIANTE «rotulo»: el tipo ES la imagen. Lo primero que se ve no es una
+    foto sino el nombre del sitio a escala de cartel, sobre un plano de color
+    que llega al borde y acaba en diagonal.
+
+    NO SE LLAMA «cartel» aunque lo sea: ese nombre de variante ya lo usa la
+    plantilla Energía para otra cosa. Compartir nombre entre dos variantes que
+    cambian el marcado es la mina que ya rompió la galería de energía una vez.
+
+    QUÉ NO LLEVA, Y ESTÁ DECIDIDO: la línea de cifras del catálogo que pedía el
+    diseño («PROTEÍNAS 199 · CREATINA 62 · MUJER 557»). Las tres son
+    impublicables — las categorías del catálogo no son disjuntas y el 557 de
+    «Mujer» resultó ser Control de Peso. Ver `puertas.ts`. */}
+{variant === 'rotulo' ? (
+  <section class="hero hero--rotulo" id="inicio">
+    <div class="plano">
+      <img src="/usafitness.svg" alt="USA Fitness" class="plano-logo" width="200" height="42" />
+
+      <h1 class="plano-rotulo" style={`--rotulo-px:${cartel.px}px`}>
+        {cartel.palabras.map((p) => (
+          <span class="plano-palabra">{p}</span>
+        ))}
+      </h1>
+
+      {/* R1: el primer viewport responde «¿está abierto?» y «¿dónde?» sin
+          scroll, y en el mismo renglón. */}
+      <p class="plano-dato">
+        <b>{hoyEnCartel.titular.replace(/\.$/, '')}</b>
+        {mall && <span class="plano-sep">·</span>}
+        {mall && <span>{mall}</span>}
+      </p>
+
+      <div class="plano-acciones">
+        {googleMapsLink ? (
+          <a href={googleMapsLink} target="_blank" rel="noopener noreferrer" class="plano-btn plano-btn--llena">Cómo llegar</a>
+        ) : (
+          <a href={`tel:${phone}`} class="plano-btn plano-btn--llena">Llámanos</a>
+        )}
+        {whatsapp ? (
+          <a
+            href={`https://wa.me/${whatsapp.replace('+', '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="plano-btn plano-btn--borde"
+          >WhatsApp</a>
+        ) : (
+          googleMapsLink && <a href={`tel:${phone}`} class="plano-btn plano-btn--borde">Llamar</a>
+        )}
+      </div>
+    </div>
+  </section>
+) : variant === 'cartel' ? (
   <section class="hero hero--cartel" id="inicio">
     <div class="cartel">
       <p class="cartel-eyebrow">Nutrición deportiva · Suplementación</p>

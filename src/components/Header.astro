@@ -2,7 +2,12 @@
 interface Props {
   phone: string;
   instagram?: string;
-  /** 'cinta-de-marca' (plantilla Energía): cinta de claims sobre el header. */
+  /**
+   * `cinta-de-marca` (Energía): cinta de claims sobre el header.
+   * `sin-logo` (Rótulo): la cabecera renuncia al logotipo porque el plano del
+   * cartel ya lo lleva dentro, en negro. Con los dos, la primera pantalla
+   * enseñaba el mismo logo dos veces a quince píxeles de distancia.
+   */
   variant?: string;
 }
 const { phone, instagram, variant } = Astro.props;
@@ -50,9 +55,17 @@ const claims = ['Proteína', 'Creatina', 'Pre-entreno', 'Asesoramiento gratis', 
 )}
 <header class="header" role="banner">
   <nav class="container header-inner" aria-label="Navegación principal">
-    <a href="#inicio" class="logo-link" aria-label="USA Fitness - Inicio">
-      <img src="/usafitness.svg" alt="USA Fitness logo" class="logo" width="200" height="42" />
-    </a>
+    {/* En Rótulo el logotipo vive DENTRO del plano del cartel, en negro sobre
+        cian, y repetirlo aquí lo enseñaba dos veces a quince píxeles de
+        distancia. La cabecera se queda solo con las acciones, que es lo que de
+        verdad tiene que estar siempre a mano. */}
+    {variant === 'sin-logo' ? (
+      <span class="logo-hueco" aria-hidden="true"></span>
+    ) : (
+      <a href="#inicio" class="logo-link" aria-label="USA Fitness - Inicio">
+        <img src="/usafitness.svg" alt="USA Fitness logo" class="logo" width="200" height="42" />
+      </a>
+    )}
     <div class="header-actions">
       {instagram && (
         <a href={instagram} target="_blank" rel="noopener noreferrer" class="header-ig" aria-label="Síguenos en Instagram">
@@ -82,6 +95,12 @@ const claims = ['Proteína', 'Creatina', 'Pre-entreno', 'Asesoramiento gratis', 
     align-items: center;
     justify-content: space-between;
     height: 100%;
+  }
+
+  /* Ocupa el hueco para que las acciones no se vayan a la izquierda: la
+     cabecera sigue siendo la misma retícula aunque el logo no esté. */
+  .logo-hueco {
+    display: block;
   }
 
   .logo-link {
