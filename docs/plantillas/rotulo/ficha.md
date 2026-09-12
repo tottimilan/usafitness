@@ -442,3 +442,80 @@ Cinco de las ocho cifras de agosto se habían movido quince días después (el c
 1. **Qué significa «Fuera de stock»** en la web de la central. Decide si la cifra honesta es 1.687 o la mitad.
 2. **Cuál de las cinco «Creatina» es la suya.** La página de creatina sirve 63 fichas, pero otro nodo tiene Monohidrato con 32 que no aparecen ahí y son creatina de libro. Si la buena es 95, la puerta enseña dos tercios.
 3. **153 fichas no cuelgan de ninguna de las dos ramas** y 108 no se alcanzan navegando.
+
+---
+
+# Rodaja 3 — la plantilla
+
+## El cartel (hero `rotulo`) — ✅ PASA en la segunda vuelta (2026-09-12)
+
+**Hoja de objetivos:** R1 —el primer viewport responde P1 sin scroll— y la tesis de la plantilla: **el tipo ES la imagen**. Lo primero que se ve no es una foto sino el nombre del sitio ocupando la pantalla.
+
+### El tamaño de letra sale de la fuente, no de un `vw` a ojo
+
+`scripts/avances-rotulo.py` extrae la tabla de avances del woff2 **que se sirve** —no de la familia de Google— y `rotulo.ts` la usa para calcular en SSR el tamaño de cada tienda. Sin esto haría falta JavaScript en el cliente y un salto de maquetación justo encima del titular más grande de la página.
+
+**Una palabra por línea, y manda la más ancha.** Medir la cadena entera daba 440 px para «LAS ROSAS» cuando de verdad mide 271, porque el cartel las apila.
+
+| Tienda | Rótulo | Líneas | px | Ancho | Corte |
+|---|---|---|---|---|---|
+| lagoh | LAGOH | LAGOH | 71 | 339 | — |
+| lasrosas | LAS ROSAS | LAS / ROSAS | 73 | 341 | — |
+| vigo | GRAN VÍA | GRAN / VÍA | 87 | 341 | — |
+| marineda | MARINEDA | MARINEDA | 58 | 419 | 1,5 |
+| arcangel | EL ARCÁNGEL | EL / ARCÁNGEL | 58 | 432 | 1,6 |
+| grancasa | GRANCASA | GRANCASA | 58 | 443 | 1,8 |
+| **villanueva** | VILLANUEVA | VILLANUEVA | 58 | 499 | **3,1** |
+| **alcobendas** | ALCOBENDAS | ALCOBENDAS | 58 | 537 | **3,6** |
+
+El diseño acepta entre 1,5 y 3 caracteres cortados. **Los dos últimos se pasan**, y son exactamente los dos que la rodaja 1a había señalado como casos límite. Es una de las preguntas abiertas del dueño, y ahora tiene los números en vez de una impresión. Los ocho quedan congelados en un test: si cambian, se ve.
+
+### Vuelta 1 — NO PASA, por tres cosas
+
+**Test de primera mirada:**
+
+> Un plano cian de borde a borde con el logo en negro arriba. Debajo, el nombre en letras azules anchísimas que ocupan casi todo el ancho. Una línea con «Hoy, de 10:00 a 22:00 · C.C. Lagoh» y dos botones. El plano acaba en diagonal.
+
+**1. El logotipo salía dos veces** en la primera pantalla: el de la cabecera clásica y el del plano, a quince píxeles de distancia.
+
+**2. El rótulo empujaba la página entera a lo ancho.** El plano usa `align-items: flex-start`, así que el `h1` crecía hasta el texto y el `overflow: hidden` no tenía nada que recortar. **Cinco de las ocho tiendas se podían desplazar en horizontal** y el cartel salía cortado también por la izquierda.
+
+**3. El texto del plano fallaba el contraste, y el comentario decía lo contrario.**
+
+| Sobre el cian de marca | Contraste | |
+|---|---|---|
+| azul de marca (lo que puse) | **2,55** | ✖ ni para texto grande |
+| blanco | 2,76 | ✖ |
+| **negro** | **7,61** | ✔ |
+
+Cinco de los seis textos del cartel suspendían. Y la hoja llevaba escrito de mi puño que «el texto del plano va en TINTA… y ahí sí cumple»: falso, y no medido. Es la lección del manual de marca por tercera vez — sus colores están pensados para rotular, no para texto.
+
+El negro además **ya estaba en el plano**: el logotipo va en negro dentro del cian por diseño, así que el texto no añade un color, usa el que ya hay.
+
+### Vuelta 2 — PASA
+
+| Medido a 375 px, Alcobendas | Vuelta 1 | Vuelta 2 |
+|---|---|---|
+| Fallos de contraste | **5 de 6** | **0 de 6** |
+| Desborde de página | 5 tiendas con scroll horizontal | **360 px sobre 375** |
+| Logotipos en la primera pantalla | 2 | **1** |
+| Alto del cartel | — | 420 px |
+| Fuente usada | — | ArchivoExpandedBlack, 58 px |
+
+### Lo que el cartel NO lleva, aunque el diseño lo pedía
+
+**La línea de cifras del catálogo** («PROTEÍNAS 199 · CREATINA 62 · MUJER 557»). Las tres son impublicables: las categorías del catálogo no son disjuntas y el 557 de «Mujer» resultó ser Control de Peso. Ver `puertas.ts`.
+
+### Una guarda nueva que sale de aquí
+
+El contraste del plano **se calcula ahora desde los tokens de la propia hoja**, en un test puro: si alguien vuelve a poner el azul, se pone rojo sin abrir un navegador. Validado matándolo.
+
+El desbordamiento, en cambio, **solo tiene guarda de mecanismo** —que las dos líneas de CSS sigan ahí— y está dicho en el propio test: el resultado solo se ve en un navegador, y está medido aquí.
+
+### Pendiente en esta pieza
+
+- **La periferia completa**: `pie-rotulo` y la `barra-2-acciones` fija. Hecho solo el `sin-logo` de la cabecera, que era el que fallaba la primera mirada.
+- **La banda de papel** con `fotoInterior` en duotono, que el diseño pone bajo el plano.
+- **La palabra en script** del titular, que es la otra mitad de la voz.
+- **El Loop B con las cuatro capturas** y la prueba de muerte en miniatura contra Energía.
+- **Escritorio sin mirar**: el panel del navegador no da una captura fiable a este tamaño (error 17), así que lo medido vale y lo visto no.
