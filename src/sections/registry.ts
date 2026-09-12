@@ -63,6 +63,10 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
       // Para la variante cartel: contacto en el primer viewport.
       phone: s.phone,
       whatsapp: s.whatsapp,
+      // Para la variante `rotulo`: el cartel y su línea de dato.
+      rotulo: s.rotulo ?? s.location.split(',')[0].trim(),
+      schedule: s.schedule,
+      mall: s.mall,
     }),
   },
 

@@ -61,6 +61,7 @@ import { anchosDe, srcsetDe, rutaVariante, sizesDe, sizesDeFoto } from '../src/d
 import { fotosDe } from '../src/data/galeria-de-tiendas.ts';
 import { textoDeHoy, enHorasYMinutos, lineasDeSemana } from '../src/data/hoy.ts';
 import { PUERTAS, cifraDelCatalogo, enCastellano, textosDePuertas } from '../src/data/puertas.ts';
+import { medirRotulo, palabrasDeRotulo, anchoEm, SUELO_PX, TECHO_PX } from '../src/data/rotulo.ts';
 import { cidDePlaceId, enlaceResena } from '../src/data/resenas.ts';
 import { estadoDeHoy, centrosSinCalendario } from '../src/data/festivos.ts';
 import { ofertaViva } from '../src/data/ofertas.ts';
@@ -2215,5 +2216,134 @@ describe('Las puertas de producto no llevan cifra, y la del catálogo caduca sol
   test('la fecha se escribe como la escribe una persona', () => {
     assert.equal(enCastellano('2026-09-11'), '11 de septiembre de 2026');
     assert.equal(enCastellano('2027-01-06'), '6 de enero de 2027');
+  });
+});
+
+describe('El rótulo a escala de cartel se mide en el servidor', () => {
+  // El tamaño de letra de cada tienda sale de la tabla de avances de la fuente
+  // que se sirve. Sin esto haría falta JavaScript en el cliente y un salto de
+  // maquetación justo encima del titular más grande de la página.
+  const ANCHO = 343; // 375 menos el margen del plano
+
+  test('una palabra por línea, y manda la más ancha', () => {
+    // Medir la cadena entera daba 440 px para «LAS ROSAS» cuando de verdad mide
+    // 271: el cartel apila las palabras.
+    assert.deepEqual(palabrasDeRotulo('LAS ROSAS'), ['LAS', 'ROSAS']);
+    assert.deepEqual(palabrasDeRotulo('EL ARCÁNGEL'), ['EL', 'ARCÁNGEL']);
+    assert.deepEqual(palabrasDeRotulo('LAGOH'), ['LAGOH']);
+    // El esquema admite `|` como salto explícito.
+    assert.deepEqual(palabrasDeRotulo('GRAN|VÍA'), ['GRAN', 'VÍA']);
+  });
+
+  test('el ancho sale de la fuente, no de contar letras', () => {
+    // La M mide 1,178 em y la L 0,786: contar caracteres daría lo mismo para
+    // «MM» que para «LL» y son anchos completamente distintos.
+    assert.ok(anchoEm('M') > anchoEm('L') * 1.4, 'la M es mucho más ancha que la L');
+    assert.equal(Math.round(anchoEm('M') * 1000), 1178, 'el avance de la M, en milésimas de em');
+  });
+
+  test('un carácter que la fuente no trae revienta, no se mide a ojo', () => {
+    // El esquema ya rechaza los rótulos fuera del subset; llegar aquí significa
+    // que alguien tocó una de las dos cosas sin la otra.
+    assert.throws(() => anchoEm('Ω'), /no está en la tabla de avances/);
+  });
+
+  test('todas las tiendas se pueden medir, y el suelo y el techo se respetan', () => {
+    for (const t of stores) {
+      const m = medirRotulo(t.rotulo, ANCHO);
+      assert.ok(m.px >= SUELO_PX, `${t.slug} baja del suelo: ${m.px}`);
+      assert.ok(m.px <= TECHO_PX, `${t.slug} pasa del techo: ${m.px}`);
+      assert.ok(m.palabras.length >= 1);
+    }
+  });
+
+  test('el que cabe llena el ancho; el que no, se corta y se dice cuánto', () => {
+    // «LAGOH» son cinco letras y cabe de sobra: sube hasta llenar.
+    const lagoh = medirRotulo('LAGOH', ANCHO);
+    assert.ok(lagoh.px > SUELO_PX, 'un rótulo corto no se queda en el suelo');
+    assert.equal(lagoh.corteEnCaracteres, 0, 'y no se corta');
+    assert.ok(Math.abs(lagoh.anchoPx - ANCHO) < 12, `debería llenar el ancho: ${lagoh.anchoPx}`);
+
+    // «ALCOBENDAS» no cabe ni al suelo: se corta a propósito.
+    const alco = medirRotulo('ALCOBENDAS', ANCHO);
+    assert.equal(alco.px, SUELO_PX, 'se queda en el suelo');
+    assert.ok(alco.corteEnCaracteres > 3, `se corta de verdad: ${alco.corteEnCaracteres}`);
+  });
+
+  test('los ocho cortes medidos, para poder juzgarlos sin regla', () => {
+    // El diseño acepta entre 1,5 y 3 caracteres cortados. Dos tiendas se pasan
+    // y están señaladas desde la rodaja 1a como los casos límite: la decisión
+    // es del dueño y este test congela los números para que se vea si cambian.
+    const cortes = Object.fromEntries(stores.map((t) => [t.slug, medirRotulo(t.rotulo, ANCHO).corteEnCaracteres]));
+    assert.equal(cortes.lagoh, 0);
+    assert.equal(cortes.lasrosas, 0);
+    assert.equal(cortes.vigo, 0);
+    for (const s of ['marineda', 'grancasa', 'arcangel']) {
+      assert.ok(cortes[s] > 1 && cortes[s] <= 3, `${s} se corta ${cortes[s]}, fuera de lo aceptado`);
+    }
+    assert.ok(cortes.villanueva > 3 && cortes.alcobendas > 3, 'los dos casos límite siguen siéndolo');
+  });
+});
+
+describe('El plano de Rótulo no puede volver a fallar el contraste', () => {
+  // La primera versión de la hoja ponía el texto del plano en el azul de marca
+  // y su propio comentario afirmaba que «ahí sí cumple». Era falso: 2,55 contra
+  // el 4,5 exigido, y cinco de los seis textos del cartel fallaban. Nadie lo
+  // habría visto sin abrir el navegador, así que ahora lo mira un test.
+  const canal = (v) => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const luminancia = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    return 0.2126 * canal(n >> 16) + 0.7152 * canal((n >> 8) & 255) + 0.0722 * canal(n & 255);
+  };
+  const contraste = (a, b) => {
+    const [x, y] = [luminancia(a), luminancia(b)];
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  };
+
+  test('el texto sobre el plano cumple AA para texto normal', async () => {
+    const { CSS_ROTULO } = await import('../src/data/plantilla-rotulo-css.ts');
+    const plano = /--plano:\s*(#[0-9A-Fa-f]{6})/.exec(CSS_ROTULO);
+    const texto = /--sobre-plano:\s*(#[0-9A-Fa-f]{6})/.exec(CSS_ROTULO);
+    assert.ok(plano && texto, 'la hoja declara los dos colores como tokens');
+    const r = contraste(texto[1], plano[1]);
+    assert.ok(r >= 4.5, `el texto del plano da ${r.toFixed(2)} sobre el plano y el mínimo es 4,5`);
+  });
+
+  test('y el blanco sobre el plano sigue sin valer, que es por lo que el texto es oscuro', async () => {
+    // Está en el brand book y conviene que un test lo recuerde: si algún día
+    // alguien «aclara» el texto del plano, esto dice por qué no.
+    const { CSS_ROTULO } = await import('../src/data/plantilla-rotulo-css.ts');
+    const plano = /--plano:\s*(#[0-9A-Fa-f]{6})/.exec(CSS_ROTULO)[1];
+    assert.ok(contraste('#FFFFFF', plano) < 3, 'blanco sobre el cian de marca no llega ni a texto grande');
+  });
+
+  test('la hoja no lleva ni un efecto que se mueva solo', async () => {
+    // De las cinco plantillas, una tiene que ser la que no se mueve.
+    const { CSS_ROTULO } = await import('../src/data/plantilla-rotulo-css.ts');
+    for (const prohibido of ['animation-timeline', '@keyframes', 'animation:', 'scroll-timeline']) {
+      assert.ok(!CSS_ROTULO.includes(prohibido), `la hoja de Rótulo no puede llevar «${prohibido}»`);
+    }
+    // El único movimiento responde al dedo, y respeta reduced-motion.
+    assert.match(CSS_ROTULO, /:active/);
+    assert.match(CSS_ROTULO, /prefers-reduced-motion/);
+  });
+});
+
+describe('El rótulo no puede volver a empujar la página a lo ancho', () => {
+  test('la regla que lo recorta sigue en la hoja', async () => {
+    // AVISO HONESTO: esto comprueba el MECANISMO, no el resultado. El
+    // desbordamiento solo se ve de verdad en un navegador, y está medido en la
+    // ficha de Rótulo (scrollWidth 360 sobre 375 a 12-09-2026). Este test
+    // existe porque el fallo fue silencioso —cinco de las ocho tiendas se
+    // podían desplazar en horizontal y el cartel salía cortado también por la
+    // izquierda— y quitar una de estas dos líneas lo devuelve sin avisar.
+    const { CSS_ROTULO } = await import('../src/data/plantilla-rotulo-css.ts');
+    const regla = /\.plano-rotulo\s*\{([^}]*)\}/.exec(CSS_ROTULO);
+    assert.ok(regla, 'la regla del rótulo existe');
+    assert.match(regla[1], /align-self:\s*stretch/, 'sin esto el h1 crece hasta el texto');
+    assert.match(regla[1], /overflow:\s*hidden/, 'y sin esto no se recorta');
   });
 });

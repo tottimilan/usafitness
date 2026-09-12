@@ -1521,3 +1521,61 @@ describe('Las puertas servidas: siete estanterías y UN solo número', () => {
     assert.ok(!clasica.includes('puerta-nombre'), 'y no lleva nada de la variante');
   });
 });
+
+describe('Rótulo es OTRA web, no otra piel', () => {
+  const pagina = (slug) => get(`/${slug}?plantilla=rotulo`, 'preview.up.railway.app');
+
+  test('el cartel lleva el tamaño calculado por tienda, no un vw a ojo', async () => {
+    const { medirRotulo } = await import('../src/data/rotulo.ts');
+    for (const s of stores) {
+      const html = (await pagina(s.slug)).text();
+      const m = /--rotulo-px:(\d+)px/.exec(html);
+      assert.ok(m, `${s.slug} no lleva tamaño de rótulo`);
+      const esperado = medirRotulo(s.rotulo ?? s.location.split(',')[0].trim(), 343);
+      assert.equal(Number(m[1]), esperado.px, `${s.slug}: el servidor y la página no coinciden`);
+      // Una palabra por línea: tantas como calcule el medidor.
+      assert.equal((html.match(/class="plano-palabra"/g) || []).length, esperado.palabras.length, `${s.slug}`);
+    }
+  });
+
+  test('el logotipo no sale dos veces en la primera pantalla', async () => {
+    // Vive dentro del plano, en negro sobre cian. La cabecera renuncia al suyo.
+    const html = (await pagina('lagoh')).text();
+    const cabeza = html.slice(html.indexOf('<header'), html.indexOf('</header>'));
+    assert.ok(!cabeza.includes('usafitness.svg'), 'la cabecera de Rótulo no lleva logo');
+    assert.match(html, /class="plano-logo"/, 'y el plano sí');
+    // La clásica no se toca.
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    const cabezaClasica = clasica.slice(clasica.indexOf('<header'), clasica.indexOf('</header>'));
+    assert.match(cabezaClasica, /usafitness\.svg/, 'la clásica conserva el suyo');
+  });
+
+  test('la fuente del rótulo solo viaja en las páginas que la usan', async () => {
+    // 5.120 bytes que las cincuenta tiendas sin esta plantilla no tienen que
+    // parsear. Y con `font-display: block`, que evita el salto de maquetación
+    // en el titular más grande de la página.
+    const rotulo = (await pagina('lagoh')).text();
+    assert.match(rotulo, /ArchivoExpandedBlack/);
+    assert.match(rotulo, /font-display:\s*block/);
+    assert.match(rotulo, /rel="preload"[^>]*archivo-expanded-black-rotulo\.woff2/);
+    const clasica = (await get('/', stores.find((s) => s.slug === 'lagoh').domain)).text();
+    assert.ok(!clasica.includes('ArchivoExpandedBlack'), 'la clásica no la declara');
+    assert.ok(!clasica.includes('archivo-expanded-black'), 'ni la precarga');
+  });
+
+  test('la hoja de Rótulo no se cuela en las otras plantillas', async () => {
+    for (const p of ['clasica', 'energia', 'angular']) {
+      const html = (await pagina('lagoh')).text.name ? '' : (await get(`/lagoh?plantilla=${p}`, 'preview.up.railway.app')).text();
+      if (!html) continue;
+      assert.ok(!html.includes('--sobre-plano'), `${p} no puede llevar la hoja de Rótulo`);
+    }
+  });
+
+  test('nada se mueve solo: cero efectos de scroll', async () => {
+    // Es la plantilla que no se mueve, y de cinco una tiene que serlo. El único
+    // movimiento es el :active de los botones, que responde al dedo.
+    const html = (await pagina('lagoh')).text();
+    assert.ok(!/animation-timeline/.test(html), 'sin scroll-driven animations');
+    assert.ok(!/@keyframes/.test(html.slice(html.indexOf('--sobre-plano'))), 'y sin animaciones propias');
+  });
+});

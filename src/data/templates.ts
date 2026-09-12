@@ -14,6 +14,7 @@
  */
 
 import { CSS_ENERGIA } from './plantilla-energia-css.ts';
+import { CSS_ROTULO } from './plantilla-rotulo-css.ts';
 
 /** Las secciones que existen. Es un array y no solo un tipo porque el esquema
  *  de `stores.json` necesita la lista EN TIEMPO DE EJECUCIÓN para rechazar un
@@ -277,8 +278,14 @@ export const TEMPLATES: Record<string, Template> = {
     // marcas por escrito, y la regla es que no nombra ninguna que no esté ya en
     // la misma página. Nombrar ocho marcas compromete más que enseñar ocho
     // logos — quien se desplaza y no encuentra la suya tiene motivo de queja.
+    css: CSS_ROTULO,
+    periferia: {
+      // El logotipo vive dentro del plano del cartel, así que la cabecera
+      // renuncia al suyo: con los dos, la primera pantalla lo enseñaba dos veces.
+      header: 'sin-logo',
+    },
     sections: [
-      'hero',
+      { id: 'hero', variant: 'rotulo' },
       'socio',
       'empieza',
       'porque',
